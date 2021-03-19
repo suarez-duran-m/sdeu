@@ -12,8 +12,10 @@ using namespace std;
 
 class stats {
   public: 
-    double getMean ( vector<int> *arr, unsigned int nb, bool fok );
-    double getRms ( vector<int> *arr, double meanarr, unsigned int nb, bool fok );
+    double getMean ( const vector<int> &arr, 
+				const unsigned int nb, const bool fok );
+    double getRms ( const vector<int> &arr, 
+				const double meanarr, const unsigned int nb, const bool fok );
 };
 
 #endif

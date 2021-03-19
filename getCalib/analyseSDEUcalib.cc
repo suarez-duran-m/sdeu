@@ -10,6 +10,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TTree.h>
+#include <TGraphErrors.h>
 
 #include "stats.h"
 #include "readHistos.h"
@@ -113,7 +114,8 @@ int main (int argc, char *argv[]) {
     cout << i << " -> " << stationsIds[i] << endl;
   }
 
-  vector < int > *blpmth = new vector < int >;
+  vector < int > blpmth;
+	unsigned int nentry = 0;
 
   unsigned int previusEvent = 0;
   unsigned int sameUtc = 0;
@@ -125,19 +127,27 @@ int main (int argc, char *argv[]) {
   unsigned int nrEvents = 0;
   unsigned int nrEventsRead = 0;
 
+	TTree *tree = new TTree("T","");	
+
 	TH2F hCh ("hCh", "Average VEM-Charge per day for "+pmtname, totDays, 0, totDays, totSt, 0, totSt); 
 	TH2F hPk ("hPk", "Average VEM-Peak per day for "+pmtname, totDays, 0, totDays, totSt, 0, totSt); 
 	TH2F hap ("hap", "Average VEM-Charge/VEM-Peak per day for "+pmtname, totDays, 0, totDays, totSt, 0, totSt);
 
 	unsigned int histBins = 12000;
-	TH1F *getCh = new TH1F ("getCh", "", histBins, 0, histBins );
-	TH1F *getPk = new TH1F ("getPk", "", histBins, 0, histBins );
+	TH1F *setCh = new TH1F ("setCh", "", histBins, 0, histBins );
+	TH1F *setPk = new TH1F ("setPk", "", histBins, 0, histBins );
+	
+	TH1F *gassVem = new TH1F ("gassVem", "", histBins, 0, histBins );
+	TGraphErrors *fllHist = new TGraphErrors (); //"fllHist", "", histBins, 0, histBins );
+
+	tree->Branch("gassVem", "TH1F", &gassVem); //, 128000,0);
+	tree->Branch("fllHist", "TGraphErrors", &fllHist); //, 128000,0);
 
   EventPos pos;
 
   for (pos=input.FirstEvent(); pos<input.LastEvent(); pos=input.NextEvent()) {
     ++nrEventsRead;
-    if (nrEventsRead%1000 == 0){
+    if (nrEventsRead%1000 == 0) {
       cout << "====> Read " << nrEventsRead << " out of " << totalNrEvents << endl;
       cout << "      Wrote: " << nrEvents << " events" << endl;
     }
@@ -151,15 +161,14 @@ int main (int argc, char *argv[]) {
     previusEvent = event.Id;
     sameUtc = event.utctime();
 
-    if ( sameUtc > cday ){
-      for ( unsigned int id=0; id<totSt; id++){
+    if ( sameUtc > cday ) {
+      for ( unsigned int id=0; id<totSt; id++) {
         if ( stckEvt[id][0] > 0 )
 					hCh.Fill( nday, id, stckVch[id] / stckEvt[id][0] );
 				if ( stckEvt[id][1] > 0 )
 					hPk.Fill( nday, id, stckVpk[id] / stckEvt[id][1] );
-				if ( stckEvt[id][2] > 0 ) {
+				if ( stckEvt[id][2] > 0 )
 					hap.Fill( nday, id, stckAP[id] / stckEvt[id][2] );
-				}
 				stckVch[id] = 0.;
 				stckVpk[id] = 0.;
 				stckAP[id] = 0.;
@@ -185,34 +194,50 @@ int main (int argc, char *argv[]) {
           << endl;
  
         IoSdEvent event(pos);
+				
+				blpmth.clear();
 
-        blpmth->resize(event.Stations[i].UFadc->NSample);
-        for (unsigned int i=0; i<blpmth->size(); i++)
-          (*blpmth)[i] = 0;
+        for (unsigned int ii=0; ii<event.Stations[i].UFadc->NSample; ii++) 
+          blpmth.push_back( 0 );
         
         if (event.Stations[i].Error==256) { //0+256
           for (unsigned int k=0;k<event.Stations[i].UFadc->NSample;k++)
-            (*blpmth)[k] = ( event.Stations[i].UFadc->GetValue(pmtId-1,0,k) );
+						blpmth[k] = ( event.Stations[i].UFadc->GetValue(pmtId-1,0,k) );
           for ( unsigned int id=0; id<totSt; id++ )
-            if ( stationsBins[id] == event.Stations[i].Id ){
+            if ( stationsBins[id] == event.Stations[i].Id ) {
 							chok = 0.;
 							pkok = 0.;
+							rdHist.area = 0.;
+							rdHist.peak = 0.;
               meanf = getmrms.getMean(blpmth, nblbins, true);
               meanl = getmrms.getMean(blpmth, nblbins, false);
 							rmsf = getmrms.getRms(blpmth, meanf, nblbins, true);
+							//double a = 0.;
+							//setCh = event.Stations[i].HCharge(pmtId-1);
+							//a = rdHist.getFullFit( *setCh, true, 0.1, 10 );
+							//exit(0);
+							//cerr << "msd" << endl;
               if ( fabs(meanl-meanf) < 2*rmsf ) {
-								getCh = event.Stations[i].HCharge(pmtId-1);
-								rdHist.getBinVem( getCh );
-								if ( rdHist.binVm != 0 ) { 
-									stckVch[id] += rdHist.getFitVem( getCh, true );
+								setCh = event.Stations[i].HCharge(pmtId-1);
+								rdHist.getBinVem( *setCh );
+								//if ( rdHist.binVm != 0 ) { 
+									cerr << "Evt: " << event.Id << " " << nentry << endl;
+									stckVch[id] += rdHist.getFitVem( *setCh, true );
 									stckEvt[id][0]++;
 									chok = rdHist.area;
-								}
-								getCh->Reset();
-								getPk = event.Stations[i].HPeak(pmtId-1);
-								rdHist.getBinVem( getPk );
+									//cerr << "msd " << rdHist.getFitVem( *setCh, true ) << "\n" << rdHist.getFullFit( *setCh, true, 0.1, 10 ) << endl;
+									gassVem = setCh;
+									fllHist = rdHist.getFullFit( *setCh, true, 0.20, 30 );
+									nentry++;
+									tree->Fill();
+
+									setCh->Draw();
+								//}
+								setCh->Reset();
+								setPk = event.Stations[i].HPeak(pmtId-1);
+								rdHist.getBinVem( *setPk );
 								if ( rdHist.binVm != 0 ) {
-									stckVpk[id] += rdHist.getFitVem( getPk, false );
+									stckVpk[id] += rdHist.getFitVem( *setPk, false );
 									stckEvt[id][1]++;
 									pkok = rdHist.peak;
 								}
@@ -220,7 +245,7 @@ int main (int argc, char *argv[]) {
 									stckAP[id] += chok/pkok;
 									stckEvt[id][2]++;
 								}
-								getPk->Reset();
+								setPk->Reset();
 							}
               break;
             }
@@ -229,6 +254,7 @@ int main (int argc, char *argv[]) {
     }    
   }
 
+	//tree->Print();
   hfile.Write();
   hfile.Close();
 

@@ -4,6 +4,9 @@
 \usepackage{tikz}
 \usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
 
+\addtobeamertemplate{navigation symbols}{}{
+	\insertframenumber{}
+	}
 
 \title{SDEU Baseline}
 \author{
@@ -105,7 +108,7 @@
 
 
 \begin{frame}
-	RMS difference for traces agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
+	RMS difference for traces that agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
 
   \centering
 	\includegraphics[width=.49\textwidth]{../plots/trOkPMT1Hg.pdf}\quad%
@@ -177,7 +180,7 @@
 
 
 \begin{frame}
-	A/P average per day, traces agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
+	A/P average per day, traces that agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
 
   \centering
 	\includegraphics[width=.49\textwidth]{../plots/apPMT1Hg.pdf}%\quad%
