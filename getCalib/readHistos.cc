@@ -10,124 +10,12 @@
 
 #include "readHistos.h"
 
-double fitFunction(double *x, double *par);
-double peakMax(TF1* f);
-
-
-readHistos::readHistos() {
-	binVm = 0;
-	area = 0.;
-	peak = 0.;
-}
-
-
-unsigned int readHistos::getBinVem(TH1F &hist) {
-	int lclMn = hist.GetMaximum();
-	int lclPk = 0;
-	int bc = 0;
-	binVm = 0;
-	int count = 0;
-
-	int refbin = hist.GetMaximumBin() + 2;
-	for(int i=hist.GetMaximumBin()+30; i<hist.GetXaxis()->GetNbins(); i++) {
-		bc = hist.GetBinContent(i);
-		if ( lclMn > bc && fabs(refbin-i) < 10) {
-			lclMn = bc;
-			lclPk = lclMn;
-			refbin = i;
-		}
-		if ( lclPk < bc ) {
-			lclPk = bc;
-			binVm = i;
-		}
-	}
-	return binVm;
-}
-
-
-double readHistos::getFitVem(TH1F &hist, const bool ifch) {
-	double mean = 0.;
-
-	if ( ifch ) {
-		hist.Fit("gaus","","", hist.GetXaxis()->GetBinCenter(binVm)-(8*50), 
-				hist.GetXaxis()->GetBinCenter(binVm) + (8*50) // 8 for binwidth; 50 bins fordward
-				);
-		gaussFit = (TF1*)hist.GetListOfFunctions()->FindObject("gaus");
-		if ( gaussFit->GetParError(1) < 40 && gaussFit->GetParameter(1) > 0 ) {
-			mean = gaussFit->GetParameter(1);
-			area = mean;
-			gaussFit->SetLineColor(kRed);
-			//cerr << "GaussMean: " << gaussFit->GetParError(1) << endl;
-		}
-	}
-	else if ( !ifch ) {
-		hist.Fit("gaus","Q","",
-				hist.GetXaxis()->GetBinCenter(binVm) - (4*12),
-				hist.GetXaxis()->GetBinCenter(binVm) + (4*12)
-				);
-		gaussFit = (TF1*)hist.GetListOfFunctions()->FindObject("gaus");
-		if ( gaussFit->GetParError(1) < 40 && gaussFit->GetParameter(1) > 0 ) {
-			mean = gaussFit->GetParameter(1);
-			peak = mean;
-		}
-	}
-	else
-		mean = 0.;
-	return mean;
-}
-
-
-TGraphErrors *readHistos::getFullFit(TH1F &hist, const bool ifch, const double frac, const int fstbinFit) {
-	double max = 0.;
-	unsigned int emPkb = hist.GetMaximumBin(); // Bin for EM peak
-	unsigned int emPkc = hist.GetMaximum(); // Counts for EM peak
-	unsigned int rangXmin = 8*(emPkb + fstbinFit);
-	unsigned int rangXmax = 0;
-	unsigned int nXbins = hist.GetXaxis()->GetNbins();
-	bool checkMax = true;
-
-	vector < double > xbins;
-	vector < double > ycnts;
-	vector < double > yerrs;
-
-	for( unsigned int b=1; b<nXbins+1; b++ ) {
-		ycnts.push_back( hist.GetBinContent( b ) );
-		yerrs.push_back( sqrt( ycnts[b-1] ) );
-		xbins.push_back( hist.GetBinCenter(b) - 4 ); // -4 to fit the first bin on 0.
-		if ( hist.GetBinContent( nXbins-b ) > frac*emPkc && checkMax ) {
-			rangXmax = hist.GetBinLowEdge( nXbins-b );
-			checkMax = false;
-		}
-	}
-	
-	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
-			&ycnts.front(), 0, &yerrs.front() );
-
-	TF1 *fitFcn = new TF1("fitFcn", fitFunction, rangXmin, rangXmax, 5);
-
-	fitFcn->SetParameters(801970, 1790.76, 3.41137, 3.75441, -1772.71); // Par. coming from 1st Try for Entry 55->49 Station 1223
-	chFit->Fit("fitFcn","QR");
-	chFit->SetLineColor(kBlue);
-	//max = peakMax(fitFcn);
-	hist.SetLineColor(kBlue);
-	TString parName = to_string( fitFcn->GetParError(1) );
-	parName += " Xi^2/NDF" + to_string( fitFcn->GetChisquare()/fitFcn->GetNDF() );
-	chFit->SetTitle( parName );
-	//cerr << fitFcn->GetParError(1) << endl;
-
-	//for ( int i=0; i<5; i++ )
-		//cerr << i << " " << fitFcn->GetParameter(i) << endl;
-
-	//delete chFit;
-	delete fitFcn;
-
-	return chFit;
-}
-
-
+// =======================
+// *** Local Functions ***
+// =======================
 double fitFunction(double *x0, double *par) {
 	const double x = 1./x0[0];
-  const double lognormal = par[0]*x*exp( -0.5*pow( ((log(x)+log(par[1]))*par[2]),2 ) );
+  const double lognormal = exp(par[0])*x*exp( -0.5*pow( ((log(x)+log(par[1]))*par[2]),2 ) );
   const double expo = exp( par[3] - par[4]*x );
 	return lognormal+expo;
 }
@@ -151,4 +39,109 @@ double peakMax(TF1* f) {
   delete der;
   delete c;
   return d0x;
+}
+
+
+readHistos::readHistos() {
+	vemPos = 0.;
+	getGraph = false;
+	fitChOk = false;
+	fitPkOk = false;
+
+}
+
+
+void readHistos::getFullFit(TH1F &hist, const bool ifch, const double frac, const int fstbinFit) {
+	unsigned int emPkb = 0; // Bin for EM peak
+	unsigned int emPkc = 0; // Counts for EM peak
+	unsigned int rangXmin = 0;
+
+	for ( unsigned b=10; b<400; b++ )
+		if ( hist.GetBinContent(b) > emPkc ) {
+			emPkc = hist.GetBinContent(b);
+			emPkb = b;
+		}
+	
+	if ( ifch )
+		rangXmin = 8*(emPkb + fstbinFit); // Times 8 because fo the binwidth.
+	else {
+		rangXmin = 4*(emPkb + fstbinFit); //hist.GetBinCenter(0) + 4*(emPkb + fstbinFit); // bin 0 for offset and times 4 because fo the binwidth.
+	}
+
+	unsigned int rangXmax = 0;
+	unsigned int nXbins = hist.GetXaxis()->GetNbins();
+	bool checkMax = true;
+	TString parName;
+
+	vector < double > xbins;
+	vector < double > ycnts;
+	vector < double > yerrs;
+
+	for( unsigned int b=1; b<nXbins+1; b++ ) {
+		ycnts.push_back( hist.GetBinContent( b ) );
+		yerrs.push_back( sqrt( ycnts[b-1] ) );
+		if ( ifch )
+			xbins.push_back( 8*b ); //hist.GetBinCenter(b) - 4 ); // -4 to fit the first bin to 0.
+		else
+			xbins.push_back( 4*b ); //hist.GetBinCenter(b) - 2 ); // -2 to fit the first bin to 0.
+		if ( hist.GetBinContent( nXbins-b ) > frac*emPkc && checkMax ) {
+			if ( ifch )
+				rangXmax = 8*(nXbins - b); //hist.GetBinLowEdge( nXbins-b );
+			else
+				rangXmax = 4*(nXbins - b);
+			checkMax = false;
+		}
+	}
+	
+	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
+			&ycnts.front(), 0, &yerrs.front() );
+
+	TF1 *fitFcn = new TF1("fitFcn", fitFunction, rangXmin, rangXmax, 5);
+
+	if ( ifch )
+		fitFcn->SetParameters(13.38, (rangXmax-rangXmin)/2., 4.34, 4.81, -1059.76); 
+	else
+		fitFcn->SetParameters(12.5, (rangXmax-rangXmin)/2., 3., 5.8, -180.);
+
+	chFit->Fit("fitFcn","QR");
+	vemPos = peakMax(fitFcn);
+
+	if ( fitFcn->GetChisquare()/fitFcn->GetNDF() < 5 && vemPos > 0) {
+		if ( ifch )
+			fitChOk = true;
+		else
+			fitPkOk = true;
+		if ( getGraph ) {
+			chFit->SetLineColor(kBlue);
+			if ( ifch )
+				parName = "Charge-VEM Pos.: ";
+			else
+				parName = "Peak-VEM Pos.: ";
+			parName += to_string( vemPos ).substr(0,7) + " +/- " + to_string( fitFcn->GetParError(1) ).substr(0,4);
+			parName += "\nXi^2/NDF = " + to_string( fitFcn->GetChisquare()/fitFcn->GetNDF() ).substr(0,4);
+			chFit->SetTitle( parName );
+			fitGraph =  (TGraphErrors*)chFit->Clone();
+		}
+	}
+	else {
+		fitChOk = false;
+		fitPkOk = false;
+		vemPos = 0.;
+	}
+/*
+	if ( !ifch ) {
+		fitGraph =  (TGraphErrors*)chFit->Clone();
+		fitPkOk = true;
+		for( int b=0; b<5; b++ )
+			cerr << fitFcn->GetParameter(b) << endl;
+	}
+	*/
+		
+	delete chFit;
+	delete fitFcn;
+}
+
+
+TGraphErrors* readHistos::getFitGraph() {
+	return fitGraph;
 }

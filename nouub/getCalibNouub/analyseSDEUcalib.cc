@@ -132,6 +132,9 @@ int main (int argc, char *argv[]) {
 	unsigned int histBins = 12000;
 	TH1F *setCh = new TH1F ("setCh", "", histBins, 0, histBins );
 	TH1F *setPk = new TH1F ("setPk", "", histBins, 0, histBins );
+	
+	TH1F sglSt ("sglSt", "", totalNrEvents, 0, totalNrEvents);
+
 	//unsigned int nentry = 0;
 	
 	TTree *treeCh = new TTree("Charge","");
@@ -241,6 +244,7 @@ int main (int argc, char *argv[]) {
 						if ( rdHist.fitChOk && rdHist.fitPkOk ) {
 							stckAP[id] += chok/pkok;
 							stckEvt[id][2]++;
+							sglSt.Fill( nrEventsRead, chok/pkok );
 						}
 						setPk->Reset();
 						}

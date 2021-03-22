@@ -14,18 +14,16 @@ using namespace std;
 class readHistos {
   public:
 		readHistos();
-    unsigned int binVm;
-		TF1 *gaussFit;
-    unsigned int getBinVem(TH1F &hist);
+    double vemPos;
+		bool getGraph;
+		bool fitChOk;
+		bool fitPkOk;
 
-		double getFitVem(TH1F &hist, const bool ifch);
-		TGraphErrors *getFullFit(TH1F &hist, const bool ifch, const double frac, const int fstbinFit);
+		void getFullFit(TH1F &hist, const bool ifch, const double frac, const int fstbinFit);
+		TGraphErrors *getFitGraph();
 
-		double area;
-		double peak;
-
-	//private:
-		//double fitFunction( double *x, double *par);
+	private:
+		TGraphErrors *fitGraph;
 };
 
 #endif

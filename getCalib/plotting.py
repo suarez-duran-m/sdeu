@@ -60,7 +60,7 @@ cbar = fig1.colorbar(heatmap, cax=cax)
 cbar.ax.tick_params(labelsize=18)
 cbar.set_label("Position of VEM-Charge / FADC", size=18) 
 
-plt.savefig("../plots/chargePMT"+pmtId+"Hg.pdf", dpi=300)
+plt.savefig("chargePMT"+pmtId+"Hg.pdf", dpi=300)
 
 
 
@@ -102,7 +102,7 @@ cbar = fig2.colorbar(heatmap, cax=cax)
 cbar.ax.tick_params(labelsize=18)
 cbar.set_label("Position of VEM-Peak / FADC", size=18) 
 
-plt.savefig("../plots/peakPMT"+pmtId+"Hg.pdf", dpi=300)
+plt.savefig("peakPMT"+pmtId+"Hg.pdf", dpi=300)
 
 
 for d in range( 1, ap.GetNbinsX()+1 ):
@@ -119,8 +119,8 @@ if pmt == 3:
     cmin = 30.
     cmax = 80.
 else:
-    cmin = 2.
-    cmax = 5.
+    cmin = 7.
+    cmax = 10.
 
 
 fig3, ax3 = plt.subplots(figsize=(16, 9))
@@ -143,4 +143,4 @@ cbar = fig3.colorbar(heatmap, cax=cax)
 cbar.ax.tick_params(labelsize=18)
 cbar.set_label("A/P / FADC", size=18) 
 
-plt.savefig("../plots/apPMT"+pmtId+"Hg.pdf", dpi=300)
+plt.savefig("apPMT"+pmtId+"Hg.pdf", dpi=300)
