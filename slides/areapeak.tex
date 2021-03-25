@@ -101,11 +101,20 @@
 	\end{displaymath}
 	Charge histogram for Station 1223
 	\vspace{0.5cm}
-
-  \centering
-	\includegraphics[width=.49\textwidth]{../plots/ubChHistFitSt1223.pdf}
-	\includegraphics[width=.49\textwidth]{../plots/uubChHistFitSt1223.pdf}
-	UB-PMT1\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad UUB-PMT1
+	
+	\begin{figure}
+		\begin{tabularx}{\textwidth}{CCC}
+			\includegraphics[width=.35\textwidth]{../plots/ubChHistFitSt1223.pdf}
+			\caption{Charge: UB-PMT1}
+			&
+			\includegraphics[width=.35\textwidth]{../plots/uubChHistFitSt1223.pdf}
+			\caption{Charge: UUB-PMT1}
+			&
+			\includegraphics[width=.35\textwidth]{../plots/ubPkHistFitSt1222.pdf}
+			\caption{Peak: UUB-PMT1}
+		\end{tabularx}
+	\end{figure}
+	%UB-PMT1\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad UUB-PMT1
 \end{frame}
 
 
@@ -145,6 +154,27 @@
 	\end{minipage}\\[1em]
 	\includegraphics[width=.48\textwidth]{../plots/uuBapPMT2Hg.pdf}\quad%
 	\includegraphics[width=.48\textwidth]{../plots/uuBapPMT3Hg.pdf}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{A/P along UB and UUB}
+	
+	\begin{figure}
+		\begin{tabularx}{\textwidth}{CCC}
+			\includegraphics[width=.37\textwidth]{../plots/areaPeakTimePMT1St863.pdf}
+			&
+			\includegraphics[width=.37\textwidth]{../plots/areaPeakTimePMT1St1741.pdf}
+			&
+			\includegraphics[width=.37\textwidth]{../plots/areaPeakTimePMT1St1819.pdf}
+			\\ [2ex]
+			\includegraphics[width=.37\textwidth]{../plots/areaPeakTimePMT2St1219.pdf}
+			&
+			\includegraphics[width=.37\textwidth]{../plots/areaPeakTimePMT3St1222.pdf}
+			&
+			\includegraphics[width=.37\textwidth]{../plots/areaPeakTimePMT3St1851.pdf}
+		\end{tabularx}
+	\end{figure}
 \end{frame}
 
 
@@ -216,12 +246,12 @@
 	{\bf UB:} A/P average per day, traces that agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
 
   \centering
-	\includegraphics[width=.49\textwidth]{../plots/uBapPMT1Hg.pdf}%\quad%
+	\includegraphics[width=.46\textwidth]{../plots/uBapPMT1Hg.pdf}%\quad%
 	\begin{minipage}[b][0.2\textheight][c]
 		{.15\linewidth}
 	\end{minipage}\\[1em]
-	\includegraphics[width=.48\textwidth]{../plots/uBapPMT2Hg.pdf}\quad%
-	\includegraphics[width=.48\textwidth]{../plots/uBapPMT3Hg.pdf}
+	\includegraphics[width=.45\textwidth]{../plots/uBapPMT2Hg.pdf}\quad%
+	\includegraphics[width=.45\textwidth]{../plots/uBapPMT3Hg.pdf}
 \end{frame}
 
 
