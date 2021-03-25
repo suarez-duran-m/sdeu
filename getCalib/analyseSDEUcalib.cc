@@ -85,13 +85,16 @@ int main (int argc, char *argv[]) {
   double meanf = 0.;
   double meanl = 0.;
   double rmsf = 0.;
-  //double rmsl = 0.;
-
-  TFile hfile("calibHist"+pmtname+".root","RECREATE","");
-
-  unsigned int totSt = stationsIds.size();
+  //double rmsl = 0.;	
+	unsigned int totSt = stationsIds.size();
 	double chok = 0.;
 	double pkok = 0.;
+	double base = 0.;
+
+	if ( totSt==1 )
+		pmtname += "St"+to_string( stationsIds[0] );
+
+  TFile hfile("uubCalibHist"+pmtname+".root","RECREATE","");
 
   vector < int > blpmth;
 	vector < vector < unsigned int > > stckEvt;
@@ -130,11 +133,14 @@ int main (int argc, char *argv[]) {
 	TH2F hap ("hap", "Average VEM-Charge/VEM-Peak per day for "+pmtname, totDays, 0, totDays, totSt, 0, totSt);
 
 	TH1F sglSt ("sglSt", "", totalNrEvents, 0, totalNrEvents);
+	TH1F stckHc ("stckHc", "Average Charge Histogram", 5000, 0, 5000);
+	TH1F stckHp ("stckHp", "Average Peak Histogram", 5000, 0, 5000);
+	double tmpBin = 0.;
 
 	unsigned int histBins = 12000;
 	TH1F *setCh = new TH1F ("setCh", "", histBins, 0, histBins );
 	TH1F *setPk = new TH1F ("setPk", "", histBins, 0, histBins );
-	//unsigned int nentry = 0;
+	unsigned int nentry = 0;
 	
 	TTree *treeCh = new TTree("Charge","");
 	TGraphErrors *fllHCh = new TGraphErrors ();
@@ -142,6 +148,8 @@ int main (int argc, char *argv[]) {
 	TTree *treePk = new TTree("Peak","");
 	TGraphErrors *fllHPk = new TGraphErrors ();
 	treePk->Branch("fllHPk", "TGraphErrors", &fllHPk);
+	TTree *forEntries = new TTree("forEntries","");
+	forEntries->Branch("nentry",&nentry,"nentry/I");
 
 	if ( totSt==1 )
 		rdHist.getGraph = true;
@@ -158,7 +166,7 @@ int main (int argc, char *argv[]) {
     bool found = false;
     IoSdEvent event(pos);
 
-    if ( event.Id == previusEvent ) //&& sameUtc == event.utctime() )
+    if ( event.Id == previusEvent )
       continue;
 
     previusEvent = event.Id;
@@ -216,8 +224,19 @@ int main (int argc, char *argv[]) {
 							rdHist.fitPkOk = false;
 							rdHist.fitChOk = false;
 							if ( fabs(meanl-meanf) < 2*rmsf ) {
+								//base = 69.*(event.Stations[i].Calib->Base[pmtId-1]);
 								setCh = event.Stations[i].HCharge(pmtId-1);
-								rdHist.getFullFit( *setCh, true, 0.20, 30 ); // 20% of EMpeak and 30 bins forward from this last.
+								
+								if ( totSt==1 )
+									for( int b=0; b<setCh->GetXaxis()->GetNbins(); b++ ) {
+										tmpBin = setCh->GetBinCenter(b) - setCh->GetBinCenter(0);
+										//( setCh->GetBinCenter(b+1) - setCh->GetBinCenter(b) )/2.0
+											//+ setCh->GetBinCenter(b);
+										stckHc.Fill( tmpBin, setCh->GetBinContent(b) );
+									}
+								nentry++;
+								//cerr << nentry << endl;
+								rdHist.getFullFit( *setCh, true, 0.1, 30, base ); // 20% of EMpeak, 30 bins forward from this last.
 								if ( rdHist.fitChOk ) {
 									stckVch[id] += rdHist.vemPos;
 									stckEvt[id][0]++;
@@ -229,10 +248,18 @@ int main (int argc, char *argv[]) {
 								}
 								setCh->Reset();
 								setPk = event.Stations[i].HPeak(pmtId-1);
-								rdHist.getFullFit( *setPk, false, 0.2, 3 ); // 20% of EMpeak and 15 bins forward from this last.
-								//nentry++;
-								if ( rdHist.fitPkOk && rdHist.vemPos>0 ) { //&& rdHist.vemPos>0 ) {
-									//cerr << event.Id << endl;
+								/*
+								for( int b=1; b<setPk->GetXaxis()->GetNbins(); b++ ) {
+									tmpBin = ( setPk->GetBinCenter(b+1) - setPk->GetBinCenter(b) )/2.0
+										+ setPk->GetBinCenter(b);
+									stckHp.Fill( tmpBin, setPk->GetBinContent(b) );
+								}
+								*/
+								rdHist.getFullFit( *setPk, false, 0.1, 5, base ); // 20% of EMpeak, 3 bins forward from this last.
+								if ( totSt==1 )
+									for( int b=0; b<setPk->GetXaxis()->GetNbins(); b++ )
+									stckHp.Fill( setPk->GetBinCenter(b)-setPk->GetBinCenter(0), setPk->GetBinContent(b) );
+								if ( rdHist.fitPkOk ) { //&& rdHist.vemPos>0 ) {
 									stckVpk[id] += rdHist.vemPos;
 									stckEvt[id][1]++;
 									pkok = rdHist.vemPos;
@@ -244,7 +271,8 @@ int main (int argc, char *argv[]) {
 								if ( rdHist.fitChOk ) {
 									stckAP[id] += chok/pkok;
 									stckEvt[id][2]++;
-									sglSt.Fill( nrEventsRead, chok/pkok );
+									if ( totSt==1 )
+										sglSt.Fill( nrEventsRead, chok/pkok );
 								}
 								setPk->Reset();
 							}
@@ -255,6 +283,7 @@ int main (int argc, char *argv[]) {
     }    
   }
 
+	forEntries->Fill();
   hfile.Write();
   hfile.Close();
 	return 0;

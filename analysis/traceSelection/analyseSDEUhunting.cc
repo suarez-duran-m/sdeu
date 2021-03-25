@@ -87,6 +87,17 @@ int main (int argc, char *argv[]) {
 
   TFile hfile("zooTraces100bins"+pmtname+".root","RECREATE","");
 
+	
+	vector < int > lightning; 
+	lightning.push_back( 1608768000 ); // Dec. 24th, 2020
+	lightning.push_back( 1609113600 ); // Dec. 28th, 2020
+	lightning.push_back( 1609459200 ); // Jan. 1st, 2021
+	lightning.push_back( 1609632000 ); // Jan. 3th, 2021
+	lightning.push_back( 1609718400 ); // Jan. 4th, 2021
+	lightning.push_back( 1609891200 ); // Jan. 6th, 2021
+	lightning.push_back( 1613001600 ); // Feb. 11th, 2021
+	lightning.push_back( 1613433600 ); // Feb. 16th, 2021
+
   unsigned int totSt = stationsIds.size();
 
 	vector < vector < int > > stckEvt;
@@ -152,6 +163,17 @@ int main (int argc, char *argv[]) {
     previusEvent = event.Id;
     sameUtc = event.utctime();
 
+		if ( event.utctime() >= lightning[0] && event.utctime() <= lightning[1] )
+			continue;
+		else if ( event.utctime() >= lightning[2] && event.utctime() <= lightning[3] )
+			continue;
+		else if ( event.utctime() >= lightning[4] && event.utctime() <= lightning[5] )
+			continue;
+		else if( event.utctime() >= lightning[6] && event.utctime() <= lightning[7] )
+			continue;
+
+			//cerr << nday << " " << event.utcdate() << " " << nday*dday + 1606867200 << " " << cday << " " << (event.utctime() - 1606867200)/dday +1 << endl;
+
     if ( sameUtc > cday ){
       for ( unsigned int id=0; id<totSt; id++) {
         if ( stckEvt[id][0] > 0 )
@@ -171,7 +193,10 @@ int main (int argc, char *argv[]) {
 			cday += dday;
 			nday++;
 		}
-		
+		if ((event.utctime() - 1606867200)/dday +1 > nday )
+			continue;
+
+
 
     for (unsigned int i = 0 ; i < event.Stations.size(); ++i){
       found = false;

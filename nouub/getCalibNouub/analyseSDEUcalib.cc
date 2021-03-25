@@ -11,6 +11,7 @@
 #include <TH2.h>
 #include <TTree.h>
 #include <TGraphErrors.h>
+#include <THStack.h>
 
 #include "stats.h"
 #include "readHistos.h"
@@ -86,12 +87,15 @@ int main (int argc, char *argv[]) {
   double meanl = 0.;
   double rmsf = 0.;
   //double rmsl = 0.;
-
-  TFile hfile("calibHist"+pmtname+".root","RECREATE","");
+	double base = 0.;
 
   unsigned int totSt = stationsIds.size();
 	double chok = 0.;
 	double pkok = 0.;
+
+	if ( totSt==1 )
+		pmtname += "St"+to_string( stationsIds[0] );
+  TFile hfile("ubCalibHist"+pmtname+".root","RECREATE","");
 
   vector < int > blpmth;
 	vector < vector < unsigned int > > stckEvt;
@@ -131,11 +135,12 @@ int main (int argc, char *argv[]) {
 
 	unsigned int histBins = 12000;
 	TH1F *setCh = new TH1F ("setCh", "", histBins, 0, histBins );
-	TH1F *setPk = new TH1F ("setPk", "", histBins, 0, histBins );
-	
-	TH1F sglSt ("sglSt", "", totalNrEvents, 0, totalNrEvents);
+	TH1F *setPk = new TH1F ("setPk", "", histBins, 0, histBins );	
+	TH1F sglSt ("sglSt", "", totalNrEvents, 0, totalNrEvents); // When just one station is analyzing
+	TH1F stckH ("stckH", "Average Charge Histogram", 5000, 0, 5000);
+	double tmpBin = 0.;
 
-	//unsigned int nentry = 0;
+	unsigned int nentry = 0;
 	
 	TTree *treeCh = new TTree("Charge","");
 	TGraphErrors *fllHCh = new TGraphErrors ();
@@ -143,6 +148,8 @@ int main (int argc, char *argv[]) {
 	TTree *treePk = new TTree("Peak","");
 	TGraphErrors *fllHPk = new TGraphErrors ();
 	treePk->Branch("fllHPk", "TGraphErrors", &fllHPk);
+	TTree *forEntries = new TTree("forEntries","");
+	forEntries->Branch("nentry",&nentry,"nentry/I");
 
 	if ( totSt==1 )
 		rdHist.getGraph = true;
@@ -218,7 +225,21 @@ int main (int argc, char *argv[]) {
 					rmsf = getmrms.getRms(blpmth, meanf, nblbins, true);
           if ( fabs(meanl-meanf) < 2*rmsf ) {
 						setCh = event.Stations[i].HCharge(pmtId-1);
-						rdHist.getFullFit( *setCh, true, 0.1, 10 ); // 20% EMpeak and 10 bins forward from this last.
+						base = event.fCalibStations[i].Calib->Base[pmtId-1];
+						if (event.fCalibStations[i].Calib->Version == 13) 
+							base *= 19.0;
+						else
+							base *= 20.0;
+						/*
+						for ( int b=0; b<setCh->GetXaxis()->GetNbins(); b++ ) {
+							tmpBin = ( setCh->GetBinCenter(b+1) - setCh->GetBinCenter(b) )/2.0
+								+ setCh->GetBinCenter(b); // - base;
+							stckH.Fill( tmpBin, setCh->GetBinContent(b) );
+						}
+						*/
+						nentry++;
+						rdHist.getFullFit( *setCh, true, 0.1, 10, base ); //10% EMpeak, 10 bins forward from this last.
+						//cerr << event.Id << " " << rdHist.vemPos << endl;
 						if ( rdHist.fitChOk ) {
 							stckVch[id] += rdHist.vemPos;
 							stckEvt[id][0]++;
@@ -230,8 +251,8 @@ int main (int argc, char *argv[]) {
 						}
 						setCh->Reset();
 						setPk = event.Stations[i].HPeak(pmtId-1);
-						rdHist.getFullFit( *setPk, false, 0.1, 5 ); // 20% EMpeak and 5 bins forward from this last.
-						//nentry++;
+						//cerr << "OffSet: " << base << " " << setPk->GetBinCenter(0) << " " << setPk->GetBinCenter(1) << endl;
+						rdHist.getFullFit( *setPk, false, 0.1, 5, base ); // 10% EMpeak, 5 bins forward from this last.
 						if ( rdHist.fitPkOk ) {
 							stckVpk[id] += rdHist.vemPos;
 							stckEvt[id][1]++;
@@ -244,7 +265,9 @@ int main (int argc, char *argv[]) {
 						if ( rdHist.fitChOk && rdHist.fitPkOk ) {
 							stckAP[id] += chok/pkok;
 							stckEvt[id][2]++;
-							sglSt.Fill( nrEventsRead, chok/pkok );
+							//cerr << "msdAP " << chok/pkok << endl;
+							if ( totSt==1 )
+								sglSt.Fill( nrEventsRead, chok/pkok );
 						}
 						setPk->Reset();
 						}
@@ -253,6 +276,7 @@ int main (int argc, char *argv[]) {
 		}
 	}
 
+	forEntries->Fill();
   hfile.Write();
   hfile.Close();
 	return 0;

@@ -1,4 +1,4 @@
-base=baseline_stability
+base=areapeak
 #version=_v5
 name=${base}
 #name=${base}${version}

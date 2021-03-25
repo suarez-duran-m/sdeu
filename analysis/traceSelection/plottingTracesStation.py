@@ -2,8 +2,8 @@ import ROOT
 import numpy as np
 import matplotlib.pyplot as plt
 
-pmtId = "Pmt1"
-inFile = ROOT.TFile.Open ( "zooTraces100binsPMT1.root" ," READ ")
+pmtId = "Pmt3"
+inFile = ROOT.TFile.Open ( "zooTraces100binsPMT3.root" ," READ ")
 
 hist = inFile.Get ("stTraces")
 #histNo = inFile.Get ("stTracesNo")
@@ -18,7 +18,7 @@ for e in range(0, hist.GetNbinsX()):
             arr0.append( hist.GetBinContent(e, i) )
         arr1.append( arr0 )
 
-
+'''
 for i in range(0, len(arr1)):
     plt.plot(arr1[i])
 
@@ -33,7 +33,7 @@ plt.title( "Traces for Station 1851" )
 #plt.title( "Traces for Station 1851\n("+str(len(arr1))+"/608)" )
 plt.savefig("../../plots/traces1851"+pmtId+".png", dpi=300)
 plt.show()
-
+'''
 # ======================================
 # ======================================
 
@@ -76,10 +76,22 @@ for e in range(0, len(arr1)):
     fb.append(tmpfb)
     lb.append(tmplb)
 
-for i in range(0, len(arr1)):
-    plt.plot(xf, fb[i])
-    plt.plot(xl, lb[i])
+full = []
+tmp = []
 
+for e in range(0, len(arr1)):
+    tmp = []
+    for i in range(1, 2*nb):
+        if i<nb+1:
+            tmp.append( fb[e][i] )
+        else:
+            tmp.append( lb[e][i-nb] )
+    full.append(tmp)
+full = np.array(full)
+for i in range(0, len(arr1)):
+    #plt.plot(xf, fb[i])
+    #plt.plot(xl, lb[i])
+    plt.plot(full[i])
 
 plt.xlim(0,2*nb)
 plt.xlabel("Bins (from 0 to 99, first bins; from 100 to 200, last bins)")

@@ -53,10 +53,11 @@ readHistos::readHistos() {
 }
 
 
-void readHistos::getFullFit(TH1F &hist, const bool ifch, const double frac, const int fstbinFit) {
+void readHistos::getFullFit(TH1F &hist, const bool ifch, const double frac, const int fstbinFit, const double bs) {
 	unsigned int emPkb = 0; // Bin for EM peak
 	unsigned int emPkc = 0; // Counts for EM peak
 	unsigned int rangXmin = 0;
+	double tmpBin = 0.;
 
 	for ( unsigned b=10; b<400; b++ )
 		if ( hist.GetBinContent(b) > emPkc ) {
@@ -64,7 +65,11 @@ void readHistos::getFullFit(TH1F &hist, const bool ifch, const double frac, cons
 			emPkb = b;
 		}
 
-	rangXmin =  emPkb + fstbinFit; //hist.GetBinLowEdge( emPkb )+ fstbinFit;
+	tmpBin = ( hist.GetBinCenter(emPkb + fstbinFit+1) - hist.GetBinCenter(emPkb + fstbinFit) )/2.0
+		+ hist.GetBinCenter(emPkb + fstbinFit);
+	//if ( ifch )
+		//tmpBin -= bs;
+	rangXmin = hist.GetBinCenter(emPkb + fstbinFit) - hist.GetBinCenter(0); //tmpBin;
 
 	unsigned int rangXmax = 0;
 	unsigned int nXbins = hist.GetXaxis()->GetNbins();
@@ -74,16 +79,41 @@ void readHistos::getFullFit(TH1F &hist, const bool ifch, const double frac, cons
 	vector < double > xbins;
 	vector < double > ycnts;
 	vector < double > yerrs;
-
+/*
+	ycnts.push_back( hist.GetBinContent(0) );
+	yerrs.push_back( sqrt( ycnts[0] ) );
+	tmpBin = hist.GetBinCenter(0) - (hist.GetBinCenter(1) - hist.GetBinCenter(0)) / 2.0;
+	if ( ifch )
+		tmpBin -= bs;
+	xbins.push_back( tmpBin );
+	cerr << tmpBin << " " << hist.GetBinCenter(0) << " " << hist.GetBinCenter(1) << " " << bs << endl;
+*/
 	for( unsigned int b=1; b<nXbins+1; b++ ) {
 		ycnts.push_back( hist.GetBinContent( b ) );
 		yerrs.push_back( sqrt( ycnts[b-1] ) );
-		xbins.push_back( b );
+		//tmpBin = ( hist.GetBinCenter(b+1) - hist.GetBinCenter(b) )/2.0 
+			//	+ hist.GetBinCenter(b);
+		//if ( ifch )
+			//tmpBin -= bs;
+		tmpBin = hist.GetBinCenter(b) - hist.GetBinCenter(0);
+		xbins.push_back( tmpBin );
 		if ( hist.GetBinContent( nXbins-b ) > frac*emPkc && checkMax ) {
-			rangXmax = nXbins - b;
+			//tmpBin = ( hist.GetBinCenter(nXbins-b-1) - hist.GetBinCenter(nXbins-b) )/2.0
+				//+ hist.GetBinCenter(nXbins-b);
+			//if ( ifch )
+				//tmpBin -= bs;
+			rangXmax = hist.GetBinCenter(nXbins-b) - hist.GetBinCenter(0); //tmpBin;
 			checkMax = false;
 		}
 	}
+/*
+	tmpBin = hist.GetBinCenter(nXbins - 1) + (hist.GetBinCenter(nXbins - 1) - hist.GetBinCenter(nXbins - 2)) / 2.0;
+	if ( ifch )
+		tmpBin -= bs;
+	xbins.push_back( tmpBin );
+*/
+	//cerr << emPkc << " " << frac*emPkc << endl;
+	//cerr << rangXmin << " " << rangXmax << endl;
 	
 	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
 			&ycnts.front(), 0, &yerrs.front() );
@@ -92,11 +122,9 @@ void readHistos::getFullFit(TH1F &hist, const bool ifch, const double frac, cons
 	double mean = (rangXmin+rangXmax)/2.;
 
 	if ( ifch )
-		//fitFcn->SetParameters(13.81, (rangXmin+rangXmax)/2., 23.02, -33.7, -46272.5);
 		fitFcn->SetParameters(11.61, mean, 0.3, 7.8, 45.5);
 	else
 		fitFcn->SetParameters(11, mean, 0.3, 6, mean/4);
-		//fitFcn->SetParameters(12.22, (rangXmin+rangXmax)/2., 5.2, -0.13, -622.935);
 
 	chFit->Fit("fitFcn","QR");
 
@@ -123,14 +151,14 @@ void readHistos::getFullFit(TH1F &hist, const bool ifch, const double frac, cons
 		fitPkOk = false;
 		vemPos = 0.;
 	}
-
-/*	if ( ifch ) {
+/*
+	if ( ifch ) {
 		fitGraph =  (TGraphErrors*)chFit->Clone();
 		fitChOk = true;
-		for (int b=0; b<5; b++ )
-			cerr << fitFcn->GetParameter(b) << endl;
+		//for (int b=0; b<5; b++ )
+			//cerr << fitFcn->GetParameter(b) << endl;
 	}
-	*/	
+*/
 	delete chFit;
 	delete fitFcn;
 }

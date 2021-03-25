@@ -63,6 +63,7 @@ void plottingHunting(int pmtId){
 		cout << i << " " << copy1->GetBinContent(i, 10) << endl;
 	}
 */
+	/*
   TCanvas *c1 = new TCanvas("c1", "2D", 1, 35,3600,2400);
   c1->cd();
   c1->SetLeftMargin(0.11);
@@ -144,7 +145,7 @@ void plottingHunting(int pmtId){
   c2->SetGridx();
   oklRmsDiff->Draw("COLZ1 SAME");
   c2->Print("../../plots/trOk"+printname+"Lg.pdf");
-
+*/
 	TString pmt1m;
 	TString pmt2m;
 	TString pmt3m;

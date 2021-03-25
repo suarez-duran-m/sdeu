@@ -46,12 +46,11 @@
 
 
 \begin{frame}
-  Distribution of the difference of the mean for the station 1818's PMT1 HG
+	Trace selection method
   \begin{figure}[h]
     \centering
     \includegraphics[width=0.85\textwidth]{../plots/sglEvt.pdf}
 	\end{figure}
-
 
 	\begin{tikzpicture}[overlay,remember picture]
 		\path (current page.south west) +(0.1*pi,pi) 
@@ -66,53 +65,6 @@
 
 
 \begin{frame}
-  \centering
-  \includegraphics[width=.45\textwidth]{../plots/blPMT1Diffmean100Hg.pdf}\quad%
-  \begin{minipage}[b][0.4\textheight][c]{.45\linewidth} \end{minipage}\\[1em]
-  \includegraphics[width=.45\textwidth]{../plots/blPMT2Diffmean100Hg.pdf}\quad%
-  \includegraphics[width=.45\textwidth]{../plots/blPMT3Diffmean100Hg.pdf}
-\end{frame}
-
-\begin{frame}
-  Distribution of the difference of the mean for the station 1818's PMT1 HG
-  \begin{figure}[h]
-    \centering
-    \includegraphics[width=1\textwidth]{../plots/blDiffMeanSt1818.pdf}
-    \end{figure}
-\end{frame}
-
-\begin{frame}
-  Distribution of the difference of the mean for the station 1740's PMT1 HG
-  \begin{figure}[h]
-    \centering
-    \includegraphics[width=1\textwidth]{../plots/blDiffMeanSt1740.pdf}
-    \end{figure}
-\end{frame}
-
-%\begin{frame}
-%  \begin{figure}[h]
-%    \centering
-%    \includegraphics[width=.85\textwidth]{../plots/traces1740.pdf}
-%    \end{figure}
-%\end{frame}
-%
-%
-%\begin{frame}
-%  \begin{figure}[h]
-%    \centering
-%    \includegraphics[width=.85\textwidth]{../plots/traces1740zoom.pdf}
-%    \end{figure}
-%\end{frame}
-%
-%\begin{frame}
-%  \begin{figure}[h]
-%    \centering
-%    \includegraphics[width=.85\textwidth]{../plots/tracesFirstLast1740zoom.pdf}
-%    \end{figure}
-%\end{frame}
-
-
-\begin{frame}
 	RMS difference for traces that agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
 
   \centering
@@ -123,23 +75,6 @@
 	\includegraphics[width=.48\textwidth]{../plots/trOkPMT2Hg.pdf}\quad%
 	\includegraphics[width=.48\textwidth]{../plots/trOkPMT3Hg.pdf}
 \end{frame}
-
-
-%\begin{frame}
-%	RMS Difference
-%
-%	\centering
-%	\includegraphics[width=.7\textheight]{../plots/trOkPMT1Hg.pdf}\quad%
-%	\begin{minipage}[b][0.1\textheight][c]
-%		{.15\linewidth}
-%	\end{minipage}\\[1em]
-%	\includegraphics[width=.425\textwidth]{../plots/trOkPMT2Hg.pdf}\quad%
-%	\begin{tikzpicture}
-%		\node[anchor=south west,inner sep=0] at (1,-3.3) {\includegraphics[width=.425\textwidth]{../plots/trOkPMT3Hg.pdf}};
-%		\draw<1>[red,ultra thick,rounded corners] (1.,0.) rectangle (\textheight-2cm,0.3);
-%	\end{tikzpicture}
-%
-%\end{frame}
 
 
 \begin{frame}
@@ -159,9 +94,10 @@
 
 
 \begin{frame}
-	Fitting Histograms to:
+	\frametitle{Area/Peak inspection}
+	Fitting Histograms using:
 	\begin{displaymath}
-		e^{\left( a_0-\frac{1}{x\tau}\right) } + \frac{1}{x}e^{ -\left(\frac{(\ln x - \ln\mu)^2}{2\sigma^2}\right) }
+		e^{\left( a_0-\frac{1}{x\tau}\right) } + x^{-1}e^{ -\left(\frac{(\ln x - \ln\mu)^2}{2\sigma^2}\right) }
 	\end{displaymath}
 	Charge histogram for Station 1223
 	\vspace{0.5cm}
@@ -170,6 +106,57 @@
 	\includegraphics[width=.49\textwidth]{../plots/ubChHistFitSt1223.pdf}
 	\includegraphics[width=.49\textwidth]{../plots/uubChHistFitSt1223.pdf}
 	UB-PMT1\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad UUB-PMT1
+\end{frame}
+
+
+\begin{frame}
+	Position of VEM-Charge, average per day (traces agree with: $\mid \mathrm{M}_f - \mathrm{M}_l \mid < \left( 2*\mathrm{RMS_f} \right) $)
+
+  \centering
+	\includegraphics[width=.49\textwidth]{../plots/uuBchargePMT1Hg.pdf}\quad%
+	\begin{minipage}[b][0.4\textheight][c]
+		{.45\linewidth}
+	\end{minipage}\\[1em]
+	\includegraphics[width=.48\textwidth]{../plots/uuBchargePMT2Hg.pdf}\quad%
+	\includegraphics[width=.48\textwidth]{../plots/uuBchargePMT3Hg.pdf}
+\end{frame}
+
+
+\begin{frame}
+	Position of VEM-Peak, average per day (traces agree with: $\mid \mathrm{M}_f - \mathrm{M}_l \mid < \left( 2*\mathrm{RMS_f} \right) $)
+
+  \centering
+	\includegraphics[width=.49\textwidth]{../plots/uuBpeakPMT1Hg.pdf}\quad%
+	\begin{minipage}[b][0.4\textheight][c]
+		{.45\linewidth}
+	\end{minipage}\\[1em]
+	\includegraphics[width=.48\textwidth]{../plots/uuBpeakPMT2Hg.pdf}\quad%
+	\includegraphics[width=.48\textwidth]{../plots/uuBpeakPMT3Hg.pdf}
+\end{frame}
+
+
+\begin{frame}
+	A/P average per day, traces that agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
+
+  \centering
+	\includegraphics[width=.49\textwidth]{../plots/uuBapPMT1Hg.pdf}%\quad%
+	\begin{minipage}[b][0.2\textheight][c]
+		{.15\linewidth}
+	\end{minipage}\\[1em]
+	\includegraphics[width=.48\textwidth]{../plots/uuBapPMT2Hg.pdf}\quad%
+	\includegraphics[width=.48\textwidth]{../plots/uuBapPMT3Hg.pdf}
+\end{frame}
+
+
+\begin{frame}
+  \centering
+	{\Huge\bf\it Thanks}
+\end{frame}
+
+
+\begin{frame}
+  \centering
+	{\Huge\bf\it Backup}
 \end{frame}
 
 
@@ -226,46 +213,7 @@
 
 
 \begin{frame}
-	Position of VEM-Charge, average per day (traces agree with: $\mid \mathrm{M}_f - \mathrm{M}_l \mid < \left( 2*\mathrm{RMS_f} \right) $)
-
-  \centering
-	\includegraphics[width=.49\textwidth]{../plots/uuBchargePMT1Hg.pdf}\quad%
-	\begin{minipage}[b][0.4\textheight][c]
-		{.45\linewidth}
-	\end{minipage}\\[1em]
-	\includegraphics[width=.48\textwidth]{../plots/uuBchargePMT2Hg.pdf}\quad%
-	\includegraphics[width=.48\textwidth]{../plots/uuBchargePMT3Hg.pdf}
-\end{frame}
-
-
-\begin{frame}
-	Position of VEM-Peak, average per day (traces agree with: $\mid \mathrm{M}_f - \mathrm{M}_l \mid < \left( 2*\mathrm{RMS_f} \right) $)
-
-  \centering
-	\includegraphics[width=.49\textwidth]{../plots/uuBpeakPMT1Hg.pdf}\quad%
-	\begin{minipage}[b][0.4\textheight][c]
-		{.45\linewidth}
-	\end{minipage}\\[1em]
-	\includegraphics[width=.48\textwidth]{../plots/uuBpeakPMT2Hg.pdf}\quad%
-	\includegraphics[width=.48\textwidth]{../plots/uuBpeakPMT3Hg.pdf}
-\end{frame}
-
-
-\begin{frame}
-	A/P average per day, traces that agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
-
-  \centering
-	\includegraphics[width=.49\textwidth]{../plots/uuBapPMT1Hg.pdf}%\quad%
-	\begin{minipage}[b][0.2\textheight][c]
-		{.15\linewidth}
-	\end{minipage}\\[1em]
-	\includegraphics[width=.48\textwidth]{../plots/uuBapPMT2Hg.pdf}\quad%
-	\includegraphics[width=.48\textwidth]{../plots/uuBapPMT3Hg.pdf}
-\end{frame}
-
-
-\begin{frame}
-	UB: A/P average per day, traces that agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
+	{\bf UB:} A/P average per day, traces that agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
 
   \centering
 	\includegraphics[width=.49\textwidth]{../plots/uBapPMT1Hg.pdf}%\quad%
@@ -274,13 +222,6 @@
 	\end{minipage}\\[1em]
 	\includegraphics[width=.48\textwidth]{../plots/uBapPMT2Hg.pdf}\quad%
 	\includegraphics[width=.48\textwidth]{../plots/uBapPMT3Hg.pdf}
-\end{frame}
-
-
-
-\begin{frame}
-  \centering
-	{\Huge\bf\it Thanks}
 \end{frame}
 
 

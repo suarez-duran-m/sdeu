@@ -48,5 +48,5 @@ cbar = fig.colorbar(heatmap, cax=cax)
 cbar.ax.tick_params(labelsize=18)
 cbar.set_label("Diff. RMS / FADC", size=18) 
 
-plt.savefig("../../plots/trOkPMT"+pmtId+"Hg.pdf", dpi=300)
+plt.savefig("trOkPMT"+pmtId+"Hg.pdf", dpi=300)
 #plt.show()

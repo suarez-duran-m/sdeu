@@ -19,7 +19,7 @@ class readHistos {
 		bool fitChOk;
 		bool fitPkOk;
 
-		void getFullFit(TH1F &hist, const bool ifch, const double frac, const int fstbinFit);
+		void getFullFit(TH1F &hist, const bool ifch, const double frac, const int fstbinFit, const double bs);
 		TGraphErrors *getFitGraph();
 
 	private:
