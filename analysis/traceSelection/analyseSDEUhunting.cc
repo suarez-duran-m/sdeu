@@ -127,7 +127,7 @@ int main (int argc, char *argv[]) {
 	unsigned int nday = 0;
 	unsigned int cday = 1606867200;
 	unsigned int dday = 86400;
-	unsigned int totDays = 90; // From 1st December, 2020 to 28th February, 2021
+	unsigned int totDays = 121; // From 1st December, 2020 to 31st March, 2021
 
   unsigned int nrEvents = 0;
   unsigned int nrEventsRead = 0;
@@ -171,7 +171,6 @@ int main (int argc, char *argv[]) {
 			continue;
 		else if( event.utctime() >= lightning[6] && event.utctime() <= lightning[7] )
 			continue;
-
 			//cerr << nday << " " << event.utcdate() << " " << nday*dday + 1606867200 << " " << cday << " " << (event.utctime() - 1606867200)/dday +1 << endl;
 
     if ( sameUtc > cday ){

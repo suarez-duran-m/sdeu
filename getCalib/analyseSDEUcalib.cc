@@ -127,24 +127,34 @@ int main (int argc, char *argv[]) {
 
   unsigned int nrEvents = 0;
   unsigned int nrEventsRead = 0;
+	double ubUub = .38; //8.33/25.0; // 8.33/25.0 From UUB to UB
 
-	TH2F hCh ("hCh", "Average VEM-Charge per day for "+pmtname, totDays, 0, totDays, totSt, 0, totSt); 
-	TH2F hPk ("hPk", "Average VEM-Peak per day for "+pmtname, totDays, 0, totDays, totSt, 0, totSt); 
-	TH2F hap ("hap", "Average VEM-Charge/VEM-Peak per day for "+pmtname, totDays, 0, totDays, totSt, 0, totSt);
+	TH1F *charge = new TH1F ();// ("charge", "Charge for single station", totalNrEvents, 0, totalNrEvents);
 
-	TH1F sglSt ("sglSt", "", totalNrEvents, 0, totalNrEvents);
-	TH1F stckHc ("stckHc", "Average Charge Histogram", 5000, 0, 5000);
-	TH1F stckHp ("stckHp", "Average Peak Histogram", 5000, 0, 5000);
+	TH2F hCh ("hCh", "Average VEM-Charge per day for "+pmtname, totDays, 0, totDays, totSt, 0, totSt); // Average Charge per day - per station
+	TH2F hPk ("hPk", "Average VEM-Peak per day for "+pmtname, totDays, 0, totDays, totSt, 0, totSt); // Average Peak per day - per station
+	TH2F hap ("hap", "Average VEM-Charge/VEM-Peak per day for "+pmtname, totDays, 0, totDays, totSt, 0, totSt); // Average A/P per day - per station
+	TH2F apDist ("apDist", "Average VEM-Charge/VEM-Peak per day for "+pmtname, totSt, 0, totSt, totalNrEvents, 0, totalNrEvents); // A/P per station for all events.
+
+	TH1F sglSt ("sglSt", "", totalNrEvents, 0, totalNrEvents); // A/P for all events at specific station
+	TH1F stckHc ("stckHc", "Average Charge Histogram", 5000, 0, 5000); // Charge for all events at specific station
+	TH1F stckHp ("stckHp", "Average Peak Histogram", 5000, 0, 5000); // Peak for all events at specific station
 	double tmpBin = 0.;
 
-	unsigned int histBins = 12000;
-	TH1F *setCh = new TH1F ("setCh", "", histBins, 0, histBins );
-	TH1F *setPk = new TH1F ("setPk", "", histBins, 0, histBins );
+	TH1F *setCh; // Receive Charge from raw data
+	TH1F *setPk; // Receive Peak from raw data
+	TH1F *offSetCh = new TH1F (); // For Charge offset
+	TH1F *offSetPk = new TH1F (); // For Peak offset
+
 	unsigned int nentry = 0;
 	
 	TTree *treeCh = new TTree("Charge","");
 	TGraphErrors *fllHCh = new TGraphErrors ();
 	treeCh->Branch("fllHCh", "TGraphErrors", &fllHCh);
+	treeCh->Branch("charge", "TH1F", &charge);
+	treeCh->Branch("offSetCh", "TH1F", &offSetCh);
+	treeCh->Branch("offSetPk", "TH1F", &offSetPk);
+
 	TTree *treePk = new TTree("Peak","");
 	TGraphErrors *fllHPk = new TGraphErrors ();
 	treePk->Branch("fllHPk", "TGraphErrors", &fllHPk);
@@ -224,46 +234,36 @@ int main (int argc, char *argv[]) {
 							rdHist.fitPkOk = false;
 							rdHist.fitChOk = false;
 							if ( fabs(meanl-meanf) < 2*rmsf ) {
-								//base = 69.*(event.Stations[i].Calib->Base[pmtId-1]);
 								setCh = event.Stations[i].HCharge(pmtId-1);
-								
-								if ( totSt==1 )
+								cerr << event.Stations[i].Histo->Offset[pmtId-1+6] << endl;
+								if ( totSt==1 ) // To check the fit hist by hist
 									for( int b=0; b<setCh->GetXaxis()->GetNbins(); b++ ) {
-										tmpBin = setCh->GetBinCenter(b) - setCh->GetBinCenter(0);
-										//( setCh->GetBinCenter(b+1) - setCh->GetBinCenter(b) )/2.0
-											//+ setCh->GetBinCenter(b);
+										tmpBin = setCh->GetBinCenter(b);
 										stckHc.Fill( tmpBin, setCh->GetBinContent(b) );
 									}
 								nentry++;
-								//cerr << nentry << endl;
-								rdHist.getFullFit( *setCh, true, 0.1, 30, base ); // 20% of EMpeak, 30 bins forward from this last.
+								rdHist.getFullFit( *setCh, true, 0.1, 30, base ); // 10% of EMpeak, 30 bins forward from this last.
 								if ( rdHist.fitChOk ) {
 									stckVch[id] += rdHist.vemPos;
 									stckEvt[id][0]++;
 									chok = rdHist.vemPos;
-									if ( totSt==1 ) {	
-										fllHCh = rdHist.getFitGraph();
+									if ( totSt==1 ) { // To check the fit hist by hist	
+ 										fllHCh = rdHist.getFitGraph();
+										charge = (TH1F*)setCh->Clone();
 										treeCh->Fill();
 									}
 								}
 								setCh->Reset();
 								setPk = event.Stations[i].HPeak(pmtId-1);
-								/*
-								for( int b=1; b<setPk->GetXaxis()->GetNbins(); b++ ) {
-									tmpBin = ( setPk->GetBinCenter(b+1) - setPk->GetBinCenter(b) )/2.0
-										+ setPk->GetBinCenter(b);
-									stckHp.Fill( tmpBin, setPk->GetBinContent(b) );
-								}
-								*/
-								rdHist.getFullFit( *setPk, false, 0.1, 5, base ); // 20% of EMpeak, 3 bins forward from this last.
-								if ( totSt==1 )
+								rdHist.getFullFit( *setPk, false, 0.1, 5, base ); // 10% of EMpeak, 5 bins forward from this last.
+								if ( totSt==1 ) // To check the fit hist by hist
 									for( int b=0; b<setPk->GetXaxis()->GetNbins(); b++ )
-									stckHp.Fill( setPk->GetBinCenter(b)-setPk->GetBinCenter(0), setPk->GetBinContent(b) );
-								if ( rdHist.fitPkOk ) { //&& rdHist.vemPos>0 ) {
+										stckHp.Fill( setPk->GetBinCenter(b)-setPk->GetBinCenter(0), setPk->GetBinContent(b) );
+								if ( rdHist.fitPkOk ) { 
 									stckVpk[id] += rdHist.vemPos;
 									stckEvt[id][1]++;
 									pkok = rdHist.vemPos;
-									if ( totSt==1 ) {
+									if ( totSt==1 ) { // To check the fit hist by hist
 										fllHPk = rdHist.getFitGraph();
 										treePk->Fill();
 									}
@@ -271,8 +271,9 @@ int main (int argc, char *argv[]) {
 								if ( rdHist.fitChOk ) {
 									stckAP[id] += chok/pkok;
 									stckEvt[id][2]++;
+									apDist.Fill( id, nrEventsRead, ubUub*chok/pkok ); 
 									if ( totSt==1 )
-										sglSt.Fill( nrEventsRead, chok/pkok );
+										sglSt.Fill( nrEventsRead, ubUub*chok/pkok );
 								}
 								setPk->Reset();
 							}

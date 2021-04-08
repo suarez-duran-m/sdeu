@@ -36,7 +36,7 @@
 \begin{frame}
   \begin{itemize}
     \item Baseline stability for pre-production batch of UUBs together with SPMT and SSD in the field.
-    \item Data from CDAS: from 01/12/2020 to 21/01/2021
+    \item Data from CDAS: from 01/12/2020 to 28/02/2021
   \end{itemize}
   \begin{figure}
     \centering
@@ -54,10 +54,10 @@
 
 	\begin{tikzpicture}[overlay,remember picture]
 		\path (current page.south west) +(0.1*pi,pi) 
-		node[text width=12cm,anchor=south west]{\begin{alignat}{2}
-			\mathrm{First\, 100\, bins}  \quad \quad \quad \quad \quad \quad
-			\quad \quad \quad \quad  
-			\mathrm{Last\, 100\, bins}   \nonumber
+		node[text width=13cm,anchor=south west]{\begin{alignat}{2}
+			\mathrm{First\, 100\, bins} \quad \quad \quad \quad \quad
+			\qquad \qquad \qquad
+			\mathrm{Last\, 100\, bins} \nonumber
 		\end{alignat}};
 	\end{tikzpicture}
 
@@ -65,7 +65,7 @@
 
 
 \begin{frame}
-	RMS difference for traces that agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
+	RMS difference for traces that agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < 2\left( \mathrm{RMS_f} \right) $
 
   \centering
 	\includegraphics[width=.49\textwidth]{../plots/trOkPMT1Hg.pdf}\quad%
@@ -94,6 +94,108 @@
 
 
 \begin{frame}
+	\frametitle{Charge Histograms, Station 863}	
+	\begin{figure}
+		\begin{tabularx}{\textwidth}{CCC}
+			\multicolumn{3}{l}{From IoSdHisto method}	
+			\\
+			\includegraphics[width=.3\textwidth]{../plots/chargeHChargePMT1.pdf}
+			&
+			\includegraphics[width=.3\textwidth]{../plots/chargeHChargePMT2.pdf}
+			&
+			\includegraphics[width=.3\textwidth]{../plots/chargeHChargePMT3.pdf}
+			\\ 
+			\multicolumn{3}{l}{From IoSdStation::HCharge method: }
+			\\
+			\multicolumn{3}{l}{xc[j] = mult*j + offset; xc[400+j] = 400*mult + bigbins*mult*j + offset} 
+			\\ [2ex]
+			\includegraphics[width=.3\textwidth]{../plots/chargeHistoPMT1.pdf}
+			&
+			\includegraphics[width=.3\textwidth]{../plots/chargeHistoPMT2.pdf}
+			&
+			\includegraphics[width=.3\textwidth]{../plots/chargeHistoPMT3.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Peak Histograms, Station 863}	
+	\begin{figure}
+		\begin{tabularx}{\textwidth}{CCC}
+			\multicolumn{3}{l}{From IoSdHisto method}	
+			\\
+			\includegraphics[width=.3\textwidth]{../plots/peakHPeakPMT1.pdf}
+			&
+			\includegraphics[width=.3\textwidth]{../plots/peakHPeakPMT2.pdf}
+			&
+			\includegraphics[width=.3\textwidth]{../plots/peakHPeakPMT3.pdf}
+			\\ 
+			\multicolumn{3}{l}{From IoSdStation::HPeak method: }
+			\\
+			\multicolumn{3}{l}{xc[j] = mult*j + offset; xc[400+j] = 400*mult + bigbins*mult*j + offset} 
+			\\ [2ex]
+			\includegraphics[width=.3\textwidth]{../plots/peakHistoPMT1.pdf}
+			&
+			\includegraphics[width=.3\textwidth]{../plots/peakHistoPMT2.pdf}
+			&
+			\includegraphics[width=.3\textwidth]{../plots/peakHistoPMT3.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	Averages histograms for Station 863:
+	\begin{figure}
+		\begin{tabularx}{\textwidth}{CCC}
+			\includegraphics[width=4.15cm]{../plots/uubAveChHistoPMT1St863.pdf}
+			\caption{Charge UUB-LPMT1}
+			&
+			\includegraphics[width=4.15cm]{../plots/uubAveChHistoPMT2St863.pdf}
+			\caption{Charge UUB-LPMT2}
+			&
+			\includegraphics[width=4.15cm]{../plots/uubAveChHistoPMT3St863.pdf}
+			\caption{Charge UUB-LPMT3}
+			\\ [2ex]
+			\includegraphics[width=4.15cm]{../plots/uubAvePkHistoPMT1St863.pdf}
+			\caption{Peak UUB-LPMT1}
+			&
+			\includegraphics[width=4.15cm]{../plots/uubAvePkHistoPMT2St863.pdf}
+			\caption{Peak UUB-LPMT2}
+			&
+			\includegraphics[width=4.15cm]{../plots/uubAvePkHistoPMT3St863.pdf}
+			\caption{Peak UUB-LPMT3}
+			\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{frame}
 	\frametitle{Area/Peak inspection}
 	Fitting Histograms using:
 	\begin{displaymath}
@@ -114,12 +216,11 @@
 			\caption{Peak: UUB-PMT1}
 		\end{tabularx}
 	\end{figure}
-	%UB-PMT1\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad UUB-PMT1
 \end{frame}
 
 
 \begin{frame}
-	Position of VEM-Charge, average per day (traces agree with: $\mid \mathrm{M}_f - \mathrm{M}_l \mid < \left( 2*\mathrm{RMS_f} \right) $)
+	Position of VEM-Charge, average per day, traces agree with: $\mid \mathrm{M}_f - \mathrm{M}_l \mid < 2\left( \mathrm{RMS_f} \right) $
 
   \centering
 	\includegraphics[width=.49\textwidth]{../plots/uuBchargePMT1Hg.pdf}\quad%
@@ -132,7 +233,7 @@
 
 
 \begin{frame}
-	Position of VEM-Peak, average per day (traces agree with: $\mid \mathrm{M}_f - \mathrm{M}_l \mid < \left( 2*\mathrm{RMS_f} \right) $)
+	Position of VEM-Peak, average per day, traces agree with: $\mid \mathrm{M}_f - \mathrm{M}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
 
   \centering
 	\includegraphics[width=.49\textwidth]{../plots/uuBpeakPMT1Hg.pdf}\quad%
@@ -145,7 +246,7 @@
 
 
 \begin{frame}
-	A/P average per day, traces that agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
+	A/P average per day, traces that agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < 2\left( \mathrm{RMS_f} \right) $
 
   \centering
 	\includegraphics[width=.49\textwidth]{../plots/uuBapPMT1Hg.pdf}%\quad%
@@ -183,6 +284,9 @@
 	{\Huge\bf\it Thanks}
 \end{frame}
 
+% ========================================================
+% ****************** BACKUP SLIDES ***********************
+% ========================================================
 
 \begin{frame}
   \centering
@@ -191,7 +295,7 @@
 
 
 \begin{frame}
-	Averages histograms for Station 1223:
+	Averages histograms for Station 1223 (since december):
 	\begin{figure}
 		\begin{tabularx}{\textwidth}{CCC}
 			\includegraphics[width=4.15cm]{../plots/ubAveChHistoPmt1St1223.pdf}
@@ -203,13 +307,13 @@
 			\includegraphics[width=4.15cm]{../plots/ubAveChHistoPmt3St1223.pdf}
 			\caption{UB-LPMT3}
 			\\ [-2ex]
-			\includegraphics[width=4.15cm]{../plots/uubAveChHistoPmt1St1223.pdf}
+			\includegraphics[width=4.15cm]{../plots/uubAveChHistoPMT1St1223.pdf}
 			\caption{UUB-LPMT1}
 			&
-			\includegraphics[width=4.15cm]{../plots/uubAveChHistoPmt2St1223.pdf}
+			\includegraphics[width=4.15cm]{../plots/uubAveChHistoPMT2St1223.pdf}
 			\caption{UUB-LPMT2}
 			&
-			\includegraphics[width=4.15cm]{../plots/uubAveChHistoPmt3St1223.pdf}
+			\includegraphics[width=4.15cm]{../plots/uubAveChHistoPMT3St1223.pdf}
 			\caption{UUB-LPMT3}
 			\end{tabularx}
 	\end{figure}
@@ -246,7 +350,7 @@
 	{\bf UB:} A/P average per day, traces that agree with: $\mid \mathrm{Mean}_f - \mathrm{Mean}_l \mid < \left( 2*\mathrm{RMS_f} \right) $
 
   \centering
-	\includegraphics[width=.46\textwidth]{../plots/uBapPMT1Hg.pdf}%\quad%
+	\includegraphics[width=.45\textwidth]{../plots/uBapPMT1Hg.pdf}%\quad%
 	\begin{minipage}[b][0.2\textheight][c]
 		{.15\linewidth}
 	\end{minipage}\\[1em]

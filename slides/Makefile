@@ -1,4 +1,4 @@
-base=areapeak
+base=histInspection
 #version=_v5
 name=${base}
 #name=${base}${version}
