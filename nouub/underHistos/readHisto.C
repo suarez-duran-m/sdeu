@@ -20,6 +20,8 @@ void readHisto(int pmt, int st) {
 	TH1F *peakOff = new TH1F();
 	int offsetch;
 	int offsetpk;
+	int fstPkraw;
+	int fstChraw;
 	int eventId;
 
 	histos->SetBranchAddress("setCh", &charge);
@@ -31,6 +33,8 @@ void readHisto(int pmt, int st) {
 	histos->SetBranchAddress("entryEvt", &eventId);
 	histos->SetBranchAddress("offSetCh", &offsetch);
 	histos->SetBranchAddress("offSetPk", &offsetpk);
+	histos->SetBranchAddress("fstRawBinPk", &fstPkraw);
+	histos->SetBranchAddress("fstRawBinCh", &fstChraw);
 	histos->SetBranchAddress("pkCorrBl", &peakBl);
 	histos->SetBranchAddress("pkCorrOff", &peakOff);
 
@@ -60,6 +64,23 @@ void readHisto(int pmt, int st) {
 	pkHisto->SetLineColor(kBlue);
 	pkHisto->Draw();
 	c1->Print("../../plots/ubRawPeak"+pmtId+stat+".pdf");
+
+	c1->cd();
+	pkHisto->SetTitle("UB Peak-Raw-Histogram "+pmtId+" "+stat+" event: "+nameEvt);
+	pkHisto->SetYTitle("Counts / au");
+	pkHisto->GetYaxis()->SetTitleSize(0.05);
+	pkHisto->GetYaxis()->SetTitleOffset(1.1);
+	pkHisto->GetYaxis()->SetLabelSize(0.04);
+	pkHisto->GetYaxis()->SetRangeUser(0, 3800);
+	pkHisto->SetXTitle("1 / ua");
+	pkHisto->GetXaxis()->SetTitleSize(0.045);
+	pkHisto->GetXaxis()->SetLabelSize(0.04); // >SetTitleSize(1.0);
+	pkHisto->GetXaxis()->SetRangeUser(0,20);
+	pkHisto->SetStats(kFALSE);
+	pkHisto->SetLineColor(kBlue);
+	pkHisto->Draw();
+	c1->Print("../../plots/ubRawPeakZoom"+pmtId+stat+".pdf");
+
 
 	TString nameOffset;
 	nameOffset.Form("%d", offsetpk);
@@ -270,7 +291,7 @@ void readHisto(int pmt, int st) {
 	gr = new TGraph(nx,x,y);
 	c1->cd();
 	gr->SetTitle("Offset minus first-bin Charge Histograms UB "+pmtId+" "+stat);
-	gr->GetXaxis()->SetTitle("Events since September 1st until November 3th, 2020");
+	gr->GetXaxis()->SetTitle("Events since September 1st until November 30th, 2020");
 	gr->GetYaxis()->SetTitle("Offset / FADC");
 	gr->GetYaxis()->SetTimeOffset(1.3);
 	gr->GetYaxis()->SetRangeUser(-1, 1);
@@ -280,6 +301,51 @@ void readHisto(int pmt, int st) {
 	gr->SetMarkerColor(4);
 	gr->Draw("AP");
 	c1->Print("../../plots/ubOffsetDiffCh"+pmtId+stat+".pdf");
+
+
+	// =============================================
+	// *** Counts in first bin of raw histograms ***
+
+	for (Int_t i=0; i<nx; i++) {
+		histos->GetEntry(i);
+		x[i] = i;
+		y[i] = fstPkraw;
+	}
+
+	gr = new TGraph(nx,x,y);
+	c1->cd();
+	gr->SetTitle("Counts in first bin for UB Peak Histograms "+pmtId+" "+stat);
+	gr->GetXaxis()->SetTitle("Events since September 1st until November 30th, 2020");
+	gr->GetYaxis()->SetTitle("Offset / FADC");
+	gr->GetYaxis()->SetTimeOffset(1.3);
+	gr->GetYaxis()->SetRangeUser(-1,5);
+	gr->SetFillStyle(1000);
+	gr->SetMarkerStyle(20);
+	gr->SetMarkerSize(1.2);
+	gr->SetMarkerColor(4);
+	gr->Draw("AP");
+	c1->Print("../../plots/ubCntFirstBinPk"+pmtId+stat+".pdf");
+
+
+	for (Int_t i=0; i<nx; i++) {
+		histos->GetEntry(i);
+		x[i] = i;
+		y[i] = fstChraw;
+	}
+
+	gr = new TGraph(nx,x,y);
+	c1->cd();
+	gr->SetTitle("Counts in first bin for UB Charge Histograms "+pmtId+" "+stat);
+	gr->GetXaxis()->SetTitle("Events since September 1st until November 30th, 2020");
+	gr->GetYaxis()->SetTitle("Offset / FADC");
+	gr->GetYaxis()->SetTimeOffset(1.3);
+	gr->SetFillStyle(1000);
+	gr->SetMarkerStyle(20);
+	gr->SetMarkerSize(1.2);
+	gr->SetMarkerColor(4);
+	gr->Draw("AP");
+	c1->Print("../../plots/ubCntFirstBinCh"+pmtId+stat+".pdf");
+
 
 
 /*

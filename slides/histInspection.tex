@@ -43,6 +43,7 @@
 	\end{itemize}
 \end{frame}
 
+
 % ================
 % *** For Peak ***
 
@@ -50,20 +51,78 @@
 	\frametitle{PMT 1: UUB Peak Histogram}
 	Raw UUB Peak Histogram
 	\begin{figure}
-		\begin{tabularx}{\textwidth}{C}
-			\includegraphics[width=.7\textwidth]{../plots/uubRawPeakPMT1St863.pdf}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/uubRawPeakPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/uubRawPeakZoomPMT1St863.pdf}
+			\end{tabular}
+			\\
+			& Not cero counts in the first bin
 		\end{tabularx}
 	\end{figure}
 \end{frame}
 
 
+% ====================================
+% *** First Bin for Raw histograms ***
+
 \begin{frame}
-	\frametitle{From UUB raw Peak histogram to the correct format}
-	{\bf Applying HPeak method from IoSdStation class}
+	\frametitle{PMT 1: UUB and UB counts in the first bin in Raw Peak Histogram}
+	{\bf IoSdHisto::Peak[pmtId][0]}
 	\begin{figure}
 		\centering
 		\begin{tabularx}{\textwidth}{CC}
-			\multicolumn{2}{l}{Each bin (j) of raw histogram is set as:} 
+			\begin{tabular}{l}
+				\includegraphics[width=.45\textwidth]{../plots/uubCntFirstBinPkPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.45\textwidth]{../plots/ubCntFirstBinPkPMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{PMT 1: UUB and UB counts in the first bin in Raw Peak Histogram}
+	{\bf IoSdHisto::Peak[pmtId][0]}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				\includegraphics[width=.38\textwidth]{../plots/uubCntFirstBinPkPMT2St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.38\textwidth]{../plots/ubCntFirstBinPkPMT2St863.pdf}
+			\end{tabular}
+			\\
+			\begin{tabular}{l}
+				\includegraphics[width=.38\textwidth]{../plots/uubCntFirstBinPkPMT3St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.38\textwidth]{../plots/ubCntFirstBinPkPMT3St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% =====================================
+% *** Correcting raw Peak histogram ***
+
+\begin{frame}
+	\frametitle{From UUB raw Peak histogram to the correct format}
+	{\bf Applying IoSdStation::HPeak method}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\multicolumn{2}{l}{Each bin (j) of raw histogram is corrected as:} 
 			\\ [2ex]
 			\multicolumn{2}{l}{xp[j] = j*mult + offset;
 			xp[100 + j] = 100 * mult + bigbins * j * mult + offset;} 
@@ -72,9 +131,9 @@
 			the {\it offset} is set for each event.}
 			\\
 			\begin{tabular}{l}
-				For event 61219267 the offset = 273, \\ 
-				with a value of 273 for the first bin of \\ 
-				the Peak histogram.
+				As instance, for event 61219267 the \\
+				offset = 273, so a value of 273 for \\
+				the first bin of the Peak histogram.
 			\end{tabular} 
 			& 
 			\begin{tabular}{l}
@@ -93,18 +152,20 @@
 		\begin{tabularx}{\textwidth}{CC}
 			\begin{tabular}{l}
 				Baseline histogram getting from \\ 
-				IoSdStation::HBase
+				IoSdStation::HBase \\
+				xb[j] = j+offset; \\
+				yb[j] = Histo->Base[pmt][j]
 			\end{tabular}
 			&
 			\begin{tabular}{l} 
-				\includegraphics[width=.35\textwidth]{../plots/uubBasePMT1St863.pdf}
+				\includegraphics[width=.34\textwidth]{../plots/uubBasePMT1St863.pdf}
 			\end{tabular}
 			\\
-			\includegraphics[width=.45\textwidth]{../plots/uubPeakPMT1St863.pdf}
+			\includegraphics[width=.44\textwidth]{../plots/uubPeakPMT1St863.pdf}
 			&
-			\includegraphics[width=.45\textwidth]{../plots/uubPeakCoorBlPMT1St863.pdf}
+			\includegraphics[width=.44\textwidth]{../plots/uubPeakCoorBlPMT1St863.pdf}
 			\\
-			Not corrected & Corrected \\
+			Not corrected & Corrected, but shows negative bins\\
 		\end{tabularx}
 	\end{figure}
 \end{frame}
@@ -123,7 +184,8 @@
 			Not corrected & Corrected
 			\\
 			\begin{tabular}{l}
-				Zooming to check the threshold
+				Zooming to check the threshold, \\
+				but no one can be seen.
 			\end{tabular}
 			&
 			\begin{tabular}{l}
@@ -166,6 +228,100 @@
 		\end{tabularx}
 	\end{figure}
 \end{frame}
+
+
+\begin{frame}
+	\frametitle{How to correct to obtain the right format?}
+	{\bf Here, the correct format is one that shows some threshold.\\}
+	\vspace{0.75cm}
+	Two methos to check the baseline:
+	\vspace{0.5cm}
+	\begin{enumerate}
+		\item IoSdStation::HBase[pmt], return a histogram with the baseline ditribution,
+			according with: histo->GetXaxis()->Set(20, offset, offset + 20); so, this \\
+			method depends on the Offset.
+		\item Calib->Base[pmt] of the IoSdCalib class. This returns the value of the \\
+			baseline, I guess it coming from some measurement performed at the WCD, \\
+			but I am not sure.
+	\end{enumerate}
+\end{frame}
+
+
+
+% ========================
+% *** Baseline sources ***
+
+\begin{frame}
+	\frametitle{Comparison: UUB Baseline IoSdStation::HBase[pmt] and Calib.Base[pmt]}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.4\textwidth]{../plots/uubBlHbasePMT1St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/uubBlCalibPMT1St863.pdf}
+			\\
+			\includegraphics[width=.4\textwidth]{../plots/uubBlHistHbasePMT1St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/uubBlHistCalibPMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{UUB Baseline values IoSdStation::HBase[pmt] and Calib->Base[pmt]}
+	\centering
+	\includegraphics[width=.8\textwidth]{../plots/uubDiffBlHbaseCalibPMT1St863.pdf}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{UUB Baseline values IoSdStation::HBase[pmt] and Calib->Base[pmt]}
+	\centering
+	\includegraphics[width=.6\textwidth]{../plots/uubDiffBlOffsetPkCalibPMT1St863.pdf}
+	\vspace{0.2cm}
+
+	{\bf The Offset is increasing with the time, so this explain why the baseline 
+	from HBase is increasing too.}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{From UUB raw Peak histogram to the correct format, via Calib.Base[pmt]}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.45\textwidth]{../plots/uubPeakCorrCalibPMT1St863.pdf}
+			&
+			\includegraphics[width=.45\textwidth]{../plots/uubPeakCorrCalibZoomPMT1St863.pdf}
+			\\
+			\multicolumn{2}{c}{Now, a threshold is seen, the correct one?}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{From UUB raw Peak histogram to the correct format, via Calib.Base[pmt]}
+	UUB first bin for peak histograms:
+
+	\centering
+	\includegraphics[width=.7\textwidth]{../plots/uubFirstBinPeakCrrCalibPMT1St863.pdf}
+	\vspace{0.2cm}
+
+	{\bf The threshold should be a constant, not too much here...}
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -255,10 +411,17 @@
 
 \begin{frame}
 	\frametitle{Comparison with UB version, same station}
-	{\bf Raw UB Peak Histogram}
+	Raw UB Peak Histogram
 	\begin{figure}
-		\begin{tabularx}{\textwidth}{C}
-			\includegraphics[width=.7\textwidth]{../plots/ubRawPeakPMT1St863.pdf}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/ubRawPeakPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/ubRawPeakZoomPMT1St863.pdf}
+			\end{tabular}
 		\end{tabularx}
 	\end{figure}
 \end{frame}
@@ -514,6 +677,63 @@
 		\end{tabularx}
 	\end{figure}
 \end{frame}
+
+
+% =================
+% *** Area/Peak ***
+
+\begin{frame}
+	\frametitle{Area/Peak: Fitting histograms}
+	%{\bf for UUB LPMT1}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\multicolumn{2}{l}{\bf for UUB LPMT1}
+			\\
+			\begin{tabular}{l}
+				\includegraphics[width=.35\textwidth]{../plots/uubFitPkPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.35\textwidth]{../plots/uubFitChPMT1St863.pdf}
+			\end{tabular}
+			\\
+			\multicolumn{2}{l}{\bf for UB LPMT1}
+			\\
+			\begin{tabular}{l}
+				\includegraphics[width=.35\textwidth]{../plots/ubFitPkPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.35\textwidth]{../plots/ubFitChPMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Area/Peak: Fitting histograms}
+	%{\bf for UUB LPMT1}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/uubApPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/ubApPMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+
+
+
+
 
 
 \end{document}

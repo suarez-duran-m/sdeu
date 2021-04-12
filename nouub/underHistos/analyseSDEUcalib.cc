@@ -101,6 +101,8 @@ int main (int argc, char *argv[]) {
 
 	int offSetCh = 0; // Receive offset from IoSdHisto::Histo
 	int offSetPk = 0; // Receive offset from IoSdHisto::Histo
+	int fstRawBinPk = 0; // First Bin Raw charge
+	int fstRawBinCh = 0; // First Bin Raw peak 
 	unsigned int entryEvt = 0; // Get the Event Id for the respective entry
 	
 	TTree *treeHist = new TTree("Histograms","");
@@ -113,6 +115,8 @@ int main (int argc, char *argv[]) {
 	treeHist->Branch("pkCorrOff", "TH1F", &pkCorrOff);
 	treeHist->Branch("offSetCh",&offSetCh,"offSetCh/I");
 	treeHist->Branch("offSetPk",&offSetPk,"offSetPk/I");
+	treeHist->Branch("fstRawBinPk",&fstRawBinPk,"fstRawBinPk/I");
+	treeHist->Branch("fstRawBinCh",&fstRawBinCh,"fstRawBinCh/I");
 	treeHist->Branch("entryEvt",&entryEvt,"entryEvt/I");
 
   EventPos pos;
@@ -147,6 +151,8 @@ int main (int argc, char *argv[]) {
 			setPk = event.Stations[i].HPeak(pmtId-1);
 			offSetCh = event.Stations[i].Histo->Offset[pmtId-1+6];
 			offSetPk = event.Stations[i].Histo->Offset[pmtId-1+3];
+			fstRawBinPk = event.Stations[i].Histo->Peak[pmtId-1][0];
+			fstRawBinCh = event.Stations[i].Histo->Charge[pmtId-1][0];
 			base = event.Stations[i].HBase(pmtId-1);
 			for ( unsigned b=1; b<601; b++ ) {
 				setChHisto->Fill(b, event.Stations[i].Histo->Charge[pmtId-1][b]);
