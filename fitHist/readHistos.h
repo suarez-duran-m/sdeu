@@ -20,11 +20,11 @@ class readHistos {
 		bool fitChOk;
 		bool fitPkOk;
 
-		void getPkCrrOst (TH1F &hist, const int offset, TString name);
-		void getChCrrOst (TH1F &hist, const int offset, TString name);
+		void getPkCrrOst (TH1F &hist, const int corr, TString name);
+		void getChCrrOst (TH1F &hist, const int corr, TString name);
 
-		void getFitPk(TH1F &hist, const double frac, const int fstbinFit);
-		void getFitCh(TH1F &hist, const double frac, const int fstbinFit);
+		void getFitPk(TH1F &hist, const double frac, const int fstbinFit, const double vempk);
+		void getFitCh(TH1F &hist, const double frac, const int fstbinFit, const double vemch);
 		void resetHstCrrs();
 
 		TGraphErrors *getFitGraphPk();

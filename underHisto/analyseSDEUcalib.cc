@@ -184,7 +184,7 @@ int main (int argc, char *argv[]) {
 						pkCorrOff = tmp1;
 					}
 
-					entryEvt = event.Id;				
+					entryEvt = event.UTCTime;
 					treeHist->Fill();
 				}
 			}

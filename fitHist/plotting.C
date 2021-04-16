@@ -7,10 +7,12 @@ void plotting(int pmt, int st) {
 	stat.Form("St%d", st);
 
 	TFile *f = TFile::Open("uubCalibHist"+pmtId+stat+".root");
+	//TFile f ("uubCalibHist"+pmtId+stat+".root");
 	cout << "Reading file: " << "uubCalibHist"+pmtId+stat+".root" <<endl;
 
  	TTree *histos = (TTree*)f->Get("Histograms"); 
 	TH1F *hcharge = new TH1F();
+	TH1F *hpeak = new TH1F();
 	TH1F *peak = new TH1F(); 
 	TH1F *charge = new TH1F();
 	TH1F *peakCalibBl = new TH1F();
@@ -20,32 +22,29 @@ void plotting(int pmt, int st) {
 
 	double chpk;
 	double blHbase; 
-	double blCalib; 
+	double blCalib;
 	int offsetpk;
+	int offsetch;
+	int evtTime;
  
 	histos->SetBranchAddress("receCh", &hcharge);	
+	histos->SetBranchAddress("recePk", &hpeak);	
 	histos->SetBranchAddress("corrPk",&peak); 	
 	histos->SetBranchAddress("corrCh",&charge);
-	histos->SetBranchAddress("corrPkCalibBl",&peakCalibBl);
-	histos->SetBranchAddress("corrChCalibBl",&chargeCalibBl);
 	histos->SetBranchAddress("fllHPk", &fittedPk); 
 	histos->SetBranchAddress("fllHCh", &fittedCh);
 	histos->SetBranchAddress("baselineHbase", &blHbase);
 	histos->SetBranchAddress("baselineCalib", &blCalib);
 	histos->SetBranchAddress("offSetPk", &offsetpk);
+	histos->SetBranchAddress("offSetCh", &offsetch);
 	histos->SetBranchAddress("ap", &chpk);
-
-	histos->GetEntry(0);
-
-	/*
-	// ================
-	// *** Baseline ***
+	histos->SetBranchAddress("entryEvt", &evtTime);
 
 	TCanvas *c0 = new TCanvas("c0","C0",500,10,1200,800);
-
-	c0->cd();
+	TCanvas *c1 = new TCanvas("c1","C1",500,10,1200,800);
 
 	int nx = histos->GetEntries();
+	TGraph* gr;
 	double xbl[nx];
 	double ybl[nx];
 	double minlimHb = 1e4;
@@ -53,12 +52,93 @@ void plotting(int pmt, int st) {
 	double minlimCl = 1e4;
 	double maxlimCl = 0.;
 
+	TString p0nm;
+	TString p1nm;
+	TPaveStats *ptstats;
+	TText *ptstats_LaTex;
+
+	
+	histos->GetEntry(0);
+	c0->cd();
+	fittedCh->Draw();
+	cerr << offsetch << endl;
+	//fittedPk->Draw();
+//	c1->cd();
+	//hcharge->Draw();
+	//fittedCh->Draw();
+
+
+	// ==================
+	// *** For Offset ***
+
+	/*
+	for ( Int_t tmp=0; tmp<nx; tmp++ ) 
+	{
+		histos->GetEntry( tmp );
+		xbl[tmp] = evtTime;
+		ybl[tmp] = offsetpk;
+	}
+
+
+	gr = new TGraph(nx,xbl,ybl);
+	c1->cd();
+	gr->SetTitle("UUB Offset for Peak Histograms "+pmtId+" "+stat);
+	gr->GetXaxis()->SetTitle("Since December 1st, 2020 (month/day)");
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d");
+	gr->GetYaxis()->SetTitle("1. / FADC");
+	gr->GetYaxis()->SetTitleOffset(1.3);
+	gr->SetFillStyle(1000);
+	gr->SetMarkerStyle(20);
+	gr->SetMarkerSize(0.8);
+	gr->SetMarkerColor(4);
+	gr->Draw("AP");
+	c1->Print("../plots/uubOffsetPk"+pmtId+stat+".pdf");
+*/
+
+/*	
+	for ( Int_t tmp=0; tmp<nx; tmp++ ) 
+	{
+		histos->GetEntry( tmp );
+		xbl[tmp] = evtTime;
+		ybl[tmp] = offsetch;
+	}
+
+	gr = new TGraph(nx,xbl,ybl);
+	c1->cd();
+	gr->SetTitle("UUB Offset for Charge Histograms "+pmtId+" "+stat);
+	gr->GetXaxis()->SetTitle("Since December 1st, 2020 (month/day)");
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d");
+	gr->GetYaxis()->SetTitle("1. / FADC");
+	if ( pmt==3 )
+		gr->GetYaxis()->SetTitleOffset(1.5);
+	else
+		gr->GetYaxis()->SetTitleOffset(1.3);
+	if ( pmt!=3 )
+		gr->GetYaxis()->SetRangeUser(-1,1);
+	gr->SetFillStyle(1000);
+	gr->SetMarkerStyle(20);
+	gr->SetMarkerSize(0.8);
+	gr->SetMarkerColor(4);
+	gr->Draw("AP");
+	c1->Print("../plots/uubOffsetCh"+pmtId+stat+".pdf");
+*/
+
+
+
+	// ====================
+	// *** For Baseline ***
+
+/*
 	TH1F *histBlHbase = new TH1F("histBlHbase", "UUB Mean Baseline HBase "+pmtId+" "+stat, 100, 200, 300);
 	TH1F *histBlCalib = new TH1F("histBlCalib", "UUB Baseline Calib "+pmtId+" "+stat, 100, 200, 300);
 
+	TF1 *linef = new TF1("linef", "[1]*x + [0]");
+
 	for ( Int_t tmp=0; tmp<nx; tmp++ ) {
 		histos->GetEntry( tmp );
-		xbl[tmp] = tmp;
+		xbl[tmp] = evtTime;
 		ybl[tmp] = blHbase;
 		histBlHbase->Fill( blHbase );
 		if ( blHbase < minlimHb )
@@ -69,22 +149,43 @@ void plotting(int pmt, int st) {
 	minlimHb -= 1.;
 	maxlimHb += 2.;
 
-	TGraph* gr = new TGraph(nx,xbl,ybl);
-	c0->cd();
+	gr = new TGraph(nx,xbl,ybl);
+	c1->cd();
 	gr->SetTitle("UUB Mean Baseline HBase "+pmtId+" "+stat);
-	gr->GetXaxis()->SetTitle("Events since December 1st, 2020 until March 31st, 2021");
+	gr->GetXaxis()->SetTitle("Since December 1st, 2020 (month/day)");
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d");
 	gr->GetYaxis()->SetTitle("Mean Baseline HBase / FADC");
 	gr->GetYaxis()->SetTitleOffset(1.3);
 	gr->SetFillStyle(1000);
 	gr->SetMarkerStyle(20);
-	gr->SetMarkerSize(0.4);
+	gr->SetMarkerSize(0.6);
 	gr->SetMarkerColor(4);
+	gr->Fit(linef, "Q");
+
+	p0nm.Form("%.2f", linef->GetParameters()[0]);
+	p1nm.Form("%.2e", linef->GetParameters()[1]);
+	ptstats = new TPaveStats(0.74,0.775,0.98,0.935,"brNDC");
+  ptstats->SetName("stats");
+  ptstats->SetBorderSize(1);
+  ptstats->SetFillColor(0);
+  ptstats->SetTextAlign(12);
+  ptstats->SetTextFont(42);	
+  ptstats_LaTex = ptstats->AddText("p1*x + p0");
+  ptstats_LaTex = ptstats->AddText("p0 = "+p0nm);
+  ptstats_LaTex = ptstats->AddText("p1 = "+p1nm);
+  ptstats->SetOptStat(0);
+  ptstats->Draw();
+  gr->GetListOfFunctions()->Add(ptstats);
+  ptstats->SetParent(gr->GetListOfFunctions());
+
 	gr->Draw("AP");
-	c0->Print("../plots/uubBlHbase"+pmtId+stat+".pdf");
+	c1->Print("../plots/uubBlHbase"+pmtId+stat+".pdf");
+
 
 	for ( Int_t tmp=0; tmp<nx; tmp++ ) {
 		histos->GetEntry( tmp );		
-		xbl[tmp] = tmp;
+		xbl[tmp] = evtTime;
 		ybl[tmp] = blCalib;
 		histBlCalib->Fill( blCalib );
 		if ( blCalib < minlimCl )
@@ -97,17 +198,37 @@ void plotting(int pmt, int st) {
 	maxlimCl += 2.;
 
 	gr = new TGraph(nx,xbl,ybl);
-	c0->cd();
+	c1->cd();
 	gr->SetTitle("UUB Baseline Calib "+pmtId+" "+stat);
-	gr->GetXaxis()->SetTitle("Events since December 1st, 2020 until March 31st, 2021");
+	gr->GetXaxis()->SetTitle("Since December 1st, 2020 (month/day)");
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d");
 	gr->GetYaxis()->SetTitle("Calib.Base / FADC");
 	gr->GetYaxis()->SetTitleOffset(1.3);
 	gr->SetFillStyle(1000);
 	gr->SetMarkerStyle(20);
-	gr->SetMarkerSize(0.4);
+	gr->SetMarkerSize(0.6);
 	gr->SetMarkerColor(4);
+	gr->Fit(linef, "Q");
+
+	p0nm.Form("%.2f", linef->GetParameters()[0]);
+	p1nm.Form("%.2e", linef->GetParameters()[1]);
+	ptstats = new TPaveStats(0.74,0.775,0.98,0.935,"brNDC");
+  ptstats->SetName("stats");
+  ptstats->SetBorderSize(1);
+  ptstats->SetFillColor(0);
+  ptstats->SetTextAlign(12);
+  ptstats->SetTextFont(42);	
+  ptstats_LaTex = ptstats->AddText("p1*x + p0");
+  ptstats_LaTex = ptstats->AddText("p0 = "+p0nm);
+  ptstats_LaTex = ptstats->AddText("p1 = "+p1nm);
+  ptstats->SetOptStat(0);
+  ptstats->Draw();
+  gr->GetListOfFunctions()->Add(ptstats);
+  ptstats->SetParent(gr->GetListOfFunctions());
+
 	gr->Draw("AP");
-	c0->Print("../plots/uubBlCalib"+pmtId+stat+".pdf");
+	c1->Print("../plots/uubBlCalib"+pmtId+stat+".pdf");
 
 	// ===========================
 	// *** For Baseline histos ***
@@ -129,7 +250,334 @@ void plotting(int pmt, int st) {
 	histBlCalib->GetXaxis()->SetTitle("1 / FADC");
 	histBlCalib->Draw();
 	c0->Print("../plots/uubBlHistCalib"+pmtId+stat+".pdf");
+*/
 
+
+	// =================================
+	// *** For Corrected Peak Histos ***
+/*
+	histos->GetEntry(0); // Set for first event
+	int cnt = 0;
+
+	for (int i=0; i<peak->GetXaxis()->GetNbins(); i++)
+		cnt += peak->GetBinContent(i);
+
+	p0nm.Form("%.2d",cnt);
+
+	cerr << blHbase << " " << blCalib << endl;
+	cerr << peak->GetBinCenter(1) << endl;
+	*/
+
+/*
+	c1->cd();
+	peak->SetTitle("UUB Peak-Histogram "+pmtId+" "+stat+" Ev.: 61219267 Corr. HBase: 283");
+	peak->SetStats(0);
+	peak->SetLineColor(kBlue);
+	peak->GetXaxis()->SetTitle("1. / FADC");
+	peak->GetYaxis()->SetTitle("Counts / au");
+	peak->GetYaxis()->SetTitleOffset(1.3);
+	peak->Draw();
+	c1->Print("../plots/uubPeakCoorHBase"+pmtId+stat+".pdf");
+*/
+/*
+	c1->cd();	
+	peak->SetTitle("UUB Peak-Histogram "+pmtId+" "+stat+" Ev.: 61219267 Corr. HBase: 283");
+	peak->SetStats(0);
+	peak->SetLineColor(kBlue);
+	peak->GetXaxis()->SetTitle("1. / FADC");
+	peak->GetXaxis()->SetRangeUser(-60, 60);
+	peak->GetYaxis()->SetTitle("Counts / au");
+	peak->GetYaxis()->SetTitleOffset(1.3);
+	peak->Draw();
+	c1->Print("../plots/uubPeakCoorHBaseZoom"+pmtId+stat+".pdf");
+*/
+
+	// =====================================
+	// *** First Bin for Peak Histograms ***
+/*
+	for ( Int_t tmp=0; tmp<nx; tmp++ ) 
+	{
+		histos->GetEntry( tmp );
+		xbl[tmp] = evtTime;
+		ybl[tmp] = peak->GetBinCenter(1);
+	}
+	*/
+/*
+	gr = new TGraph(nx,xbl,ybl);
+	c1->cd();
+	gr->SetTitle("UUB Peak histogram First Bin Center HBase "+pmtId+" "+stat);
+	gr->GetXaxis()->SetTitle("Since December 1st, 2020 (month/day)");
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d");
+	gr->GetYaxis()->SetTitle("1. / FADC");
+	gr->GetYaxis()->SetTitleOffset(1.3);
+	gr->SetFillStyle(1000);
+	gr->SetMarkerStyle(20);
+	gr->SetMarkerSize(0.6);
+	gr->SetMarkerColor(4);
+	gr->Draw("AP");
+	c1->Print("../plots/uubPeakFirstBinHBase"+pmtId+stat+".pdf");
+*/
+/*
+	gr = new TGraph(nx,xbl,ybl);
+	c1->cd();
+	gr->SetTitle("UUB Peak histogram First Bin Center Calib.Base "+pmtId+" "+stat);
+	gr->GetXaxis()->SetTitle("Since December 1st, 2020 (month/day)");
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d");
+	gr->GetYaxis()->SetTitle("1. / FADC");
+	gr->GetYaxis()->SetTitleOffset(1.3);
+	gr->SetFillStyle(1000);
+	gr->SetMarkerStyle(20);
+	gr->SetMarkerSize(0.6);
+	gr->SetMarkerColor(4);
+	gr->Draw("AP");
+	c1->Print("../plots/uubPeakFirstBinCalibBase"+pmtId+stat+".pdf");
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// =============================
+	// *** For Charge Histograms ***
+/*
+	histos->GetEntry(0);
+	c1->cd();
+	charge->SetTitle("UUB Charge-Histogram "+pmtId+" "+stat+" Ev.: 61219267 Corr. HBase: 283");
+	charge->SetStats(0);
+	charge->SetLineColor(kBlue);
+	charge->GetXaxis()->SetTitle("1. / FADC");
+	charge->GetYaxis()->SetTitle("Counts / au");
+	charge->GetYaxis()->SetTitleOffset(1.3);
+	charge->Draw();
+	c1->Print("../plots/uubChargeCoorHBase"+pmtId+stat+".pdf");
+
+	c1->cd();	
+	charge->SetTitle("UUB Charge-Histogram "+pmtId+" "+stat+" Ev.: 61219267 Corr. HBase: 283");
+	charge->SetStats(0);
+	charge->SetLineColor(kBlue);
+	charge->GetXaxis()->SetTitle("1. / FADC");
+	charge->GetXaxis()->SetRangeUser(charge->GetXaxis()->GetBinLowEdge(1), charge->GetXaxis()->GetBinLowEdge(30));
+	charge->GetYaxis()->SetTitle("Counts / au");
+	charge->GetYaxis()->SetTitleOffset(1.3);
+	charge->Draw();
+	c1->Print("../plots/uubChargeCoorHBaseZoom"+pmtId+stat+".pdf");
+*/
+
+	/*
+	c1->cd();
+	charge->SetTitle("UUB Charge-Histogram "+pmtId+" "+stat+" Ev.: 61219267 Corr. Calib.Base: 233");
+	charge->SetStats(0);
+	charge->SetLineColor(kBlue);
+	charge->GetXaxis()->SetTitle("1. / FADC");
+	charge->GetYaxis()->SetTitle("Counts / au");
+	charge->GetYaxis()->SetTitleOffset(1.3);
+	charge->Draw();
+	c1->Print("../plots/uubChargeCoorCalibBase"+pmtId+stat+".pdf");
+
+	c1->cd();	
+	charge->SetTitle("UUB Charge-Histogram "+pmtId+" "+stat+" Ev.: 61219267 Corr. Calib.Base: 233");
+	charge->SetStats(0);
+	charge->SetLineColor(kBlue);
+	charge->GetXaxis()->SetTitle("1. / FADC");
+	charge->GetXaxis()->SetRangeUser(charge->GetXaxis()->GetBinLowEdge(1), charge->GetXaxis()->GetBinLowEdge(30));
+	charge->GetYaxis()->SetTitle("Counts / au");
+	charge->GetYaxis()->SetTitleOffset(1.3);
+	charge->Draw();
+	c1->Print("../plots/uubChargeCoorCalibBaseZoom"+pmtId+stat+".pdf");
+*/
+
+
+	// =====================================
+	// *** First Bin for Peak Histograms ***
+/*
+	for ( Int_t tmp=0; tmp<nx; tmp++ ) 
+	{
+		histos->GetEntry( tmp );
+		xbl[tmp] = evtTime;
+		ybl[tmp] = peak->GetBinCenter(1);
+	}
+	*/
+/*
+	gr = new TGraph(nx,xbl,ybl);
+	c1->cd();
+	gr->SetTitle("UUB Peak histogram First Bin Center HBase "+pmtId+" "+stat);
+	gr->GetXaxis()->SetTitle("Since December 1st, 2020 (month/day)");
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d");
+	gr->GetYaxis()->SetTitle("1. / FADC");
+	gr->GetYaxis()->SetTitleOffset(1.3);
+	gr->SetFillStyle(1000);
+	gr->SetMarkerStyle(20);
+	gr->SetMarkerSize(0.6);
+	gr->SetMarkerColor(4);
+	gr->Draw("AP");
+	c1->Print("../plots/uubPeakFirstBinHBase"+pmtId+stat+".pdf");
+*/
+
+
+	// =======================================
+	// *** First Bin for Charge Histograms ***
+/*
+	for ( Int_t tmp=0; tmp<nx; tmp++ ) 
+	{
+		histos->GetEntry( tmp );
+		xbl[tmp] = evtTime;
+		ybl[tmp] = charge->GetBinCenter(1);
+	}
+	*/
+
+/*
+	gr = new TGraph(nx,xbl,ybl);
+	c1->cd();
+	gr->SetTitle("UUB Charge histogram First Bin Center HBase "+pmtId+" "+stat);
+	gr->GetXaxis()->SetTitle("Since December 1st, 2020 (month/day)");
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d");
+	gr->GetYaxis()->SetTitle("1. / FADC");
+	gr->GetYaxis()->SetTitleOffset(1.3);
+	gr->SetFillStyle(1000);
+	gr->SetMarkerStyle(20);
+	gr->SetMarkerSize(0.6);
+	gr->SetMarkerColor(4);
+	gr->Draw("AP");
+	c1->Print("../plots/uubChargeFirstBinHBase"+pmtId+stat+".pdf");
+	*/
+/*
+	gr = new TGraph(nx,xbl,ybl);
+	c1->cd();
+	gr->SetTitle("UUB Charge histogram First Bin Center Calib.Base "+pmtId+" "+stat);
+	gr->GetXaxis()->SetTitle("Since December 1st, 2020 (month/day)");
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d");
+	gr->GetYaxis()->SetTitle("1. / FADC");
+	gr->GetYaxis()->SetTitleOffset(1.3);
+	gr->SetFillStyle(1000);
+	gr->SetMarkerStyle(20);
+	gr->SetMarkerSize(0.6);
+	gr->SetMarkerColor(4);
+	gr->Draw("AP");
+	c1->Print("../plots/uubChargeFirstBinCalibBase"+pmtId+stat+".pdf");
+	*/
+
+
+	// =============================
+	// *** Area/Peak Calculation ***
+
+	nx = histos->GetEntries();
+	for ( Int_t tmp=0; tmp<nx; tmp++ ) 
+	{
+		histos->GetEntry( tmp );
+		xbl[tmp] = evtTime;
+		ybl[tmp] = chpk;
+	}
+	
+
+	/*
+	gr = new TGraph(nx,xbl,ybl);
+	c1->cd();
+	gr->SetTitle("UUB A/P "+pmtId+" "+stat+" HBase-Offset");
+	//gr->GetXaxis()->SetRangeUser(1e4, 5e4);
+	gr->GetXaxis()->SetTitle("Since December 1st, 2020 (month/day)");
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d");
+	gr->GetYaxis()->SetTitle("1. / 8.33*ns");
+	gr->GetYaxis()->SetRangeUser(0, 12);
+	gr->SetFillStyle(1000);
+	gr->SetMarkerStyle(20);
+	gr->SetMarkerSize(0.4);
+	gr->SetMarkerColor(4);
+	gr->Draw("AP");
+	c1->Print("../plots/uubApOffset"+pmtId+stat+".pdf");
+	*/
+
+	gr = new TGraph(nx,xbl,ybl);
+	c1->cd();
+	gr->SetTitle("UUB A/P "+pmtId+" "+stat+" Calib.Base-Offset");
+	//gr->GetXaxis()->SetRangeUser(1e4, 5e4);
+	gr->GetXaxis()->SetTitle("Since December 1st, 2020 (month/day)");
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d");
+	gr->GetYaxis()->SetTitle("1. / 8.33*ns");
+	gr->GetYaxis()->SetRangeUser(0, 12);
+	gr->SetFillStyle(1000);
+	gr->SetMarkerStyle(20);
+	gr->SetMarkerSize(0.4);
+	gr->SetMarkerColor(4);
+	gr->Draw("AP");
+	//c1->Print("../plots/uubApOffsetCalib"+pmtId+stat+".pdf");
+
+
+/*
+	c1->cd();
+	peak->SetTitle("UUB Peak-Histogram "+pmtId+" "+stat+" Ev.: 61219267 Corr. Calib.Base: 233");
+	peak->SetStats(0);
+	peak->SetLineColor(kBlue);
+	peak->GetXaxis()->SetTitle("1. / FADC");
+	peak->GetYaxis()->SetTitle("Counts / au");
+	peak->GetYaxis()->SetTitleOffset(1.3);
+	peak->Draw();
+	c1->Print("../plots/uubPeakCoorCalibBase"+pmtId+stat+".pdf");
+
+	peak->SetTitle("UUB Peak-Histogram "+pmtId+" "+stat+" Ev.: 61219267 Corr. Calib.Base: 233");
+	peak->SetStats(0);
+	peak->SetLineColor(kBlue);
+	peak->GetXaxis()->SetTitle("1. / FADC");
+	peak->GetXaxis()->SetRangeUser(40, 60);
+	peak->GetYaxis()->SetTitle("Counts / au");
+	peak->GetYaxis()->SetTitleOffset(1.3);
+	peak->Draw();
+	c1->Print("../plots/uubPeakCoorCalibBaseZoom"+pmtId+stat+".pdf");
+*/
+
+
+/*	
+	TLatex latex(9e2,3.4e3,"Entries "+p0nm);
+	latex.SetTextSize(0.04);
+	latex.DrawClone("Same");
+*/
+
+	
+/*
+	int nx = histos->GetEntries();
+	double xbl[nx];
+	double ybl[nx];
+
+	for ( Int_t tmp=0; tmp<histos->GetEntries(); tmp++ ) {
+		histos->GetEntry(tmp);
+		xbl[tmp] = tmp;
+		ybl[tmp] = chpk;
+	}
+
+	TGraph* gr = new TGraph(nx,xbl,ybl);
+	c1->cd();
+	gr->SetTitle("UUB First bin for Peak Histogram BL from Calib.Base "+pmtId+" "+stat);
+	gr->GetXaxis()->SetTitle("Events since December 1st, 2020 until March 31st, 2021");
+	gr->GetYaxis()->SetTitle("1 / FADCp");
+	gr->GetYaxis()->SetTitleOffset(1.3);
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d:%H");
+	gr->SetFillStyle(1000);
+	gr->SetMarkerStyle(20);
+	gr->SetMarkerSize(0.4);
+	gr->SetMarkerColor(4);
+	gr->Draw("AP");
+*/
+
+	/*
 	// ================================
 	// *** For Baseline Differences ***
 
@@ -216,9 +664,8 @@ void plotting(int pmt, int st) {
 	// *** Plotting Fitted histograms ***
 
 
-	TCanvas *c1 = new TCanvas("c1","C1",500,10,1200,800);
-	histos->GetEntry(0);
-
+	//histos->GetEntry(0);
+/*
 	c1->cd();
 	peakCalibBl->SetTitle("UUB Peak histogram "+pmtId+" "+stat+" Corr. for Calib.Base") ;
 	peakCalibBl->SetStats(kFALSE);
@@ -228,7 +675,8 @@ void plotting(int pmt, int st) {
 	peakCalibBl->SetLineColor(kBlue);
 	peakCalibBl->Draw();
 	c1->Print("../plots/uubPeakCorrCalib"+pmtId+stat+".pdf");
-
+	*/
+/*
 	c1->cd();
 	peakCalibBl->SetTitle("UUB Peak histogram "+pmtId+" "+stat+" Corr. for Calib.Base") ;
 	peakCalibBl->SetStats(kFALSE);
@@ -239,11 +687,12 @@ void plotting(int pmt, int st) {
 	peakCalibBl->SetLineColor(kBlue);
 	peakCalibBl->Draw();
 	c1->Print("../plots/uubPeakCorrCalibZoom"+pmtId+stat+".pdf");
-
+*/
 
 	// ==============================================
 	// *** Checking for first bin Peak Histograms ***
 	
+	/*
 	int nx = histos->GetEntries();
 	double xbl[nx];
 	double ybl[nx];
@@ -265,10 +714,9 @@ void plotting(int pmt, int st) {
 	gr->SetMarkerSize(0.4);
 	gr->SetMarkerColor(4);
 	gr->Draw("AP");
-	c1->Print("../plots/uubFirstBinPeakCrrCalib"+pmtId+stat+".pdf");
+	//c1->Print("../plots/uubFirstBinPeakCrrCalib"+pmtId+stat+".pdf");
 
-
-
+*/
 	//chargeCalibBl->Draw();
 	//hcharge->Draw();
 

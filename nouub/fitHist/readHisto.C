@@ -49,7 +49,7 @@ void readHisto(int pmt, int st) {
 
 	// ==========================================
 	// *************** For Peak *****************
-	
+/*	
 	c1->cd();
 	pkHisto->SetTitle("UB Peak-Raw-Histogram "+pmtId+" "+stat+" event: "+nameEvt);
 	pkHisto->SetYTitle("Counts / au");
@@ -207,11 +207,11 @@ void readHisto(int pmt, int st) {
 	charge->Draw();
 	c1->Print("../../plots/ubCharge"+pmtId+stat+".pdf");
 	cout << "First bin for Charge histogram: " << charge->GetBinLowEdge(1) << endl;
-
+*/
 
 	// ==================================
 	// *** OffSet as funciton of time ***
-
+/*
 	Int_t nx = histos->GetEntries();
 	Double_t x[nx];
 	Double_t y[nx];
@@ -302,7 +302,7 @@ void readHisto(int pmt, int st) {
 	gr->Draw("AP");
 	c1->Print("../../plots/ubOffsetDiffCh"+pmtId+stat+".pdf");
 
-
+*/
 	// =============================================
 	// *** Counts in first bin of raw histograms ***
 

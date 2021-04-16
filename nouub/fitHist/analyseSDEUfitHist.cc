@@ -101,6 +101,7 @@ int main (int argc, char *argv[]) {
 	TH1F *corrCh = new TH1F(); // Receive Ch corrected for offset
 	TH1F *corrPk = new TH1F(); // Receive Pk corrected for offset
 	TH1F *corrPkCalibBl = new TH1F(); // Receive Pk corrected for Calib->Base
+	TH1F *corrChCalibBl = new TH1F(); // Receive Pk corrected for Calib->Base
 	TGraphErrors *fllHCh = new TGraphErrors();
 	TGraphErrors *fllHPk = new TGraphErrors();
 
@@ -108,6 +109,8 @@ int main (int argc, char *argv[]) {
 	int offSetPk = 0; // Receive offset from IoSdHisto::Histo
 	double ap = 0; // Receive area/peak
 	unsigned int entryEvt = 0; // Get the Event Id for the respective entry
+	double baselineHbase = 0.;
+	double baselineCalib = 0.;
 	
 	TTree *treeHist = new TTree("Histograms","");
 	treeHist->Branch("baseline", "TH1F", &baseline);
@@ -116,14 +119,19 @@ int main (int argc, char *argv[]) {
 	treeHist->Branch("corrPk", "TH1F", &corrPk);
 	treeHist->Branch("corrCh", "TH1F", &corrCh);
 	treeHist->Branch("corrPkCalibBl", "TH1F", &corrPkCalibBl);
+	treeHist->Branch("corrChCalibBl", "TH1F", &corrChCalibBl);
 	treeHist->Branch("fllHCh", "TGraphErrors", &fllHCh);
 	treeHist->Branch("fllHPk", "TGraphErrors", &fllHPk);
 	treeHist->Branch("offSetCh",&offSetCh,"offSetCh/I");
 	treeHist->Branch("offSetPk",&offSetPk,"offSetPk/I");
 	treeHist->Branch("ap",&ap,"ap/D");
+	treeHist->Branch("baselineHbase", &baselineHbase, "baselineHbase/D");
+	treeHist->Branch("baselineCalib", &baselineCalib, "baselineCalib/D");
 	treeHist->Branch("entryEvt",&entryEvt,"entryEvt/I");
 
   EventPos pos;
+
+	double baseCorrApp = 0.;
 
   for (pos=input.FirstEvent(); pos<input.LastEvent(); pos=input.NextEvent()) {
     ++nrEventsRead;
@@ -134,7 +142,7 @@ int main (int argc, char *argv[]) {
 
     bool found = false;
     IoSdEvent event(pos);
-
+		
     for (unsigned int i = 0 ; i < event.Stations.size(); ++i){
       found = false;
       for ( vector<unsigned int>::const_iterator iter= stationsIds.begin();
@@ -147,47 +155,48 @@ int main (int argc, char *argv[]) {
 			cout << "# Event " << event.Id << " Station " << event.Stations[i].Id
 				<< " " << nrEventsRead-1 << endl;
 
-			if (event.Stations[i].Error)
+			if ( event.Stations[i].Error ) 
+				continue;
+			if ( event.Stations[i].HBase(pmtId-1)->GetMean() > 100 )
 				continue;
 
-			readSglEvt = true;
+			//readSglEvt = true;
 			tmpName.Form("%d", nrEventsRead-1);
 			receCh = event.Stations[i].HCharge(pmtId-1);
 			recePk = event.Stations[i].HPeak(pmtId-1);
 			offSetCh = event.Stations[i].Histo->Offset[pmtId-1+6];
 			offSetPk = event.Stations[i].Histo->Offset[pmtId-1+3];
 			fitHist.getGraph = true;
-					
-			fitHist.getPkCrrOst(*recePk, offSetPk, tmpName+"pk"); // Correction for Offset Pk
+			//baseCorrApp = event.Stations[i].HBase(pmtId-1)->GetMean();
+			baseCorrApp = event.Stations[i].Calib->Base[pmtId-1];
+			
+			// ==================
+			// *** Fitting Pk ***
+			fitHist.getPkCrrOst(*recePk, baseCorrApp, tmpName+"pkBl");
 			corrPk = fitHist.getPkCorr();
-			fitHist.getFitPk(*corrPk, 0.2, 10); // Fittting Pk
-			fllHPk = fitHist.getFitGraphPk();
+			fitHist.getFitPk(*corrPk, 0.2, 5, event.Stations[i].Calib->VemPeak[pmtId-1]);
+			if ( fitHist.fitPkOk )
+				fllHPk = fitHist.getFitGraphPk();
 
-			fitHist.getChCrrOst(*receCh, offSetCh, tmpName+"ch"); // Correction for Offset Ch
+			// ==================
+			// *** Fitting Ch ***
+			fitHist.getChCrrOst(*receCh, baseCorrApp, tmpName+"chBl");// Get negative bins
 			corrCh = fitHist.getChCorr();
-			fitHist.getFitCh(*corrCh, 0.3, 10); // Fittting Ch
-			fllHCh = fitHist.getFitGraphCh();
+			fitHist.getFitCh(*corrCh, 0.3, 10, event.Stations[i].Calib->VemCharge[pmtId-1]);
+			if ( fitHist.fitChOk )
+				fllHCh = fitHist.getFitGraphCh();
 
+			// ==================
+			// *** Saving A/P ***
 			if ( fitHist.fitChOk && fitHist.fitPkOk )
 				ap = fitHist.vemPosCh/fitHist.vemPosPk;
 			else
 				ap = 0.;
-			fitHist.resetHstCrrs();
 
-			// ==================================
-			// *** Correcting for Calib->Base ***
+			baselineHbase = event.Stations[i].HBase(pmtId-1)->GetMean();
+			baselineCalib = event.Stations[i].Calib->Base[pmtId-1];
 
-			baseline = event.Stations[i].HBase(pmtId-1);
-
-			//Correction for CalibBaseline Pk
-			fitHist.getPkCrrOst(*recePk, event.Stations[i].Calib->Base[pmtId-1], tmpName+"pkBl");
-			corrPkCalibBl = fitHist.getPkCorr();
-			fitHist.getFitPk(*corrPk, 0.2, 10); // Fittting Pk
-			cerr << "Pk offset: " << offSetPk << endl;
-			cerr << "Base->Mean() = " << baseline->GetMean() << endl;
-			cerr << "Calib->Base[0] = " << event.Stations[i].Calib->Base[0] << endl;
-
-			entryEvt = event.Id;	
+			entryEvt = event.UTCTime;
 			treeHist->Fill();
 		}
 		if (readSglEvt)

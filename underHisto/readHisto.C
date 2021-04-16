@@ -49,7 +49,7 @@ void readHisto(int pmt, int st) {
 
 	// ==========================================
 	// *************** For Peak *****************
-	
+/*	
 	c1->cd();
 	pkHisto->SetTitle("UUB Peak-Raw-Histogram "+pmtId+" "+stat+" event: "+nameEvt);
 	pkHisto->SetYTitle("Counts / au");
@@ -161,9 +161,9 @@ void readHisto(int pmt, int st) {
 	peakOff->Draw();
 	c1->Print("../plots/uubPeakCoorOffZoom"+pmtId+stat+".pdf");
 
+*/
 
-
-
+/*
 	// ==========================================
 	// ************** For Charge ****************
 
@@ -198,7 +198,7 @@ void readHisto(int pmt, int st) {
 	charge->Draw();
 	c1->Print("../plots/uubCharge"+pmtId+stat+".pdf");
 	cout << "First bin for Charge histogram: " << charge->GetBinLowEdge(1) << endl;
-
+*/
 
 	// ==================================
 	// *** OffSet as funciton of time ***
@@ -206,7 +206,8 @@ void readHisto(int pmt, int st) {
 	Int_t nx = histos->GetEntries();
 	Double_t x[nx];
 	Double_t y[nx];
-
+	TGraph* gr;
+/*
 	// ================
 	// *** For Peak ***
 
@@ -292,23 +293,26 @@ void readHisto(int pmt, int st) {
 	gr->SetMarkerColor(4);
 	gr->Draw("AP");
 	c1->Print("../plots/uubOffsetDiffCh"+pmtId+stat+".pdf");
-
+*/
 
 	// =============================================
 	// *** Counts in first bin of raw histograms ***
 
 	for (Int_t i=0; i<nx; i++) {
 		histos->GetEntry(i);
-		x[i] = i;
+		x[i] = eventId;
 		y[i] = fstPkraw;
 	}
 
 	gr = new TGraph(nx,x,y);
 	c1->cd();
 	gr->SetTitle("Counts in first bin for UUB Peak Histograms "+pmtId+" "+stat);
-	gr->GetXaxis()->SetTitle("Events since December 1st, 2020");
-	gr->GetYaxis()->SetTitle("Offset / FADC");
-	gr->GetYaxis()->SetTimeOffset(1.3);
+	gr->GetXaxis()->SetTitle("Since December 1st, 2020 (month/day)");
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d");
+	gr->GetXaxis()->SetTitleOffset(1.3);
+	gr->GetYaxis()->SetTitle("1. / FADC");
+	gr->GetYaxis()->SetTitleOffset(1.3);
 	gr->SetFillStyle(1000);
 	gr->SetMarkerStyle(20);
 	gr->SetMarkerSize(1.2);
@@ -316,7 +320,7 @@ void readHisto(int pmt, int st) {
 	gr->Draw("AP");
 	c1->Print("../plots/uubCntFirstBinPk"+pmtId+stat+".pdf");
 
-
+/*
 	for (Int_t i=0; i<nx; i++) {
 		histos->GetEntry(i);
 		x[i] = i;
@@ -335,7 +339,7 @@ void readHisto(int pmt, int st) {
 	gr->SetMarkerColor(4);
 	gr->Draw("AP");
 	c1->Print("../plots/uubCntFirstBinCh"+pmtId+stat+".pdf");
-
+*/
 
 
 

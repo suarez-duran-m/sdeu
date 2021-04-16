@@ -56,6 +56,8 @@ readHistos::readHistos() {
 	nXbins = 0;
 	checkMax = false;
 	critGoodFit = 0.;
+	hstCrrPk = new TH1F();
+	hstCrrCh = new TH1F();
 }
 
 void readHistos::getPkCrrOst(TH1F &hist, const int offset, TString name) {
@@ -80,7 +82,7 @@ void readHistos::getChCrrOst(TH1F &hist, const int offset, TString name) {
 	double xb [nb];
 
 	for ( unsigned int b=0; b<nb; b++ )
-		xb[b] = hist.GetBinLowEdge(b+1) - offset;
+		xb[b] = hist.GetBinLowEdge(b+1) - 20.0*offset;
 	xb[nb] = xb[nb-1] + hist.GetBinWidth(1);
 
 	hstCrrCh = new TH1F(name, name, nb, xb);
@@ -90,7 +92,7 @@ void readHistos::getChCrrOst(TH1F &hist, const int offset, TString name) {
 }
 
 
-void readHistos::getFitPk(TH1F &hist, const double frac, const int fstbinFit ) {
+void readHistos::getFitPk(TH1F &hist, const double frac, const int fstbinFit, const double vempk ) {
 	emPkb = 0; // Bin for EM peak
 	emPkc = 0; // Counts for EM peak
 	rangXmin = 0; // Min for fitting
@@ -105,7 +107,7 @@ void readHistos::getFitPk(TH1F &hist, const double frac, const int fstbinFit ) {
 			emPkb = hist.GetBinLowEdge(b);
 		}
 
-	rangXmin = emPkb + 10*hist.GetXaxis()->GetBinWidth(1);
+	rangXmin = emPkb + fstbinFit*hist.GetXaxis()->GetBinWidth(1);
 	TString parName; // For Fitted plot title
 
 	vector < double > xbins; // X bins for fit-function
@@ -127,12 +129,12 @@ void readHistos::getFitPk(TH1F &hist, const double frac, const int fstbinFit ) {
 
 	TF1 *fitFcn = new TF1("fitFcn", fitFunction, rangXmin, rangXmax, 5);
 
-	fitFcn->SetParameters(11, (rangXmax-rangXmin)/2., 0.3, 6, (rangXmax-rangXmin)/8.); //Set  init. fit par.
+	fitFcn->SetParameters(11, vempk, 0.3, 6, vempk/8.); //Set  init. fit par.
 
 	chFit->Fit("fitFcn","QR");
 	vemPosPk = peakMax(fitFcn);
 
-	critGoodFit = 7;
+	critGoodFit = 5;
 
 	if ( fitFcn->GetChisquare()/fitFcn->GetNDF() < critGoodFit && vemPosPk > 0) {
 		fitPkOk = true;
@@ -156,7 +158,7 @@ void readHistos::getFitPk(TH1F &hist, const double frac, const int fstbinFit ) {
 }
 
 
-void readHistos::getFitCh(TH1F &hist, const double frac, const int fstbinFit ) {
+void readHistos::getFitCh(TH1F &hist, const double frac, const int fstbinFit, const double vemch ) {
 	emPkb = 0; // Bin for EM peak
 	emPkc = 0; // Counts for EM peak
 	rangXmin = 0; // Min for fitting
@@ -171,7 +173,7 @@ void readHistos::getFitCh(TH1F &hist, const double frac, const int fstbinFit ) {
 			emPkb = hist.GetBinLowEdge(b);
 		}
 
-	rangXmin = emPkb + 25*hist.GetXaxis()->GetBinWidth(1);
+	rangXmin = emPkb + fstbinFit*hist.GetXaxis()->GetBinWidth(1);
 	TString parName; // For Fitted plot title
 
 	vector < double > xbins; // X bins for fit-function
@@ -193,11 +195,11 @@ void readHistos::getFitCh(TH1F &hist, const double frac, const int fstbinFit ) {
 
 	TF1 *fitFcn = new TF1("fitFcn", fitFunction, rangXmin, rangXmax, 5);
 
-	fitFcn->SetParameters(11.61, (rangXmax-rangXmin)/2., 0.3, 7.8, 45.5); //Set  init. fit par.
+	fitFcn->SetParameters(11.61, vemch, 0.3, 7.8, 45.5); //Set  init. fit par.
 
 	chFit->Fit("fitFcn","QR");
 	vemPosCh = peakMax(fitFcn);
-	critGoodFit = 5;
+	critGoodFit = 25;
 
 	if ( fitFcn->GetChisquare()/fitFcn->GetNDF() < critGoodFit && vemPosCh > 0) {
 		fitChOk = true;

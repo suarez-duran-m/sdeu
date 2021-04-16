@@ -39,7 +39,7 @@ void readHisto(int pmt, int st) {
 	histos->SetBranchAddress("pkCorrOff", &peakOff);
 
 	TCanvas *c1 = new TCanvas("c1","C1",500,10,1200,800);
-
+/*
 	cout << histos->GetEntries() << endl;
 	histos->GetEntry(0);
 	cout << eventId << endl;
@@ -162,17 +162,6 @@ void readHisto(int pmt, int st) {
 	c1->Print("../../plots/ubPeakCoorOffZoom"+pmtId+stat+".pdf");
 
 
-
-
-
-
-
-
-
-
-
-
-
 	// ==========================================
 	// ************** For Charge ****************
 
@@ -208,14 +197,16 @@ void readHisto(int pmt, int st) {
 	c1->Print("../../plots/ubCharge"+pmtId+stat+".pdf");
 	cout << "First bin for Charge histogram: " << charge->GetBinLowEdge(1) << endl;
 
-
+*/
 	// ==================================
 	// *** OffSet as funciton of time ***
 
 	Int_t nx = histos->GetEntries();
 	Double_t x[nx];
 	Double_t y[nx];
+	TGraph* gr;
 
+	/*
 	// ================
 	// *** For Peak ***
 
@@ -301,24 +292,27 @@ void readHisto(int pmt, int st) {
 	gr->SetMarkerColor(4);
 	gr->Draw("AP");
 	c1->Print("../../plots/ubOffsetDiffCh"+pmtId+stat+".pdf");
-
+*/
 
 	// =============================================
 	// *** Counts in first bin of raw histograms ***
 
 	for (Int_t i=0; i<nx; i++) {
 		histos->GetEntry(i);
-		x[i] = i;
+		x[i] = eventId;
 		y[i] = fstPkraw;
 	}
 
 	gr = new TGraph(nx,x,y);
 	c1->cd();
 	gr->SetTitle("Counts in first bin for UB Peak Histograms "+pmtId+" "+stat);
-	gr->GetXaxis()->SetTitle("Events since September 1st until November 30th, 2020");
-	gr->GetYaxis()->SetTitle("Offset / FADC");
-	gr->GetYaxis()->SetTimeOffset(1.3);
-	gr->GetYaxis()->SetRangeUser(-1,5);
+	gr->GetXaxis()->SetTitle("Events since September 1st, 2020 (month/day)");
+	gr->GetXaxis()->SetTimeDisplay(1);
+	gr->GetXaxis()->SetTimeFormat("%m/%d");
+	gr->GetXaxis()->SetTitleOffset(1.2);
+	gr->GetYaxis()->SetTitle("1. / FADC");
+	gr->GetYaxis()->SetTitleOffset(1.5);
+	gr->GetYaxis()->SetRangeUser(-5e3,6e4);
 	gr->SetFillStyle(1000);
 	gr->SetMarkerStyle(20);
 	gr->SetMarkerSize(1.2);
@@ -326,7 +320,7 @@ void readHisto(int pmt, int st) {
 	gr->Draw("AP");
 	c1->Print("../../plots/ubCntFirstBinPk"+pmtId+stat+".pdf");
 
-
+/*
 	for (Int_t i=0; i<nx; i++) {
 		histos->GetEntry(i);
 		x[i] = i;
@@ -345,7 +339,7 @@ void readHisto(int pmt, int st) {
 	gr->SetMarkerColor(4);
 	gr->Draw("AP");
 	c1->Print("../../plots/ubCntFirstBinCh"+pmtId+stat+".pdf");
-
+*/
 
 
 /*
@@ -364,8 +358,6 @@ void readHisto(int pmt, int st) {
 		gPad->WaitPrimitive();
 	}
 */
-
-
 
 
 /*

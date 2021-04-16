@@ -181,7 +181,7 @@ int main (int argc, char *argv[]) {
 					tmp1->SetBinContent(b+1, setPk->GetBinContent(b+1));
 				pkCorrOff = tmp1;
 			}
-			entryEvt = event.Id;				
+			entryEvt = event.UTCTime;				
 			treeHist->Fill();
 		}
 		if (readSglEvt) {
