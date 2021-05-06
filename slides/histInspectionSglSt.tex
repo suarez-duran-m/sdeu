@@ -1,0 +1,1175 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}{
+	\insertframenumber{}
+	}
+
+\title{UUB Charge and Peak histograms}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{UUB Charge and Peak histograms}
+  \begin{itemize}
+		\item Station studied: 863
+    \item Data from CDAS.
+		\item {\underline {Software CDAS, pre-production version.}}
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Some basics before to start}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{C|C}
+			\includegraphics[width=5.5cm]{Notes_210416_133229.pdf}
+			&
+			\includegraphics[width=5.5cm]{Notes_210416_115409.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% ================
+% *** For Peak ***
+
+\begin{frame}
+	\frametitle{PMT 1: UUB Peak Histogram}
+	Raw UUB Peak Histogram
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/uubRawPeakPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/uubRawPeakZoomPMT1St863.pdf}
+			\end{tabular}
+			\\
+			& Not zero counts in the first bin
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% ====================================
+% *** First Bin for Raw histograms ***
+
+\begin{frame}
+	\frametitle{PMT 1: UUB and UB counts in the first bin in Raw Peak Histogram}
+	{\bf IoSdHisto::Peak[pmtId][0]}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				\includegraphics[width=.45\textwidth]{../plots/uubCntFirstBinPkPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.45\textwidth]{../plots/ubCntFirstBinPkPMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{PMT 1: UUB and UB counts in the first bin in Raw Peak Histogram}
+	{\bf IoSdHisto::Peak[pmtId][0]}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				\includegraphics[width=.36\textwidth]{../plots/uubCntFirstBinPkPMT2St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.36\textwidth]{../plots/ubCntFirstBinPkPMT2St863.pdf}
+			\end{tabular}
+			\\
+			\begin{tabular}{l}
+				\includegraphics[width=.36\textwidth]{../plots/uubCntFirstBinPkPMT3St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.36\textwidth]{../plots/ubCntFirstBinPkPMT3St863.pdf}
+			\end{tabular}
+			\\
+			\multicolumn{2}{l}{Are we reading noise in first Peak histograms bins?}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% =====================================
+% *** Correcting raw Peak histogram ***
+
+\begin{frame}
+	\frametitle{From UUB raw Peak histogram to the correct format}
+	{\bf Applying IoSdStation::HPeak method}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\multicolumn{2}{l}{Each bin (j) of raw histogram is corrected as:} 
+			\\ [2ex]
+			\multicolumn{2}{l}{xp[j] = j*mult + offset;
+			xp[100 + j] = 100 * mult + bigbins * j * mult + offset;} 
+			\\ [2ex]
+			\multicolumn{2}{l}{Here, {\it mult} and {\it bigbins} are constants and equal to 4; 
+			the {\it offset} is set for each event.}
+			\\
+			\begin{tabular}{l}
+				As an instance, for event 61219267 the \\
+				first bin is set a 273 FADC. So, the \\
+				baseline needs to be discounted.\\ \\
+				First, the  Offset variable is checked.\\ \\
+				And, there are two methods to get \\ 
+				the baseline: IoSdStation::HBase and \\
+				Calib->Base.
+			\end{tabular} 
+			& 
+			\begin{tabular}{l}
+				\includegraphics[width=.55\textwidth]{../plots/uubPeakPMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+% ==============
+% *** Offset ***
+
+\begin{frame}
+	\frametitle{Checking Offset: comparison UUB and UB Peak histograms}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.5\textwidth]{../plots/uubOffsetPkPMT1St863.pdf}
+			&
+			\includegraphics[width=.5\textwidth]{../plots/ubOffsetPkPMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+% ================
+% *** Baseline ***
+
+\begin{frame}
+	\frametitle{Checking UUB Baseline: IoSdStation::HBase[pmt] and Calib.Base[pmt]}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.4\textwidth]{../plots/uubBlHbasePMT1St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/uubBlCalibPMT1St863.pdf}
+			\\
+			\includegraphics[width=.4\textwidth]{../plots/uubBlHistHbasePMT1St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/uubBlHistCalibPMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{UUB Peak histogram correcting for baseline: HBase and Calib.Base}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.38\textwidth]{../plots/uubPeakCoorHBasePMT1St863.pdf}
+			&
+			\includegraphics[width=.38\textwidth]{../plots/uubPeakCoorCalibBasePMT1St863.pdf}
+			\\
+			\includegraphics[width=.38\textwidth]{../plots/uubPeakCoorHBaseZoomPMT1St863.pdf}
+			&
+			\includegraphics[width=.38\textwidth]{../plots/uubPeakCoorCalibBaseZoomPMT1St863.pdf}
+			\\
+			\multicolumn{2}{l}{Is the correction using HBase producing negative bins?}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Comparison: UUB and UB Peak histogram First Bin center}
+	Here, First Bin center: GetBinCenter(1).
+	
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.4\textwidth]{../plots/uubPeakFirstBinHBasePMT1St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/uubPeakFirstBinCalibBasePMT1St863.pdf}
+			\\
+			\includegraphics[width=.4\textwidth]{../plots/ubPeakFirstBinHBasePMT1St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/ubPeakFirstBinCalibBasePMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+% ===========================
+% *** Applying for Charge ***
+
+\begin{frame}
+	\frametitle{Applying the previous steps to UUB Charge histograms}
+	{\bf Raw UUB Charge histogram}
+	\begin{figure}
+		\begin{tabularx}{\textwidth}{C}
+			\includegraphics[width=.7\textwidth]{../plots/uubRawChargePMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{From UUB raw Charge histogram to the correct format}
+	{\bf IoSdStation::HCharge}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\multicolumn{2}{l}{Each bin (j) of the raw histogram is set as:} 
+			\\ [2ex]
+			\multicolumn{2}{l}{xc[j] = mult*j + offset; xc[400+j] = 400*mult + bigbins*mult*j + offset} 
+			\\ [2ex]
+			\multicolumn{2}{l}{Here, {\it mult}=8 and {\it bigbins}=4, both of them constants;} 
+			\\
+			\multicolumn{2}{l}{the {\it offset} is set for each event.} 
+			\\
+			\begin{tabular}{l}
+				For event 61219267 offset = 0, with \\
+				a value of 0 for the first bin of the \\
+				UUB Charge histogram. \\ \\
+				Is not needed a correction for baseline? \\ \\
+				First, the Offset variable is checked.	
+			\end{tabular} 
+			& 
+			\begin{tabular}{l}
+				\includegraphics[width=.45\textwidth]{../plots/uubChargePMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+% ==================
+% *** For Offset ***
+
+\begin{frame}
+	\frametitle{Checking Offset: UUB and UB for Charge histograms}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.5\textwidth]{../plots/uubOffsetChPMT1St863.pdf}
+			&
+			\includegraphics[width=.5\textwidth]{../plots/ubOffsetChPMT1St863.pdf}
+			\\
+			\multicolumn{2}{l}{A very different behaviour for UUB respect to UB, 
+			the same for the others LPMT?}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Comparison: UUB and UB Offset for Charge histograms}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.36\textwidth]{../plots/uubOffsetChPMT2St863.pdf}
+			&
+			\includegraphics[width=.36\textwidth]{../plots/ubOffsetChPMT2St863.pdf}
+			\\
+			\includegraphics[width=.36\textwidth]{../plots/uubOffsetChPMT3St863.pdf}
+			&
+			\includegraphics[width=.36\textwidth]{../plots/ubOffsetChPMT3St863.pdf}
+			\\
+			\multicolumn{2}{l}{Offset for UUB LPMT3 is very different form LPMT1 and
+			LPMT2, expected?}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% ======================================
+% *** Baseline correction for Charge ***
+\begin{frame}
+	\frametitle{UUB Charge histogram Correcting for baseline}
+	
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.36\textwidth]{../plots/uubChargeCoorHBasePMT1St863.pdf}
+			&
+			\includegraphics[width=.36\textwidth]{../plots/uubChargeCoorCalibBasePMT1St863.pdf}
+			\\
+			\includegraphics[width=.36\textwidth]{../plots/uubChargeCoorHBaseZoomPMT1St863.pdf}
+			&
+			\includegraphics[width=.36\textwidth]{../plots/uubChargeCoorCalibBaseZoomPMT1St863.pdf}
+			\\
+			\multicolumn{2}{l}{Does the Offset value of zero include the baseline correction?} 
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Comparison with UB Charge histogram Correcting for baseline}
+	
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.36\textwidth]{../plots/ubChargeCoorHBasePMT1St863.pdf}
+			&
+			\includegraphics[width=.36\textwidth]{../plots/ubChargeCoorCalibBasePMT1St863.pdf}
+			\\
+			\includegraphics[width=.36\textwidth]{../plots/ubChargeCoorHBaseZoomPMT1St863.pdf}
+			&
+			\includegraphics[width=.36\textwidth]{../plots/ubChargeCoorCalibBaseZoomPMT1St863.pdf}
+			\\
+			\multicolumn{2}{l}{For UB the correction for baseline is needed.}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Comparison: UUB and UB Charge histogram First Bin}
+	
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.42\textwidth]{../plots/uubChargeFirstBinHBasePMT1St863.pdf}
+			&
+			\includegraphics[width=.42\textwidth]{../plots/uubChargeFirstBinCalibBasePMT1St863.pdf}
+			\\
+			\includegraphics[width=.42\textwidth]{../plots/ubChargeFirstBinHBasePMT1St863.pdf}
+			&
+			\includegraphics[width=.42\textwidth]{../plots/ubChargeFirstBinCalibBasePMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% =====================
+% *** First Summary ***
+
+\begin{frame}
+	\frametitle{Brief summary}
+	\begin{itemize}
+		\item {\bf For Peak histograms:}
+			\begin{itemize}
+					\item For UUB baseline, the bin center is most stable using HBase 
+						than using Calib.Base (slide 9); the same situation is for UB.
+			\end{itemize}
+			\vspace{0.5cm}
+		\item {\bf For Charge histograms:}
+			\begin{itemize}
+					\item For UUB, from slides 14, 15 and 16 the correction for 
+						baseline has not sense for LPMT1 and LPMT2, but maybe if for 
+						LPMT3. Nevertheless, this correction has sense for UB (slide 17).
+					\item For UB, the bin center is most stable using HBase than Calib.Base.
+			\end{itemize}
+	\end{itemize}
+	\vspace{0.5cm}
+	Lets see what about the Area over Peak.
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{Area/Peak: Fitting histograms}
+	%{\bf for UUB LPMT1}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\multicolumn{2}{l}{\bf for UUB LPMT1}
+			\\
+			\begin{tabular}{l}
+				\includegraphics[width=.35\textwidth]{../plots/uubFitPkPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.35\textwidth]{../plots/uubFitChPMT1St863.pdf}
+			\end{tabular}
+			\\
+			\multicolumn{2}{l}{\bf for UB LPMT1}
+			\\
+			\begin{tabular}{l}
+				\includegraphics[width=.35\textwidth]{../plots/ubFitPkPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.35\textwidth]{../plots/ubFitChPMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% =============================
+% *** Area/Peak Calculation ***
+
+\begin{frame}
+	\frametitle{Area/Peak calculation: LPMT1}
+	
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.36\textwidth]{../plots/uubApOffsetPMT1St863.pdf}
+			&
+			\includegraphics[width=.36\textwidth]{../plots/uubApOffsetCalibPMT1St863.pdf}
+			\\
+			\includegraphics[width=.36\textwidth]{../plots/ubApOffsetPMT1St863.pdf}
+			&
+			\includegraphics[width=.36\textwidth]{../plots/ubApOffsetCalibPMT1St863.pdf}
+			\\
+			\multicolumn{2}{l}{For UUB, the A/P using Calib.Base is $\sim26.7$\,\% 
+			different respect of using HBase.}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Area/Peak calculation: LPMT2}
+	
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.36\textwidth]{../plots/uubApOffsetPMT2St863.pdf}
+			&
+			\includegraphics[width=.36\textwidth]{../plots/uubApOffsetCalibPMT2St863.pdf}
+			\\
+			\includegraphics[width=.36\textwidth]{../plots/ubApOffsetPMT2St863.pdf}
+			&
+			\includegraphics[width=.36\textwidth]{../plots/ubApOffsetCalibPMT2St863.pdf}
+			\\
+			\multicolumn{2}{l}{For UUB, the A/P using Calib.Base is $\sim-8.2$\,\% 
+			different respect of using HBase.}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Area/Peak calculation: LPMT3}
+	
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.36\textwidth]{../plots/uubApOffsetPMT3St863.pdf}
+			&
+			\includegraphics[width=.36\textwidth]{../plots/uubApOffsetCalibPMT3St863.pdf}
+			\\
+			\includegraphics[width=.36\textwidth]{../plots/ubApOffsetPMT3St863.pdf}
+			&
+			\includegraphics[width=.36\textwidth]{../plots/ubApOffsetCalibPMT3St863.pdf}
+			\\
+			\multicolumn{2}{l}{For UUB, the A/P using Calib.Base is $\sim29.4$\,\% 
+			different respect of using HBase.}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% =====================================
+% *** For observations and comments ***
+
+\begin{frame}
+	\frametitle{Final comments and questions}
+	
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.42\textwidth]{../plots/uubRawPeakPMT1St863.pdf}
+			&
+			\includegraphics[width=.42\textwidth]{../plots/uubRawChargePMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+
+	\begin{itemize}
+		\item In the Peak histogram is seen a peak before the EM one, this could 
+			be noise, but in the Charge histogram there is not evidence of this noise,
+			i.e. if considering a noise as a pulse of one single bin, so its charge 
+			should be equal to the peak.
+			\vspace{0.1cm}
+		\item Why is the Offset setting to zero for LPMT1 and LPMT2? Why is it not
+			zero for LPMT3? How is the Offset getting its value? Why is not the same 
+			in UB?
+			\vspace{0.1cm}
+		\item For UUB, why is so different the A/P value for HBase compares to 
+			Calib.Base?
+			\vspace{0.1cm}
+		\item {\bf Could this Offset-issue affect the A/P calculation?} How to be 
+			sure?
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Next steps}
+	\begin{itemize}
+		\item To Extend this study to the others stations
+	\end{itemize}
+\end{frame}
+
+
+% ===================
+% *** For  BACKUP ***
+
+\begin{frame}
+	
+	{\Huge \bf BACKUP...}
+
+\end{frame}
+
+
+
+\begin{frame}
+	\frametitle{UUB Peak histogram Correcting for baseline}
+	
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				Baseline histogram getting from \\ 
+				IoSdStation::HBase \\
+				xb[j] = j+offset; \\
+				yb[j] = Histo->Base[pmt][j]
+			\end{tabular}
+			&
+			\begin{tabular}{l} 
+				\includegraphics[width=.34\textwidth]{../plots/uubBasePMT1St863.pdf}
+			\end{tabular}
+			\\
+			\includegraphics[width=.44\textwidth]{../plots/uubPeakPMT1St863.pdf}
+			&
+			\includegraphics[width=.44\textwidth]{../plots/uubPeakCoorBlPMT1St863.pdf}
+			\\
+			Not corrected & Corrected, but shows negative bins\\
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{UUB Peak histogram Correcting for Offset}
+	
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.38\textwidth]{../plots/uubPeakPMT1St863.pdf}
+			&
+			\includegraphics[width=.38\textwidth]{../plots/uubPeakCoorOffPMT1St863.pdf}
+			\\
+			Not corrected & Corrected
+			\\
+			\begin{tabular}{l}
+				Zooming to check the threshold, \\
+				but no one can be seen.
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.38\textwidth]{../plots/uubPeakCoorOffZoomPMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+% =======================
+% *** Offset for Peak ***
+
+\begin{frame}
+	\frametitle{Offset values for UUB Peak histograms}
+	{\bf For LPMT1}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.5\textwidth]{../plots/uubOffsetPkPMT1St863.pdf}
+			&
+			\includegraphics[width=.5\textwidth]{../plots/uubOffsetDiffPkPMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+			
+			
+\begin{frame}
+	\frametitle{Offset values for UUB Peak histograms}
+	{\bf For LPMT2 and LPMT3}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.4\textwidth]{../plots/uubOffsetPkPMT2St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/uubOffsetDiffPkPMT2St863.pdf}
+			\\
+			\includegraphics[width=.4\textwidth]{../plots/uubOffsetPkPMT3St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/uubOffsetDiffPkPMT3St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{How to correct to obtain the right format?}
+	{\bf Here, the correct format is one that shows some threshold.\\}
+	\vspace{0.75cm}
+	Two methos to check the baseline:
+	\vspace{0.5cm}
+	\begin{enumerate}
+		\item IoSdStation::HBase[pmt], return a histogram with the baseline ditribution,
+			according with: histo->GetXaxis()->Set(20, offset, offset + 20); so, this \\
+			method depends on the Offset.
+		\item Calib->Base[pmt] of the IoSdCalib class. This returns the value of the \\
+			baseline, I guess it coming from some measurement performed at the WCD, \\
+			but I am not sure.
+	\end{enumerate}
+\end{frame}
+
+
+
+% ========================
+% *** Baseline sources ***
+
+
+
+\begin{frame}
+	\frametitle{UUB Baseline values IoSdStation::HBase[pmt] and Calib->Base[pmt]}
+	\centering
+	\includegraphics[width=.8\textwidth]{../plots/uubDiffBlHbaseCalibPMT1St863.pdf}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Comparison: UUB Baseline and UB Baseline}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.4\textwidth]{../plots/uubBlHbasePMT1St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/ubBlHbasePMT1St863.pdf}
+			\\
+			\includegraphics[width=.4\textwidth]{../plots/uubBlCalibPMT1St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/ubBlCalibPMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Comparison: UUB Baseline and UB Baseline}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.4\textwidth]{../plots/uubBlHistHbasePMT1St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/ubBlHistHbasePMT1St863.pdf}
+			\\
+			\includegraphics[width=.4\textwidth]{../plots/uubBlHistCalibPMT1St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/ubBlHistCalibPMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Comparison: UUB Baseline and UB Baseline}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.5\textwidth]{../plots/uubDiffBlHbaseCalibPMT1St863.pdf}
+			&
+			\includegraphics[width=.5\textwidth]{../plots/ubDiffBlHbaseCalibPMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{UUB Baseline values IoSdStation::HBase[pmt] and Calib->Base[pmt]}
+	\centering
+	\includegraphics[width=.6\textwidth]{../plots/uubDiffBlOffsetPkCalibPMT1St863.pdf}
+	\vspace{0.2cm}
+
+	{\bf The Offset is increasing with the time, so this explain why the baseline 
+	from HBase is increasing too.}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{From UUB raw Peak histogram to the correct format, via Calib.Base[pmt]}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.45\textwidth]{../plots/uubPeakCorrCalibPMT1St863.pdf}
+			&
+			\includegraphics[width=.45\textwidth]{../plots/uubPeakCorrCalibZoomPMT1St863.pdf}
+			\\
+			\multicolumn{2}{c}{Now, a threshold is seen, the correct one?}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{From UUB raw Peak histogram to the correct format, via Calib.Base[pmt]}
+	UUB first bin for peak histograms:
+
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.5\textwidth]{../plots/uubFirstBinPeakCrrCalibPMT1St863.pdf}
+			&
+			\includegraphics[width=.5\textwidth]{../plots/ubFirstBinPeakCrrCalibPMT1St863.pdf}
+			\\
+			$41*(2 \mathrm{kV}/2^{12}) = 20.0\mathrm{mV}$ 
+			&
+			$4*(2 \mathrm{kV}/2^{10}) = 7.8 \mathrm{mV}$
+			%\multicolumn{2}{l}{\bf The threshold should be a constant, not too much here...}
+		\end{tabularx} 
+	\end{figure}
+\end{frame}
+
+
+
+% ==================
+% *** For Charge ***
+
+\begin{frame}
+	\frametitle{Applying the previous steps to UUB Charge histograms}
+	{\bf Raw UUB Charge histogram}
+	\begin{figure}
+		\begin{tabularx}{\textwidth}{C}
+			\includegraphics[width=.7\textwidth]{../plots/uubRawChargePMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{From UUB raw Charge histogram to the correct format}
+	{\bf IoSdStation::HCharge}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\multicolumn{2}{l}{Each bin (j) of the raw histogram is set as:} 
+			\\ [2ex]
+			\multicolumn{2}{l}{xc[j] = mult*j + offset; xc[400+j] = 400*mult + bigbins*mult*j + offset} 
+			\\ [2ex]
+			\multicolumn{2}{l}{Here, {\it mult}=8 and {\it bigbins}=4, both of them constants;} 
+			\\
+			\multicolumn{2}{l}{the {\it offset} is set for each event.} 
+			\\
+			\begin{tabular}{l}
+				For event 61219267 offset = 0, with \\
+				a value of 0 for the first bin of the \\ \\
+				UUB Charge histogram.
+				\\
+				Not correction for baseline?
+			\end{tabular} 
+			& 
+			\begin{tabular}{l}
+				\includegraphics[width=.45\textwidth]{../plots/uubChargePMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% =========================
+% *** Offset for Charge ***
+
+\begin{frame}
+	\frametitle{Offset values for UUB Charge histograms}
+	{\bf For LPMT1}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.5\textwidth]{../plots/uubOffsetChPMT1St863.pdf}
+			&
+			\includegraphics[width=.5\textwidth]{../plots/uubOffsetDiffChPMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+			
+			
+\begin{frame}
+	\frametitle{Offset values for UUB Charge histograms}
+	{\bf For LPMT2 and LPMT3}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.4\textwidth]{../plots/uubOffsetChPMT2St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/uubOffsetDiffChPMT2St863.pdf}
+			\\
+			\includegraphics[width=.4\textwidth]{../plots/uubOffsetChPMT3St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/uubOffsetDiffChPMT3St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% =====================
+% *** UB Comparison ***
+
+% *** For Peak ***
+
+\begin{frame}
+	\frametitle{Comparison with UB version, same station}
+	Raw UB Peak Histogram
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/ubRawPeakPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/ubRawPeakZoomPMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{From UB raw Peak histograma to the correct format}
+	{\bf IoSdStation::HPeak}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\multicolumn{2}{l}{Each bin (j) of raw Peak histogram is set as:} 
+			\\ [2ex]
+			\multicolumn{2}{l}{xp[j] = j*mult + offset; 
+			xp[100 + j] = 100 * mult + bigbins * j * mult + offset;} 
+			\\ [2ex]
+			\multicolumn{2}{l}{Here, {\it mult}, {\it bigbins}, and {\it offset} are
+			constants and fixed in the code with values of:}
+			\\
+			\multicolumn{2}{l}{mult=1, bigbins=3 y offset = 0.}
+			\\ [2ex]
+			\begin{tabular}{l}
+				For event 61219267 offset = 57, with \\
+				a value of 57 for the first of the histogram.
+			\end{tabular} 
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.48\textwidth]{../plots/ubPeakPMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{UB Peak histogram Correcting for baseline}
+	
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				Baseline from IoSdStation::HBase
+			\end{tabular}
+			&
+			\begin{tabular}{l} 
+				\includegraphics[width=.35\textwidth]{../plots/ubBasePMT1St863.pdf}
+			\end{tabular}
+			\\
+			\includegraphics[width=.45\textwidth]{../plots/ubPeakPMT1St863.pdf}
+			&
+			\includegraphics[width=.45\textwidth]{../plots/ubPeakCoorBlPMT1St863.pdf}
+			\\
+			Not corrected & Corrected \\
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{UB Peak histogram Correcting for Offset}
+	
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.38\textwidth]{../plots/ubPeakPMT1St863.pdf}
+			&
+			\includegraphics[width=.38\textwidth]{../plots/ubPeakCoorOffPMT1St863.pdf}
+			\\
+			Not corrected & Corrected
+			\\
+			\begin{tabular}{l}
+				Zooming to check the threshold
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.38\textwidth]{../plots/ubPeakCoorOffZoomPMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% =======================
+% *** Offset for Peak ***
+
+\begin{frame}
+	\frametitle{Offset values for UB Peak histograms}
+	{\bf For LPMT1}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.5\textwidth]{../plots/ubOffsetPkPMT1St863.pdf}
+			&
+			\includegraphics[width=.5\textwidth]{../plots/ubOffsetDiffPkPMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+			
+			
+\begin{frame}
+	\frametitle{Offset values for UB Peak histograms}
+	{\bf For LPMT2 and LPMT3}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.4\textwidth]{../plots/ubOffsetPkPMT2St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/ubOffsetDiffPkPMT2St863.pdf}
+			\\
+			\includegraphics[width=.4\textwidth]{../plots/ubOffsetPkPMT3St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/ubOffsetDiffPkPMT3St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% ==================
+% *** For Charge ***
+
+\begin{frame}
+	\frametitle{Applying the previous steps to UB Charge histograms}
+	{\bf Raw UB Charge histogram}
+	\begin{figure}
+		\begin{tabularx}{\textwidth}{C}
+			\includegraphics[width=.7\textwidth]{../plots/ubRawChargePMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{From UB raw Charge histogram to the correct format}
+	{\bf IoSdStation::HCharge}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\multicolumn{2}{l}{Each bin (j) of the raw Charge histogram is set as:} 
+			\\ [2ex]
+			\multicolumn{2}{l}{xc[j] = mult*j + offset; xc[400+j] = 400*mult + bigbins*mult*j + offset} 
+			\\ [2ex]
+			\multicolumn{2}{l}{Here, {\it mult}, {\it bigbins} and {\it offset} are constants 
+			and fixed in the code with values of:}
+			\\
+			\multicolumn{2}{l}{mult=1, bigbins=3 y offset = 0.}
+			\\
+			\begin{tabular}{l}
+				For event 61219267 offset = 1155, with \\ 
+				a value of 1155 for the first bin of the \\
+				UB Charge histogram.
+			\end{tabular} 
+			& 
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/ubChargePMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% =========================
+% *** Offset for Charge ***
+
+\begin{frame}
+	\frametitle{Offset values for UB Charge histograms}
+	{\bf For LPMT1}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.5\textwidth]{../plots/ubOffsetChPMT1St863.pdf}
+			&
+			\includegraphics[width=.5\textwidth]{../plots/ubOffsetDiffChPMT1St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+			
+			
+\begin{frame}
+	\frametitle{Offset values for UB Charge histograms}
+	{\bf For LPMT2 and LPMT3}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.4\textwidth]{../plots/ubOffsetChPMT2St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/ubOffsetDiffChPMT2St863.pdf}
+			\\
+			\includegraphics[width=.4\textwidth]{../plots/ubOffsetChPMT3St863.pdf}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/ubOffsetDiffChPMT3St863.pdf}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Checking Offset differences for more UUB Satations}
+	{\bf Stations to check:}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				\includegraphics[width=.35\textwidth]{listStations.png}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.45\textwidth]{mapStations.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Checking Offset differences for more UUB Satations}
+	{\bf Checking for LPMT1, Peak and Charge}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/uubDiffOffsetPeakPMT1.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/uubDiffOffsetChargePMT1.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Checking Offset differences for more UUB Satations}
+	{\bf Checking for LPMT2 and LPMT3, Peak and Charge}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				\includegraphics[width=.38\textwidth]{../plots/uubDiffOffsetPeakPMT2.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.38\textwidth]{../plots/uubDiffOffsetChargePMT2.pdf}
+			\end{tabular}
+			\\
+			\begin{tabular}{l}
+				\includegraphics[width=.38\textwidth]{../plots/uubDiffOffsetPeakPMT3.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.38\textwidth]{../plots/uubDiffOffsetChargePMT3.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% =================
+% *** Area/Peak ***
+
+\begin{frame}
+	\frametitle{Area/Peak: Fitting histograms}
+	%{\bf for UUB LPMT1}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\multicolumn{2}{l}{\bf for UUB LPMT1}
+			\\
+			\begin{tabular}{l}
+				\includegraphics[width=.35\textwidth]{../plots/uubFitPkPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.35\textwidth]{../plots/uubFitChPMT1St863.pdf}
+			\end{tabular}
+			\\
+			\multicolumn{2}{l}{\bf for UB LPMT1}
+			\\
+			\begin{tabular}{l}
+				\includegraphics[width=.35\textwidth]{../plots/ubFitPkPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.35\textwidth]{../plots/ubFitChPMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Area/Peak: Fitting histograms}
+	%{\bf for UUB LPMT1}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/uubApPMT1St863.pdf}
+			\end{tabular}
+			&
+			\begin{tabular}{l}
+				\includegraphics[width=.5\textwidth]{../plots/ubApPMT1St863.pdf}
+			\end{tabular}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+
+
+
+
+
+
+\end{document}
