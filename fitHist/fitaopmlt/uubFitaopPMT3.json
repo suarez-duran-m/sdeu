@@ -1,0 +1,137 @@
+{
+  "uub": [
+    {
+      "stationId": "863",
+      "extAveAoPHb": 8.566820162274613,
+      "extRmsAoPHb": 0.25136704460804926,
+      "extAveAoPCa": 6.347351517061471,
+      "extRmsAoPCa": 0.25136704460804926
+    },
+    {
+      "stationId": "1211",
+      "extAveAoPHb": 9.629100991937976,
+      "extRmsAoPHb": 0.1542391265662868,
+      "extAveAoPCa": 9.084094877252037,
+      "extRmsAoPCa": 0.1542391265662868
+    },
+    {
+      "stationId": "1217",
+      "extAveAoPHb": 9.397637935142665,
+      "extRmsAoPHb": 0.19711317724440272,
+      "extAveAoPCa": 8.640257432672337,
+      "extRmsAoPCa": 0.19711317724440272
+    },
+    {
+      "stationId": "1219",
+      "extAveAoPHb": 2.243076026970106,
+      "extRmsAoPHb": 0.0615243621937453,
+      "extAveAoPCa": 2.851007718115552,
+      "extRmsAoPCa": 0.0615243621937453
+    },
+    {
+      "stationId": "1221",
+      "extAveAoPHb": 9.18883068136939,
+      "extRmsAoPHb": 0.20088626380707156,
+      "extAveAoPCa": 8.430551272509883,
+      "extRmsAoPCa": 0.20088626380707156
+    },
+    {
+      "stationId": "1222",
+      "extAveAoPHb": 8.825871579073949,
+      "extRmsAoPHb": 0.25258741185926925,
+      "extAveAoPCa": 6.936433684176322,
+      "extRmsAoPCa": 0.25258741185926925
+    },
+    {
+      "stationId": "1223",
+      "extAveAoPHb": 0.0,
+      "extRmsAoPHb": 0.0,
+      "extAveAoPCa": 0.0,
+      "extRmsAoPCa": 0.0
+    },
+    {
+      "stationId": "1729",
+      "extAveAoPHb": 9.342293890358203,
+      "extRmsAoPHb": 0.16740677076033483,
+      "extAveAoPCa": 9.14132418238377,
+      "extRmsAoPCa": 0.16740677076033483
+    },
+    {
+      "stationId": "1735",
+      "extAveAoPHb": 9.227753950925225,
+      "extRmsAoPHb": 0.17157556825855158,
+      "extAveAoPCa": 7.148449645345453,
+      "extRmsAoPCa": 0.17157556825855158
+    },
+    {
+      "stationId": "1740",
+      "extAveAoPHb": 4.989195789995611,
+      "extRmsAoPHb": 0.2235544147247534,
+      "extAveAoPCa": 4.061707000487563,
+      "extRmsAoPCa": 0.2235544147247534
+    },
+    {
+      "stationId": "1741",
+      "extAveAoPHb": 9.20872624119024,
+      "extRmsAoPHb": 0.12891916625173244,
+      "extAveAoPCa": 7.8619154592099445,
+      "extRmsAoPCa": 0.12891916625173244
+    },
+    {
+      "stationId": "1743",
+      "extAveAoPHb": 6.66139749844869,
+      "extRmsAoPHb": 0.0919506092276713,
+      "extAveAoPCa": 6.517993173599244,
+      "extRmsAoPCa": 0.0919506092276713
+    },
+    {
+      "stationId": "1745",
+      "extAveAoPHb": 7.420821840421179,
+      "extRmsAoPHb": 0.11052892069643425,
+      "extAveAoPCa": 6.477941908170406,
+      "extRmsAoPCa": 0.11052892069643425
+    },
+    {
+      "stationId": "1746",
+      "extAveAoPHb": 8.937809003403789,
+      "extRmsAoPHb": 0.18140358883658037,
+      "extAveAoPCa": 8.916278484420895,
+      "extRmsAoPCa": 0.18140358883658037
+    },
+    {
+      "stationId": "1747",
+      "extAveAoPHb": 9.111924858089202,
+      "extRmsAoPHb": 0.16026934104339538,
+      "extAveAoPCa": 7.651306593648952,
+      "extRmsAoPCa": 0.16026934104339538
+    },
+    {
+      "stationId": "1791",
+      "extAveAoPHb": 8.782434747577607,
+      "extRmsAoPHb": 0.19529794506048465,
+      "extAveAoPCa": 7.002980040146904,
+      "extRmsAoPCa": 0.19529794506048465
+    },
+    {
+      "stationId": "1818",
+      "extAveAoPHb": 8.998315851573068,
+      "extRmsAoPHb": 0.34095781834296723,
+      "extAveAoPCa": 9.407012464519331,
+      "extRmsAoPCa": 0.34095781834296723
+    },
+    {
+      "stationId": "1819",
+      "extAveAoPHb": 9.395801589247117,
+      "extRmsAoPHb": 0.16600601359573866,
+      "extAveAoPCa": 8.349787667958882,
+      "extRmsAoPCa": 0.16600601359573866
+    },
+    {
+      "stationId": "1851",
+      "extAveAoPHb": 8.959426685083022,
+      "extRmsAoPHb": 0.20199977092093854,
+      "extAveAoPCa": 6.480753472415644,
+      "extRmsAoPCa": 0.20199977092093854
+    }
+  ]
+}

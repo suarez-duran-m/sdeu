@@ -1,0 +1,213 @@
+{
+  "ub": [
+    {
+      "stationId": "863",
+      "extAveHbase": 58.46718475198986,
+      "extRmsHbase": 0.11076279975913575,
+      "extAveCalib": 57.95245505512147,
+      "extRmsCalib": 0.11070660047578568,
+      "extAveFrstBinCntrHbase": -0.15442764578833693,
+      "extAveFrstBinCntrCalib": 0.5050395968322534,
+      "extRmsFrstBinCntrHbase": 0.47555452076104954,
+      "extRmsFrstBinCntrCalib": 0.17992223506590993
+    },
+    {
+      "stationId": "1211",
+      "extAveHbase": 39.679046466320784,
+      "extRmsHbase": 1.0508453786228924,
+      "extAveCalib": 39.167962549493204,
+      "extRmsCalib": 1.0400214448106297,
+      "extAveFrstBinCntrHbase": -0.09052213393870602,
+      "extAveFrstBinCntrCalib": 0.5008513053348468,
+      "extRmsFrstBinCntrHbase": 0.49159318449781986,
+      "extRmsFrstBinCntrCalib": 0.17546552811359845
+    },
+    {
+      "stationId": "1217",
+      "extAveHbase": 60.015257850594836,
+      "extRmsHbase": 1.4985447322896173,
+      "extAveCalib": 59.504248327980825,
+      "extRmsCalib": 1.48701640571519,
+      "extAveFrstBinCntrHbase": 0.1494874715261959,
+      "extAveFrstBinCntrCalib": 0.49914578587699315,
+      "extRmsFrstBinCntrHbase": 0.47698126465952756,
+      "extRmsFrstBinCntrCalib": 0.15326499502795493
+    },
+    {
+      "stationId": "1219",
+      "extAveHbase": 50.899963902076834,
+      "extRmsHbase": 1.2048660272632712,
+      "extAveCalib": 50.38971130904855,
+      "extRmsCalib": 1.1929723962813246,
+      "extAveFrstBinCntrHbase": 0.24708495280399778,
+      "extAveFrstBinCntrCalib": 0.4997223764575236,
+      "extRmsFrstBinCntrHbase": 0.4345229733013075,
+      "extRmsFrstBinCntrCalib": 0.011778569370126292
+    },
+    {
+      "stationId": "1221",
+      "extAveHbase": 70.47543177430929,
+      "extRmsHbase": 1.7306128388132527,
+      "extAveCalib": 69.96526318136979,
+      "extRmsCalib": 1.7185607478712135,
+      "extAveFrstBinCntrHbase": -0.1359167148640833,
+      "extAveFrstBinCntrCalib": 0.4979757085020243,
+      "extRmsFrstBinCntrHbase": 0.4810218855423321,
+      "extRmsFrstBinCntrCalib": 0.13442445267084818
+    },
+    {
+      "stationId": "1222",
+      "extAveHbase": 45.85542610768128,
+      "extRmsHbase": 1.19478391926458,
+      "extAveCalib": 45.34724043267798,
+      "extRmsCalib": 1.1835044401449994,
+      "extAveFrstBinCntrHbase": 0.03270223752151463,
+      "extAveFrstBinCntrCalib": 0.4974182444061962,
+      "extRmsFrstBinCntrHbase": 0.4987856581686854,
+      "extRmsFrstBinCntrCalib": 0.17640247314032068
+    },
+    {
+      "stationId": "1223",
+      "extAveHbase": 56.312282911313126,
+      "extRmsHbase": 1.478866733470256,
+      "extAveCalib": 55.8007961619984,
+      "extRmsCalib": 1.4674420134594073,
+      "extAveFrstBinCntrHbase": 0.032679738562091505,
+      "extAveFrstBinCntrCalib": 0.5008912655971479,
+      "extRmsFrstBinCntrHbase": 0.49878200691415836,
+      "extRmsFrstBinCntrCalib": 0.10968724268178552
+    },
+    {
+      "stationId": "1729",
+      "extAveHbase": 53.7499329499684,
+      "extRmsHbase": 1.9020581768124853,
+      "extAveCalib": 53.26850030940881,
+      "extRmsCalib": 1.3682556785085727,
+      "extAveFrstBinCntrHbase": -0.03319502074688797,
+      "extAveFrstBinCntrCalib": 0.4700652045050385,
+      "extRmsFrstBinCntrHbase": 0.4987483318675874,
+      "extRmsFrstBinCntrCalib": 1.3013007702380313
+    },
+    {
+      "stationId": "1735",
+      "extAveHbase": 51.78835884512287,
+      "extRmsHbase": 1.1971006614003579,
+      "extAveCalib": 51.269478394937465,
+      "extRmsCalib": 1.1852805093838235,
+      "extAveFrstBinCntrHbase": 0.37592202318229717,
+      "extAveFrstBinCntrCalib": 0.49973656480505796,
+      "extRmsFrstBinCntrHbase": 0.32947065861629965,
+      "extRmsFrstBinCntrCalib": 0.011473804921170899
+    },
+    {
+      "stationId": "1740",
+      "extAveHbase": 58.19551878358008,
+      "extRmsHbase": 1.6571553303599826,
+      "extAveCalib": 57.685721328273615,
+      "extRmsCalib": 1.6444466157183881,
+      "extAveFrstBinCntrHbase": 0.07248416608022519,
+      "extAveFrstBinCntrCalib": 0.4989444053483462,
+      "extRmsFrstBinCntrHbase": 0.49454030495573686,
+      "extRmsFrstBinCntrCalib": 0.1384757086699356
+    },
+    {
+      "stationId": "1741",
+      "extAveHbase": 43.215750468190656,
+      "extRmsHbase": 1.0568398381569926,
+      "extAveCalib": 42.70201249418101,
+      "extRmsCalib": 1.045023959195788,
+      "extAveFrstBinCntrHbase": -0.16372939169982945,
+      "extAveFrstBinCntrCalib": 0.5002842524161455,
+      "extRmsFrstBinCntrHbase": 0.47228228855793736,
+      "extRmsFrstBinCntrCalib": 0.11496806752890616
+    },
+    {
+      "stationId": "1743",
+      "extAveHbase": 48.475432753639886,
+      "extRmsHbase": 1.2374965186155051,
+      "extAveCalib": 47.96703676257001,
+      "extRmsCalib": 1.224664983310705,
+      "extAveFrstBinCntrHbase": -0.07488702388637831,
+      "extAveFrstBinCntrCalib": 0.5035506778566817,
+      "extRmsFrstBinCntrHbase": 0.49419686280409686,
+      "extRmsFrstBinCntrCalib": 0.24924737747604797
+    },
+    {
+      "stationId": "1745",
+      "extAveHbase": 52.78195474118267,
+      "extRmsHbase": 1.2671786866458443,
+      "extAveCalib": 52.266273558107706,
+      "extRmsCalib": 1.255902434277831,
+      "extAveFrstBinCntrHbase": 0.05869682283252558,
+      "extAveFrstBinCntrCalib": 0.5061927840603123,
+      "extRmsFrstBinCntrHbase": 0.4964071486682315,
+      "extRmsFrstBinCntrCalib": 0.19161022041146933
+    },
+    {
+      "stationId": "1746",
+      "extAveHbase": 54.296364130885955,
+      "extRmsHbase": 1.3493870071124827,
+      "extAveCalib": 53.789162512800004,
+      "extRmsCalib": 1.3379663988885413,
+      "extAveFrstBinCntrHbase": 0.06923506420993858,
+      "extAveFrstBinCntrCalib": 0.5008375209380235,
+      "extRmsFrstBinCntrHbase": 0.495042340674865,
+      "extRmsFrstBinCntrCalib": 0.10632888235091598
+    },
+    {
+      "stationId": "1747",
+      "extAveHbase": 40.98043580702794,
+      "extRmsHbase": 1.0617319380831398,
+      "extAveCalib": 40.467228390258036,
+      "extRmsCalib": 1.0493360731555035,
+      "extAveFrstBinCntrHbase": 0.1330246913580247,
+      "extAveFrstBinCntrCalib": 0.49907407407407406,
+      "extRmsFrstBinCntrHbase": 0.48181958293685956,
+      "extRmsFrstBinCntrCalib": 0.09043315214487874
+    },
+    {
+      "stationId": "1791",
+      "extAveHbase": 49.3860685366226,
+      "extRmsHbase": 1.3844374649147413,
+      "extAveCalib": 48.86855106176607,
+      "extRmsCalib": 1.3726495727582848,
+      "extAveFrstBinCntrHbase": -0.0086687306501548,
+      "extAveFrstBinCntrCalib": 0.5015479876160991,
+      "extRmsFrstBinCntrHbase": 0.4997700014479663,
+      "extRmsFrstBinCntrCalib": 0.1390951075184853
+    },
+    {
+      "stationId": "1818",
+      "extAveHbase": 48.64280700683594,
+      "extRmsHbase": 1.2912347681461138,
+      "extAveCalib": 48.13807859160738,
+      "extRmsCalib": 1.279146453734032,
+      "extAveFrstBinCntrHbase": -0.08053265694356374,
+      "extAveFrstBinCntrCalib": 0.49714648065948003,
+      "extRmsFrstBinCntrHbase": 0.49331122256985266,
+      "extRmsFrstBinCntrCalib": 0.1239724005403244
+    },
+    {
+      "stationId": "1819",
+      "extAveHbase": 52.61289311726888,
+      "extRmsHbase": 1.3176580472293955,
+      "extAveCalib": 52.099971021569296,
+      "extRmsCalib": 1.3058272305158625,
+      "extAveFrstBinCntrHbase": -0.08985507246376812,
+      "extAveFrstBinCntrCalib": 0.49681159420289855,
+      "extRmsFrstBinCntrHbase": 0.49171245501441324,
+      "extRmsFrstBinCntrCalib": 0.15080934074810917
+    },
+    {
+      "stationId": "1851",
+      "extAveHbase": 61.00057655601686,
+      "extRmsHbase": 1.5599217729777568,
+      "extAveCalib": 60.47949276339029,
+      "extRmsCalib": 1.5474043101586366,
+      "extAveFrstBinCntrHbase": 0.1875,
+      "extAveFrstBinCntrCalib": 0.5033212560386473,
+      "extRmsFrstBinCntrHbase": 0.4633495266172451,
+      "extRmsFrstBinCntrCalib": 0.15194339520124797
+    }
+  ]
+}

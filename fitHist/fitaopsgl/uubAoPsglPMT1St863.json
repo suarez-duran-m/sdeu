@@ -1,0 +1,14 @@
+{
+  "uub": [
+    {
+      "stationId": 863,
+      "extAveAoPHb": 8.444187558884373,
+      "extRmsAoPHb": 0.42237249832949114,
+      "extAveAoPCa": 6.221938992616672,
+      "extRmsAoPCa": 0.31048467882354647,
+      "extFitOkAoPHb": 0,
+      "extFitOkAoPCa": 0,
+      "extTotEvt": []
+    }
+  ]
+}

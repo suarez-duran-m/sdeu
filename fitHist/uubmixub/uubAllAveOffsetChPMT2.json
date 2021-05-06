@@ -1,0 +1,99 @@
+{
+  "uub": [
+    {
+      "stationId": "863",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1211",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1217",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1219",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1221",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1222",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1223",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1729",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1735",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1740",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1741",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1743",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1745",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1746",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1747",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1791",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1818",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1819",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    },
+    {
+      "stationId": "1851",
+      "extAveOffset": 0,
+      "extRmsOffset": 0.0
+    }
+  ]
+}

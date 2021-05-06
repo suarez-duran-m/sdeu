@@ -1,0 +1,137 @@
+{
+    "uub": [
+        {
+            "stationId": "863",
+            "extAveOffset": 243.04501915708812,
+            "extRmsOffset": 0.880223380095488,
+            "extAveFrstBin": 286.92816091954023,
+            "extRmsFrstBin": 133.88469195367196
+        },
+        {
+            "stationId": "1211",
+            "extAveOffset": 256.56252613969053,
+            "extRmsOffset": 5.277272368966436,
+            "extAveFrstBin": 247.13383521539106,
+            "extRmsFrstBin": 108.2669864191173
+        },
+        {
+            "stationId": "1217",
+            "extAveOffset": 214.9152073732719,
+            "extRmsOffset": 4.61616066040925,
+            "extAveFrstBin": 171.25207373271888,
+            "extRmsFrstBin": 72.13237675832966
+        },
+        {
+            "stationId": "1219",
+            "extAveOffset": 228.48154897494305,
+            "extRmsOffset": 67.04221633550777,
+            "extAveFrstBin": 620.3029612756264,
+            "extRmsFrstBin": 3567.430813023395
+        },
+        {
+            "stationId": "1221",
+            "extAveOffset": 268.5380875202593,
+            "extRmsOffset": 6.272407259642104,
+            "extAveFrstBin": 153.72123176661265,
+            "extRmsFrstBin": 100.60716312770604
+        },
+        {
+            "stationId": "1222",
+            "extAveOffset": 242.0600901352028,
+            "extRmsOffset": 18.829663537495772,
+            "extAveFrstBin": 291.68452679018526,
+            "extRmsFrstBin": 125.71957979987252
+        },
+        {
+            "stationId": "1223",
+            "extAveOffset": 230.8407163053723,
+            "extRmsOffset": 7.095290619032076,
+            "extAveFrstBin": 11882.412818096136,
+            "extRmsFrstBin": 4979.344307203057
+        },
+        {
+            "stationId": "1729",
+            "extAveOffset": 249.06303299962923,
+            "extRmsOffset": 5.073698031321777,
+            "extAveFrstBin": 302.2135706340378,
+            "extRmsFrstBin": 137.5113451123196
+        },
+        {
+            "stationId": "1735",
+            "extAveOffset": 221.8220494053065,
+            "extRmsOffset": 0.4000098458670517,
+            "extAveFrstBin": 288.2671546203111,
+            "extRmsFrstBin": 132.7186589880881
+        },
+        {
+            "stationId": "1740",
+            "extAveOffset": 249.23532608695652,
+            "extRmsOffset": 5.8371516190775745,
+            "extAveFrstBin": 6290.567391304347,
+            "extRmsFrstBin": 5697.805612005168
+        },
+        {
+            "stationId": "1741",
+            "extAveOffset": 230.03049095607236,
+            "extRmsOffset": 5.2490038938662575,
+            "extAveFrstBin": 235.78708010335916,
+            "extRmsFrstBin": 114.05742303940119
+        },
+        {
+            "stationId": "1743",
+            "extAveOffset": 242.2123217922607,
+            "extRmsOffset": 5.626098526478863,
+            "extAveFrstBin": 246.77800407331975,
+            "extRmsFrstBin": 125.18219554861093
+        },
+        {
+            "stationId": "1745",
+            "extAveOffset": 252.9050248481502,
+            "extRmsOffset": 8.43167440232836,
+            "extAveFrstBin": 235.66372170071784,
+            "extRmsFrstBin": 125.15112059177045
+        },
+        {
+            "stationId": "1746",
+            "extAveOffset": 242.8782816229117,
+            "extRmsOffset": 6.858634906674824,
+            "extAveFrstBin": 322.96738265712014,
+            "extRmsFrstBin": 146.75016154890335
+        },
+        {
+            "stationId": "1747",
+            "extAveOffset": 262.5323361196656,
+            "extRmsOffset": 5.545392148892933,
+            "extAveFrstBin": 162.10074791025076,
+            "extRmsFrstBin": 77.11323721954648
+        },
+        {
+            "stationId": "1791",
+            "extAveOffset": 242.02179487179487,
+            "extRmsOffset": 5.138504241339589,
+            "extAveFrstBin": 352.2991452991453,
+            "extRmsFrstBin": 145.8225865612261
+        },
+        {
+            "stationId": "1818",
+            "extAveOffset": 236.07430340557275,
+            "extRmsOffset": 6.6192833781650595,
+            "extAveFrstBin": 12901.661764705883,
+            "extRmsFrstBin": 7577.40761293075
+        },
+        {
+            "stationId": "1819",
+            "extAveOffset": 257.5314256515074,
+            "extRmsOffset": 5.852090949704352,
+            "extAveFrstBin": 188.72457843638222,
+            "extRmsFrstBin": 158.34230455000974
+        },
+        {
+            "stationId": "1851",
+            "extAveOffset": 252.59954648526076,
+            "extRmsOffset": 5.514417283835453,
+            "extAveFrstBin": 1185.2312925170068,
+            "extRmsFrstBin": 500.66502533351326
+        }
+    ]
+}

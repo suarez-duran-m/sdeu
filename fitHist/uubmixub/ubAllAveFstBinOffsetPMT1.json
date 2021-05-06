@@ -1,0 +1,137 @@
+{
+    "ub": [
+        {
+            "stationId": "863",
+            "extAveOffset": 57.34557235421166,
+            "extRmsOffset": 0.47555452076104976,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1211",
+            "extAveOffset": 38.62883087400681,
+            "extRmsOffset": 1.0946302200875575,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1217",
+            "extAveOffset": 59.11104783599089,
+            "extRmsOffset": 1.4943602542445193,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1219",
+            "extAveOffset": 49.97223764575236,
+            "extRmsOffset": 1.177856937012518,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1221",
+            "extAveOffset": 69.40775014459226,
+            "extRmsOffset": 1.7421286494927284,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1222",
+            "extAveOffset": 44.87091222030981,
+            "extRmsOffset": 1.2372018958201554,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1223",
+            "extAveOffset": 55.33630421865716,
+            "extRmsOffset": 1.4477740843483786,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1729",
+            "extAveOffset": 52.72910491997629,
+            "extRmsOffset": 1.8951785686345912,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1735",
+            "extAveOffset": 50.97312961011591,
+            "extRmsOffset": 1.170328101959516,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1740",
+            "extAveOffset": 57.23715693173821,
+            "extRmsOffset": 1.6479527132085428,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1741",
+            "extAveOffset": 42.14155770324048,
+            "extRmsOffset": 1.0715590730386857,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1743",
+            "extAveOffset": 47.39444803098773,
+            "extRmsOffset": 1.302030061430756,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1745",
+            "extAveOffset": 51.8099084544965,
+            "extRmsOffset": 1.2777659734246167,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1746",
+            "extAveOffset": 53.323283082077054,
+            "extRmsOffset": 1.3478727984007246,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1747",
+            "extAveOffset": 40.04567901234568,
+            "extRmsOffset": 1.0275884970108602,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1791",
+            "extAveOffset": 48.38266253869969,
+            "extRmsOffset": 1.368263583111465,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1818",
+            "extAveOffset": 47.60558021559924,
+            "extRmsOffset": 1.310092256695804,
+            "extAveFrstBin": 6477.497780596069,
+            "extRmsFrstBin": 14147.159477294077
+        },
+        {
+            "stationId": "1819",
+            "extAveOffset": 51.563478260869566,
+            "extRmsOffset": 1.3384609657265976,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        },
+        {
+            "stationId": "1851",
+            "extAveOffset": 60.09842995169082,
+            "extRmsOffset": 1.5551371776240979,
+            "extAveFrstBin": 0,
+            "extRmsFrstBin": 0.0
+        }
+    ]
+}
