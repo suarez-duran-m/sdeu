@@ -67,8 +67,8 @@ int main (int argc, char *argv[]) {
       const TCalibStation& calibStation = calibEv.fCalibStations[i];
 
       // take just the UUB stations
-      //if (!calibStation.IsUUB)
-        //continue;
+      if (!calibStation.IsUUB)
+        continue;
               
       if (!calibStation.histo())
         continue;
