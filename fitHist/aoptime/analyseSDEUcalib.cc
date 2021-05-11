@@ -87,7 +87,7 @@ int main (int argc, char *argv[]) {
 
   string doMonth = string(whichmonth);
   pmtname +=  "Mth" + doMonth;
-  TFile hfile("uubAoPtime"+pmtname+".root","RECREATE","");
+  TFile hfile("uubAoPtime"+pmtname+"chpk.root","RECREATE","");
 
   unsigned int totDays = 0;
 	unsigned int cday = 0;
@@ -131,13 +131,19 @@ int main (int argc, char *argv[]) {
   unsigned int nrEventsRead = 0;
 
   vector < double > stckapHb; // It stores ap Hb per day
+  vector < double > stckchHb; // It stores ap Hb per day
+  vector < double > stckpkHb; // It stores ap Hb per day
   vector < double > stckapCa; // It stores ap Ca per day
 	
 	TH1F *recePk = new TH1F (); // Receive Pk from IoSdStation::HPeak
 	TH1F *receCh = new TH1F (); // Receive Ch from IoSdStation::HCharge
 
 	TH1F *apHbase = new TH1F("apHbase","",totDays, 0, totDays);//It stores A/P from HBase for St.
+	TH1F *pkHbase = new TH1F("pkHbase","",totDays, 0, totDays);//It stores VemP from HBase for St.
+	TH1F *chHbase = new TH1F("chHbase","",totDays, 0, totDays);//It stores VemQ from HBase for St.
 	TH1F *rmsHbase = new TH1F("rmsHbase","",totDays, 0, totDays);//It stores A/P from HBase for St.
+	TH1F *rmspkHbase = new TH1F("rmspkHbase","",totDays, 0, totDays);//It stores A/P from HBase for St.
+	TH1F *rmschHbase = new TH1F("rmschHbase","",totDays, 0, totDays);//It stores A/P from HBase for St.
 	TH1F *apCalib = new TH1F("apCalib","",totDays, 0, totDays);//It stores A/P from Calib for St.
 	TH1F *rmsCalib = new TH1F("rmsCalib","",totDays, 0, totDays);//It stores A/P from Calib for St.
 	TH1F *timestmp = new TH1F("timestmp","",totDays, 0, totDays);//It stores A/P from Calib for St.
@@ -183,8 +189,12 @@ int main (int argc, char *argv[]) {
 	double blCorrHbase = 0.;
 	double blCorrCalib = 0.;
   double tmpaopHb = 0.;
+  double tmpchHb = 0.;
+  double tmppkHb = 0.;
   double tmpaopCa = 0.;
   double tmprms = 0.;
+  double tmprmspk = 0.;
+  double tmprmsch = 0.;
   TH1F *tmp = new TH1F();
   TString tmpName;
   fitpeak fitPk;
@@ -213,30 +223,52 @@ int main (int argc, char *argv[]) {
     if ( sameUtc > cday )
     {
       tmprms = 0;
+      tmprmspk = 0.;
+      tmprmsch = 0.;
+
       tmpaopHb = tmpaopHb/stckapHb.size();
       tmpaopCa = tmpaopCa/stckapCa.size();
+      tmppkHb = tmppkHb/stckpkHb.size();
+      tmpchHb = tmpchHb/stckchHb.size();
 
-      for ( vector< double >::iterator evtap=stckapHb.begin(); evtap!=stckapHb.end(); evtap ++ )
-        tmprms += (tmpaopHb - *evtap)*(tmpaopHb - *evtap);
+      //for ( vector< double >::iterator evtap=stckapHb.begin(); evtap!=stckapHb.end(); evtap ++ )
+      for ( int kk=0; kk< stckapHb.size(); kk++ )
+      {
+        tmprms += (tmpaopHb - stckapHb[kk])*(tmpaopHb - stckapHb[kk]);
+        tmprmspk += (tmppkHb - stckpkHb[kk])*(tmppkHb - stckpkHb[kk]);
+        tmprmsch += (tmpchHb - stckchHb[kk])*(tmpchHb - stckchHb[kk]);
+      }
       
       apHbase->SetBinContent( nday, tmpaopHb );
-      rmsHbase->SetBinContent( nday, sqrt( tmprms/stckapHb.size() ) );
-      tmprms = 0.;
+      pkHbase->SetBinContent( nday, tmppkHb );
+      chHbase->SetBinContent( nday, tmpchHb );
 
+      rmsHbase->SetBinContent( nday, sqrt( tmprms/stckapHb.size() ) );
+      rmspkHbase->SetBinContent( nday, sqrt( tmprmspk/stckpkHb.size() ) );
+      rmschHbase->SetBinContent( nday, sqrt( tmprmsch/stckchHb.size() ) );
+
+      tmprms = 0.;
+      /*
       for ( vector< double >::iterator evtap=stckapCa.begin(); evtap!=stckapCa.end(); evtap ++ )
         tmprms += (tmpaopCa - *evtap)*(tmpaopCa - *evtap);
       
       apCalib->SetBinContent( nday, tmpaopCa );
       rmsCalib->SetBinContent( nday, sqrt( tmprms/stckapCa.size() ) );
-      
+      */
+
       timestmp->SetBinContent( nday, sameUtc );
+
       tmpaopHb = 0.;
+      tmppkHb = 0.;
+      tmpchHb = 0.;
       tmpaopCa = 0.;
 
       cday += dday;
       nday++;
       treeHist->Fill();
       stckapHb.clear();
+      stckpkHb.clear();
+      stckchHb.clear();
       stckapCa.clear();
     }
 
@@ -288,8 +320,14 @@ int main (int argc, char *argv[]) {
 				  if ( fitCh.fitChOk && fitPk.fitPkOk )
           {
 					  stckapHb.push_back( fitCh.vemPosCh/fitPk.vemPosPk );
+            stckchHb.push_back( fitCh.vemPosCh );
+            stckpkHb.push_back( fitPk.vemPosPk );
             tmpaopHb += fitCh.vemPosCh/fitPk.vemPosPk;
+            tmpchHb += fitCh.vemPosCh;
+            tmppkHb += fitPk.vemPosPk;
           }
+
+          /*
           
           // =================
           // *** For Calib ***
@@ -308,6 +346,7 @@ int main (int argc, char *argv[]) {
 					  stckapCa.push_back( fitCh.vemPosCh/fitPk.vemPosPk );
             tmpaopCa += fitCh.vemPosCh/fitPk.vemPosPk;
           }
+          */
 
           eventStat ++;
 					break;

@@ -95,7 +95,7 @@
 %\end{frame}
 
 \begin{frame}
-  \frametitle{UUB Raw Peak histograms: noise at first bin in? }
+  \frametitle{UUB Raw Peak histograms: noise at first bin? }
   {\bf IoSdHisto::Peak[pmtId][0]}
 	\begin{figure}
 		\centering
@@ -159,21 +159,21 @@
 % ====================
 % *** For Baseline ***
 
-\begin{frame}
-	\frametitle{Checking UUB Baseline: IoSdStation::HBase[pmt] and Calib.Base[pmt]}
-	\begin{figure}
-		\centering
-		\begin{tabularx}{\textwidth}{CC}
-			\includegraphics[width=.4\textwidth]{../plots/uubAllAveHbasePMTs.png}
-			&
-      \includegraphics[width=.4\textwidth]{../plots/uubAllAveCalibPMTs.png}
-			\\
-			\includegraphics[width=.4\textwidth]{../plots/ubAllAveHbasePMTs.png}
-			&
-			\includegraphics[width=.4\textwidth]{../plots/ubAllAveCalibPMTs.png}
-		\end{tabularx}
-	\end{figure}
-\end{frame}
+%\begin{frame}
+%	\frametitle{Checking UUB Baseline: IoSdStation::HBase[pmt] and Calib.Base[pmt]}
+%	\begin{figure}
+%		\centering
+%		\begin{tabularx}{\textwidth}{CC}
+%			\includegraphics[width=.4\textwidth]{../plots/uubAllAveHbasePMTs.png}
+%			&
+%      \includegraphics[width=.4\textwidth]{../plots/uubAllAveCalibPMTs.png}
+%			\\
+%			\includegraphics[width=.4\textwidth]{../plots/ubAllAveHbasePMTs.png}
+%			&
+%			\includegraphics[width=.4\textwidth]{../plots/ubAllAveCalibPMTs.png}
+%		\end{tabularx}
+%	\end{figure}
+%\end{frame}
 
 % ===============================
 % *** Correction for Baseline ***
@@ -191,30 +191,29 @@
 			&
 			\includegraphics[width=.38\textwidth]{../plots/uubPeakCoorCalibBaseZoomPMT1St863.pdf}
 			\\
-			\multicolumn{2}{l}{Is the correction using HBase producing negative bins?}
+			\multicolumn{2}{l}{Which one should we use to correct?}
 		\end{tabularx}
 	\end{figure}
 \end{frame}
-
-% *** For first bin center ***
-
-
-\begin{frame}
-  \frametitle{Comparison PMT1: UUB and UB Peak histogram First Bin center}
-  Here, First Bin center: GetBinCenter(1).
-  \begin{figure}
-    \centering
-    \begin{tabularx}{\textwidth}{CC}
-			\includegraphics[width=.45\textwidth]{../plots/uubAllAveBinCntrHbasePMTs.png}
-			&
-			\includegraphics[width=.45\textwidth]{../plots/uubAllAveBinCntrCalibPMTs.png}
-      \\
-			\includegraphics[width=.45\textwidth]{../plots/ubAllAveBinCntrHbasePMTs.png}
-			&
-			\includegraphics[width=.45\textwidth]{../plots/ubAllAveBinCntrCalibPMTs.png}
-		\end{tabularx}
-	\end{figure}
-\end{frame}
+%
+%% *** For first bin center ***
+%
+%\begin{frame}
+%  \frametitle{Comparison PMT1: UUB and UB Peak histogram First Bin center}
+%  Here, First Bin center: GetBinCenter(1).
+%  \begin{figure}
+%    \centering
+%    \begin{tabularx}{\textwidth}{CC}
+%			\includegraphics[width=.45\textwidth]{../plots/uubAllAveBinCntrHbasePMTs.png}
+%			&
+%			\includegraphics[width=.45\textwidth]{../plots/uubAllAveBinCntrCalibPMTs.png}
+%      \\
+%			\includegraphics[width=.45\textwidth]{../plots/ubAllAveBinCntrHbasePMTs.png}
+%			&
+%			\includegraphics[width=.45\textwidth]{../plots/ubAllAveBinCntrCalibPMTs.png}
+%		\end{tabularx}
+%	\end{figure}
+%\end{frame}
 
 
 
@@ -258,6 +257,29 @@
 		\end{tabularx}
 	\end{figure}
 \end{frame}
+
+\begin{frame}
+	\frametitle{Area/Peak}
+	Fitting Histograms using:
+	\begin{displaymath}
+		e^{\left( a_0-\frac{1}{x\tau}\right) } + x^{-1}e^{ -\left(\frac{(\ln x - \ln\mu)^2}{2\sigma^2}\right) }
+	\end{displaymath}
+	
+	\begin{figure}
+		\begin{tabularx}{\textwidth}{CCC}
+			\includegraphics[width=.35\textwidth]{../plots/ubChHistFitSt1223.pdf}
+			\caption{Charge: UB-PMT1}
+			&
+			\includegraphics[width=.35\textwidth]{../plots/uubChHistFitSt1223.pdf}
+			\caption{Charge: UUB-PMT1}
+			&
+			\includegraphics[width=.35\textwidth]{../plots/ubPkHistFitSt1222.pdf}
+			\caption{Peak: UUB-PMT1}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
 
 % *** For Offset *** 
 
@@ -357,7 +379,6 @@
 \end{frame}
 
 
-
 \begin{frame}
   \frametitle{A/P along time}
   \begin{figure}
@@ -373,6 +394,63 @@
     \end{tabularx}
   \end{figure}
 \end{frame}
+
+
+%\begin{frame}
+%  \frametitle{A/P along time}
+%  \begin{figure}
+%    \centering
+%    \begin{tabularx}{\textwidth}{CC}
+%      \includegraphics[width=.43\textwidth]{../plots/uububAoPtimeHbPMT1St863pk.png}
+%      &
+%      \includegraphics[width=.43\textwidth]{../plots/uububAoPtimeHbPMT1St863ch.png}
+%      \\
+%      \includegraphics[width=.43\textwidth]{../plots/uububAoPtimeHbPMT1St1743pk.png}
+%      &
+%      \includegraphics[width=.43\textwidth]{../plots/uububAoPtimeHbPMT1St1743ch.png}
+%    \end{tabularx}
+%  \end{figure}
+%\end{frame}
+
+
+%\begin{frame}
+%  \frametitle{A/P along time}
+%  \begin{figure}
+%    \centering
+%    \begin{tabularx}{\textwidth}{CC}
+%      \includegraphics[width=.43\textwidth]{../plots/uububAoPtimeHbPMT3St1740pk.png}
+%      &
+%      \includegraphics[width=.43\textwidth]{../plots/uububAoPtimeHbPMT3St1740ch.png}
+%      \\
+%      \includegraphics[width=.43\textwidth]{../plots/uububAoPtimeHbPMT2St1219pk.png}
+%      &
+%      \includegraphics[width=.43\textwidth]{../plots/uububAoPtimeHbPMT2St1219ch.png}
+%    \end{tabularx}
+%  \end{figure}
+%\end{frame}
+
+
+\begin{frame}
+  \frametitle{Summary}
+  {\bf First look at the  A/P}
+
+  %\centering
+  \begin{itemize}
+    \item Why are there entries in the UUB peak histograms at the first bin?
+    \item What is the offset for, and why is it different between the PMTs 
+      (Charge histograms)?
+    \item The calibration histograms should be taken from  HBase or Calib?
+    \item The A/B from the UUB is a factor 20\% lower than the A/P from UB.
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \centering
+  {\bf\Huge Thanks }
+\end{frame}
+
+
 
 
 %\begin{frame}
@@ -407,9 +485,73 @@
 % ==============
 % *** BACKUP ***
 
+
 \begin{frame}
   \frametitle{Backup}
 \end{frame}
+
+% ===============================
+% *** Correction for Baseline ***
+
+\begin{frame}
+	\frametitle{UUB Peak histogram correcting baseline for: HBase and Calib.Base}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.38\textwidth]{../plots/uubPeakCoorHBasePMT1St863.pdf}
+			&
+			\includegraphics[width=.38\textwidth]{../plots/uubPeakCoorCalibBasePMT1St863.pdf}
+			\\
+			\includegraphics[width=.38\textwidth]{../plots/uubPeakCoorHBaseZoomPMT1St863.pdf}
+			&
+			\includegraphics[width=.38\textwidth]{../plots/uubPeakCoorCalibBaseZoomPMT1St863.pdf}
+			\\
+			\multicolumn{2}{l}{Is the correction using HBase producing negative bins?}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% *** For first bin center ***
+
+\begin{frame}
+  \frametitle{Comparison PMT1: UUB and UB Peak histogram First Bin center}
+  Here, First Bin center: GetBinCenter(1).
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.45\textwidth]{../plots/uubAllAveBinCntrHbasePMTs.png}
+			&
+			\includegraphics[width=.45\textwidth]{../plots/uubAllAveBinCntrCalibPMTs.png}
+      \\
+			\includegraphics[width=.45\textwidth]{../plots/ubAllAveBinCntrHbasePMTs.png}
+			&
+			\includegraphics[width=.45\textwidth]{../plots/ubAllAveBinCntrCalibPMTs.png}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
+% ====================
+% *** For Baseline ***
+
+\begin{frame}
+	\frametitle{Checking UUB Baseline: IoSdStation::HBase[pmt] and Calib.Base[pmt]}
+	\begin{figure}
+		\centering
+		\begin{tabularx}{\textwidth}{CC}
+			\includegraphics[width=.4\textwidth]{../plots/uubAllAveHbasePMTs.png}
+			&
+      \includegraphics[width=.4\textwidth]{../plots/uubAllAveCalibPMTs.png}
+			\\
+			\includegraphics[width=.4\textwidth]{../plots/ubAllAveHbasePMTs.png}
+			&
+			\includegraphics[width=.4\textwidth]{../plots/ubAllAveCalibPMTs.png}
+		\end{tabularx}
+	\end{figure}
+\end{frame}
+
+
 
 \begin{frame}
   \frametitle{Station 1818}
