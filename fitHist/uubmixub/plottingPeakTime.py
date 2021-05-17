@@ -63,7 +63,6 @@ def getRate(pmtid):
 
   return xtime, vempkhb, vempkrmshb
 
-
 # ===============================
 # *** For Peak HBase Plotting ***
 
@@ -71,69 +70,56 @@ pkpmt1 = getRate(1)
 pkpmt2 = getRate(2)
 pkpmt3 = getRate(3)
 
+print( np.average( np.array( pkpmt1[1][0][stchoo] ) ) )
+print( np.average( np.array( pkpmt2[1][0][stchoo] ) ) )
+print( np.average( np.array( pkpmt3[1][0][stchoo] ) ) )
+print("")
+print( np.average( np.array( pkpmt1[1][1][stchoo] ) ) )
+print( np.average( np.array( pkpmt2[1][1][stchoo] ) ) )
+print( np.average( np.array( pkpmt3[1][1][stchoo] ) ) )
+
+
 markers = ['o', 's', '^']
 xfmt = md.DateFormatter('%m/%d')
 mkrSize = 6
-yminuub = 1e2
-ymaxuub = 2.2e2
-yminub = 0
-ymaxub = 1e2
 
+ymin = 0
+ymax = 2.2e2
 
 fig = plt.figure(figsize=(16,9))
 ax1 = fig.add_subplot(311)
 ax2 = fig.add_subplot(312)
 ax3 = fig.add_subplot(313)
 
-ax11 = ax1.twinx()
-
 ax1.errorbar(pkpmt1[0][0][stchoo], pkpmt1[1][0][stchoo], yerr=pkpmt1[2][0][stchoo], fmt=markers[0], markersize=mkrSize, color='tab:blue', label="UB")
-ax11.errorbar(pkpmt1[0][1][stchoo], pkpmt1[1][1][stchoo], yerr=pkpmt1[2][1][stchoo], fmt=markers[1], markersize=mkrSize, color='tab:orange', label="UUB")
+ax1.errorbar(pkpmt1[0][1][stchoo], pkpmt1[1][1][stchoo], yerr=pkpmt1[2][1][stchoo], fmt=markers[1], markersize=mkrSize, color='tab:orange', label="UUB")
 ax1.legend(loc=2, title='PMT1')
-ax11.legend(loc=0, title='PMT1')
 ax1.xaxis.set_major_formatter(xfmt)
-ax1.set_ylim(yminub, ymaxub)
+ax1.set_ylim(ymin, ymax)
 ax1.set_ylabel("Vem-Peak [FADC]", fontsize=12)
-ax1.tick_params(axis='y', labelsize=12, labelcolor='tab:blue')
+ax1.tick_params(axis='y', labelsize=12, labelright=True)
 ax1.tick_params(axis='x', labelsize=12)
-ax11.set_ylabel("Vem-Peak [FADC]", fontsize=12)
-ax11.tick_params(axis='both', labelsize=12, labelcolor='tab:orange')
-ax11.set_ylim(yminuub, ymaxuub)
 
-
-ax21 = ax2.twinx()
 
 ax2.errorbar(pkpmt2[0][0][stchoo], pkpmt2[1][0][stchoo], yerr=pkpmt2[2][0][stchoo], fmt=markers[0], markersize=mkrSize, color='tab:blue', label="UB")
-ax21.errorbar(pkpmt2[0][1][stchoo], pkpmt2[1][1][stchoo], yerr=pkpmt2[2][1][stchoo], fmt=markers[1], markersize=mkrSize, color='tab:orange', label="UUB")
+ax2.errorbar(pkpmt2[0][1][stchoo], pkpmt2[1][1][stchoo], yerr=pkpmt2[2][1][stchoo], fmt=markers[1], markersize=mkrSize, color='tab:orange', label="UUB")
 ax2.legend(loc=2, title='PMT2')
-ax21.legend(loc=1, title='PMT2')
 ax2.xaxis.set_major_formatter(xfmt)
-ax2.set_ylim(yminub, ymaxub)
+ax2.set_ylim(ymin, ymax)
 ax2.set_ylabel("Vem-Peak [FADC]", fontsize=12)
 ax2.tick_params(axis='both', labelsize=12)
-ax2.tick_params(axis='y', labelsize=12, labelcolor='tab:blue')
-ax21.set_ylabel("Vem-Peak [FADC]", fontsize=12)
-ax21.tick_params(axis='both', labelsize=12)
-ax21.tick_params(axis='y', labelsize=12, labelcolor='tab:orange')
-ax21.set_ylim(yminuub, ymaxuub)
+ax2.tick_params(axis='y', labelsize=12, labelright=True)
 
-
-ax31 = ax3.twinx()
 
 ax3.errorbar(pkpmt3[0][0][stchoo], pkpmt3[1][0][stchoo], yerr=pkpmt3[2][0][stchoo], fmt=markers[0], markersize=mkrSize, color='tab:blue', label="UB")
-ax31.errorbar(pkpmt3[0][1][stchoo], pkpmt3[1][1][stchoo], yerr=pkpmt3[2][1][stchoo], fmt=markers[1], markersize=mkrSize, color='tab:orange', label="UUB")
+ax3.errorbar(pkpmt3[0][1][stchoo], pkpmt3[1][1][stchoo], yerr=pkpmt3[2][1][stchoo], fmt=markers[1], markersize=mkrSize, color='tab:orange', label="UUB")
 ax3.legend(loc=2, title='PMT3')
-ax31.legend(loc=0, title='PMT3')
 ax3.xaxis.set_major_formatter(xfmt)
 ax3.set_xlabel("Days since August 1st, 2020 (month/day)", fontsize=12)
-ax3.set_ylim(yminub, ymaxub)
+ax3.set_ylim(ymin, ymax)
 ax3.set_ylabel("Vem-Peak [FADC]", fontsize=12)
 ax3.tick_params(axis='both', labelsize=12)
-ax3.tick_params(axis='y', labelsize=12, labelcolor='tab:blue')
-ax31.set_ylabel("Vem-Peak [FADC]", fontsize=12)
-ax31.tick_params(axis='both', labelsize=12)
-ax31.tick_params(axis='y', labelsize=12, labelcolor='tab:orange')
-ax31.set_ylim(yminuub, ymaxuub)
+ax3.tick_params(axis='y', labelsize=12, labelright=True)
 
 
 fig.suptitle("Station "+str(stList[stchoo]), fontsize=22)

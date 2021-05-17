@@ -31,7 +31,9 @@ main(int argc, char* argv[])
     const TSDMonitoring& m = mc->fMonitoring;
 		if ( mc->fLsId==863 ) 
 		{
-			cout << mc->fTime << ' ' << m.fPMI[0] << endl;
+			cout << mc->fTime << " " << m.fPMV[0] << " " << m.fPMV[1] << " " << m.fPMV[2] << endl;
+			//cout << mc->fTime << " " << m.fUPMV[0] << " " << m.fUPMV[1] << " " << m.fUPMV[2] << endl;
+			//cout << "PMV: " << m.fPMV[0] << " " << m.fPMV[1] << " " << m.fPMV[2] << endl;
 			/*for (int i=0;i<8;i++) 
 				 cout << mc->fRawMonitoring.fExtra[i] << ' ';
 			 cout << endl;
