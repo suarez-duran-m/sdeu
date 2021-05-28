@@ -29,10 +29,10 @@ main(int argc, char* argv[])
     //if (mc->fRawMonitoring.fIsUUB != 1)
       //continue;
     const TSDMonitoring& m = mc->fMonitoring;
-		if ( mc->fLsId==863 ) 
+		if ( mc->fLsId==1740 ) 
 		{
-			cout << mc->fTime << " " << m.fPMV[0] << " " << m.fPMV[1] << " " << m.fPMV[2] << endl;
-			//cout << mc->fTime << " " << m.fUPMV[0] << " " << m.fUPMV[1] << " " << m.fUPMV[2] << endl;
+			//cout << mc->fTime << " " << m.fPMV[0] << " " << m.fPMV[1] << " " << m.fPMV[2] << endl;
+			cout << mc->fTime << " " << m.fUPMV[0] << " " << m.fUPMV[1] << " " << m.fUPMV[2] << endl;
 			//cout << "PMV: " << m.fPMV[0] << " " << m.fPMV[1] << " " << m.fPMV[2] << endl;
 			/*for (int i=0;i<8;i++) 
 				 cout << mc->fRawMonitoring.fExtra[i] << ' ';

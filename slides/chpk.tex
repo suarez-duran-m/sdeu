@@ -4,6 +4,7 @@
 \usepackage{tikz}
 \usepackage{tabularx}
 \usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
 \captionsetup[figure]{labelformat=empty}
 
 \usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
@@ -37,7 +38,6 @@
     \end{beamercolorbox}
   }
 }
-
 
 
 \title{UUB Charge and Peak histograms}
@@ -74,76 +74,498 @@
 
 
 \begin{frame}
+  \frametitle{Understanding the sampling}
   \begin{figure}
     \centering
     \begin{tabularx}{\textwidth}{CC}
       \begin{tabular}{l}
-        Let's assume a muon pulse as \\
-        exponential function: \\
-        $P(t) = P_{\mathrm{max}}\exp(-t/\tau)$. \\ \\
-        
-        So, the peak takes a value of $P_{\mathrm{max}}$, and \\
-        the integral (A) takes $P_{\mathrm{max}}\tau$. \\ \\
-
-        This means an AoP of $\tau$. \\ \\
-
-        In a digitalized scenario, the $P(t)$ \\
-        takes values each $\Delta t$, which \\
-        means that the $P_{\mathrm{max}}$ will be a value \\
-        between $P(ts)$ and $P(ts + \Delta t)$, where $ts$ \\
-        is the time at which the signal starting. \\ \\
-        Let's say that peak is at $ts$, then \\
-        $P(ts) = P_{\mathrm{max}}\exp(-ts/\tau)$. \\
+        \includegraphics[width=.45\textwidth]{../plots/originalPulseGapNote199-004.png}
       \end{tabular}
       &
       \begin{tabular}{l}
-        For the integral: \\
-        $A = \Delta t \sum_{n=1}^{n=\infty} 
-        P_{\mathrm{max}}\exp{-\frac{ts + n\Delta t}{\tau}}$ \\
-
-        $A = P_{\mathrm{max}} \exp^{-ts/\tau} 
-        \frac{\Delta t}{1 - e^{-\Delta t/\tau}}$ \\ \\
-
-        Therefore, we expected an AoP of \\
-        $\mathrm{AoP} = \frac{\Delta t}{1 - e^{-\Delta t/\tau}}$. \\ \\
-
-        If $\Delta t$ goes to zero, so
-        $\mathrm{AoP} = \tau$ 
+        \includegraphics[width=.45\textwidth]{../plots/samplingPulseGapNote199-004.png}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=.45\textwidth]{../plots/samplingDigiPulseGapNote199-004.png}
+      \end{tabular}
+      &
+      \footnotesize
+      \begin{tabular}{c|c|c|c}
+        {} & Orig. Pulse & $2^{10}$ at $25$\,ns & $2^{12}$ at $8.33$\,ns \\ \hline
+        Area & $111.85$\,pC & $105.30$\,pC & $109.88$\,pC \\
+        Peak & $69.01$\,mV & $64.35$\,mV & $68.60$\,mV \\
+        AoP & $1.62$\,nF & $1.64$\,nF & $1.61$\,nF \\ 
+        \multicolumn{4}{l}{From FADC to Amplitud (mV):} \\
+        \multicolumn{4}{l}{$1$\,FADC = $2000.$\,mV / $2^{n}$, where $n$ takes 10 or 12.} \\
+        \multicolumn{4}{l}{} \\
+        \multicolumn{4}{l}{From FADC to Charge (pC):} \\
+        \multicolumn{4}{l}{Q $= \frac{(\Delta t\,\mathrm{ns})(2000.\,\mathrm{mV} / 2^{n})}{50.\,\Omega} \sum{n_i}
+        = \sum{n_i}$\,pC}
       \end{tabular}
     \end{tabularx}
   \end{figure}
 \end{frame}
 
+
 \begin{frame}
-  For UB, AoP takes: \\
-  $\left( \mathrm{AoP}\right)^{\mathrm{UB}} 
-  = \frac{25\,\mathrm{ns}}{1 - e^{-25/\tau}}$\, \\
-  and for UUB, \\
-  $\left( \mathrm{AoP}\right)^{\mathrm{UUB}}
-  = \frac{8.33\,\mathrm{ns}}{1 - e^{-8.33/\tau}}$ \\
+  \frametitle{AoP ratio expected for $25.00$\,ns / $8.33$\,ns}
+  $ \frac{ \mathrm{AoP}^{25} } {\mathrm{AoP}^{8.33}}
+  = \frac{1.64\,\mathrm{nF}}{1.61\,\mathrm{nF}} = 1.02$;
+  How is this ratio for an artifial sample of $10^4$ pulses?
 
-  So, 
-  $\frac{ \left( \mathrm{AoP}\right)^{\mathrm{UB}} }
-  { \left(\mathrm{AoP}\right)^{\mathrm{UUB}} }
-  = \frac{25\,\mathrm{ns} \left( 1 - e^{-8.33/\tau} \right)}
-  {8.33\,\mathrm{ns} \left( 1 - e^{-25/\tau} \right)}$ \\
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.45\textwidth]{../plots/artifitialPulses.pdf}
+      \end{tabular}
+      &
+      \footnotesize
+      \begin{tabular}{c|c|c|c}
+        {} & $25$\,ns & $8.33$\,ns & $1.0$\,ns \\ \hline
+        Area & $105.11$\,pC & $110.23$\,pC & $111.87$\,pC \\
+        Peak & $65.59$\,mV & $68.72$\,mV & $69.03$\,mV \\
+        AoP & $1.60$\,nF & $1.60$\,nF & $ 1.62$ \\ \hline
+        Ratio AoP & \multicolumn{3}{c}{1.00} \\
+        \multicolumn{4}{l}{} \\
+        \multicolumn{4}{l}{The AoP is the same for both sampling.} \\
+        \multicolumn{4}{l}{8.33's Area and Peak bigger than 25.'s ones.}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=.45\textwidth]{../plots/samplingDigiPkHistos.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.45\textwidth]{../plots/samplingDigiChHistos.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
 
-  $\frac{ \left( \mathrm{AoP}\right)^{\mathrm{UB}} }
-  { \left(\mathrm{AoP}\right)^{\mathrm{UUB}} }
-  = 3 \frac{\left( 1 - e^{-8.33/\tau} \right)}{\left( 1 - e^{-25/\tau} \right)} $\\
 
-  Assuming a $\tau=50$\,ns: \\
-  
-  $\frac{ \left( \mathrm{AoP}\right)^{\mathrm{UB}} }
-  { \left(\mathrm{AoP}\right)^{\mathrm{UUB}} }
-  = 3 \frac{0.15}{0.39} = 1.17$ \\
+\begin{frame}
+  \frametitle{What to expect for different HV ($1.5*$P0)?}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.5\textwidth]{../plots/artifitialPulsesAmp.pdf}
+      \end{tabular}
+      &
+      \footnotesize
+      \begin{tabular}{c|c|c|c}
+        {} & $25.00$\,ns & $8.33$\,ns & $1.0$\,ns \\ \hline
+        Area & $162.50$\,pC & $169.57$\,pC & $167.79$\,Pc \\
+        Peak & $98.37$\,mV & $103.06$\,mV & $103.55$\,mV \\
+        AoP & $1.65$\,nF & $1.65$\,nF & $1.62$\,nF\\ \hline
+        Ratio AoP & \multicolumn{3}{c}{1.00} \\
+        \multicolumn{4}{c}{} \\
+        \multicolumn{4}{l}{Here, the change of amplitude causes} \\
+        \multicolumn{4}{l}{a different of $\sim3$\,\% in the AoP value.} \\
+        \multicolumn{4}{l}{8.33's Area and Peak bigger than 25.'s ones.}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/samplingiDigiPkHistosAmp.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/samplingDigiChHistosAmp.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
 
-  $\left( \mathrm{AoP}\right)^{\mathrm{UB}} = 1.17 \left(\mathrm{AoP}\right)^{\mathrm{UUB}} $
 
+\begin{frame}
+  \frametitle{Checking AoP for Station 863}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.45\textwidth]{../plots/uububAoPtimeHbPMT1St863.png}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.45\textwidth]{../plots/uububAoPtimeHbPMT2St863.png}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=.45\textwidth]{../plots/uububAoPtimeHbPMT3St863.png}
+      \end{tabular}
+      &
+      How good is the fit?
+    \end{tabularx}
+  \end{figure}
+\end{frame}
 
+\begin{frame}
+  \frametitle{Checking for UUB {\huge $\chi^2/$ndf} Station 863}
+  \begin{figure}
+    \centering
+    \includegraphics[width=.91\textwidth]{../plots/uubPeakChisHbSt863PMTs.pdf}
+  \end{figure}
+  \footnotesize
+  All fits with $\chi^2/\mathrm{ndf} > 50$ were counted as $49$.
+\end{frame}
 
+\begin{frame}
+  \frametitle{Checking for UB {\huge $\chi^2/$ndf} Station 863}
+  \begin{figure}
+    \centering
+    \includegraphics[width=.91\textwidth]{../plots/ubPeakChisHbSt863PMTs.pdf}
+  \end{figure}
+  \footnotesize
+  All fits with $\chi^2/\mathrm{ndf} > 50$ were counted as $49$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Checking Peak and Charge for Station 863}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.47\textwidth]{../plots/uubPeaktimeHbSt863PMTs.png}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.47\textwidth]{../plots/uubChargetimeHbSt863PMTs.png}
+      \end{tabular}
+      \\
+    \end{tabularx}
+  \end{figure}
+
+  \begin{center}
+    \small
+    \begin{tabular}{|c|c|c|c|c|c|c|}
+      \hline
+      \multirow{2}{*}{} & \multicolumn{2}{c|}{PMT1} & \multicolumn{2}{c|}{PMT2} & \multicolumn{2}{c|}{PMT3} \\ \cline{2-7}
+        & UB & UUB & UB & UUB & UB & UUB \\ \hline
+      Area & $121.43$\,pC & $102.84$\,pC & $104.41$\,pC & $122.81$\,pC & $146.26$\,pC & $107.43$\,pC \\ \hline
+      Peak & $71.15$\,mV  & $72.28$\,mV  & $52.51$\,mV  & $86.98$\,mV  & $52.51$\,mV  & $75.26$\, mV\\  \hline
+      AoP  & $1.71$\,nF   & $1.42$\,nF   & $1.99$\,nF   & $1.41$\,nF   & $2.79$\,nF   & $1.43$\,nF \\ \hline
+    \end{tabular}
+    \\
+    \vspace{0.5cm}
+    May be a differente HV?
+  \end{center}
 
 \end{frame}
+
+
+\begin{frame}
+  \frametitle{Checking for St. 863's HV}
+  Data from /pbs/throng/pauger/DATA/Raid/monit/ and readed with TSDMonCal.h
+  \centering
+  %\vspace{0.5cm}
+  \includegraphics[width=.8\textwidth]{../plots/uubHVSt863.png}
+  \\
+  \small
+  fPMV[pmt] and UPMV[pmt] are not the correct variables to check this?
+  \\
+  Which are the correct ones?
+\end{frame}
+
+\begin{frame}
+  \frametitle{Checking for St. 863's HV}
+  From http://mon.auger.uni-wuppertal.de/pro/SD/LS/Monitoring.php?LSId=863
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \includegraphics[width=.42\textwidth]{../plots/uububHv863pmt1web.png}
+      &
+      \includegraphics[width=.42\textwidth]{../plots/uububHv863pmt2web.png}
+    \end{tabularx}
+  \end{figure}
+  \begin{center}
+    \begin{tabular}{l}
+      \includegraphics[width=.42\textwidth]{../plots/uububHv863pmt3web.png}
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Checking AoP for Station 1740}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.45\textwidth]{../plots/uububAoPtimeHbPMT1St1740.png}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.45\textwidth]{../plots/uububAoPtimeHbPMT2St1740.png}
+      \end{tabular}
+      \\
+    \end{tabularx}
+  \end{figure}
+
+  \begin{center}
+    \begin{tabular}{l}
+      \includegraphics[width=.45\textwidth]{../plots/uububAoPtimeHbPMT3St1740.png}
+    \end{tabular} 
+  \end{center}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Checking for UUB {\huge $\chi^2/$ndf} Station 1740}
+  \begin{figure}
+    \centering
+    \includegraphics[width=.91\textwidth]{../plots/uubPeakChisHbSt1740PMTs.pdf}
+  \end{figure}
+  \footnotesize
+  All fits with $\chi^2/\mathrm{ndf} > 50$ were counted as $49$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Checking for UB {\huge $\chi^2/$ndf} Station 1740}
+  \begin{figure}
+    \centering
+    \includegraphics[width=.91\textwidth]{../plots/ubPeakChisHbSt1740PMTs.pdf}
+  \end{figure}
+  \footnotesize
+  All fits with $\chi^2/\mathrm{ndf} > 50$ were counted as $49$.
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Checking Area and Peak for Station 1740}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.45\textwidth]{../plots/uubPeaktimeHbSt1740PMTs.png}
+      \end{tabular}
+      \begin{tabular}{l}
+        \includegraphics[width=.45\textwidth]{../plots/uubChargetimeHbSt1740PMTs.png}
+      \end{tabular}
+    \end{tabularx}
+    \small
+    \begin{tabular}{|c|c|c|c|c|c|c|}
+      \hline
+      \multirow{2}{*}{} & \multicolumn{2}{c|}{PMT1} & \multicolumn{2}{c|}{PMT2} & \multicolumn{2}{c|}{PMT3} \\ \cline{2-7}
+      & UB & UUB & UB & UUB & UB & UUB \\ \hline
+      Area & $96.21$\,pC  & $120.27$\,pC & $124.50$\,pC & $112.60$\,pC & $138.46$\,pC & $108.38$\,pC \\ \hline
+      Peak & $56.60$\,mV  & $86.19$\,mV  & $74.15$\,mV  & $81.86$\,mV  & $74.15$\,mV  & $78.34$\, mV\\  \hline
+      AoP  & $1.67$\,nF   & $1.40$\,nF   & $1.68$\,nF   & $1.34$\,nF   & $1.87$\,nF   & $1.38$\,nF \\ \hline
+    \end{tabular}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Checking for St. 1740's HV}
+  Data from /pbs/throng/pauger/DATA/Raid/monit/ and readed with TSDMonCal.h
+  \centering
+  \vspace{0.5cm}
+
+  \includegraphics[width=.8\textwidth]{../plots/uubHVSt1740.png}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Checking for St. 1740's HV}
+  From http://mon.auger.uni-wuppertal.de/pro/SD/LS/Monitoring.php?LSId=1740
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \includegraphics[width=.42\textwidth]{../plots/uububHv1740pmt1web.png}
+      &
+      \includegraphics[width=.42\textwidth]{../plots/uububHv1740pmt2web.png}
+    \end{tabularx}
+  \end{figure}
+
+  \begin{center}
+    \begin{tabular}{c}
+      \includegraphics[width=.42\textwidth]{../plots/uububHv1740pmt3web.png}
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Checking for Peak for all Stations}
+  \centering
+  \includegraphics[width=.8\textwidth]{../plots/uubPeaktimeHbAllSt0PMT1.png}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Checking for Peak for all Stations}
+  \centering
+  \includegraphics[width=.8\textwidth]{../plots/uubPeaktimeHbAllSt1PMT1.png}
+\end{frame}
+
+
+%\begin{frame}
+%  \frametitle{Back-up}
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{A/P}
+%  \begin{figure}
+%    \centering
+%    \begin{tabularx}{\textwidth}{CC}
+%      \includegraphics[width=.45\textwidth]{../plots/uubAoPHbasePMTs.png}
+%      &
+%      \includegraphics[width=.45\textwidth]{../plots/uubAoPCalibPMTs.png}
+%      \\
+%      \includegraphics[width=.45\textwidth]{../plots/ubAoPHbasePMTs.png}
+%      &
+%      \includegraphics[width=.45\textwidth]{../plots/ubAoPCalibPMTs.png}
+%    \end{tabularx}
+%  \end{figure}
+%  \centering
+%  
+%\end{frame}
+%
+%
+%\begin{frame}
+%  \frametitle{A/P Relative difference for Peak corrections}
+%  \begin{figure}
+%    PMTs with AoP lower than $4$\,ns for UUB and $2$\,ns for UB are not considered here.
+%    \centering
+%    \begin{tabularx}{\textwidth}{CC}
+%      \includegraphics[width=.43\textwidth]{../plots/uubAoPDiffCaHbPMTs.png}
+%      &
+%      \includegraphics[width=.43\textwidth]{../plots/ubAoPDiffCaHbPMTs.png}
+%      \\
+%      \includegraphics[width=.43\textwidth]{../plots/aopHbaseUubUbPMTs.png}
+%      &
+%      \includegraphics[width=.43\textwidth]{../plots/aoCalibUubUbPMTs.png}
+%    \end{tabularx}
+%  \end{figure}
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{How well is the fit method works? }
+%  {\bf Events-Fitting / Events-total }
+%	\begin{figure}
+%		\centering
+%    \begin{tabularx}{\textwidth}{CC}
+%      \begin{tabular}{l}
+%        \includegraphics[width=.44\textwidth]{../plots/uubGoodFitEvtnPk.png}
+%      \end{tabular}
+%      &
+%			\begin{tabular}{l}
+%				\includegraphics[width=.44\textwidth]{../plots/ubGoodFitEvtnPk.png}
+%			\end{tabular}
+%			\\
+%			\begin{tabular}{l}
+%				\includegraphics[width=.44\textwidth]{../plots/uubGoodFitEvtnChPMT.png}
+%			\end{tabular} 
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=.44\textwidth]{../plots/ubGoodFitEvtnChPMT.png}
+%      \end{tabular}
+%		\end{tabularx}
+%	\end{figure}
+%\end{frame}
+
+
+\end{document}
+
+
+%\begin{frame}
+%  \begin{figure}
+%    \centering
+%    \begin{tabularx}{\textwidth}{CC}
+%      \begin{tabular}{l}
+%        Let's assume a muon pulse as \\
+%        exponential function: \\
+%        $P(t) = P_{\mathrm{max}}\exp(-t/\tau)$. \\ \\
+%        
+%        So, the peak takes a value of $P_{\mathrm{max}}$, and \\
+%        the integral (A) takes $P_{\mathrm{max}}\tau$. \\ \\
+%
+%        This means an AoP of $\tau$. \\ \\
+%
+%        In a digitalized scenario, the $P(t)$ \\
+%        takes values each $\Delta t$, which \\
+%        means that the $P_{\mathrm{max}}$ will be a value \\
+%        between $P(ts)$ and $P(ts + \Delta t)$, where $ts$ \\
+%        is the time at which the signal starting. \\ \\
+%        Let's say that peak is at $ts$, then \\
+%        $P(ts) = P_{\mathrm{max}}\exp(-ts/\tau)$. \\
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        For the integral: \\
+%        $A = \Delta t \sum_{n=1}^{n=\infty} 
+%        P_{\mathrm{max}}\exp{-\frac{ts + n\Delta t}{\tau}}$ \\
+%
+%        $A = P_{\mathrm{max}} \exp^{-ts/\tau} 
+%        \frac{\Delta t}{1 - e^{-\Delta t/\tau}}$ \\ \\
+%
+%        Therefore, we expected an AoP of \\
+%        $\mathrm{AoP} = \frac{\Delta t}{1 - e^{-\Delta t/\tau}}$. \\ \\
+%
+%        If $\Delta t$ goes to zero, so
+%        $\mathrm{AoP} = \tau$ 
+%      \end{tabular}
+%    \end{tabularx}
+%  \end{figure}
+%\end{frame}
+%
+%\begin{frame}
+%  For UB, AoP takes: \\
+%  $\left( \mathrm{AoP}\right)^{\mathrm{UB}} 
+%  = \frac{25\,\mathrm{ns}}{1 - e^{-25/\tau}}$\, \\
+%  and for UUB, \\
+%  $\left( \mathrm{AoP}\right)^{\mathrm{UUB}}
+%  = \frac{8.33\,\mathrm{ns}}{1 - e^{-8.33/\tau}}$ \\
+%
+%  So, 
+%  $\frac{ \left( \mathrm{AoP}\right)^{\mathrm{UB}} }
+%  { \left(\mathrm{AoP}\right)^{\mathrm{UUB}} }
+%  = \frac{25\,\mathrm{ns} \left( 1 - e^{-8.33/\tau} \right)}
+%  {8.33\,\mathrm{ns} \left( 1 - e^{-25/\tau} \right)}$ \\
+%
+%  $\frac{ \left( \mathrm{AoP}\right)^{\mathrm{UB}} }
+%  { \left(\mathrm{AoP}\right)^{\mathrm{UUB}} }
+%  = 3 \frac{\left( 1 - e^{-8.33/\tau} \right)}{\left( 1 - e^{-25/\tau} \right)} $\\
+%
+%  Assuming a $\tau=50$\,ns: \\
+%  
+%  $\frac{ \left( \mathrm{AoP}\right)^{\mathrm{UB}} }
+%  { \left(\mathrm{AoP}\right)^{\mathrm{UUB}} }
+%  = 3 \frac{0.15}{0.39} = 1.17$ \\
+%
+%  $\left( \mathrm{AoP}\right)^{\mathrm{UB}} = 1.17 \left(\mathrm{AoP}\right)^{\mathrm{UUB}} $
+%
+%\end{frame}
+
+
+%\begin{frame}
+%  \frametitle{What to expect for different Mean ($1.5*$P2)?}
+%  \begin{figure}
+%    \centering
+%    \begin{tabularx}{\textwidth}{CC}
+%      \begin{tabular}{l}
+%        \includegraphics[width=.39\textwidth]{../plots/artifitialPulsesSig.png}
+%      \end{tabular}
+%      &
+%      \small
+%      \begin{tabular}{c|c|c|c}
+%        {} & $25.00$\,ns & $8.33$\,ns & Rel. Diff. \\ \hline
+%        Area & $122.36$\,pC & $177.33$\,pC & $0.31$ \\
+%        Peak & $63.59$\,mV & $68.39$\,mV & $0.07$ \\
+%        AoP & $1.92$\,nF & $2.59$\,nF & $0.26$\\ \hline
+%        Ratio AoP & \multicolumn{3}{c}{0.74}
+%      \end{tabular}
+%      \\
+%      \begin{tabular}{l}
+%        \includegraphics[width=.39\textwidth]{../plots/samplingPkHistosSig.png}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=.39\textwidth]{../plots/samplingChHistosSig.png}
+%      \end{tabular}
+%    \end{tabularx}
+%  \end{figure}
+%\end{frame}
+
 %\begin{frame}
 %  \frametitle{Checking for UUB Peak histograms}
 %  \begin{figure}
@@ -184,10 +606,10 @@
 %    \end{tabularx}
 %  \end{figure}
 %\end{frame}
-%
-%% ============================
-%% *** Checking for St. 863 ***
-%
+
+% ============================
+% *** Checking for St. 863 ***
+
 %\begin{frame}
 %	\frametitle{Checking ratio $\frac{N_\mathrm{pk}^{\mathrm{UUB}}} {N_\mathrm{pk}^{\mathrm{UB}}}$ for St. 863}
 %  \begin{figure}
@@ -212,144 +634,3 @@
 %    \end{tabularx}
 %  \end{figure}
 %\end{frame}
-%
-%
-%\begin{frame}
-%  \frametitle{Checking for St. 863's HV}
-%  Data from /pbs/throng/pauger/DATA/Raid/monit/ and readed with TSDMonCal.h
-%  \centering
-%  \vspace{0.5cm}
-%
-%  \includegraphics[width=.8\textwidth]{../plots/uubHVSt863.png}
-%\end{frame}
-%
-%\begin{frame}
-%  \frametitle{Checking for St. 863's HV}
-%  From http://mon.auger.uni-wuppertal.de/pro/SD/LS/Monitoring.php?LSId=863
-%  \begin{figure}
-%    \centering
-%    \begin{tabularx}{\textwidth}{CC}
-%      \includegraphics[width=.5\textwidth]{../plots/hvPMT1uub.png}
-%      &
-%      \includegraphics[width=.5\textwidth]{../plots/hvPMT2uub.png}
-%      \\
-%      \includegraphics[width=.5\textwidth]{../plots/hvPMT3uub.png}
-%      &
-%      \includegraphics[width=.5\textwidth]{../plots/hvPMT1ub.png}
-%    \end{tabularx}
-%  \end{figure}
-%\end{frame}
-%
-%\begin{frame}
-%  \frametitle{Checking for St. 863's HV}
-%  From http://mon.auger.uni-wuppertal.de/pro/SD/LS/Monitoring.php?LSId=863
-%  \centering
-%  \vspace{0.5cm}
-%
-%  \includegraphics[width=1.\textwidth]{../plots/hvPMT1ub.png}
-%\end{frame}
-%
-%
-%\begin{frame}
-%  \frametitle{A/P}
-%  \begin{figure}
-%    \centering
-%    \begin{tabularx}{\textwidth}{CC}
-%      \includegraphics[width=.45\textwidth]{../plots/uubAoPHbasePMTs.png}
-%      &
-%      \includegraphics[width=.45\textwidth]{../plots/uubAoPCalibPMTs.png}
-%      \\
-%      \includegraphics[width=.45\textwidth]{../plots/ubAoPHbasePMTs.png}
-%      &
-%      \includegraphics[width=.45\textwidth]{../plots/ubAoPCalibPMTs.png}
-%    \end{tabularx}
-%  \end{figure}
-%  \centering
-%  
-%\end{frame}
-%
-%
-%\begin{frame}
-%  \frametitle{A/P Relative difference for Peak corrections}
-%  \begin{figure}
-%    PMTs with AoP lower than $4$\,ns for UUB and $2$\,ns for UB are not considered here.
-%    \centering
-%    \begin{tabularx}{\textwidth}{CC}
-%      \includegraphics[width=.43\textwidth]{../plots/uubAoPDiffCaHbPMTs.png}
-%      &
-%      \includegraphics[width=.43\textwidth]{../plots/ubAoPDiffCaHbPMTs.png}
-%      \\
-%      \includegraphics[width=.43\textwidth]{../plots/aopHbaseUubUbPMTs.png}
-%      &
-%      \includegraphics[width=.43\textwidth]{../plots/aoCalibUubUbPMTs.png}
-%    \end{tabularx}
-%  \end{figure}
-%\end{frame}
-%
-%
-%\begin{frame}
-%	\frametitle{Peak and Charge over time}
-%  \begin{figure}
-%  \centering
-%    \begin{tabularx}{\textwidth}{CC}
-%      \includegraphics[width=.5\textwidth]{../plots/uubPeaktimeHbSt863PMTs.png}
-%      &
-%      \includegraphics[width=.5\textwidth]{../plots/uububChargetimeHbSt863PMTs.png}
-%    \end{tabularx}
-%  \end{figure}
-%\end{frame}
-%
-%\begin{frame}
-%	\frametitle{Peak and Charge over time}
-%  \begin{figure}
-%  \centering
-%    \begin{tabularx}{\textwidth}{CC}
-%      \includegraphics[width=.5\textwidth]{../plots/uubPeaktimeHbSt1740PMTs.png}
-%      &
-%      \includegraphics[width=.5\textwidth]{../plots/uububChargetimeHbSt1740PMTs.png}
-%    \end{tabularx}
-%  \end{figure}
-%\end{frame}
-%
-%
-%\begin{frame}
-%	\frametitle{Peak and Charge over time}
-%  \begin{figure}
-%  \centering
-%    \begin{tabularx}{\textwidth}{CC}
-%      \includegraphics[width=.5\textwidth]{../plots/uubPeaktimeHbSt1219PMTs.png}
-%      &
-%      \includegraphics[width=.5\textwidth]{../plots/uububChargetimeHbSt1219PMTs.png}
-%    \end{tabularx}
-%  \end{figure}
-%\end{frame}
-%
-%
-%\begin{frame}
-%  \frametitle{How well is the fit method works? }
-%  {\bf Events-Fitting / Events-total }
-%	\begin{figure}
-%		\centering
-%    \begin{tabularx}{\textwidth}{CC}
-%      \begin{tabular}{l}
-%        \includegraphics[width=.44\textwidth]{../plots/uubGoodFitEvtnPk.png}
-%      \end{tabular}
-%      &
-%			\begin{tabular}{l}
-%				\includegraphics[width=.44\textwidth]{../plots/ubGoodFitEvtnPk.png}
-%			\end{tabular}
-%			\\
-%			\begin{tabular}{l}
-%				\includegraphics[width=.44\textwidth]{../plots/uubGoodFitEvtnChPMT.png}
-%			\end{tabular} 
-%      &
-%      \begin{tabular}{l}
-%        \includegraphics[width=.44\textwidth]{../plots/ubGoodFitEvtnChPMT.png}
-%      \end{tabular}
-%		\end{tabularx}
-%	\end{figure}
-%\end{frame}
-
-
-
-\end{document}

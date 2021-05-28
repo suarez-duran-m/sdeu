@@ -16,6 +16,32 @@
 
 using namespace std;
 
+
+double getmean( vector<int> *arr, unsigned int nb, bool lok ){
+  double mean = 0.;
+  int lb = arr->size() - 1;
+    for  (unsigned int i=0; i<nb; i++){
+      if ( !lok )
+        mean += (*arr)[i];
+      else
+        mean += (*arr)[lb-i];
+    }
+  return mean/nb;
+}
+
+double getrms( vector<int> *arr, double meanarr, unsigned int nb, bool lok ){
+  double rms = 0.;
+  int lb = arr->size() - 1;
+  for (unsigned int i=0; i<nb; i++){
+    if ( lok == 0 )
+      rms += ((*arr)[i] - meanarr)*((*arr)[i] - meanarr);
+    else
+      rms += ((*arr)[lb-i] - meanarr)*((*arr)[lb-i] - meanarr);
+  }
+  return sqrt(rms/nb);
+}
+
+
 // ========================== 
 // ******** The MAIN ********
 // ==========================
@@ -184,11 +210,17 @@ int main (int argc, char *argv[]) {
   unsigned int nrEventsRead = 0;
   unsigned int nrEvents = 0;
 
+  unsigned int nblbins = 100;
+  double meanf = 0.;
+  double meanl = 0.;
+  double rmsf = 0.;
+
   int tmpcnt= 0; // To find the Is of station running on
   unsigned int currentSt = 0;// Id to identify the station running on
   TH1F *tmp = new TH1F();
   TString tmpName;
   fitcharge fitCh;
+  vector < int > *blpmth  = new vector < int >;
 
   vector < double > tmpvemHb(totSt);
   vector < int > tmpcntHb(totSt);
@@ -276,29 +308,39 @@ int main (int argc, char *argv[]) {
 
       if (event.Stations[i].Error==256)
       {
+        blpmth->clear();
+        blpmth->resize(event.Stations[i].UFadc->NSample);
+        for ( unsigned int k=0;k<event.Stations[i].UFadc->NSample;k++ )
+          (*blpmth)[k] = ( event.Stations[i].UFadc->GetValue(pmtId-1,0,k) );
 
-        // =================
-        // *** For HBase ***
-        receCh = event.Stations[i].HCharge(pmtId-1);
-        tmpName.Form("%d%d%d", int(event.UTCTime), nrEventsRead-1, currentSt);
-        
-        fitCh.getCrrSmooth(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6]/20., tmpName+"Hb");
-        tmp = fitCh.getChCorrSmooth();
-        fitCh.getFitCh(*tmp, 0.3, 10, event.Stations[i].Calib->VemCharge[pmtId-1]);
-
-    		// =======================
-		    // *** Stacking Values ***
-				if ( fitCh.fitChOk )
+        meanf = getmean(blpmth, nblbins, false);
+        meanl = getmean(blpmth, nblbins, true);
+        rmsf = getrms(blpmth, meanf, nblbins, false);
+        if (fabs(meanl-meanf) < 2*rmsf)
         {
-          stckvemchHb[currentSt].push_back( fitCh.vemPosCh ); 
-          stckcntvemchHb[currentSt].push_back( fitCh.cntvemCh );
-          stckChiHb[currentSt].push_back( fitCh.chisCharge );
-          tmpvemHb[currentSt] += fitCh.vemPosCh;
-          tmpcntHb[currentSt] += fitCh.cntvemCh;
-          tmpChiHb[currentSt] += fitCh.chisCharge;
+          // =================
+          // *** For HBase ***
+          receCh = event.Stations[i].HCharge(pmtId-1);
+          tmpName.Form("%d%d%d", int(event.UTCTime), nrEventsRead-1, currentSt);
+        
+          fitCh.getCrrSmooth(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6]/20., tmpName+"Hb");
+          tmp = fitCh.getChCorrSmooth();
+          fitCh.getFitCh(*tmp, 0.3, 10, event.Stations[i].Calib->VemCharge[pmtId-1]);
+  
+      		// =======================
+		      // *** Stacking Values ***
+			  	if ( fitCh.fitChOk )
+          {
+            stckvemchHb[currentSt].push_back( fitCh.vemPosCh ); 
+            stckcntvemchHb[currentSt].push_back( fitCh.cntvemCh );
+            stckChiHb[currentSt].push_back( fitCh.chisCharge );
+            tmpvemHb[currentSt] += fitCh.vemPosCh;
+            tmpcntHb[currentSt] += fitCh.cntvemCh;
+            tmpChiHb[currentSt] += fitCh.chisCharge;
+          }
+          tmpeventStat[currentSt]++;
+		  		break;
         }
-        tmpeventStat[currentSt]++;
-				break;
       }
     }
   }

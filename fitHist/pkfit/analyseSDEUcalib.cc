@@ -16,6 +16,31 @@
 
 using namespace std;
 
+
+double getmean( vector<int> *arr, unsigned int nb, bool lok ){
+  double mean = 0.;
+  int lb = arr->size() - 1;
+    for  (unsigned int i=0; i<nb; i++){
+      if ( !lok )
+        mean += (*arr)[i];
+      else
+        mean += (*arr)[lb-i];
+    }
+  return mean/nb;
+}
+
+double getrms( vector<int> *arr, double meanarr, unsigned int nb, bool lok ){
+  double rms = 0.;
+  int lb = arr->size() - 1;
+  for (unsigned int i=0; i<nb; i++){
+    if ( lok == 0 )
+      rms += ((*arr)[i] - meanarr)*((*arr)[i] - meanarr);
+    else
+      rms += ((*arr)[lb-i] - meanarr)*((*arr)[lb-i] - meanarr);
+  }
+  return sqrt(rms/nb);
+}
+
 // ========================== 
 // ******** The MAIN ********
 // ==========================
@@ -217,12 +242,17 @@ int main (int argc, char *argv[]) {
 
   double blCorrHbase = 0.;
   int blCorrCalib = 0;
+  unsigned int nblbins = 100;
+  double meanf = 0.;
+  double meanl = 0.;
+  double rmsf = 0.;
 
   int tmpcnt= 0; // To find the Is of station running on
   unsigned int currentSt = 0;// Id to identify the station running on
   TH1F *tmp = new TH1F();
   TString tmpName;
   fitpeak fitPk;
+  vector < int > *blpmth  = new vector < int >;
 
   vector < double > tmpvemHb(totSt);
   vector < double > tmpvemCa(totSt);
@@ -339,51 +369,62 @@ int main (int argc, char *argv[]) {
 
       if (event.Stations[i].Error==256)
       {
-        // ================
-        // *** Baseline ***
-        blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean();
-        blCorrCalib = event.Stations[i].Calib->Base[pmtId-1];
+        blpmth->clear();
+        blpmth->resize(event.Stations[i].UFadc->NSample);
+        for ( unsigned int k=0;k<event.Stations[i].UFadc->NSample;k++ )
+          (*blpmth)[k] = ( event.Stations[i].UFadc->GetValue(pmtId-1,0,k) );
 
-        // =================
-        // *** For HBase ***
-        recePk = event.Stations[i].HPeak(pmtId-1);
-        tmpName.Form("%d%d%d", int(event.UTCTime), nrEventsRead-1, currentSt);
+        meanf = getmean(blpmth, nblbins, false);
+        meanl = getmean(blpmth, nblbins, true);
+        rmsf = getrms(blpmth, meanf, nblbins, false);
+        if (fabs(meanl-meanf) < 2*rmsf)
+        {
+          // ================
+          // *** Baseline ***
+          blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean();
+          blCorrCalib = event.Stations[i].Calib->Base[pmtId-1];
+
+          // =================
+          // *** For HBase ***
+          recePk = event.Stations[i].HPeak(pmtId-1);
+          tmpName.Form("%d%d%d", int(event.UTCTime), nrEventsRead-1, currentSt);
         
-        fitPk.getCrrSmooth(*recePk, blCorrHbase, tmpName+"Hb");
-        tmp = fitPk.getPkCorrSmooth();
-        fitPk.getFitPk(*tmp, 0.2, 10, event.Stations[i].Calib->VemPeak[pmtId-1]);
+          fitPk.getCrrSmooth(*recePk, blCorrHbase, tmpName+"Hb");
+          tmp = fitPk.getPkCorrSmooth();
+          fitPk.getFitPk(*tmp, 0.2, 10, event.Stations[i].Calib->VemPeak[pmtId-1]);
 
-    		// =======================
-		    // *** Stacking Values ***
-				if ( fitPk.fitPkOk )
-        {
-          stckvempkHb[currentSt].push_back( fitPk.vemPosPk );
-          stckcntvempkHb[currentSt].push_back( fitPk.cntvemPk );
-          stckChiHb[currentSt].push_back( fitPk.chisPeak );
-          tmpvemHb[currentSt] += fitPk.vemPosPk;
-          tmpcntHb[currentSt] += fitPk.cntvemPk;
-          tmpChiHb[currentSt] += fitPk.chisPeak;
+      		// =======================
+		      // *** Stacking Values ***
+				  if ( fitPk.fitPkOk )
+          {
+            stckvempkHb[currentSt].push_back( fitPk.vemPosPk );
+            stckcntvempkHb[currentSt].push_back( fitPk.cntvemPk );
+            stckChiHb[currentSt].push_back( fitPk.chisPeak );
+            tmpvemHb[currentSt] += fitPk.vemPosPk;
+            tmpcntHb[currentSt] += fitPk.cntvemPk;
+            tmpChiHb[currentSt] += fitPk.chisPeak;
+          }
+
+          // =================
+          // *** For Calib ***
+          fitPk.getCrrSmooth(*recePk, blCorrCalib, tmpName+"Ca");
+          tmp = fitPk.getPkCorrSmooth();
+          fitPk.getFitPk(*tmp, 0.2, 10, event.Stations[i].Calib->VemPeak[pmtId-1]);
+
+      		// =======================
+		      // *** Stacking Values ***
+			  	if ( fitPk.fitPkOk )
+          {
+            stckvempkCa[currentSt].push_back( fitPk.vemPosPk );
+            stckcntvempkCa[currentSt].push_back( fitPk.cntvemPk );
+            stckChiCa[currentSt].push_back( fitPk.chisPeak );
+            tmpvemCa[currentSt] += fitPk.vemPosPk;
+            tmpcntCa[currentSt] += fitPk.cntvemPk;
+            tmpChiCa[currentSt] += fitPk.chisPeak;
+          }
+          tmpeventStat[currentSt]++;
+		  		break;
         }
-
-        // =================
-        // *** For Calib ***
-        fitPk.getCrrSmooth(*recePk, blCorrCalib, tmpName+"Ca");
-        tmp = fitPk.getPkCorrSmooth();
-        fitPk.getFitPk(*tmp, 0.2, 10, event.Stations[i].Calib->VemPeak[pmtId-1]);
-
-    		// =======================
-		    // *** Stacking Values ***
-				if ( fitPk.fitPkOk )
-        {
-          stckvempkCa[currentSt].push_back( fitPk.vemPosPk );
-          stckcntvempkCa[currentSt].push_back( fitPk.cntvemPk );
-          stckChiCa[currentSt].push_back( fitPk.chisPeak );
-          tmpvemCa[currentSt] += fitPk.vemPosPk;
-          tmpcntCa[currentSt] += fitPk.cntvemPk;
-          tmpChiCa[currentSt] += fitPk.chisPeak;
-        }
-        tmpeventStat[currentSt]++;
-				break;
       }
     }
   }
