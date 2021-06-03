@@ -6,7 +6,7 @@ list=(863 1222 1219 1211 1740 1743 1221 1223 1217 1747 1741 1745 1818 1851 1729 
 
 echo 
 
-for st in $(seq 0 18);
+for st in $(seq 4 4); #18); #4 4); for 1740
 do
   echo "Doing for: "${list[${st}]}
   echo "\n"
