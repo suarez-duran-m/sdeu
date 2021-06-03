@@ -167,13 +167,30 @@ int main (int argc, char *argv[]) {
 	TH1F *rmschHbase = new TH1F("rmschHbase","",totDays, 0, totDays);//It stores A/P from HBase for St.
 	TH1F *timestmp = new TH1F("timestmp","",totDays, 0, totDays);//It stores A/P from Calib for St.
 
+  TGraphErrors *pkHistFit = new TGraphErrors();
+  double pkChi2 = 0.;
+  double peak = 0.;
+  TGraphErrors *chHistFit = new TGraphErrors();
+  double chChi2 = 0.;
+  double charge = 0.;
+
 	unsigned int eventStat = 0; //It stores the number of events.
-	unsigned int evtTime = 0; //It stores the day-Unixtime
+	int evtTime = 0; //It stores the day-Unixtime
 
   TTree *treeHist = new TTree("Histograms","");
 
 	treeHist->Branch("eventStat", &eventStat, "eventStat/I");
-	treeHist->Branch("evtTime",&evtTime,"evtTime/I");
+	//treeHist->Branch("evtTime",&evtTime,"evtTime/I");
+
+  TTree *treeHistCh2 = new TTree("HistForChi2","");
+  treeHistCh2->Branch("pkHistFit","TGraphErrors", &pkHistFit);  
+  treeHistCh2->Branch("pkChi2", &pkChi2, "pkChi2/D");
+  treeHistCh2->Branch("peak", &peak, "peak/D");
+  treeHistCh2->Branch("chHistFit","TGraphErrors", &chHistFit);
+  treeHistCh2->Branch("chChi2", &chChi2, "chChi2/D");
+  treeHistCh2->Branch("charge", &charge, "charge/D");
+  treeHistCh2->Branch("evtTime",&evtTime,"evtTime/I");
+
 
   unsigned int nblbins = 100;
 	double blCorrHbase = 0.;
@@ -303,11 +320,22 @@ int main (int argc, char *argv[]) {
         receCh = event.Stations[i].HCharge(pmtId-1);
         fitCh.getChCrrSmooth(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6]/20., tmpName+"Hbch");
         tmp = fitCh.getChCorrSmooth();
-        fitCh.getFitCh(*tmp, 0.3, 10, event.Stations[i].Calib->VemCharge[pmtId-1]);
+        fitCh.getFitCh(*tmp, 0.3, 40, event.Stations[i].Calib->VemCharge[pmtId-1]);
         if ( fitCh.chisCharge < 50. )
           chChis->Fill( fitCh.chisCharge );
         else
           chChis->Fill( 49. );
+
+        pkHistFit = fitPk.getFitGraphPk();
+        pkChi2 = fitPk.chisPeak;
+        peak = fitPk.vemPosPk;
+                
+        chHistFit = fitCh.getFitGraphCh();
+        chChi2 = fitCh.chisCharge;
+        charge =  fitCh.vemPosCh;
+
+        evtTime = event.utctime();
+        treeHistCh2->Fill();
 
     	  // ============================
   		  // *** Saving A/P for HBase ***

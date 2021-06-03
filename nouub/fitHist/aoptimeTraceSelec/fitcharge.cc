@@ -164,10 +164,33 @@ void fitcharge::getFitCh(TH1F &hist, const double frac, const int fstbinFit, con
 
 	chFit->Fit("fitFcn", "QR");
 	vemPosCh = peakMaxCh(fitFcn);
-	critGoodFit = 15;
-
-  chisCharge = fitFcn->GetChisquare()/fitFcn->GetNDF();
 	
+  critGoodFit = 10;
+  chisCharge = fitFcn->GetChisquare()/fitFcn->GetNDF();
+  fitGraphCh = (TGraphErrors*)chFit->Clone();
+
+  if ( chisCharge < critGoodFit && fitFcn->GetParameter(1) > 50.) // Mean Gauss fit par.
+    fitChOk = true;
+  else
+  {
+    fitFcn->SetParameters(fitFcn->GetParameter(0), 
+        fitFcn->GetParameter(1),
+        fitFcn->GetParameter(2),
+        fitFcn->GetParameter(3),
+        fitFcn->GetParameter(4)
+        );
+    chFit->Fit("fitFcn", "QR");
+    vemPosCh = peakMaxCh(fitFcn);
+    chisCharge = fitFcn->GetChisquare()/fitFcn->GetNDF();
+    fitGraphCh = (TGraphErrors*)chFit->Clone();
+  }
+
+  if ( chisCharge < critGoodFit && fitFcn->GetParameter(1) > 50.)
+    fitChOk = true;
+  else
+    vemPosCh = 0.;
+
+	/*
 	if ( chisCharge < critGoodFit && vemPosCh > 0) {
 		fitChOk = true;
 		if ( getGraph ) {
@@ -183,8 +206,7 @@ void fitcharge::getFitCh(TH1F &hist, const double frac, const int fstbinFit, con
 		fitChOk = false;
 		vemPosCh = 0.;
 	}
-
-	//fitChOk = true;
+  */
 
 	delete chFit;
 	delete fitFcn;

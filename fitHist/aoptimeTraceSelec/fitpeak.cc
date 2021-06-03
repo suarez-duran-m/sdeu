@@ -131,7 +131,7 @@ void fitpeak::getFitPk(TH1F &hist, const double frac, const int fstbinFit, const
 	checkMax = true;
 	critGoodFit = 0.; // Criterium for "good" fitting
 
-	for ( unsigned b=0; b<50; b++ ) // Set for EM peak, it works for Pk and Ch
+	for ( unsigned b=5; b<50; b++ ) // Set for EM peak, it works for Pk and Ch
 		if ( hist.GetBinContent(b) > emPkc ) {
 			emPkc = hist.GetBinContent(b);
 			emPkb = hist.GetBinLowEdge(b);
@@ -160,13 +160,27 @@ void fitpeak::getFitPk(TH1F &hist, const double frac, const int fstbinFit, const
 	TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
 
 	fitFcn->SetParameters(12.7, vempk, -3., 5., -266.2); //Set  init. fit par.
-
+ 
 	chFit->Fit("fitFcn","QR");
 	vemPosPk = peakMaxPk(fitFcn);
 
-	critGoodFit = 20;
+	critGoodFit = 10.;
   chisPeak = fitFcn->GetChisquare()/fitFcn->GetNDF();
-  fitGraphPk =  (TGraphErrors*)chFit->Clone();
+  fitGraphPk = (TGraphErrors*)chFit->Clone();
+  if ( chisPeak < critGoodFit && fitFcn->GetParameter(1) > 100. ) // mean of Gauss < 100.
+    fitPkOk = true;
+  else
+    vemPosPk = 0.;
+ 
+  /*
+  if ( chisPeak > 4.6 && chisPeak < 5. )
+  {
+    cerr << "MSD: " << fitFcn->GetChisquare() << " "
+      << fitFcn->GetNDF() << " "
+      << fitFcn->GetParameter(1) << " "
+      << vempk << endl;
+  }
+  */
 
   /*
 	if ( chisPeak < critGoodFit && vemPosPk > 0) {

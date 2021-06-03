@@ -166,7 +166,13 @@ void fitpeak::getFitPk(TH1F &hist, const double frac, const int fstbinFit, const
 
 	critGoodFit = 20;
   chisPeak = fitFcn->GetChisquare()/fitFcn->GetNDF();
+  fitGraphPk = (TGraphErrors*)chFit->Clone();
+  if ( chisPeak < critGoodFit && fitFcn->GetParameter(1) > 10. ) // mean of Gauss < 100.
+    fitPkOk = true;
+  else
+    vemPosPk = 0.;
 
+/*
 	if ( chisPeak < critGoodFit && vemPosPk > 0) {
 		fitPkOk = true;
 		if ( getGraph ) {
@@ -182,6 +188,7 @@ void fitpeak::getFitPk(TH1F &hist, const double frac, const int fstbinFit, const
 		fitPkOk = false;
 		vemPosPk = 0.;
 	}
+  */
 
 	delete chFit;
 	delete fitFcn;

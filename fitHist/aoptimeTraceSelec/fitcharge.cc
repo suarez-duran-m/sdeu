@@ -73,7 +73,7 @@ void fitcharge::getChCrrSmooth(TH1F &hist, const int corr, TString name) {
 
 	for ( unsigned b=0; b<nb; b++ )
   {
-    if ( b > 1 && b<148 )
+    if ( b > 1 && b<599 )
     {
       yi = hist.GetBinContent(b+1 - 2) 
         + 2*hist.GetBinContent(b+1 - 1) 
@@ -85,8 +85,8 @@ void fitcharge::getChCrrSmooth(TH1F &hist, const int corr, TString name) {
     else
       yi = hist.GetBinContent(b+1);
 
-    //hstCrrSmoothCh->SetBinContent( b+1, yi );
-    hstCrrSmoothCh->SetBinContent( b+1, hist.GetBinContent(b+1) );
+    //hstCrrSmoothCh->SetBinContent( b+1, yi ); // Smooth histo
+    hstCrrSmoothCh->SetBinContent( b+1, hist.GetBinContent(b+1) ); // Not smooth
 		//hstCrrCh2->SetBinContent(b+1, hist.GetBinContent(b+1));
   }
 }
@@ -132,14 +132,15 @@ void fitcharge::getFitCh(TH1F &hist, const double frac, const int fstbinFit, con
 	checkMax = true;
 	critGoodFit = 0.; // Criterium for "good" fitting
 
-	for ( unsigned b=0; b<50; b++ ) // Set for EM peak, it works for Pk and Ch
+	for ( unsigned b=10; b<50; b++ ) // Set for EM peak, it works for Pk and Ch
 		if ( hist.GetBinContent(b) > emPkc ) {
 			emPkc = hist.GetBinContent(b);
 			emPkb = hist.GetBinLowEdge(b);
 		}
 
 	rangXmin = emPkb + fstbinFit*hist.GetXaxis()->GetBinWidth(1);
-	TString parName; // For Fitted plot title
+	
+  TString parName; // For Fitted plot title
 
 	vector < double > xbins; // X bins for fit-function
 	vector < double > ycnts; // Y counts for fit-function
@@ -165,9 +166,31 @@ void fitcharge::getFitCh(TH1F &hist, const double frac, const int fstbinFit, con
 	chFit->Fit("fitFcn", "QR");
 	vemPosCh = peakMaxCh(fitFcn);
 
-	critGoodFit = 15;
+	critGoodFit = 10;
   chisCharge = fitFcn->GetChisquare()/fitFcn->GetNDF();
   fitGraphCh = (TGraphErrors*)chFit->Clone();
+
+  if ( chisCharge < critGoodFit && fitFcn->GetParameter(1) > 1000.) // Mean Gauss fit par.
+    fitChOk = true;
+  else
+  {
+    fitFcn->SetParameters(fitFcn->GetParameter(0), 
+        fitFcn->GetParameter(1),
+        fitFcn->GetParameter(2),
+        fitFcn->GetParameter(3),
+        fitFcn->GetParameter(4)
+        );
+    chFit->Fit("fitFcn", "QR");
+    vemPosCh = peakMaxCh(fitFcn);
+    chisCharge = fitFcn->GetChisquare()/fitFcn->GetNDF();
+    fitGraphCh = (TGraphErrors*)chFit->Clone();
+  }
+
+  if ( chisCharge < critGoodFit && fitFcn->GetParameter(1) > 1000.)
+    fitChOk = true;
+  else
+    vemPosCh = 0.;
+
 	
   /*
 	if ( chisCharge < critGoodFit && vemPosCh > 0) {

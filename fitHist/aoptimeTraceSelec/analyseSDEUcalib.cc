@@ -111,6 +111,7 @@ int main (int argc, char *argv[]) {
  
   string doMonth = string(whichmonth);
   pmtname +=  "Mth" + doMonth;
+  //TFile hfile("uubAoPtime"+pmtname+"chpkDoubleFit.root","RECREATE","");
   TFile hfile("uubAoPtime"+pmtname+"chpk.root","RECREATE","");
 
   unsigned int totDays = 0;
@@ -173,21 +174,26 @@ int main (int argc, char *argv[]) {
 
   TGraphErrors *pkHistFit = new TGraphErrors();
   double pkChi2 = 0.;
+  double peak = 0.;
   TGraphErrors *chHistFit = new TGraphErrors();
   double chChi2 = 0.;
+  double charge = 0.;
 
 	unsigned int eventStat = 0; //It stores the number of events.
-	unsigned int evtTime = 0; //It stores the day-Unixtime
+	int evtTime = 0; //It stores the day-Unixtime
 
   TTree *treeHist = new TTree("Histograms","");
 	treeHist->Branch("eventStat", &eventStat, "eventStat/I");
-	treeHist->Branch("evtTime",&evtTime,"evtTime/I");
+	//treeHist->Branch("evtTime",&evtTime,"evtTime/I");
 
   TTree *treeHistCh2 = new TTree("HistForChi2","");
   treeHistCh2->Branch("pkHistFit","TGraphErrors", &pkHistFit);
   treeHistCh2->Branch("pkChi2", &pkChi2, "pkChi2/D");
+  treeHistCh2->Branch("peak", &peak, "peak/D");
   treeHistCh2->Branch("chHistFit","TGraphErrors", &chHistFit);
   treeHistCh2->Branch("chChi2", &chChi2, "chChi2/D");
+  treeHistCh2->Branch("charge", &charge, "charge/D");
+  treeHistCh2->Branch("evtTime",&evtTime,"evtTime/I");
 
 
   unsigned int nblbins = 100;
@@ -313,14 +319,14 @@ int main (int argc, char *argv[]) {
               pkChis->Fill( fitPk.chisPeak );
             else
               pkChis->Fill( 49. );
-  
+
             //if ( fitPk.getValidHisto(*tmp) >= 3 )
               //fitPk.getFitPk(*tmp, 0.2, 10, event.Stations[i].Calib->VemPeak[pmtId-1]);
           
             receCh = event.Stations[i].HCharge(pmtId-1);
             fitCh.getChCrrSmooth(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6]/20., tmpName+"Hbch");
             tmp = fitCh.getChCorrSmooth();
-            fitCh.getFitCh(*tmp, 0.3, 10, event.Stations[i].Calib->VemCharge[pmtId-1]);
+            fitCh.getFitCh(*tmp, 0.2, 30, event.Stations[i].Calib->VemCharge[pmtId-1]);
             if ( fitCh.chisCharge < 50. )
               chChis->Fill( fitCh.chisCharge );
             else
@@ -328,10 +334,18 @@ int main (int argc, char *argv[]) {
 
             pkHistFit = fitPk.getFitGraphPk();
             pkChi2 = fitPk.chisPeak;
-
+            peak = fitPk.vemPosPk;
+           
+            /*
+            if ( pkChi2 > 4.6 && pkChi2 < 5. )
+              cerr << "=================== MSD: " << fitPk.getFitGraphPk()->GetFunction("fitFcn")->GetParameter(1) << " " << fitPk.fitPkOk << " " << event.Id << endl;
+              */
+            
             chHistFit = fitCh.getFitGraphCh();
             chChi2 = fitCh.chisCharge;
+            charge =  fitCh.vemPosCh;
 
+            evtTime = event.utctime();
             treeHistCh2->Fill();
           
             //if ( fitCh.getValidHisto(*tmp) >= 2 )
