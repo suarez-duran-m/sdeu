@@ -1,0 +1,243 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{UUB Charge and Peak histograms}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{UUB Charge and Peak histograms}
+	\begin{itemize}
+		\item Station studied: 863 1222 1219 1211 1740 1743 1221 1223 1217 1747 1741 1745 1818 1851 1729 1735 1746 1819 1791
+		\item Data from CDAS.
+		\item {\underline {Software CDAS, pre-production version.}}
+	\end{itemize}
+	\centering
+	\includegraphics[width=.45\textwidth]{mapStations.pdf}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{UUB: Derivating Peak histogram} %: Peak histogram Station863}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{C}
+      \begin{tabular}{l}
+        \includegraphics[width=.5\textwidth]{../plots/peakHisto863.pdf}
+      \end{tabular}
+    \end{tabularx}
+
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.43\textwidth]{../plots/peakDerHisto863.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.43\textwidth]{../plots/peakSmoothDerHisto863.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{UUB: Fit and Residuals}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/peakFittedHisto863.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/peakFitPoly2863.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/peakFitResiduals863.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/peakFitResidualsPoly2863.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{UUB: Fit and Residuals}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/peakFitPoly2863.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/peakSmoothFitPoly2863.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/peakFitResidualsPoly2863.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/peakFitSmoothResidualsPoly2863.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{UUB: Fit and Residuals}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{C}
+      \begin{tabular}{l}
+        \includegraphics[width=.8\textwidth]{../plots/peakResidualsDist863.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
+
+
+% =========================================
+% *** *** *** Charge Histograms *** *** ***
+
+\begin{frame}
+  \frametitle{UUB: Derivating Charge histogram} %: Peak histogram Station863}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.49\textwidth]{../plots/chargeHisto863.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.49\textwidth]{../plots/chargeHistoZoom863.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=.49\textwidth]{../plots/chargeDerHisto863.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.49\textwidth]{../plots/chargeSmoothDerHisto863.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{UUB: Fit and Residuals}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/chargeFittedHisto863.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/chargeFitPoly2863.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/chargeFitResiduals863.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/chargeFitResidualsPoly2863.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{UUB: Fit and Residuals}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/chargeFFTFitPoly2863.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/chargeResidualsDist863.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/chargeFitFFTResidualsPoly2863.pdf}
+      \end{tabular}
+      &
+    \end{tabularx}
+  \end{figure}
+\end{frame}
+
+
+
+
+
+
+
+
+\end{document}

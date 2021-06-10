@@ -12,10 +12,35 @@
 #include <TTree.h>
 #include <TGraphErrors.h>
 
-#include "stats.h"
-#include "readHistos.h"
+#include "fitpeak.h"
+#include "fitcharge.h"
 
 using namespace std;
+
+
+double getmean( vector<int> *arr, unsigned int nb, bool lok ){
+  double mean = 0.;
+  int lb = arr->size() - 1;
+    for  (unsigned int i=0; i<nb; i++){
+      if ( !lok )
+        mean += (*arr)[i];
+      else
+        mean += (*arr)[lb-i];
+    }
+  return mean/nb;
+}
+
+double getrms( vector<int> *arr, double meanarr, unsigned int nb, bool lok ){
+  double rms = 0.;
+  int lb = arr->size() - 1;
+  for (unsigned int i=0; i<nb; i++){
+    if ( lok == 0 )
+      rms += ((*arr)[i] - meanarr)*((*arr)[i] - meanarr);
+    else
+      rms += ((*arr)[lb-i] - meanarr)*((*arr)[lb-i] - meanarr);
+  }
+  return sqrt(rms/nb);
+}
 
 // ========================== 
 // ******** The MAIN ********
@@ -23,22 +48,24 @@ using namespace std;
 int main (int argc, char *argv[]) {
    if ( argc < 4 ) {
 		 cout << endl
-         << "Usage: " << argv[0] << " <stationsFile>  <PMT>  <files>" << endl
+         << "Usage: " << argv[0] << " <stationsFile>  <PMT>  <Month> <files>" << endl
          << "  <stationsFile>: file with a list of stations" << endl
          << "  <PMT>: ID for the PMT you want to analyse" << endl
+         << "  <Month>: Month in which you want to analyse" << endl
          << "  <files>: IoSd or IoAuger files to be read" << endl
 				 << " " << endl
 				 << "In case you want the distribution of all events for a specific Station, " << endl
 				 << "just make sure the stationsFile conteins a single station." << endl
 				 << endl;
  		 exit(0);
-	 }
-	
+	 }	
+
   const char* stationsFileName = argv[1];
   const char* whichpmt = argv[2];
-  AugerIoSd input(argc-3, argv+3);
+  const char* whichmonth = argv[3];
+  AugerIoSd input(argc-4, argv+4);
   const unsigned int totalNrEvents = input.NumberOfEvents();
-  
+
   ifstream stationsFile(stationsFileName, ios::in);
   if (!stationsFile.is_open()){
     cout << "Could not open file: " << stationsFileName << endl;
@@ -77,123 +104,121 @@ int main (int argc, char *argv[]) {
 	}
   
   cerr << "You have selected " << pmtname << endl;
-
 	unsigned int totSt = stationsIds.size();
 
-	if ( totSt > 1 ) {
-		cerr << "This codes if for single station." << endl;
-		exit(0);
-	}
+	if ( totSt==1 )
+		pmtname += "St"+to_string( stationsIds[0] );
+ 
+  string doMonth = string(whichmonth);
+  pmtname +=  "Mth" + doMonth;
+  TFile hfile("uubAoPtime"+pmtname+"chpk.root","RECREATE","");
 
-	pmtname += "St"+to_string( stationsIds[0] );
+	TH1F *recePk = new TH1F (); // Receive Pk from IoSdStation::HPeak
+	TH1F *receCh = new TH1F (); // Receive Ch from IoSdStation::HCharge
 
-  TFile hfile("uubCalibHist"+pmtname+".root","RECREATE","");
+  TGraphErrors *pkHistFit = new TGraphErrors();
+  double pkChi2 = 0.;
+  double peak = 0.;
 
-  unsigned int nrEvents = 0;
+  TGraphErrors *chHistFit = new TGraphErrors();
+  double chChi2 = 0.;
+  double charge = 0.; 
+
   unsigned int nrEventsRead = 0;
-	bool readSglEvt = false;
+  unsigned int nrEvents = 0;
+  bool found = false;
+  unsigned int nblbins = 100;
+	double blCorrHbase = 0.;
+  double meanf = 0.;
+  double meanl = 0.;
+  double rmsf = 0.;
 
-	TH1F *setCh = new TH1F (); // Receive Charge from IoSdStation::HCharge
-	TH1F *setPk = new TH1F (); // Receive Peak from IoSdStation::HPeak
-	TH1F *setChHisto = new TH1F ("setChHisto", "", 600, 0, 600); // Receive Charge from IoSdHisto::Charge
-	TH1F *setPkHisto = new TH1F ("setPkHisto", "", 150, 0, 150); // Receive Peak from IoSdHisto::Peak
-	TH1F *base = new TH1F (); //"base", "", 1000, 0, 1000); // Receive Baselinefrom IoSdHisto::Histo
-
-	TH1F *pkCorrBl = new TH1F(); // Correcion for Baseline
-	TH1F *pkCorrOff = new TH1F(); // Correction for Offset 
-	int fstRawBinPk = 0; // First Bin Raw charge
-	int fstRawBinCh = 0; // First Bin Raw peak 
-
-	int offSetCh = 0; // Receive offset from IoSdHisto::Histo
-	int offSetPk = 0; // Receive offset from IoSdHisto::Histo
-	unsigned int entryEvt = 0; // Get the Event Id for the respective entry
-	
-	TTree *treeHist = new TTree("Histograms","");
-	treeHist->Branch("setCh", "TH1F", &setCh);
-	treeHist->Branch("setPk", "TH1F", &setPk);
-	treeHist->Branch("setChHisto", "TH1F", &setChHisto);
-	treeHist->Branch("setPkHisto", "TH1F", &setPkHisto);
-	treeHist->Branch("base", "TH1F", &base);
-	treeHist->Branch("pkCorrBl", "TH1F", &pkCorrBl);
-	treeHist->Branch("pkCorrOff", "TH1F", &pkCorrOff);
-	treeHist->Branch("offSetCh",&offSetCh,"offSetCh/I");
-	treeHist->Branch("offSetPk",&offSetPk,"offSetPk/I");
-	treeHist->Branch("fstRawBinPk",&fstRawBinPk,"fstRawBinPk/I");
-	treeHist->Branch("fstRawBinCh",&fstRawBinCh,"fstRawBinCh/I");
-	treeHist->Branch("entryEvt",&entryEvt,"entryEvt/I");
+  TH1F *tmp = new TH1F();
+  TString tmpName;
+  fitpeak fitPk;
+  fitcharge fitCh;
+  vector < int > *blpmth  = new vector < int >;
 
   EventPos pos;
 
-  for (pos=input.FirstEvent(); pos<input.LastEvent(); pos=input.NextEvent()) {
-    ++nrEventsRead;
-    if (nrEventsRead%1000 == 0) {
+  for (pos=input.FirstEvent(); pos<input.LastEvent(); pos=input.NextEvent()) 
+  {
+    nrEventsRead++;
+    if (nrEventsRead%1000 == 0) 
+    {
       cout << "====> Read " << nrEventsRead << " out of " << totalNrEvents << endl;
       cout << "      Wrote: " << nrEvents << " events" << endl;
     }
 
-    bool found = false;
     IoSdEvent event(pos);
 
-    for (unsigned int i = 0 ; i < event.Stations.size(); ++i){
+    for (unsigned int i = 0 ; i < event.Stations.size(); ++i)
+    {
       found = false;
-      for ( vector<unsigned int>::const_iterator iter= stationsIds.begin();
-          iter!= stationsIds.end(); ++iter )
-        if ( event.Stations[i].Id == *iter )
+      for (  vector<unsigned int>::const_iterator iter= stationsIds.begin();
+          iter!= stationsIds.end(); ++iter)
+        if (event.Stations[i].Id == *iter )
           found = true;
       if ( !found )
-        continue;     
+        continue;
       
-      if ( event.Stations[i].IsUUB ) {
-				cout << "# Event " << event.Id << " Station " << event.Stations[i].Id
-					<< " " << nrEventsRead-1 << endl;
+      if ( event.Stations[i].IsUUB )
+      {
+        cout << "# Event " << event.Id << " Station " << event.Stations[i].Id
+          << " " << nrEventsRead-1
+          << endl;
+        if (event.Stations[i].Error==256)
+        {
+          blpmth->clear();
+          blpmth->resize(event.Stations[i].UFadc->NSample);
+          for ( unsigned int k=0;k<event.Stations[i].UFadc->NSample;k++ )
+            (*blpmth)[k] = ( event.Stations[i].UFadc->GetValue(pmtId-1,0,k) );
 
-				if (event.Stations[i].Error==256) { //0+256
-					//readSglEvt = true;
-					setCh = event.Stations[i].HCharge(pmtId-1);
-					setPk = event.Stations[i].HPeak(pmtId-1);
-					offSetCh = event.Stations[i].Histo->Offset[pmtId-1+6];
-					offSetPk = event.Stations[i].Histo->Offset[pmtId-1+3];
-					fstRawBinPk = event.Stations[i].Histo->Peak[pmtId-1][0];
-					fstRawBinCh = event.Stations[i].Histo->Charge[pmtId-1][0];
+          meanf = getmean(blpmth, nblbins, false);
+          meanl = getmean(blpmth, nblbins, true);
+          rmsf = getrms(blpmth, meanf, nblbins, false);
+          if (fabs(meanl-meanf) < 2*rmsf ) // Reading event with stable baseline
+          {
+            // ================
+            // *** Baseline ***
+            blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean(); // Extracting calib-baseline
+            tmpName.Form("%d%d", event.UTCTime, nrEventsRead-1);
 
-					base = event.Stations[i].HBase(pmtId-1);
-					for ( unsigned b=0; b<600; b++ ) {
-						setChHisto->Fill(b, event.Stations[i].Histo->Charge[pmtId-1][b]);
-						if (b < 150)
-							setPkHisto->Fill(b, event.Stations[i].Histo->Peak[pmtId-1][b]);
-					}
-					if ( nrEventsRead-1==1681 ) {
-						double x[151];
-						TH1F *tmp;
-						for ( unsigned b=0; b<150; b++ )
-							x[b] = setPk->GetBinLowEdge(b+1)-284; // Correction Bl
+            recePk = event.Stations[i].HPeak(pmtId-1); // Receiving Peak histogram
+            fitPk.getCrrSmooth(*recePk, blCorrHbase, tmpName+"Hbpk"); // Correcting for calib-baseline
+            tmp = fitPk.getPkCorrSmooth();
+            //for ( int k = 0; k<tmp->GetXaxis()->GetNbins(); k++ )
+              //cout << k << " " << tmp->GetBinCenter(k) << " " << tmp->GetBinContent(k) << endl;
+            fitPk.getFitPk(*tmp, 0.2, 10, event.Stations[i].Calib->VemPeak[pmtId-1]); // Fitting
 
-						x[150] = x[149] + setPk->GetBinWidth(1);
-						tmp = new TH1F("tmp", "ok", 150, x);
-						for ( unsigned b=0; b<150; b++ )
-							tmp->SetBinContent(b+1, setPk->GetBinContent(b+1));
-						pkCorrBl = tmp;
+            pkHistFit = fitPk.getFitGraphPk();
+            pkChi2 = fitPk.chisPeak;
+            peak = fitPk.vemPosPk;
+            cerr << event.Id << endl;        
+            
+            receCh = event.Stations[i].HCharge(pmtId-1);
+            fitCh.getChCrrSmooth(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6]/20., tmpName+"Hbch");
+            tmp = fitCh.getChCorrSmooth();
+            for ( int k = 0; k<tmp->GetXaxis()->GetNbins(); k++ )
+              cout << k << " " << tmp->GetBinCenter(k) << " " << tmp->GetBinContent(k) << endl;
+            fitCh.getFitCh(*tmp, 0.2, 30, event.Stations[i].Calib->VemCharge[pmtId-1]);             
+          
+            chHistFit = fitCh.getFitGraphCh();
+            chChi2 = fitCh.chisCharge;
+            charge =  fitCh.vemPosCh;
+ 
+            exit(0);           
 
-						TH1F *tmp1;
-						for ( unsigned b=0; b<150; b++ )
-							x[b] = setPk->GetBinLowEdge(b+1)-273; // Correction Offset
-						x[150] = x[149] + setPk->GetBinWidth(1);
-						tmp1 = new TH1F("tmp1", "ok", 150, x);
-						for ( unsigned b=0; b<150; b++ )
-							tmp1->SetBinContent(b+1, setPk->GetBinContent(b+1));
-						pkCorrOff = tmp1;
-					}
-
-					entryEvt = event.UTCTime;
-					treeHist->Fill();
-				}
-			}
-		}
-		if (readSglEvt)
-			break; // One event
-	}
+            
+		  			break;
+          }
+        }
+      }
+    }
+  }
 
   hfile.Write();
   hfile.Close();
+  
 	return 0;
 }
