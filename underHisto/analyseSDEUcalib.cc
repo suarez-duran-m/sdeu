@@ -206,19 +206,24 @@ int main (int argc, char *argv[]) {
 
             recePk = event.Stations[i].HPeak(pmtId-1); // Receiving Peak histogram
             fitPk.getCrr(*recePk, blCorrHbase, tmpName+"Hbpk"); // Correcting for calib-baseline
-            tmp = fitPk.getPkCorr();
+            tmp = fitPk.getPkCorr(); // Receiving corrected histogram
             fitPk.getFitPk(*tmp, event.Stations[i].Calib->VemPeak[pmtId-1]); // Fitting
 
             pkHistFit = fitPk.getFitGraphPk();
             pkChi2 = fitPk.chisPeak;
             pkNdf = fitPk.ndfPeak;
             peak = fitPk.vemPosPk;
+
+            if ( pkChi2/pkNdf > 4 )
+            {
+              cout << "MSD " << pkChi2/pkNdf << endl;
+              for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
+                cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
+            }
             
             receCh = event.Stations[i].HCharge(pmtId-1);
             fitCh.getChCrrSmooth(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6]/20., tmpName+"Hbch");
-            tmp = fitCh.getChCorrSmooth();
-            for ( int k = 0; k<tmp->GetXaxis()->GetNbins(); k++ )
-              cout << k << " " << tmp->GetBinCenter(k) << " " << tmp->GetBinContent(k) << endl;
+            tmp = fitCh.getChCorrSmooth();           
             fitCh.getFitCh(*tmp, 0.2, 30, event.Stations[i].Calib->VemCharge[pmtId-1]);             
           
             chHistFit = fitCh.getFitGraphCh();
