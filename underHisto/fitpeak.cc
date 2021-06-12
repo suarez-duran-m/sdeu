@@ -1,4 +1,5 @@
 #include <iostream>
+#include <time.h>
 
 #include <TH1.h>
 #include <TF1.h>
@@ -21,6 +22,25 @@ double fitFunctionPk(double *x0, double *par) {
 }
 
 
+TH1F *histDerivative(TH1F &hist, double xb[]) // Central differences
+{
+  int nbins = 150;
+  int h = 0;
+  TString tmpname;
+  tmpname.Form("%d",rand());
+
+  TH1F *derihist = new TH1F(tmpname, "", nbins, xb);
+  double der = 0.;
+  for ( int kk=1; kk<nbins-1; kk++ )
+  {
+    h = ( hist.GetBinCenter( kk+1 ) - hist.GetBinCenter( kk ) );
+    der = ( hist.GetBinContent( kk+1 ) -  hist.GetBinContent( kk-1 ) )/ (2.*h);
+    derihist->SetBinContent( kk, der );
+
+  }
+  return derihist;
+}
+
 double peakMaxPk(TF1* f) {
 	TCanvas* c = new TCanvas("c","c",800,600);
   TGraph* der = (TGraph*)f->DrawDerivative("goff");
@@ -42,33 +62,15 @@ double peakMaxPk(TF1* f) {
 }
 
 
-fitpeak::fitpeak() {
-	vemPosPk = 0.;
-	getGraph = false;
-	fitPkOk = false;
-
-  chisPeak = 0.;
-	emPkb = 0;
-	emPkc = 0;
-	rangXmin = 0;
-	rangXmax = 0;
-	nXbins = 0;
-	checkMax = false;
-	critGoodFit = 0.;
-}
-
-void fitpeak::getCrrSmooth(TH1F &hist, const int corr, TString name) {
-
+TH1F *getSmooth(TH1F &hist, double xb[])
+{
 	unsigned int nb = 150;
-	double xb [nb];
   double yi = 0.;
 
-	for ( unsigned int b=0; b<nb; b++ )
-		xb[b] = hist.GetBinCenter(b+1) - corr; // Aplying correction for calib-baseline
-	xb[nb] = xb[nb-1] + hist.GetBinWidth(1);
+  TString tmpname;
+  tmpname.Form("%d",rand());
 
-	hstCrrSmoothPk = new TH1F(name, name, nb, xb);
-	//hstCrrPk2 = new TH1F(name+"2", name+"2", nb, xb);
+	TH1F *hstSmooth = new TH1F(tmpname, "", nb, xb);
 
 	for ( unsigned b=0; b<nb; b++ )
   {
@@ -84,10 +86,40 @@ void fitpeak::getCrrSmooth(TH1F &hist, const int corr, TString name) {
     else
       yi = hist.GetBinContent(b+1);
     
-    //hstCrrSmoothPk->SetBinContent(b+1, yi);
-    hstCrrSmoothPk->SetBinContent(b+1, hist.GetBinContent(b+1));
-    //hstCrrPk2->SetBinContent(b+1, hist.GetBinContent(b+1));
+    hstSmooth->SetBinContent(b+1, yi);
   }
+  return hstSmooth;
+}
+
+
+fitpeak::fitpeak() {
+  srand (time(NULL));
+	vemPosPk = 0.;
+	getGraph = false;
+	fitPkOk = false;
+
+  chisPeak = 0.;
+  ndfPeak = 0.;
+	rangXmin = 0;
+	rangXmax = 0;
+	nXbins = 0;
+	checkMax = false;
+	critGoodFit = 0.;
+}
+
+void fitpeak::getCrr(TH1F &hist, const int corr, TString name) 
+{
+	unsigned int nb = 150;
+	double xb [nb];
+
+	for ( unsigned int b=0; b<nb; b++ )
+		xb[b] = hist.GetBinCenter(b+1) - corr; // Aplying correction for calib-baseline
+	xb[nb] = xb[nb-1] + hist.GetBinWidth(1);
+
+	hstCrrPk = new TH1F(name, name, nb, xb);
+
+	for ( unsigned b=0; b<nb; b++ )
+    hstCrrPk->SetBinContent(b+1, hist.GetBinContent(b+1));
 }
 
 
@@ -122,83 +154,62 @@ int fitpeak::getValidHisto( TH1F &hist )
 }
 
 
-void fitpeak::getFitPk(TH1F &hist, const double frac, const int fstbinFit, const double vempk ) {
-	emPkb = 0; // Bin for EM peak
-	emPkc = 0; // Counts for EM peak
+void fitpeak::getFitPk(TH1F &hist, const double vempk ) {
 	rangXmin = 0; // Min for fitting
 	rangXmax = 0; // Max for fitting
 	nXbins = hist.GetXaxis()->GetNbins(); // Number of bins for fitting
-	checkMax = true;
 	critGoodFit = 0.; // Criterium for "good" fitting
 
-	for ( unsigned b=5; b<50; b++ ) // Set for EM peak, it works for Pk and Ch
-		if ( hist.GetBinContent(b) > emPkc ) {
-			emPkc = hist.GetBinContent(b);
-			emPkb = hist.GetBinLowEdge(b);
-		}
+  double xfadc[nXbins+1];
+  for( unsigned int b=0; b<nXbins+1; b++ )
+    xfadc[b] = hist.GetBinCenter(b+1);
 
-	rangXmin = emPkb + fstbinFit*hist.GetXaxis()->GetBinWidth(1);
+  TH1F *histSmooth = getSmooth(hist, xfadc);
+  TH1F *histDer = histDerivative(*histSmooth, xfadc);
+
+  int binMax = 0;
+  for ( int kk=100; kk>10; kk-- ) // from 600 FADC backward
+    if ( histDer->GetBinContent( kk ) > 0 )
+    {
+      binMax = hist.GetBinCenter(kk);
+      break;
+    }
+
+  rangXmax = 1.3*binMax;
+  rangXmin = 0.8*binMax;
+  
 	TString parName; // For Fitted plot title
 
 	vector < double > xbins; // X bins for fit-function
 	vector < double > ycnts; // Y counts for fit-function
 	vector < double > yerrs; // Y errors for fit-function
 
-	for( unsigned int b=0; b<nXbins; b++ ) {
-		ycnts.push_back( hist.GetBinContent( b+1 ) );
+	for( unsigned int b=0; b<nXbins; b++ )
+  {
+		ycnts.push_back( histSmooth->GetBinContent( b+1 ) );
 		yerrs.push_back( sqrt( ycnts[b] ) );
-		xbins.push_back( hist.GetBinCenter(b+1) );
-		if ( hist.GetBinContent( nXbins - b+1 ) > frac*emPkc && checkMax ) { //Searching for Max-fitting
-			rangXmax = hist.GetBinCenter(nXbins - b+1);
-			checkMax = false;
-		}
+		xbins.push_back( histSmooth->GetBinCenter(b+1) );
 	}
 	
 	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
 			&ycnts.front(), 0, &yerrs.front() );
 
-	TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
-
-	fitFcn->SetParameters(12.7, vempk, -3., 5., -266.2); //Set  init. fit par.
+	TF1 *fitFcn = new TF1("fitFcn","[0]*x*x+[1]*x+[2]", rangXmin, rangXmax);
  
 	chFit->Fit("fitFcn","QR");
-	vemPosPk = peakMaxPk(fitFcn);
+  if ( fabs(fitFcn->GetParameter(0)) > 0. )
+    vemPosPk =  -1.*fitFcn->GetParameter(1) / (2.*fitFcn->GetParameter(0)); //peakMaxPk(fitFcn);
+  else
+    vemPosPk = 0.;
 
-	critGoodFit = 10.;
-  chisPeak = fitFcn->GetChisquare()/fitFcn->GetNDF();
+  critGoodFit = 5.;
+  chisPeak = fitFcn->GetChisquare();
+  ndfPeak = fitFcn->GetNDF();
   fitGraphPk = (TGraphErrors*)chFit->Clone();
-  if ( chisPeak < critGoodFit && fitFcn->GetParameter(1) > 100. ) // mean of Gauss < 100.
+  if ( (chisPeak/ndfPeak) < critGoodFit )
     fitPkOk = true;
   else
     vemPosPk = 0.;
- 
-  /*
-  if ( chisPeak > 4.6 && chisPeak < 5. )
-  {
-    cerr << "MSD: " << fitFcn->GetChisquare() << " "
-      << fitFcn->GetNDF() << " "
-      << fitFcn->GetParameter(1) << " "
-      << vempk << endl;
-  }
-  */
-
-  /*
-	if ( chisPeak < critGoodFit && vemPosPk > 0) {
-		fitPkOk = true;
-		if ( getGraph ) {
-			chFit->SetLineColor(kBlue);
-			parName = "UB Peak-VEM Pos.: ";
-			parName += to_string( vemPosPk ).substr(0,7) + " +/- " + to_string( fitFcn->GetParError(1) ).substr(0,4);
-			parName += "\nXi^2/NDF = " + to_string( fitFcn->GetChisquare()/fitFcn->GetNDF() ).substr(0,4);
-			chFit->SetTitle( parName );
-			fitGraphPk =  (TGraphErrors*)chFit->Clone();
-		}
-	}
-	else {
-		fitPkOk = false;
-		vemPosPk = 0.;
-	}
-  */
 
 	delete chFit;
 	delete fitFcn;
@@ -210,11 +221,6 @@ TGraphErrors* fitpeak::getFitGraphPk() {
 }
 
 
-TH1F *fitpeak::getPkCorrSmooth() {
-	return hstCrrSmoothPk;
+TH1F *fitpeak::getPkCorr() {
+	return hstCrrPk;
 }
-
-TH1F *fitpeak::getPkCorr2() {
-	return hstCrrPk2;
-}
-

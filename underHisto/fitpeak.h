@@ -16,21 +16,19 @@ class fitpeak {
 		fitpeak();
     double vemPosPk;
     double chisPeak;
+    double ndfPeak;
 		bool getGraph;
 		bool fitPkOk;
 
-		void getCrrSmooth(TH1F &hist, const int corr, TString name);
+		void getCrr(TH1F &hist, const int corr, TString name);
     int getValidHisto( TH1F &hist );
 
-		void getFitPk(TH1F &hist, const double frac, const int fstbinFit, const double vempk);
+		void getFitPk(TH1F &hist, const double vempk);
 
 		TGraphErrors *getFitGraphPk();
-		TH1F *getPkCorrSmooth();
-		TH1F *getPkCorr2();
+		TH1F *getPkCorr();
 
 	private:
-		unsigned int emPkb;
-		unsigned int emPkc;
 		unsigned int rangXmin;
 		unsigned int rangXmax;
 		unsigned int nXbins;
@@ -38,8 +36,7 @@ class fitpeak {
 		double critGoodFit;
 
 		TGraphErrors *fitGraphPk;
-		TH1F *hstCrrSmoothPk;
-		TH1F *hstCrrPk2;
+		TH1F *hstCrrPk;
 };
 
 #endif

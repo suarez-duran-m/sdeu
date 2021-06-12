@@ -134,8 +134,6 @@ void readFitChargeHisto()
   TH1F *chargeSmooDer = histDerivative(*chargeSmooth, xfadc);
   TH1F *chargeSmoo2Der = histDerivative(*chargeSmooDer, xfadc);
 
-  //TH1F *test = new TH1F(*charge);
-  //test->Smooth(50);
   TH1 *test = 0;
   TVirtualFFT::SetTransform(0);
   test = charge->FFT(test, "PH");
@@ -360,7 +358,7 @@ void readFitChargeHisto()
       xResid.push_back( charge->GetBinCenter(kbin) );
       tmp = fitFcn->Eval( charge->GetBinCenter(kbin) ) - charge->GetBinContent(kbin);
       yResid.push_back( tmp );
-      errResid.push_back( sqrt( 
+      errResid.push_back( sqrt(
             pow(sqrt( charge->GetBinContent(kbin) ),2) 
             + pow(sqrt( sqrt(fitFcn->Eval( charge->GetBinCenter(kbin) ) ) ),2)
             ) );
@@ -427,10 +425,12 @@ void readFitChargeHisto()
   residGraph->GetYaxis()->SetRangeUser(-120, 160);
   residGraph->SetLineColor(kBlue);
   residGraph->SetLineWidth(1);
+  residGraph->SetMarkerSize(1.5);
+  residGraph->SetMarkerStyle(20);
   residGraph->GetXaxis()->SetTitle("[FADC * 8.33 ns]");
   residGraph->GetYaxis()->SetTitle("y_{fit} - y_{data} [au]");
   histoStyle(residGraph);
-  residGraph->Draw("APL*");
+  residGraph->Draw("APL");
 
   line = new TLine(400, 0, 2200, 0);
   line->SetLineStyle(4);
@@ -454,8 +454,6 @@ void readFitChargeHisto()
 
   rangXmin = binMax*0.8;
   rangXmax = binMax*1.3;
-  cerr << binMax << endl;
-  cerr << "MSD " << rangXmin << " " << rangXmax << endl;
 
   TF1 *poly2 = new TF1("poly2","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
   poly2Fit->Fit("poly2","QR");
@@ -508,10 +506,12 @@ void readFitChargeHisto()
   residPoly2->GetYaxis()->SetRangeUser(-120, 160);
   residPoly2->SetLineColor(kBlue);
   residPoly2->SetLineWidth(1);
+  residPoly2->SetMarkerSize(1.5);
+  residPoly2->SetMarkerStyle(20);
   residPoly2->GetXaxis()->SetTitle("[FADC]");
   residPoly2->GetYaxis()->SetTitle("y_{fit} - y_{data} [au]");
   histoStyle(residPoly2);
-  residPoly2->Draw("APL*");
+  residPoly2->Draw("APL");
 
   line = new TLine(rangXmin-50, 0, rangXmax+50, 0);
   line->SetLineStyle(4);
@@ -587,8 +587,10 @@ void readFitChargeHisto()
   residPoly2Smooth->GetXaxis()->SetTitle("[FADC]");
   residPoly2Smooth->GetYaxis()->SetTitle("y_{fit} - y_{data} [au]");
   residPoly2Smooth->GetYaxis()->SetRangeUser(-120,160);
+  residPoly2Smooth->SetMarkerSize(1.5);
+  residPoly2Smooth->SetMarkerStyle(20);
   histoStyle(residPoly2Smooth);
-  residPoly2Smooth->Draw("APL*");
+  residPoly2Smooth->Draw("APL");
 
   line = new TLine(rangXmin-50, 0, rangXmax+50, 0);
   line->SetLineStyle(4);

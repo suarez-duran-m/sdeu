@@ -111,19 +111,23 @@ int main (int argc, char *argv[]) {
  
   string doMonth = string(whichmonth);
   pmtname +=  "Mth" + doMonth;
-  TFile hfile("uubAoPtime"+pmtname+"chpk.root","RECREATE","");
+  TFile hfile("uubAoP"+pmtname+".root","RECREATE","");
 
 	TH1F *recePk = new TH1F (); // Receive Pk from IoSdStation::HPeak
 	TH1F *receCh = new TH1F (); // Receive Ch from IoSdStation::HCharge
 
   TGraphErrors *pkHistFit = new TGraphErrors();
   double pkChi2 = 0.;
+  double pkNdf = 0.;
   double peak = 0.;
 
   TGraphErrors *chHistFit = new TGraphErrors();
   double chChi2 = 0.;
   double charge = 0.; 
 
+  unsigned int evtId = 0; //Storing event Id
+  unsigned int evtTime = 0; //Storing day-Unixtime
+  unsigned int previusEvent = 0; // Avoiding read the same event
   unsigned int nrEventsRead = 0;
   unsigned int nrEvents = 0;
   bool found = false;
@@ -139,6 +143,18 @@ int main (int argc, char *argv[]) {
   fitcharge fitCh;
   vector < int > *blpmth  = new vector < int >;
 
+  // ======================================
+  // *** *** *** Creating Trees *** *** *** 
+  TTree *treePeak = new TTree("PeakData","");
+  TTree *treeCharge = new TTree("ChargeData","");
+
+  //treePeak->Branch("","",&);
+  treePeak->Branch("peakVal",&peak,"peak/D");
+  treePeak->Branch("chi2",&pkChi2,"pkChi2/D");
+  treePeak->Branch("ndf",&pkNdf,"pkNdf/D");
+  treePeak->Branch("eventId",&evtId,"evtId/I");
+  treePeak->Branch("timeEvnt",&evtTime,"evtTime/I");
+
   EventPos pos;
 
   for (pos=input.FirstEvent(); pos<input.LastEvent(); pos=input.NextEvent()) 
@@ -151,6 +167,10 @@ int main (int argc, char *argv[]) {
     }
 
     IoSdEvent event(pos);
+    if ( event.Id == previusEvent )
+      continue;
+
+    previusEvent = event.Id;
 
     for (unsigned int i = 0 ; i < event.Stations.size(); ++i)
     {
@@ -185,16 +205,14 @@ int main (int argc, char *argv[]) {
             tmpName.Form("%d%d", event.UTCTime, nrEventsRead-1);
 
             recePk = event.Stations[i].HPeak(pmtId-1); // Receiving Peak histogram
-            fitPk.getCrrSmooth(*recePk, blCorrHbase, tmpName+"Hbpk"); // Correcting for calib-baseline
-            tmp = fitPk.getPkCorrSmooth();
-            //for ( int k = 0; k<tmp->GetXaxis()->GetNbins(); k++ )
-              //cout << k << " " << tmp->GetBinCenter(k) << " " << tmp->GetBinContent(k) << endl;
-            fitPk.getFitPk(*tmp, 0.2, 10, event.Stations[i].Calib->VemPeak[pmtId-1]); // Fitting
+            fitPk.getCrr(*recePk, blCorrHbase, tmpName+"Hbpk"); // Correcting for calib-baseline
+            tmp = fitPk.getPkCorr();
+            fitPk.getFitPk(*tmp, event.Stations[i].Calib->VemPeak[pmtId-1]); // Fitting
 
             pkHistFit = fitPk.getFitGraphPk();
             pkChi2 = fitPk.chisPeak;
+            pkNdf = fitPk.ndfPeak;
             peak = fitPk.vemPosPk;
-            cerr << event.Id << endl;        
             
             receCh = event.Stations[i].HCharge(pmtId-1);
             fitCh.getChCrrSmooth(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6]/20., tmpName+"Hbch");
@@ -206,9 +224,11 @@ int main (int argc, char *argv[]) {
             chHistFit = fitCh.getFitGraphCh();
             chChi2 = fitCh.chisCharge;
             charge =  fitCh.vemPosCh;
- 
-            exit(0);           
 
+            evtId = event.Id;
+            evtTime = event.utctime();
+            treePeak->Fill();
+            //exit(0);
             
 		  			break;
           }
