@@ -16,30 +16,24 @@ class fitcharge {
 		fitcharge();
     double vemPosCh;
     double chisCharge;
+    double ndfCharge;
 		bool getGraph;
 		bool fitChOk;
 
-		void getChCrrSmooth(TH1F &hist, const int corr, TString name);
-    int getValidHisto( TH1F &hist );
-
-		void getFitCh(TH1F &hist, const double frac, const int fstbinFit, const double vemch);
+		void getChCrr(TH1F &hist, const int corr, TString name);
+		void getFitCh(TH1F &hist);
 
 		TGraphErrors *getFitGraphCh();
-		TH1F *getChCorrSmooth();
-    TH1F *getChCorr2();
+		TH1F *getChCrr();
 
 	private:
-		unsigned int emPkb;
-		unsigned int emPkc;
 		unsigned int rangXmin;
 		unsigned int rangXmax;
 		unsigned int nXbins;
-		bool checkMax;
 		double critGoodFit;
 
 		TGraphErrors *fitGraphCh;
-		TH1F *hstCrrSmoothCh;
-		TH1F *hstCrrCh2;
+		TH1F *hstCrrCh;
 };
 
 #endif

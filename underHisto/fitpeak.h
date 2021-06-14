@@ -21,7 +21,7 @@ class fitpeak {
 		bool fitPkOk;
 
 		void getCrr(TH1F &hist, const int corr, TString name);
-		void getFitPk(TH1F &hist, const double vempk);
+		void getFitPk(TH1F &hist);
 
 		TGraphErrors *getFitGraphPk();
 		TH1F *getPkCorr();

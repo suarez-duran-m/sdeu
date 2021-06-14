@@ -161,7 +161,7 @@ void readFitPeakHisto()
   TH1F *peakSmooDer = histDerivative(*peakSmooth, xfadc);
 
   TH1 *test = 0;
-  //TVirtualFFT::SetTransform(0);
+  TVirtualFFT::SetTransform(0);
   test = peak->FFT(test, "PH");
 
   int n = test->GetXaxis()->GetNbins();
@@ -225,6 +225,7 @@ void readFitPeakHisto()
   leg->SetHeader("#splitline{Peak histogrma Station 863}{(Event 61219267)}");
   leg->AddEntry(peak,"Peak histogram","f");
   leg->AddEntry(peakSmooth,"Smooth peak histogram","f");
+  leg->AddEntry(peakFFTDer,"First derivative FFT","f");
   leg->Draw();  
   c1->Print("../plots/peakHisto863.pdf");
 

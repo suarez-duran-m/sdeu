@@ -40,7 +40,7 @@ double fitFunctionCh(double *x0, double *par) {
 }
 
 
-TH1F *netSmooth(TH1F &hist, double xb[])
+TH1F *getSmooth(TH1F &hist, double xb[])
 {
 	unsigned int nb = 600;
   double yi = 0.;
@@ -118,7 +118,8 @@ void readFitChargeHisto()
   dir.ReplaceAll("readFitChargeHisto.C","");
   dir.ReplaceAll("/./","/");
   ifstream in;
-  in.open(Form("%schargeHist.dat",dir.Data()));
+  in.open(Form("%skkcharge.dat",dir.Data()));
+  //in.open(Form("%schargeHist.dat",dir.Data()));
 
   const int nbins = 600;
 
@@ -312,22 +313,27 @@ void readFitChargeHisto()
   TCanvas *c6 = canvasStyle("c6");
   TCanvas *c7 = canvasStyle("c7");
 
-	int emPkb = 0; // Bin for EM peak
-	int emPkc = 0; // Counts for EM peak
 	int rangXmin = 0; // Min for fitting
 	int rangXmax = 0; // Max for fitting
 	int nXbins = charge->GetXaxis()->GetNbins(); // Number of bins for fitting
 
-  int binMax = 0;
+  double binMax = 0;
   double binMin = 0;
-  for ( int kk=370; kk>10; kk-- ) // from 2960 FADC backward
-    if ( chargeFFTDer->GetBinContent( kk ) > 0 )
+  for ( int kk=312; kk>125; kk-- ) // from 2960 FADC backward
+    if ( chargeFFTDer->GetBinContent( kk ) < 0 )
     {
-      binMax = charge->GetBinCenter(kk);
+      if ( binMax < fabs(chargeFFTDer->GetBinContent( kk ) ) )
+      {
+        binMax = fabs(chargeFFTDer->GetBinContent(kk));
+        rangXmax = chargeFFTDer->GetBinCenter(kk);
+      }
+    }
+    else
+    {
+      binMax = chargeFFTDer->GetBinCenter(kk);
       break;
     }
 
-  rangXmax = binMax + 0.3*(3000-binMax);
 
   binMin = 0;
   int tmpneg = 0;
@@ -355,12 +361,16 @@ void readFitChargeHisto()
 		xbins.push_back( charge->GetBinCenter(b+1) );
 	}
 
+
 	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
 			&ycnts.front(), 0, &yerrs.front() );
 
   TF1 *fitFcn = new TF1("fitFcn", fitFunctionCh, rangXmin, rangXmax, 5);
   fitFcn->SetParameters(13.38, binMax, 4.34, 4.81, -1659.76);
   chFit->Fit("fitFcn","QR");
+
+  cerr << rangXmin << " " << rangXmax << " " << binMax << endl;
+  cerr << fitFcn->GetChisquare() << " " << fitFcn->GetNDF() << endl;
 
   TF1 *expon = new TF1("expon", "exp( [0] - [1]/x )", rangXmin, rangXmax);
   TF1 *lognorm = new TF1("lognorm", "(exp([0])/x) * exp( -0.5*pow( (( log([1]) - log(x) )*[2]),2 ) )", rangXmin, rangXmax);

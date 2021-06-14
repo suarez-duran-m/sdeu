@@ -1,5 +1,6 @@
 #include <iostream>
 #include <time.h>
+#include <vector>
 
 #include <TH1.h>
 #include <TF1.h>
@@ -63,85 +64,19 @@ double peakMaxPk(TF1* f) {
 }
 
 
-TH1F *getSmooth(TH1F &hist, double xb[])
+vector < double > minRangMaxFFT( double x[], TH1F h )
 {
-	unsigned int nb = 150;
-  double yi = 0.;
-
+  vector < double > minmax;
+  double tmpMax = 0.;
+  double tmpMin = 0.;
+  double tmpBinMax = 0.;
+  double tmpBinMin = 0.;
   TString tmpname;
   tmpname.Form("%d",rand());
-
-	TH1F *hstSmooth = new TH1F(tmpname, "", nb, xb);
-
-	for ( unsigned b=0; b<nb; b++ )
-  {
-    if ( b > 1 && b<148 )
-    {
-      yi = hist.GetBinContent(b+1 - 2) 
-        + 2*hist.GetBinContent(b+1 - 1) 
-        + 3*hist.GetBinContent(b+1) 
-        + 2*hist.GetBinContent(b+1 + 1) 
-        + hist.GetBinContent(b+1 + 2);
-      yi = yi/9.;
-    }
-    else
-      yi = hist.GetBinContent(b+1);
-    
-    hstSmooth->SetBinContent(b+1, yi);
-  }
-  return hstSmooth;
-}
-
-
-fitpeak::fitpeak() {
-  srand (time(NULL));
-	vemPosPk = 0.;
-	getGraph = false;
-	fitPkOk = false;
-
-  chisPeak = 0.;
-  ndfPeak = 0.;
-	rangXmin = 0;
-	rangXmax = 0;
-	nXbins = 0;
-	checkMax = false;
-	critGoodFit = 0.;
-}
-
-void fitpeak::getCrr(TH1F &hist, const int corr, TString name) 
-{
-	unsigned int nb = 150;
-	double xb [nb];
-
-	for ( unsigned int b=0; b<nb; b++ )
-		xb[b] = hist.GetBinCenter(b+1) - corr; // Aplying correction for calib-baseline
-	xb[nb] = xb[nb-1] + hist.GetBinWidth(1);
-
-	hstCrrPk = new TH1F(name, name, nb, xb);
-
-	for ( unsigned b=0; b<nb; b++ )
-    hstCrrPk->SetBinContent(b+1, hist.GetBinContent(b+1));
-}
-
-
-void fitpeak::getFitPk(TH1F &hist, const double vempk ) 
-{
-  TString tmpname;
-  tmpname.Form("%d",rand());
-
-	rangXmin = 0; // Min for fitting
-	rangXmax = 0; // Max for fitting
-	nXbins = hist.GetXaxis()->GetNbins(); // Number of bins for fitting
-	critGoodFit = 0.; // Criterium for "good" fitting
-
-  double xfadc[nXbins+1];
-  for( unsigned int b=0; b<nXbins+1; b++ )
-    xfadc[b] = hist.GetBinCenter(b+1);
-
 
   TH1 *test = 0;
   TVirtualFFT::SetTransform(0);
-  test = hist.FFT(test, "PH");
+  test = h.FFT(test, "PH");
 
   int n = test->GetXaxis()->GetNbins();
   Double_t *re_full = new Double_t[n];
@@ -176,43 +111,170 @@ void fitpeak::getFitPk(TH1F &hist, const double vempk )
   for (int j = 0; j < 50; j++)
     peakFFT->SetBinContent(j + 1 + 100, hbC->GetBinContent(j+100)/150.);
   
-  TH1 *peakFFTDer = histDerivative(*peakFFT, xfadc);
-
-
-  double binMin = 0.;
-  double binMax = 0.;
+  TH1 *peakFFTDer = histDerivative(*peakFFT, x);
 
   for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
     if ( peakFFTDer->GetBinContent(kk) < 0 )
     {
-      if ( binMax < fabs(peakFFTDer->GetBinContent( kk ) ) )
+      if ( tmpBinMax < fabs(peakFFTDer->GetBinContent( kk ) ) )
       {
-        binMax = fabs(peakFFTDer->GetBinContent(kk));
-        rangXmax = peakFFTDer->GetBinCenter(kk);
+        tmpBinMax = fabs(peakFFTDer->GetBinContent(kk));
+        tmpMax = peakFFTDer->GetBinCenter(kk);
       }
     }
     else
     {
-      binMax = peakFFTDer->GetBinCenter(kk);
+      tmpBinMax = peakFFTDer->GetBinCenter(kk);
       break;
     }
 
-  rangXmax *= 1.5;
+  tmpMax *= 1.5;
 
-  binMin = 0;
   int tmpneg = 0;
   for ( int kk=7; kk<130; kk++ ) // 20 FADC after 0 FADC
   {
     if ( peakFFTDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
       break;
     if ( peakFFTDer->GetBinContent( kk ) < 0 )
-      if ( binMin < fabs( peakFFTDer->GetBinContent( kk ) ) )
+      if ( tmpBinMin < fabs( peakFFTDer->GetBinContent( kk ) ) )
       {
-        rangXmin = peakFFTDer->GetBinCenter(kk);
-        binMin = fabs( peakFFTDer->GetBinContent( kk ) );
+        tmpMin = peakFFTDer->GetBinCenter(kk);
+        tmpBinMin = fabs( peakFFTDer->GetBinContent( kk ) );
         tmpneg = 1;
       }
-  } 
+  }
+  minmax.push_back( tmpMin );
+  minmax.push_back( tmpMax );
+  minmax.push_back( tmpBinMax );
+
+  delete test;
+  delete hbC;
+  return minmax;
+}
+
+
+vector < double > minRangMaxSmooth( double x[], TH1F h )
+{
+  vector < double > minmax;
+
+	unsigned int nb = 150;
+  double yi = 0.;
+  double tmpMax = 0.;
+  double tmpMin = 0.;
+  double tmpBinMax = 0.;
+  double tmpBinMin = 0.;
+
+  TString tmpname;
+  tmpname.Form("%d",rand());
+
+	TH1F *hsmooth = new TH1F(tmpname, tmpname, nb, x);
+
+	for ( unsigned b=0; b<nb; b++ )
+  {
+    if ( b > 1 && b<148 )
+    {
+      yi = h.GetBinContent(b+1 - 2) 
+        + 2*h.GetBinContent(b+1 - 1) 
+        + 3*h.GetBinContent(b+1) 
+        + 2*h.GetBinContent(b+1 + 1) 
+        + h.GetBinContent(b+1 + 2);
+      yi = yi/9.;
+    }
+    else
+      yi = h.GetBinContent(b+1);
+
+    hsmooth->SetBinContent(b+1, yi);
+  }
+
+  TH1 *hsmoothDer = histDerivative(*hsmooth, x);
+
+  for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
+  {
+    if ( hsmoothDer->GetBinContent(kk) < 0 )
+      if ( tmpBinMax < fabs(hsmoothDer->GetBinContent( kk ) ) )
+      {
+        tmpBinMax = fabs(hsmoothDer->GetBinContent(kk));
+        tmpMax = hsmoothDer->GetBinCenter(kk);
+      }
+    else
+    {
+      tmpBinMax = hsmoothDer->GetBinCenter(kk);
+      break;
+    }
+  }
+
+  tmpMax *= 1.5;
+
+  int tmpneg = 0;
+  for ( int kk=7; kk<130; kk++ ) // 20 FADC after 0 FADC
+  {
+    if ( hsmoothDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
+      break;
+    if ( hsmoothDer->GetBinContent( kk ) < 0 )
+      if ( tmpBinMin < fabs( hsmoothDer->GetBinContent( kk ) ) )
+      {
+        tmpMin = hsmoothDer->GetBinCenter(kk);
+        tmpBinMin = fabs( hsmoothDer->GetBinContent( kk ) );
+        tmpneg = 1;
+      }
+  }
+  minmax.push_back( tmpMin );
+  minmax.push_back( tmpMax );
+  minmax.push_back( tmpBinMax );
+
+  return minmax;
+}
+
+
+fitpeak::fitpeak() {
+  srand (time(NULL));
+	vemPosPk = 0.;
+	getGraph = false;
+	fitPkOk = false;
+
+  chisPeak = 0.;
+  ndfPeak = 0.;
+	rangXmin = 0;
+	rangXmax = 0;
+	nXbins = 0;
+	checkMax = false;
+	critGoodFit = 0.;
+}
+
+void fitpeak::getCrr(TH1F &hist, const int corr, TString name) 
+{
+	unsigned int nb = 150;
+	double xb [nb];
+
+	for ( unsigned int b=0; b<nb; b++ )
+		xb[b] = hist.GetBinCenter(b+1) - corr; // Aplying correction for calib-baseline
+	xb[nb] = xb[nb-1] + hist.GetBinWidth(1);
+
+	hstCrrPk = new TH1F(name, name, nb, xb);
+
+	for ( unsigned b=0; b<nb; b++ )
+    hstCrrPk->SetBinContent(b+1, hist.GetBinContent(b+1));
+}
+
+
+void fitpeak::getFitPk(TH1F &hist) 
+{
+	rangXmin = 0; // Min for fitting
+	rangXmax = 0; // Max for fitting
+	nXbins = hist.GetXaxis()->GetNbins(); // Number of bins for fitting
+	critGoodFit = 0.; // Criterium for "good" fitting
+
+  double xfadc[nXbins+1];
+  for( unsigned int b=0; b<nXbins+1; b++ )
+    xfadc[b] = hist.GetBinCenter(b+1);
+
+  vector < double > tmp;
+
+  tmp = minRangMaxFFT( xfadc, hist );
+
+  rangXmin = tmp[0];
+  rangXmax = tmp[1];
+  double binMax = tmp[2];
 
 	TString parName; // For Fitted plot title
 
@@ -230,7 +292,7 @@ void fitpeak::getFitPk(TH1F &hist, const double vempk )
 			&ycnts.front(), 0, &yerrs.front() );
 
   TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
-  fitFcn->SetParameters(12.7, vempk, -3., 5., -266.2); //Set  init. fit par. 
+  fitFcn->SetParameters(12.7, binMax, -3., 5., -266.2); //Set  init. fit par. 
 
 	chFit->Fit("fitFcn","QR");
   chisPeak = fitFcn->GetChisquare();
@@ -241,11 +303,27 @@ void fitpeak::getFitPk(TH1F &hist, const double vempk )
   fitGraphPk = (TGraphErrors*)chFit->Clone();
   if ( (chisPeak/ndfPeak) < critGoodFit )
     fitPkOk = true;
-  else
+  else if ( chisPeak/ndfPeak > critGoodFit )
+  {
+    tmp.clear();
+    tmp = minRangMaxSmooth( xfadc, hist );
+    
+    rangXmin = tmp[0];
+    rangXmax = tmp[1];
+    double binMax = tmp[2];
+
+    TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
+    fitFcn->SetParameters(12.7, binMax, -3., 5., -266.2); //Set  init. fit par. 
+
+	  chFit->Fit("fitFcn","QR");
+    chisPeak = fitFcn->GetChisquare();
+    ndfPeak = fitFcn->GetNDF();
+    vemPosPk = peakMaxPk(fitFcn);
+  }
+  
+  if ( (chisPeak/ndfPeak) > critGoodFit )
     vemPosPk = 0.;
 
-  delete test;
-  delete hbC;
 	delete chFit;
 	delete fitFcn;
 }
