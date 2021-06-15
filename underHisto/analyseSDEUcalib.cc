@@ -119,11 +119,13 @@ int main (int argc, char *argv[]) {
   TGraphErrors *pkHistFit = new TGraphErrors();
   double pkChi2 = 0.;
   double pkNdf = 0.;
+  double pkProb = 0.;
   double peak = 0.;
 
   TGraphErrors *chHistFit = new TGraphErrors();
   double chChi2 = 0.;
   double chNdf = 0.;
+  double chProb = 0.;
   double charge = 0.; 
 
   unsigned int evtIdPk = 0; //Storing event Id
@@ -155,12 +157,14 @@ int main (int argc, char *argv[]) {
   treePeak->Branch("peakVal",&peak,"peak/D");
   treePeak->Branch("chi2",&pkChi2,"pkChi2/D");
   treePeak->Branch("ndf",&pkNdf,"pkNdf/D");
+  treePeak->Branch("prob",&pkProb,"pkProb/D");
   treePeak->Branch("eventId",&evtIdPk,"evtIdPk/I");
   treePeak->Branch("timeEvnt",&evtTimePk,"evtTimePk/I");
 
   treeCharge->Branch("chargeVal",&charge,"charge/D");
   treeCharge->Branch("chi2",&chChi2,"chChi2/D");
   treeCharge->Branch("ndf",&chNdf,"chNdf/D");
+  treeCharge->Branch("prob",&chProb,"chProb/D");
   treeCharge->Branch("eventId",&evtIdCh,"evtIdCh/I");
   treeCharge->Branch("timeEvnt",&evtTimeCh,"evtTimeCh/I");
 
@@ -221,9 +225,10 @@ int main (int argc, char *argv[]) {
             pkHistFit = fitPk.getFitGraphPk();
             pkChi2 = fitPk.chisPeak;
             pkNdf = fitPk.ndfPeak;
+            pkProb = fitPk.probPeak;
             peak = fitPk.vemPosPk;
-
-            /*             
+            cout << "MSD " << pkChi2 << " " << pkNdf <<  " " << peak << endl;
+            /*
             if ( pkChi2/pkNdf > 4 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
             {
               cout << "MSD " << " " << event.Id << " " << pkChi2 << " " << pkNdf << " " << pkChi2/pkNdf << endl;
@@ -231,8 +236,7 @@ int main (int argc, char *argv[]) {
                 cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
               exit(0);
             }
-            */ 
-            
+            */
             receCh = event.Stations[i].HCharge(pmtId-1);
             fitCh.getChCrr(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6]/20., tmpName+"Hbch");
             tmp = fitCh.getChCrr();           
@@ -241,7 +245,17 @@ int main (int argc, char *argv[]) {
             chHistFit = fitCh.getFitGraphCh();
             chChi2 = fitCh.chisCharge;
             chNdf = fitCh.ndfCharge;
+            chProb = fitCh.probCharge;
             charge =  fitCh.vemPosCh;
+            /*
+            if ( chChi2/chNdf > 4 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
+            {
+              cout << "MSD " << " " << event.Id << " " << chChi2 << " " << chNdf << " " << chChi2/pkNdf << endl;
+              for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
+                cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
+              exit(0);
+            }
+            */
             
             evtIdPk = event.Id;
             evtIdCh = event.Id;

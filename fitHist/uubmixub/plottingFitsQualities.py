@@ -86,11 +86,12 @@ for i in range( len(chiDistPk) ):
     nPoints = tmptree.pkHistFit.GetN()
     x = 0.
     y = 0.
-    for i in range(0, nPoints):
-      tmptree.pkHistFit.
-      tmptree.pkHistFit.GetPoint(i, x, y)
-      print(x, y)
+    #for i in range(0, nPoints):
+      #tmptree.pkHistFit.
+      #tmptree.pkHistFit.GetPoint(i, x, y)
+      #print(x, y)
 
     c1.Update()
-    c1.Print(outnameExampResi)
+    c1.Print("kk.pdf")
+    #c1.Print(outnameExampResi)
     break
