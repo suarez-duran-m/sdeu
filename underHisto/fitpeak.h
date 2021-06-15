@@ -17,6 +17,7 @@ class fitpeak {
     double vemPosPk;
     double chisPeak;
     double ndfPeak;
+    double probPeak;
 		bool getGraph;
 		bool fitPkOk;
 

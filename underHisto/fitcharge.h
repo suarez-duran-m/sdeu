@@ -17,6 +17,7 @@ class fitcharge {
     double vemPosCh;
     double chisCharge;
     double ndfCharge;
+    double probCharge;
 		bool getGraph;
 		bool fitChOk;
 

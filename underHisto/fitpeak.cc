@@ -191,11 +191,13 @@ vector < double > minRangMaxSmooth( double x[], TH1F h )
   for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
   {
     if ( hsmoothDer->GetBinContent(kk) < 0 )
+    {
       if ( tmpBinMax < fabs(hsmoothDer->GetBinContent( kk ) ) )
       {
         tmpBinMax = fabs(hsmoothDer->GetBinContent(kk));
         tmpMax = hsmoothDer->GetBinCenter(kk);
       }
+    }
     else
     {
       tmpBinMax = hsmoothDer->GetBinCenter(kk);
@@ -226,7 +228,8 @@ vector < double > minRangMaxSmooth( double x[], TH1F h )
 }
 
 
-fitpeak::fitpeak() {
+fitpeak::fitpeak() 
+{
   srand (time(NULL));
 	vemPosPk = 0.;
 	getGraph = false;
@@ -269,7 +272,6 @@ void fitpeak::getFitPk(TH1F &hist)
     xfadc[b] = hist.GetBinCenter(b+1);
 
   vector < double > tmp;
-
   tmp = minRangMaxFFT( xfadc, hist );
 
   rangXmin = tmp[0];
@@ -297,6 +299,7 @@ void fitpeak::getFitPk(TH1F &hist)
 	chFit->Fit("fitFcn","QR");
   chisPeak = fitFcn->GetChisquare();
   ndfPeak = fitFcn->GetNDF();
+  probPeak = fitFcn->GetProb();
   vemPosPk = peakMaxPk(fitFcn);
   critGoodFit = 5.;
 

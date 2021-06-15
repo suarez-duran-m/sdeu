@@ -118,8 +118,8 @@ void readFitChargeHisto()
   dir.ReplaceAll("readFitChargeHisto.C","");
   dir.ReplaceAll("/./","/");
   ifstream in;
-  in.open(Form("%skkcharge.dat",dir.Data()));
-  //in.open(Form("%schargeHist.dat",dir.Data()));
+  //in.open(Form("%skkcharge.dat",dir.Data()));
+  in.open(Form("%schargeHist.dat",dir.Data()));
 
   const int nbins = 600;
 
@@ -157,6 +157,7 @@ void readFitChargeHisto()
 
   TH1F *chargeSmooth = getSmooth(*charge, xfadc);
   TH1F *chargeSmooDer = histDerivative(*chargeSmooth, xfadc);
+  chargeSmooDer->Smooth(500);
 
   TH1 *test = 0;
   TVirtualFFT::SetTransform(0);
@@ -182,7 +183,6 @@ void readFitChargeHisto()
 
   TH1 *hbC = 0;
   hbC = TH1::TransformHisto(fft_back,hbC,"Re");
-  hbC->SetTitle("The backward transform result");
 
   double xc[601];
   for (int j = 0; j < 402; j++)
@@ -220,6 +220,7 @@ void readFitChargeHisto()
   chargeFFT->Draw("same");
   
   leg = new TLegend(0.62,0.65,0.95,0.96);
+  //leg->SetHeader("#splitline{Charge chargeFFTgrma Station 1740}{(Event 61203949)}");
   leg->SetHeader("#splitline{Charge chargeFFTgrma Station 863}{(Event 61219267)}");
   leg->AddEntry(charge,"Charge chargeFFTgram","f");
   leg->AddEntry(chargeSmooth,"Smooth charge chargeFFTgram","f");
@@ -300,7 +301,7 @@ void readFitChargeHisto()
   
   leg = new TLegend(0.55,0.7,0.95,0.92);
   leg->SetHeader("From Smooth charge histogram","C");
-  leg->AddEntry(chargeSmooDer,"First derivative","f");
+  leg->AddEntry(chargeSmooDer,"First derivative smooth","f");
   leg->AddEntry(chargeFFTDer,"First derivative FFT","f");
   leg->Draw();
   c4->Print("../plots/chargeSmoothDerHisto863.pdf");
@@ -319,36 +320,40 @@ void readFitChargeHisto()
 
   double binMax = 0;
   double binMin = 0;
-  for ( int kk=312; kk>125; kk-- ) // from 2960 FADC backward
-    if ( chargeFFTDer->GetBinContent( kk ) < 0 )
+  for ( int kk=275; kk>125; kk-- ) // from 2496 FADC backward
+    if ( chargeSmooDer->GetBinContent( kk ) < 0 )
     {
-      if ( binMax < fabs(chargeFFTDer->GetBinContent( kk ) ) )
+      if ( binMax < fabs(chargeSmooDer->GetBinContent( kk ) ) )
       {
-        binMax = fabs(chargeFFTDer->GetBinContent(kk));
-        rangXmax = chargeFFTDer->GetBinCenter(kk);
+        binMax = fabs(chargeSmooDer->GetBinContent(kk));
+        rangXmax = chargeSmooDer->GetBinCenter(kk);
       }
     }
     else
     {
-      binMax = chargeFFTDer->GetBinCenter(kk);
+      binMax = chargeSmooDer->GetBinCenter(kk);
       break;
     }
+
+  rangXmax *= 1.2;
 
 
   binMin = 0;
   int tmpneg = 0;
   for ( int kk=25; kk<binMax; kk++ ) // 200 FADC after 0 FADC
   {
-    if ( chargeFFTDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
+    if ( chargeSmooDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
       break;
-    if ( chargeFFTDer->GetBinContent( kk ) < 0 )
-      if ( binMin < fabs( chargeFFTDer->GetBinContent( kk ) ) )
+    if ( chargeSmooDer->GetBinContent( kk ) < 0 )
+      if ( binMin < fabs( chargeSmooDer->GetBinContent( kk ) ) )
       {
-        rangXmin = chargeFFTDer->GetBinCenter(kk); // 20 FADC fordward EM-Peak
-        binMin = fabs( chargeFFTDer->GetBinContent( kk ) );
+        rangXmin = chargeSmooDer->GetBinCenter(kk); // 20 FADC fordward EM-Peak
+        binMin = fabs( chargeSmooDer->GetBinContent( kk ) );
         tmpneg = 1;
       }
   }
+
+  //rangXmin *= 2.5;
   
 	vector < double > xbins; // X bins for fit-function
 	vector < double > ycnts; // Y counts for fit-function
@@ -623,8 +628,22 @@ void readFitChargeHisto()
 		xbins.push_back( chargeFFT->GetBinCenter(b+1) );
 	}
 
-  rangXmax = binMax + 0.3*(3000-binMax);
-  rangXmin = binMin*(1.5);
+  binMax = 0;
+  binMin = 0;
+  for ( int kk=312; kk>125; kk-- ) // from 2960 FADC backward
+    if ( chargeFFTDer->GetBinContent( kk ) < 0 )
+    {
+      if ( binMax < fabs(chargeFFTDer->GetBinContent( kk ) ) )
+      {
+        binMax = fabs(chargeFFTDer->GetBinContent(kk));
+        rangXmax = chargeFFTDer->GetBinCenter(kk);
+      }
+    }
+    else
+    {
+      binMax = chargeFFTDer->GetBinCenter(kk);
+      break;
+    }
 
   binMin = 0;
   tmpneg = 0;

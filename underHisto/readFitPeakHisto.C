@@ -120,8 +120,8 @@ void readFitPeakHisto()
   dir.ReplaceAll("readFitPeakHisto.C","");
   dir.ReplaceAll("/./","/");
   ifstream in;
-  in.open(Form("%skkpeak.dat",dir.Data()));
-  //in.open(Form("%speakHist.dat",dir.Data()));
+  //in.open(Form("%skkpeak.dat",dir.Data()));
+  in.open(Form("%speakHist.dat",dir.Data()));
   
   srand (time(NULL)); 
   const int nbins = 150;
@@ -222,6 +222,7 @@ void readFitPeakHisto()
   peakFFT->Draw("same");
 
   leg = new TLegend(0.62,0.65,0.95,0.96);
+  //leg->SetHeader("#splitline{Peak histogrma Station 1740}{(Event 61509855)}");
   leg->SetHeader("#splitline{Peak histogrma Station 863}{(Event 61219267)}");
   leg->AddEntry(peak,"Peak histogram","f");
   leg->AddEntry(peakSmooth,"Smooth peak histogram","f");
@@ -273,7 +274,7 @@ void readFitPeakHisto()
   
   leg = new TLegend(0.5,0.64,0.95,0.9);
   leg->SetHeader("From Smooth peak histogram","C");
-  leg->AddEntry(peakSmooDer,"First derivative","f");
+  leg->AddEntry(peakSmooDer,"First derivative smooth","f");
   leg->AddEntry(peakFFTDer,"First derivative FFT","f");
   leg->Draw();
   c3->Print("../plots/peakSmoothDerHisto863.pdf");

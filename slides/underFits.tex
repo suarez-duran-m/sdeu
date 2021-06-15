@@ -74,12 +74,24 @@
 
 
 \begin{frame}
-  \frametitle{UUB: Derivating Peak histogram} %: Peak histogram Station863}
+  \frametitle{UUB Peak: Derivating histogram} %: Peak histogram Station863}
   \begin{figure}
     \centering
-    \begin{tabularx}{\textwidth}{C}
+    \begin{tabularx}{\textwidth}{CC}
       \begin{tabular}{l}
-        \includegraphics[width=.5\textwidth]{../plots/peakHisto863.pdf}
+        \includegraphics[width=.43\textwidth]{../plots/peakHisto863.pdf}
+      \end{tabular}
+      &
+      \footnotesize
+      \begin{tabular}{l}
+        The algorithm:
+        1. Smooth/FFT Histogram \\
+        2. Derivating of smooth/FFT Histogram \\
+        3. Identifing Fit range (Slope changes) \\
+        4. Fitting \\
+        Two function checked: \\
+        - Exp. + Log-normal \\
+        - 2nd order polinomium
       \end{tabular}
     \end{tabularx}
 
@@ -97,66 +109,84 @@
 
 
 \begin{frame}
-  \frametitle{UUB: Fit and Residuals}
+  \frametitle{UUB Peak: Fit and Residuals}
   \begin{figure}
     \centering
     \begin{tabularx}{\textwidth}{CC}
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/peakFittedHisto863.pdf}
+        \includegraphics[width=.44\textwidth]{../plots/peakFittedHisto863.pdf}
       \end{tabular}
       &
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/peakFitPoly2863.pdf}
+        \includegraphics[width=.44\textwidth]{../plots/peakFitPoly2863.pdf}
       \end{tabular}
       \\
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/peakFitResiduals863.pdf}
+        \includegraphics[width=.44\textwidth]{../plots/peakFitResiduals863.pdf}
       \end{tabular}
       &
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/peakFitResidualsPoly2863.pdf}
+        \includegraphics[width=.44\textwidth]{../plots/peakFitResidualsPoly2863.pdf}
       \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  The Exp.+Log-normal fit better than second order polinomium.
+\end{frame}
+
+
+%\begin{frame}
+%  \frametitle{UUB Peak: Fit and Residuals smooth histogram}
+%  \begin{figure}
+%    \centering
+%    \begin{tabularx}{\textwidth}{CC}
+%      \begin{tabular}{l}
+%        \includegraphics[width=.48\textwidth]{../plots/peakSmoothFittedHisto863.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=.48\textwidth]{../plots/peakSmoothFitPoly2863.pdf}
+%      \end{tabular}
+%      \\
+%      \begin{tabular}{l}
+%        \includegraphics[width=.48\textwidth]{../plots/peakSmoothFitResiduals863.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=.48\textwidth]{../plots/peakFitSmoothResidualsPoly2863.pdf}
+%      \end{tabular}
+%    \end{tabularx}
+%  \end{figure}
+%\end{frame}
+
+
+\begin{frame}
+  \frametitle{UUB Peak: Residuals distribution}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{C}
+      \begin{tabular}{l}
+        \includegraphics[width=.7\textwidth]{../plots/peakResidualsDist863.pdf}
+      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=.5\textwidth]{../plots/peakSmoothResidualsDist863.pdf}
+%      \end{tabular}
     \end{tabularx}
   \end{figure}
 \end{frame}
 
 
 \begin{frame}
-  \frametitle{UUB: Fit and Residuals}
+  \frametitle{UUB Peak: applying all histograms St. 863, Chi and Prob. distributions}
   \begin{figure}
     \centering
     \begin{tabularx}{\textwidth}{CC}
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/peakSmoothFittedHisto863.pdf}
+        \includegraphics[width=.48\textwidth]{../plots/uubChisDistPmtsPk863.pdf}
       \end{tabular}
       &
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/peakSmoothFitPoly2863.pdf}
-      \end{tabular}
-      \\
-      \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/peakSmoothFitResiduals863.pdf}
-      \end{tabular}
-      &
-      \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/peakFitSmoothResidualsPoly2863.pdf}
-      \end{tabular}
-    \end{tabularx}
-  \end{figure}
-\end{frame}
-
-
-\begin{frame}
-  \frametitle{UUB: Fit and Residuals}
-  \begin{figure}
-    \centering
-    \begin{tabularx}{\textwidth}{CC}
-      \begin{tabular}{l}
-        \includegraphics[width=.5\textwidth]{../plots/peakResidualsDist863.pdf}
-      \end{tabular}
-      &
-      \begin{tabular}{l}
-        \includegraphics[width=.5\textwidth]{../plots/peakSmoothResidualsDist863.pdf}
+        \includegraphics[width=.48\textwidth]{../plots/uubProbDistPmtsPk863.pdf}
       \end{tabular}
     \end{tabularx}
   \end{figure}
@@ -167,7 +197,7 @@
 % *** *** *** Charge Histograms *** *** ***
 
 \begin{frame}
-  \frametitle{UUB: Derivating Charge histogram} %: Peak histogram Station863}
+  \frametitle{UUB Charge: Derivating histogram} %: Peak histogram Station863}
   \begin{figure}
     \centering
     \begin{tabularx}{\textwidth}{CC}
@@ -192,24 +222,84 @@
 
 
 \begin{frame}
-  \frametitle{UUB: Fit and Residuals}
+  \frametitle{UUB Charge: Fit and Residuals}
   \begin{figure}
     \centering
     \begin{tabularx}{\textwidth}{CC}
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/chargeFittedHisto863.pdf}
+        \includegraphics[width=.44\textwidth]{../plots/chargeFittedHisto863.pdf}
       \end{tabular}
       &
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/chargeFitPoly2863.pdf}
+        \includegraphics[width=.44\textwidth]{../plots/chargeFitPoly2863.pdf}
       \end{tabular}
       \\
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/chargeFitResiduals863.pdf}
+        \includegraphics[width=.44\textwidth]{../plots/chargeFitResiduals863.pdf}
       \end{tabular}
       &
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/chargeFitResidualsPoly2863.pdf}
+        \includegraphics[width=.44\textwidth]{../plots/chargeFitResidualsPoly2863.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  The Exp.+Log-normal fit better than second order polinomium.
+\end{frame}
+
+
+%\begin{frame}
+%  \frametitle{UUB Charge: Fit and Residuals smooth hitogram}
+%  \begin{figure}
+%    \centering
+%    \begin{tabularx}{\textwidth}{CC}
+%      \begin{tabular}{l}
+%        \includegraphics[width=.48\textwidth]{../plots/chargeFFTFitLogNorm863.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=.48\textwidth]{../plots/chargeFFTFitPoly2863.pdf}
+%      \end{tabular}
+%      \\
+%      \begin{tabular}{l}
+%        \includegraphics[width=.48\textwidth]{../plots/chargeFFTLogNormResiduals863.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=.48\textwidth]{../plots/chargeFitFFTResidualsPoly2863.pdf}
+%      \end{tabular}
+%    \end{tabularx}
+%  \end{figure}
+%\end{frame}
+
+
+\begin{frame}
+  \frametitle{UUB Charge: Residuals distribution}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{C}
+      \begin{tabular}{l}
+        \includegraphics[width=.7\textwidth]{../plots/chargeResidualsDist863.pdf}
+      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=.48\textwidth]{../plots/chargeFFTResidualsDist863.pdf}
+%      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{UUB Charge: applying all histograms St. 863, Chi and Prob. distributions}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/uubChisDistPmtsCh863.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/uubProbDistPmtsCh863.pdf}
       \end{tabular}
     \end{tabularx}
   \end{figure}
@@ -217,45 +307,63 @@
 
 
 \begin{frame}
-  \frametitle{UUB: Fit and Residuals}
+  \frametitle{UUB Peak Station 1740: Chi and Prob. distributions all histograms}
   \begin{figure}
     \centering
     \begin{tabularx}{\textwidth}{CC}
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/chargeFFTFitLogNorm863.pdf}
+        \includegraphics[width=.48\textwidth]{../plots/uubChisDistPmtsPk1740.pdf}
       \end{tabular}
       &
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/chargeFFTFitPoly2863.pdf}
-      \end{tabular}
-      \\
-      \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/chargeFFTLogNormResiduals863.pdf}
-      \end{tabular}
-      &
-      \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/chargeFitFFTResidualsPoly2863.pdf}
+        \includegraphics[width=.48\textwidth]{../plots/uubProbDistPmtsPk1740.pdf}
       \end{tabular}
     \end{tabularx}
   \end{figure}
+  For $\chi^2 / \mathrm{ndf}$ plot, all histograms with $\chi^2 / \mathrm{ndf}$ 
+  bigger than 6 are counted as 6.
 \end{frame}
 
 
 \begin{frame}
-  \frametitle{UUB: Fit and Residuals}
+  \frametitle{UUB Charge Station 1740: Chi and Prob. distributions all histograms}
   \begin{figure}
     \centering
     \begin{tabularx}{\textwidth}{CC}
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/chargeResidualsDist863.pdf}
+        \includegraphics[width=.48\textwidth]{../plots/uubChisDistPmtsCh1740.pdf}
       \end{tabular}
       &
       \begin{tabular}{l}
-        \includegraphics[width=.48\textwidth]{../plots/chargeFFTResidualsDist863.pdf}
+        \includegraphics[width=.48\textwidth]{../plots/uubProbDistPmtsCh1740.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  For $\chi^2 / \mathrm{ndf}$ plot, all histograms with $\chi^2 / \mathrm{ndf}$ 
+  bigger than 6 are counted as 6.
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{UUB Charge Station 1740: Failed fit}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/uubPeakFailHisto1740Pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/uubChargeFailHisto1740Pmt1.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=.48\textwidth]{../plots/uubPeakFailHisto1740Pmt3.pdf}
       \end{tabular}
     \end{tabularx}
   \end{figure}
 \end{frame}
+
 
 
 \end{document}
