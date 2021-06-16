@@ -402,17 +402,17 @@ void readFitChargeHisto()
     {
       xResid.push_back( charge->GetBinCenter(kbin) );
       tmp = fitFcn->Eval( charge->GetBinCenter(kbin) ) - charge->GetBinContent(kbin);
-      yResid.push_back( tmp );
+      yResid.push_back( tmp / sqrt( charge->GetBinContent(kbin) ) );
       errResid.push_back( sqrt(
             pow(sqrt( charge->GetBinContent(kbin) ),2) 
             + pow(sqrt( sqrt(fitFcn->Eval( charge->GetBinCenter(kbin) ) ) ),2)
-            ) );
+            ) / sqrt( charge->GetBinContent(kbin) ) );
     }
 
   TGraphErrors* residGraph = new TGraphErrors( xResid.size(), &xResid.front(),
       &yResid.front(), 0, &errResid.front() );
 
-  TH1F *logNormResid = new TH1F("logNormResid", "", 601/20., -300, 300);
+  TH1F *logNormResid = new TH1F("logNormResid", "", 11, -5, 5);
   for ( int val=0; val<yResid.size(); val++ )
     logNormResid->Fill( yResid[val] );
 
@@ -478,14 +478,15 @@ void readFitChargeHisto()
   c7->cd();
   residGraph->SetTitle("");
   residGraph->GetXaxis()->SetRangeUser(100, 3000);
-  residGraph->GetYaxis()->SetRangeUser(-120, 160);
+  residGraph->GetYaxis()->SetRangeUser(-7, 4.2);
   residGraph->SetLineColor(kBlue);
   residGraph->SetLineWidth(1);
   residGraph->SetMarkerSize(1.5);
   residGraph->SetMarkerStyle(20);
   residGraph->GetXaxis()->SetTitle("[FADC * 8.33 ns]");
-  residGraph->GetYaxis()->SetTitle("y_{fit} - y_{data} [au]");
+  residGraph->GetYaxis()->SetTitle("Residuals [au]");
   histoStyle(residGraph);
+  residGraph->GetYaxis()->SetTitleOffset(0.8);
   residGraph->Draw("APL");
 
   TString chindf;
@@ -493,19 +494,29 @@ void readFitChargeHisto()
   chindf.Form("%.2f", fitFcn->GetChisquare() / fitFcn->GetNDF() );
   valcharge.Form("%.2f", chargeVal);
 
-  leg = new TLegend(0.58,0.75,0.96,0.97);
+  leg = new TLegend(0.14,0.19,0.52,0.40);
   leg->AddEntry(residGraph,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valcharge+"}","f"); 
   leg->SetTextSize(0.065);
   leg->Draw();
 
-  line = new TLine(400, 0, 1800, 0);
+  line = new TLine(300, 0, 1950, 0);
   line->SetLineStyle(4);
   line->SetLineWidth(2);
   line->Draw();
 
-  line = new TLine(chargeVal, -120, chargeVal, 160);
+  line = new TLine(chargeVal, -7, chargeVal, 4.2);
   line->SetLineStyle(4);
   line->SetLineWidth(2);
+  line->Draw();
+
+  line = new TLine(300, 1, 1950, 1);
+  line->SetLineStyle(9);
+  line->SetLineWidth(1);
+  line->Draw();
+
+  line = new TLine(300, -1, 1950, -1);
+  line->SetLineStyle(9);
+  line->SetLineWidth(1);
   line->Draw();
 
   c7->Print("../plots/chargeFitResiduals863.pdf");
@@ -540,17 +551,17 @@ void readFitChargeHisto()
     {
       xResid.push_back( charge->GetBinCenter(kbin) );
       tmp = poly2->Eval( charge->GetBinCenter(kbin) ) - charge->GetBinContent(kbin); 
-      yResid.push_back( tmp );
+      yResid.push_back( tmp / sqrt( charge->GetBinContent(kbin) ) );
       errResid.push_back( sqrt( 
             pow(sqrt( charge->GetBinContent(kbin) ),2) 
             + pow(sqrt( sqrt(poly2->Eval( charge->GetBinCenter(kbin) ) ) ),2)
-            ) );
+            ) / sqrt( charge->GetBinContent(kbin) ) );
     }
 
   TGraphErrors* residGraphPoly2 = new TGraphErrors( xResid.size(), &xResid.front(),
       &yResid.front(), 0, &errResid.front() );
 
-  TH1F *poly2Resid = new TH1F("poly2Resid", "", 601/20., -300, 300);
+  TH1F *poly2Resid = new TH1F("poly2Resid", "", 11, -5, 5);
   for ( int val=0; val<yResid.size(); val++ )
     poly2Resid->Fill( yResid[val] );
 
@@ -579,14 +590,15 @@ void readFitChargeHisto()
 
   c9->cd();
   residGraphPoly2->SetTitle("");
-  residGraphPoly2->GetYaxis()->SetRangeUser(-120, 160);
+  residGraphPoly2->GetYaxis()->SetRangeUser(-7, 4.2);
   residGraphPoly2->SetLineColor(kBlue);
   residGraphPoly2->SetLineWidth(1);
   residGraphPoly2->SetMarkerSize(1.5);
   residGraphPoly2->SetMarkerStyle(20);
   residGraphPoly2->GetXaxis()->SetTitle("[FADC]");
-  residGraphPoly2->GetYaxis()->SetTitle("y_{fit} - y_{data} [au]");
+  residGraphPoly2->GetYaxis()->SetTitle("Residuals [au]");
   histoStyle(residGraphPoly2);
+  residGraphPoly2GetYaxis()->SetTitleOffset(0.8);
   residGraphPoly2->Draw("APL");
 
   chindf;
@@ -594,12 +606,12 @@ void readFitChargeHisto()
   chindf.Form("%.2f", poly2->GetChisquare() / poly2->GetNDF() );
   valcharge.Form("%.2f", chargeVal);
 
-  leg = new TLegend(0.58,0.75,0.96,0.97);
+  leg = new TLegend(0.58,0.19,0.96,0.40);
   leg->AddEntry(residGraph,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valcharge+"}","f"); 
   leg->SetTextSize(0.065);
   leg->Draw();
 
-  line = new TLine(rangXmin-50, 0, rangXmax+50, 0);
+  line = new TLine(rangXmin-50, 0, rangXmax+53, 0);
   line->SetLineStyle(4);
   line->SetLineWidth(2);
   line->Draw();
@@ -609,6 +621,15 @@ void readFitChargeHisto()
   line->SetLineWidth(2);
   line->Draw();
 
+  line = new TLine(rangXmin-50, 1, rangXmax+53, 1);
+  line->SetLineStyle(9);
+  line->SetLineWidth(1);
+  line->Draw();
+
+  line = new TLine(rangXmin-50, -1, rangXmax+53, -1);
+  line->SetLineStyle(9);
+  line->SetLineWidth(1);
+  line->Draw();
 
   c9->Print("../plots/chargeFitResidualsPoly2863.pdf");
 
@@ -896,7 +917,7 @@ void readFitChargeHisto()
   logNormResid->SetFillStyle(3001);
   logNormResid->GetXaxis()->SetTitle("y_{fit} - y_{data} [au]");
   logNormResid->GetYaxis()->SetTitle("Counts [au]");
-  logNormResid->GetYaxis()->SetRangeUser(0, 54);
+  logNormResid->GetYaxis()->SetRangeUser(0, 80);
   logNormResid->GetXaxis()->SetRangeUser(-100, 100);
   histoStyle(logNormResid);
   logNormResid->Draw();

@@ -371,17 +371,17 @@ void readFitPeakHisto()
     {
       xResid.push_back( peak->GetBinCenter(kbin) );
       tmp = fitFcn->Eval( peak->GetBinCenter(kbin) ) - peak->GetBinContent(kbin);
-      yResid.push_back( tmp ); /// sqrt( peak->GetBinContent(kbin) ) );
+      yResid.push_back( tmp / sqrt( peak->GetBinContent(kbin) ) );
       errResid.push_back( sqrt( 
             pow(sqrt( peak->GetBinContent(kbin) ),2) 
             + pow(sqrt( sqrt(fitFcn->Eval( peak->GetBinCenter(kbin) ) ) ),2)
-            ) );
+            ) / sqrt( peak->GetBinContent(kbin) ) );
     }
 
   TGraphErrors* residGraph = new TGraphErrors( xResid.size(), &xResid.front(),
       &yResid.front(), 0, &errResid.front() );
 
-  TH1F *logNormResid = new TH1F("logNormResid", "", 601/20., -300, 300);
+  TH1F *logNormResid = new TH1F("logNormResid", "", 11, -5, 5);
   for ( int val=0; val<yResid.size(); val++ )
     logNormResid->Fill( yResid[val] );
   
@@ -446,14 +446,15 @@ void readFitPeakHisto()
   c6->cd();
   residGraph->SetTitle("");
   residGraph->GetXaxis()->SetRangeUser(50, 500);
-  residGraph->GetYaxis()->SetRangeUser(-320, 200);
+  residGraph->GetYaxis()->SetRangeUser(-8, 4);
   residGraph->SetLineColor(kBlue);
   residGraph->SetLineWidth(1);
   residGraph->GetXaxis()->SetTitle("[FADC]");
-  residGraph->GetYaxis()->SetTitle("y_{fit} - y_{data} [au]");
+  residGraph->GetYaxis()->SetTitle("Residuals [au]");
   residGraph->SetMarkerStyle(20);
   residGraph->SetMarkerSize(1.5);
   histoStyle(residGraph);
+  residGraph->GetYaxis()->SetTitleOffset(0.8);
   residGraph->Draw("APL");
 
   TString chindf;
@@ -461,19 +462,29 @@ void readFitPeakHisto()
   chindf.Form("%.2f", fitFcn->GetChisquare() / fitFcn->GetNDF() );
   valpeak.Form("%.2f", peakVal);
 
-  leg = new TLegend(0.6,0.19,0.96,0.47);
+  leg = new TLegend(0.61,0.19,0.96,0.40);
   leg->AddEntry(residGraph,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valpeak+"}","f"); 
   leg->SetTextSize(0.065);
   leg->Draw();
 
-  line = new TLine(50, 0, 400, 0);
+  line = new TLine(50, 0, 350, 0);
   line->SetLineStyle(4);
   line->SetLineWidth(2);
   line->Draw();
 
-  line = new TLine(peakVal, -320, peakVal, 200);
+  line = new TLine(peakVal, -8, peakVal, 4);
   line->SetLineStyle(4);
   line->SetLineWidth(2);
+  line->Draw();
+
+  line = new TLine(50, 1, 350, 1);
+  line->SetLineStyle(9);
+  line->SetLineWidth(1);
+  line->Draw();
+
+  line = new TLine(50, -1, 350, -1);
+  line->SetLineStyle(9);
+  line->SetLineWidth(1);
   line->Draw();
 
   c6->Print("../plots/peakFitResiduals863.pdf");
@@ -507,17 +518,17 @@ void readFitPeakHisto()
     {
       xResid.push_back( peak->GetBinCenter(kbin) );
       tmp = poly2->Eval( peak->GetBinCenter(kbin) ) - peak->GetBinContent(kbin); 
-      yResid.push_back( tmp );
+      yResid.push_back( tmp / sqrt( peak->GetBinContent(kbin) ) );
       errResid.push_back( sqrt( 
             pow(sqrt( peak->GetBinContent(kbin) ),2) 
             + pow(sqrt( sqrt(poly2->Eval( peak->GetBinCenter(kbin) ) ) ),2)
-            ) );
+            ) / sqrt( peak->GetBinContent(kbin) ) );
     }
 
   TGraphErrors* residGraphPoly2 = new TGraphErrors( xResid.size(), &xResid.front(),
       &yResid.front(), 0, &errResid.front() );
 
-  TH1F *poly2Resid = new TH1F("poly2Resid", "", 601/20., -300, 300);
+  TH1F *poly2Resid = new TH1F("poly2Resid", "", 11, -5, 5);
   for ( int val=0; val<yResid.size(); val++ )
     poly2Resid->Fill( yResid[val] );
 
@@ -547,20 +558,21 @@ void readFitPeakHisto()
   c8->cd();
   residGraphPoly2->SetTitle("");
   residGraphPoly2->GetXaxis()->SetRangeUser(50, 500);
-  residGraphPoly2->GetYaxis()->SetRangeUser(-320, 200);
+  residGraphPoly2->GetYaxis()->SetRangeUser(-8, 4);
   residGraphPoly2->SetLineColor(kBlue);
   residGraphPoly2->SetLineWidth(1);
   residGraphPoly2->GetXaxis()->SetTitle("[FADC]");
-  residGraphPoly2->GetYaxis()->SetTitle("y_{fit} - y_{data} [au]");
+  residGraphPoly2->GetYaxis()->SetTitle("Residuals [au]");
   residGraphPoly2->SetMarkerSize(1.5);
   residGraphPoly2->SetMarkerStyle(20);
   histoStyle(residGraphPoly2);
+  residGraphPoly2->GetYaxis()->SetTitleOffset(0.8);
   residGraphPoly2->Draw("APL");
 
   chindf.Form("%.2f", poly2->GetChisquare() / poly2->GetNDF() );
   valpeak.Form("%.2f", peakVal);
 
-  leg = new TLegend(0.6,0.19,0.96,0.47);
+  leg = new TLegend(0.14,0.19,0.50,0.40);
   leg->AddEntry(residGraph,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valpeak+"}","f");
   leg->SetTextSize(0.065);
   leg->Draw();
@@ -570,9 +582,19 @@ void readFitPeakHisto()
   line->SetLineWidth(2);
   line->Draw();
 
-  line = new TLine(peakVal, -320, peakVal, 200);
+  line = new TLine(peakVal, -8, peakVal, 4);
   line->SetLineStyle(4);
   line->SetLineWidth(2);
+  line->Draw();
+
+  line = new TLine(rangXmin-10, 1, rangXmax+5, 1);
+  line->SetLineStyle(9);
+  line->SetLineWidth(1);
+  line->Draw();
+
+  line = new TLine(rangXmin-10, -1, rangXmax+5, -1);
+  line->SetLineStyle(9);
+  line->SetLineWidth(1);
   line->Draw();
 
   c8->Print("../plots/peakFitResidualsPoly2863.pdf");
@@ -869,7 +891,7 @@ void readFitPeakHisto()
   logNormResid->SetFillStyle(3001);
   logNormResid->GetXaxis()->SetTitle("y_{fit} - y_{data} [au]");
   logNormResid->GetYaxis()->SetTitle("Counts [au]");
-  logNormResid->GetYaxis()->SetRangeUser(0, 10.5);
+  logNormResid->GetYaxis()->SetRangeUser(0, 15.5);
   histoStyle(logNormResid);
   logNormResid->Draw();
 
