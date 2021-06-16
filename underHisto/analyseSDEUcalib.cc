@@ -267,7 +267,7 @@ int main (int argc, char *argv[]) {
 
             //exit(0);
             
-		  			break;
+		  			break; // Apply if the is running for a single station.
           }
         }
       }

@@ -157,7 +157,7 @@ void readFitChargeHisto()
 
   TH1F *chargeSmooth = getSmooth(*charge, xfadc);
   TH1F *chargeSmooDer = histDerivative(*chargeSmooth, xfadc);
-  chargeSmooDer->Smooth(500);
+  //chargeSmooDer->Smooth(500);
 
   TH1 *test = 0;
   TVirtualFFT::SetTransform(0);
@@ -321,39 +321,39 @@ void readFitChargeHisto()
   double binMax = 0;
   double binMin = 0;
   for ( int kk=275; kk>125; kk-- ) // from 2496 FADC backward
-    if ( chargeSmooDer->GetBinContent( kk ) < 0 )
+    if ( chargeFFTDer->GetBinContent( kk ) < 0 ) //chargeSmooDer->GetBinContent( kk ) < 0 )
     {
-      if ( binMax < fabs(chargeSmooDer->GetBinContent( kk ) ) )
+      if ( binMax < fabs( chargeFFTDer->GetBinContent( kk ) ) ) //chargeSmooDer->GetBinContent( kk ) ) )
       {
-        binMax = fabs(chargeSmooDer->GetBinContent(kk));
-        rangXmax = chargeSmooDer->GetBinCenter(kk);
+        binMax = fabs(chargeFFTDer->GetBinContent(kk)); // chargeSmooDer->GetBinContent(kk));
+        rangXmax = chargeFFTDer->GetBinCenter(kk); //chargeSmooDer->GetBinCenter(kk);
       }
     }
     else
     {
-      binMax = chargeSmooDer->GetBinCenter(kk);
+      binMax = chargeFFTDer->GetBinCenter(kk); //chargeSmooDer->GetBinCenter(kk);
       break;
     }
 
-  rangXmax *= 1.2;
-
+  //rangXmax *= 1.2;
 
   binMin = 0;
   int tmpneg = 0;
   for ( int kk=25; kk<binMax; kk++ ) // 200 FADC after 0 FADC
   {
-    if ( chargeSmooDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
+    if ( chargeFFTDer->GetBinContent( kk ) > 0 && tmpneg == 1 ) //chargeSmooDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
       break;
-    if ( chargeSmooDer->GetBinContent( kk ) < 0 )
-      if ( binMin < fabs( chargeSmooDer->GetBinContent( kk ) ) )
+    if ( chargeFFTDer->GetBinContent( kk ) < 0 ) //chargeSmooDer->GetBinContent( kk ) < 0 )
+      if ( binMin < fabs( chargeFFTDer->GetBinContent( kk ) ) ) //chargeSmooDer->GetBinContent( kk ) ) )
       {
-        rangXmin = chargeSmooDer->GetBinCenter(kk); // 20 FADC fordward EM-Peak
-        binMin = fabs( chargeSmooDer->GetBinContent( kk ) );
+        rangXmin = chargeFFTDer->GetBinCenter(kk); //chargeSmooDer->GetBinCenter(kk); // 20 FADC fordward EM-Peak
+        binMin = fabs( chargeFFTDer->GetBinContent( kk ) ); //chargeSmooDer->GetBinContent( kk ) );
         tmpneg = 1;
       }
   }
 
   //rangXmin *= 2.5;
+  rangXmin *= 0.8;
   
 	vector < double > xbins; // X bins for fit-function
 	vector < double > ycnts; // Y counts for fit-function
@@ -598,7 +598,7 @@ void readFitChargeHisto()
   residGraphPoly2->GetXaxis()->SetTitle("[FADC]");
   residGraphPoly2->GetYaxis()->SetTitle("Residuals [au]");
   histoStyle(residGraphPoly2);
-  residGraphPoly2GetYaxis()->SetTitleOffset(0.8);
+  residGraphPoly2->GetYaxis()->SetTitleOffset(0.8);
   residGraphPoly2->Draw("APL");
 
   chindf;
@@ -915,10 +915,10 @@ void readFitChargeHisto()
   logNormResid->SetLineWidth(1);
   logNormResid->SetFillColor(kBlack);
   logNormResid->SetFillStyle(3001);
-  logNormResid->GetXaxis()->SetTitle("y_{fit} - y_{data} [au]");
+  logNormResid->GetXaxis()->SetTitle("Residuals [au]");
   logNormResid->GetYaxis()->SetTitle("Counts [au]");
-  logNormResid->GetYaxis()->SetRangeUser(0, 80);
-  logNormResid->GetXaxis()->SetRangeUser(-100, 100);
+  logNormResid->GetYaxis()->SetRangeUser(0, 82);
+  logNormResid->GetXaxis()->SetRangeUser(-4, 4);
   histoStyle(logNormResid);
   logNormResid->Draw();
 

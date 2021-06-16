@@ -889,7 +889,7 @@ void readFitPeakHisto()
   logNormResid->SetLineWidth(1);
   logNormResid->SetFillColor(kBlack);
   logNormResid->SetFillStyle(3001);
-  logNormResid->GetXaxis()->SetTitle("y_{fit} - y_{data} [au]");
+  logNormResid->GetXaxis()->SetTitle("Residuals [au]");
   logNormResid->GetYaxis()->SetTitle("Counts [au]");
   logNormResid->GetYaxis()->SetRangeUser(0, 15.5);
   histoStyle(logNormResid);
