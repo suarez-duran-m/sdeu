@@ -34,7 +34,7 @@ void histoStyle(TGraphErrors *hist)
 
 void fillingChisPk( TString bname, TString st, int pmt, TH1F *hist, TH1F *hprob)
 {
-  TString monthUub[] = {"dec", "jan", "feb", "mar", "abr", "may"};
+  TString monthUub[] = {"aug", "sep", "oct", "nov"};
   TString pmtId;
   pmtId.Form("%d", pmt);
 
@@ -49,7 +49,7 @@ void fillingChisPk( TString bname, TString st, int pmt, TH1F *hist, TH1F *hprob)
   double tmpchindf = 0.;
   int tmpcnt = 0;
 
-  for ( int month=0; month<6; month++ )
+  for ( int month=0; month<4; month++ )
   {
     f = TFile::Open(fname+monthUub[month]+".root");
     peakInfo = (TTree*)f->Get("PeakData");
@@ -67,7 +67,7 @@ void fillingChisPk( TString bname, TString st, int pmt, TH1F *hist, TH1F *hprob)
       peakInfo->GetEntry(etry);
       tmpchindf = tmpchi2 / tmpndf;
 
-      if ( tmpchindf < 6 )
+      if ( tmpchindf < 12 )
       {
         hist->Fill( tmpchindf );
         hprob->Fill( tmpprob );
@@ -75,7 +75,7 @@ void fillingChisPk( TString bname, TString st, int pmt, TH1F *hist, TH1F *hprob)
       else
       {
         tmpcnt++;
-        hist->Fill(6);
+        hist->Fill(12);
       }
     }
   }
@@ -86,7 +86,7 @@ void fillingChisPk( TString bname, TString st, int pmt, TH1F *hist, TH1F *hprob)
 
 void fillingChisCh( TString bname, TString st, int pmt, TH1F *hist, TH1F *hprob)
 {
-  TString monthUub[] = {"dec", "jan", "feb", "mar", "abr", "may"};
+  TString monthUub[] = {"aug", "sep", "oct", "nov"};
   TString pmtId;
   pmtId.Form("%d", pmt);
 
@@ -100,7 +100,7 @@ void fillingChisCh( TString bname, TString st, int pmt, TH1F *hist, TH1F *hprob)
   double tmpprob = 0.;
   double tmpchindf = 0.;
 
-  for ( int month=0; month<6; month++ )
+  for ( int month=0; month<3; month++ )
   {
     f = TFile::Open(fname+monthUub[month]+".root");
     chargeInfo = (TTree*)f->Get("ChargeData");
@@ -130,42 +130,6 @@ void fillingChisCh( TString bname, TString st, int pmt, TH1F *hist, TH1F *hprob)
   f->Delete();
 }
 
-
-Double_t doMean(TH1F &ave)
-{
-  Double_t mean = 0.;
-  int tmpcnt = 0;
-  for ( int k=1; k<100; k++ )
-  {
-    mean += ave.GetBinCenter(k)*ave.GetBinContent(k);
-    tmpcnt += ave.GetBinContent(k);
-  }
-  return mean/tmpcnt;
-}
-
-Double_t doMean(vector< double > &ave)
-{
-  Double_t mean = 0.;
-  int tmpcnt = 0;
-  for ( int k=0; k<ave.size(); k++ )
-    mean += ave[k];
-  
-  return mean/ave.size();
-}
-
-Double_t doRms(TH1F &ave, double mean)
-{
-  Double_t rms = 0.;
-  int tmpcnt = 0;
-  for ( int k=0; k<100; k++ )
-  {
-    rms += ave.GetBinContent(k)*( ave.GetBinCenter(k) - mean )*( ave.GetBinCenter(k) - mean );
-    tmpcnt += ave.GetBinContent(k);
-  }
-  return sqrt(rms/tmpcnt);
-}
-
-
 // =================================
 // *** *** *** MAIN CODE *** *** ***
 
@@ -173,7 +137,7 @@ void plottingFitsQltyPkCh(int st)
 {
   TString statId;
   statId.Form("St%d", st);
-  TString basename = "uubAoPPMT"; //1St863Mthabr.root";
+  TString basename = "ubAoPPMT";
 
   TPaveStats *ptstats;
 
@@ -182,9 +146,9 @@ void plottingFitsQltyPkCh(int st)
 
   // ==============================
   // *** *** Doing for Peak *** ***
-  TH1F *hChiPkpmt1 = new TH1F("hChiPkpmt1", "", 100, 0, 10);
-  TH1F *hChiPkpmt2 = new TH1F("hChiPkpmt2", "", 100, 0, 10);
-  TH1F *hChiPkpmt3 = new TH1F("hChiPkpmt3", "", 100, 0, 10);
+  TH1F *hChiPkpmt1 = new TH1F("hChiPkpmt1", "", 200, 0, 20);
+  TH1F *hChiPkpmt2 = new TH1F("hChiPkpmt2", "", 200, 0, 20);
+  TH1F *hChiPkpmt3 = new TH1F("hChiPkpmt3", "", 200, 0, 20);
 
   TH1F *hProbPkpmt1 = new TH1F("hProbPkpmt1", "", 1e2, 0, 1);
   TH1F *hProbPkpmt2 = new TH1F("hProbPkpmt2", "", 1e2, 0, 1);
@@ -204,43 +168,36 @@ void plottingFitsQltyPkCh(int st)
 
   hChiPkpmt1->GetXaxis()->SetTitle("#chi^{2} / ndf [au]");
   hChiPkpmt1->GetYaxis()->SetTitle("Counts [au]");
-  hChiPkpmt1->GetYaxis()->SetRangeUser(0, 320);
-  hChiPkpmt1->GetXaxis()->SetRangeUser(0, 7);
+  hChiPkpmt1->GetYaxis()->SetRangeUser(0, 270);
+  hChiPkpmt1->GetXaxis()->SetRangeUser(0, 10);
   hChiPkpmt1->SetLineColor(kBlue);
   hChiPkpmt1->SetLineWidth(2);
-  //hChiPkpmt1->SetFillColor(kBlue);
-  //hChiPkpmt1->SetFillStyle(3001);
   histoStyle(hChiPkpmt1);
   hChiPkpmt1->Draw();
 
-  ptstats = new TPaveStats(0.53, 0.77, 0.76, 0.97,"brNDC");
+  ptstats = new TPaveStats(0.73, 0.77, 0.96, 0.97,"brNDC");
   ptstats->SetTextColor(kBlue);
   hChiPkpmt1->SetName("Station "+statId+" PMT1");
   hChiPkpmt1->GetListOfFunctions()->Add(ptstats);
 
   hChiPkpmt2->SetLineColor(kGreen+2);
   hChiPkpmt2->SetLineWidth(2);
-  //hChiPkpmt2->SetFillColor(kGreen+2);
-  //hChiPkpmt2->SetFillStyle(3001);
   hChiPkpmt2->Draw("sames");
-
-  ptstats = new TPaveStats(0.53, 0.55, 0.76, 0.75,"brNDC");
+  ptstats = new TPaveStats(0.73, 0.55, 0.96, 0.75,"brNDC");
   ptstats->SetTextColor(kGreen+2);
   hChiPkpmt2->SetName("Station "+statId+" PMT2");
   hChiPkpmt2->GetListOfFunctions()->Add(ptstats);
 
   hChiPkpmt3->SetLineColor(kRed+1);
   hChiPkpmt3->SetLineWidth(2);
-  //hChiPkpmt3->SetFillColor(kRed+1);
-  //hChiPkpmt3->SetFillStyle(3001);
   hChiPkpmt3->Draw("sames");
 
-  ptstats = new TPaveStats(0.53, 0.33, 0.76, 0.53,"brNDC");
+  ptstats = new TPaveStats(0.73, 0.33, 0.96, 0.53,"brNDC");
   ptstats->SetTextColor(kRed+1);
   hChiPkpmt3->SetName("Station "+statId+" PMT3");
   hChiPkpmt3->GetListOfFunctions()->Add(ptstats);
 
-  c1->Print("../plots/uubChisDistPmtsPk"+statId+".pdf");
+  c1->Print("../../plots/ubChisDistPmtsPk"+statId+".pdf");
 
 
   // =========================
@@ -254,8 +211,6 @@ void plottingFitsQltyPkCh(int st)
   c2->SetLogy();
   hProbPkpmt1->GetXaxis()->SetTitle("Prob. [au]");
   hProbPkpmt1->GetYaxis()->SetTitle("Counts [au]");
-  //hProbPkpmt1->GetYaxis()->SetRangeUser(0, 0.2);
-  //hProbPkpmt1->GetXaxis()->SetRangeUser(0, 0.2);
   hProbPkpmt1->SetLineColor(kBlue);
   hProbPkpmt1->SetFillColor(kBlue);
   hProbPkpmt1->SetFillStyle(3001);
@@ -287,7 +242,7 @@ void plottingFitsQltyPkCh(int st)
   hProbPkpmt3->SetName("Station "+statId+" PMT3");
   hProbPkpmt3->GetListOfFunctions()->Add(ptstats);
 
-  c2->Print("../plots/uubProbDistPmtsPk"+statId+".pdf");
+  c2->Print("../../plots/ubProbDistPmtsPk"+statId+".pdf");
 
 
   // ================================
@@ -316,43 +271,37 @@ void plottingFitsQltyPkCh(int st)
 
   hChiChpmt1->GetXaxis()->SetTitle("#chi^{2} / ndf [au]");
   hChiChpmt1->GetYaxis()->SetTitle("Counts [au]");
-  hChiChpmt1->GetYaxis()->SetRangeUser(0, 700);
-  hChiChpmt1->GetXaxis()->SetRangeUser(0, 7);
+  hChiChpmt1->GetYaxis()->SetRangeUser(0, 540);
+  hChiChpmt1->GetXaxis()->SetRangeUser(0, 2.5);
   hChiChpmt1->SetLineColor(kBlue);
   hChiChpmt1->SetLineWidth(2);
-  //hChiChpmt1->SetFillColor(kBlue);
-  //hChiChpmt1->SetFillStyle(3001);
   histoStyle(hChiChpmt1);
   hChiChpmt1->Draw();
 
-  ptstats = new TPaveStats(0.53, 0.77, 0.76, 0.97,"brNDC");
+  ptstats = new TPaveStats(0.73, 0.77, 0.96, 0.97,"brNDC");
   ptstats->SetTextColor(kBlue);
   hChiChpmt1->SetName("Station "+statId+" PMT1");
   hChiChpmt1->GetListOfFunctions()->Add(ptstats);
 
   hChiChpmt2->SetLineColor(kGreen+2);
   hChiChpmt2->SetLineWidth(2);
-  //hChiChpmt2->SetFillColor(kGreen+2);
-  //hChiChpmt2->SetFillStyle(3001);
   hChiChpmt2->Draw("sames");
 
-  ptstats = new TPaveStats(0.53, 0.55, 0.76, 0.75,"brNDC");
+  ptstats = new TPaveStats(0.73, 0.55, 0.96, 0.75,"brNDC");
   ptstats->SetTextColor(kGreen+2);
   hChiChpmt2->SetName("Station "+statId+" PMT2");
   hChiChpmt2->GetListOfFunctions()->Add(ptstats);
 
   hChiChpmt3->SetLineColor(kRed+1);
   hChiChpmt3->SetLineWidth(2);
-  //hChiChpmt3->SetFillColor(kRed+1);
-  //hChiChpmt3->SetFillStyle(3001);
   hChiChpmt3->Draw("sames");
 
-  ptstats = new TPaveStats(0.53, 0.33, 0.76, 0.53,"brNDC");
+  ptstats = new TPaveStats(0.73, 0.33, 0.96, 0.53,"brNDC");
   ptstats->SetTextColor(kRed+1);
   hChiChpmt3->SetName("Station "+statId+" PMT3");
   hChiChpmt3->GetListOfFunctions()->Add(ptstats);
 
-  c3->Print("../plots/uubChisDistPmtsCh"+statId+".pdf");
+  c3->Print("../../plots/ubChisDistPmtsCh"+statId+".pdf");
 
   // =========================
   // *** Plotting for Prob ***
@@ -365,7 +314,6 @@ void plottingFitsQltyPkCh(int st)
   hProbChpmt1->GetXaxis()->SetTitle("Prob. [au]");
   hProbChpmt1->GetYaxis()->SetTitle("Counts [au]");
   hProbChpmt1->GetYaxis()->SetRangeUser(0, 110);
-  //hProbChpmt1->GetXaxis()->SetRangeUser(0, 0.2);
   hProbChpmt1->SetLineColor(kBlue);
   hProbChpmt1->SetFillColor(kBlue);
   hProbChpmt1->SetFillStyle(3001);
@@ -397,5 +345,5 @@ void plottingFitsQltyPkCh(int st)
   hProbChpmt3->SetName("Station "+statId+" PMT3");
   hProbChpmt3->GetListOfFunctions()->Add(ptstats);
 
-  c4->Print("../plots/uubProbDistPmtsCh"+statId+".pdf");
+  c4->Print("../../plots/ubProbDistPmtsCh"+statId+".pdf");
 }

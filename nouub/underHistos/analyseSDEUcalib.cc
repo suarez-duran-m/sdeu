@@ -184,6 +184,9 @@ int main (int argc, char *argv[]) {
     if ( event.Id == previusEvent )
       continue;
 
+    if ( event.utctime() > 1603797703 && event.utctime() < 1605395135 )
+      continue;
+
     previusEvent = event.Id;
 
     for (unsigned int i = 0 ; i < event.Stations.size(); ++i)
@@ -198,7 +201,7 @@ int main (int argc, char *argv[]) {
       
       if ( event.Stations[i].Error )
         continue;
-      
+ 
       cout << "# Event " << event.Id << " Station " << event.Stations[i].Id
         << " " << nrEventsRead-1
         << endl;
@@ -218,6 +221,8 @@ int main (int argc, char *argv[]) {
         blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean(); // Extracting calib-baseline
         tmpName.Form("%d%d", event.UTCTime, nrEventsRead-1);
 
+        //if ( event.Id == 59551609 )
+        //{
         recePk = event.Stations[i].HPeak(pmtId-1); // Receiving Peak histogram
         fitPk.getCrr(*recePk, blCorrHbase, tmpName+"Hbpk"); // Correcting for calib-baseline
         tmp = fitPk.getPkCorr(); // Receiving corrected histogram
@@ -228,15 +233,18 @@ int main (int argc, char *argv[]) {
         pkNdf = fitPk.ndfPeak;
         pkProb = fitPk.probPeak;
         peak = fitPk.vemPosPk;
-        /*
-        if ( pkChi2/pkNdf > 4 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
+        
+        if ( pkChi2/pkNdf > 4 && pkChi2/pkNdf < 5 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
         {
           cout << "MSD " << " " << event.Id << " " << pkChi2 << " " << pkNdf << " " << pkChi2/pkNdf << endl;
           for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
             cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
-          exit(0);
+          //exit(0);
         }
-        */
+        
+        //exit(0);
+        //}
+      
         receCh = event.Stations[i].HCharge(pmtId-1);
         fitCh.getChCrr(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6]/20., tmpName+"Hbch");
         tmp = fitCh.getChCrr();           
@@ -247,21 +255,15 @@ int main (int argc, char *argv[]) {
         chNdf = fitCh.ndfCharge;
         chProb = fitCh.probCharge;
         charge =  fitCh.vemPosCh;
-        for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
-          cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
-        exit(0);
-
-
         /*
-        if ( chChi2/chNdf > 4 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
+        if ( chChi2/chNdf > 3 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
         {
-          cout << "MSD " << " " << event.Id << " " << chChi2 << " " << chNdf << " " << chChi2/pkNdf << endl;
+          cout << "MSD " << event.Id << " " << chChi2 << " " << chNdf << " " << chChi2/chNdf << endl;
           for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
             cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
           exit(0);
         }
         */
-        
         evtIdPk = event.Id;
         evtIdCh = event.Id;
         evtTimePk = event.utctime();
@@ -271,7 +273,8 @@ int main (int argc, char *argv[]) {
         treeCharge->Fill();
 
         //exit(0);
-        
+        //}
+ 
 		  	break; // Apply if the is running for a single station.
       } 
     }

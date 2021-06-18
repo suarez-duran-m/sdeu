@@ -118,8 +118,11 @@ void readFitChargeHisto()
   dir.ReplaceAll("readFitChargeHisto.C","");
   dir.ReplaceAll("/./","/");
   ifstream in;
+  in.open(Form("%ssample60042103.dat",dir.Data())); 
+  // For pmt1: 60042103
+  // For pmt2: 59551609
   //in.open(Form("%skkcharge.dat",dir.Data()));
-  in.open(Form("%schargeHist.dat",dir.Data()));
+  //in.open(Form("%schargeHist.dat",dir.Data()));
 
   const int nbins = 600;
 
@@ -137,7 +140,7 @@ void readFitChargeHisto()
   {
     in >> tmpXb >> tmpXfadc >> tmpYcnt;
     xbin[bincnt] = tmpXb;
-    xfadc[bincnt] = tmpXfadc+4; // Correct for binCenter
+    xfadc[bincnt] = tmpXfadc+.5; // Correct for binCenter
     ycnt[bincnt] = tmpYcnt;
     bincnt++;
   }
@@ -157,7 +160,7 @@ void readFitChargeHisto()
 
   TH1F *chargeSmooth = getSmooth(*charge, xfadc);
   TH1F *chargeSmooDer = histDerivative(*chargeSmooth, xfadc);
-  //chargeSmooDer->Smooth(700);
+  chargeSmooDer->Smooth(700);
 
   TH1 *test = 0;
   TVirtualFFT::SetTransform(0);
@@ -170,7 +173,7 @@ void readFitChargeHisto()
   TVirtualFFT *fft = TVirtualFFT::GetCurrentTransform();
   fft->GetPointsComplex(re_full,im_full);
 
-  int first = 0.03*n;
+  int first = 0.05*n;
   for ( int k=first; k<test->GetXaxis()->GetNbins(); k++ )
   {
     re_full[k] = 0;
@@ -186,9 +189,9 @@ void readFitChargeHisto()
 
   double xc[601];
   for (int j = 0; j < 402; j++)
-    xc[j] = j+18;
+    xc[j] = j+0.;
   for (int j = 0; j < 201; j++)
-    xc[400 + j] = 400 + 3.*j+18;
+    xc[400 + j] = 400 + 3.*j+0.5;
 
   TH1F *chargeFFT = new TH1F("chargeFFT","", 600, xc);
   for (int j = 0; j < 402; j++)
@@ -209,7 +212,7 @@ void readFitChargeHisto()
   charge->GetXaxis()->SetTitle("[FADC]");
   charge->GetYaxis()->SetTitle("Counts [au]");
   charge->GetXaxis()->SetRangeUser(0, 1000);
-  charge->GetYaxis()->SetRangeUser(0, 1500);
+  charge->GetYaxis()->SetRangeUser(0, 1600);
   histoStyle(charge);
   charge->Draw();
   
@@ -312,7 +315,7 @@ void readFitChargeHisto()
   // *** *** *** FITTING *** *** *** 
 
   TCanvas *c5 = canvasStyle("c5");
-  TCanvas *c6 = canvasStyle("c6");
+  //TCanvas *c6 = canvasStyle("c6");
   TCanvas *c7 = canvasStyle("c7");
 
 	int rangXmin = 0; // Min for fitting
@@ -322,18 +325,18 @@ void readFitChargeHisto()
   double binMax = 0;
   double binMin = 0;
 
-  for ( int kk=200; kk>100; kk-- ) // from 218.5 FADC backward
-    if ( chargeFFTDer->GetBinContent( kk ) < 0 ) //chargeSmooDer->GetBinContent( kk ) < 0 )
+  for ( int kk=200; kk>63; kk-- ) // from 217 FADC backward
+    if ( chargeSmooDer->GetBinContent( kk ) < 0 ) //chargeFFTDer->GetBinContent( kk ) < 0 ) //chargeSmooDer->GetBinContent( kk ) < 0 )
     {
-      if ( binMax < fabs( chargeFFTDer->GetBinContent( kk ) ) ) //chargeSmooDer->GetBinContent( kk ) ) )
+      if ( binMax < fabs( chargeSmooDer->GetBinContent( kk ) ) ) //chargeFFTDer->GetBinContent( kk ) ) ) //chargeSmooDer->GetBinContent( kk ) ) )
       {
-        binMax = fabs( chargeFFTDer->GetBinContent(kk)); //chargeSmooDer->GetBinContent(kk));
-        rangXmax = chargeFFTDer->GetBinCenter(kk); //chargeSmooDer->GetBinCenter(kk);
+        binMax = fabs( chargeSmooDer->GetBinContent(kk)); //chargeFFTDer->GetBinContent(kk)); //chargeSmooDer->GetBinContent(kk));
+        rangXmax = chargeSmooDer->GetBinCenter(kk); //chargeFFTDer->GetBinCenter(kk); //chargeSmooDer->GetBinCenter(kk);
       }
     }
     else
     {
-      binMax = chargeFFTDer->GetBinCenter(kk); //chargeSmooDer->GetBinCenter(kk);
+      binMax = chargeSmooDer->GetBinCenter(kk); //chargeFFTDer->GetBinCenter(kk); //chargeSmooDer->GetBinCenter(kk);
       break;
     }
 
@@ -341,13 +344,13 @@ void readFitChargeHisto()
   int tmpneg = 0;
   for ( int kk=25; kk<binMax; kk++ ) // 200 FADC after 0 FADC
   {
-    if ( chargeFFTDer->GetBinContent( kk ) > 0 && tmpneg == 1 ) //chargeSmooDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
+    if ( chargeSmooDer->GetBinContent( kk ) > 0 && tmpneg == 1 ) //chargeFFTDer->GetBinContent( kk ) > 0 && tmpneg == 1 ) //chargeSmooDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
       break;
-    if ( chargeFFTDer->GetBinContent( kk ) < 0 ) //chargeSmooDer->GetBinContent( kk ) < 0 )
-      if ( binMin < fabs( chargeFFTDer->GetBinContent( kk ) ) ) //chargeSmooDer->GetBinContent( kk ) ) )
+    if ( chargeSmooDer->GetBinContent( kk ) < 0 ) //chargeFFTDer->GetBinContent( kk ) < 0 ) //chargeSmooDer->GetBinContent( kk ) < 0 )
+      if ( binMin < fabs( chargeSmooDer->GetBinContent( kk ) ) ) //chargeFFTDer->GetBinContent( kk ) ) ) //chargeSmooDer->GetBinContent( kk ) ) )
       {
-        rangXmin = chargeFFTDer->GetBinCenter(kk);  //chargeSmooDer->GetBinCenter(kk); // 20 FADC fordward EM-Peak
-        binMin = fabs( chargeFFTDer->GetBinContent( kk ) ); //chargeSmooDer->GetBinContent( kk ) );
+        rangXmin = chargeSmooDer->GetBinCenter(kk); //chargeFFTDer->GetBinCenter(kk);  //chargeSmooDer->GetBinCenter(kk); // 20 FADC fordward EM-Peak
+        binMin = fabs( chargeSmooDer->GetBinContent( kk ) ); //chargeFFTDer->GetBinContent( kk ) ); //chargeSmooDer->GetBinContent( kk ) );
         tmpneg = 1;
       }
   }
@@ -363,14 +366,18 @@ void readFitChargeHisto()
 		xbins.push_back( charge->GetBinCenter(b+1) );
 	}
 
+  rangXmin *= 1.;
+  rangXmax *= .9;
+  binMax = 115.5;
+
+  cerr << rangXmin << " " << rangXmax << " " << binMax << endl;
+
 	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
 			&ycnts.front(), 0, &yerrs.front() );
 
   TF1 *fitFcn = new TF1("fitFcn", fitFunctionCh, rangXmin, rangXmax, 5);
   fitFcn->SetParameters(11.61, binMax, 1.9, 5.01, -69.15);
   chFit->Fit("fitFcn","QR");
-
-  cerr << rangXmin << " " << rangXmax << " " << binMax << endl;
 
   TF1 *expon = new TF1("expon", "exp( [0] - [1]/x )", rangXmin, rangXmax);
   TF1 *lognorm = new TF1("lognorm", "(exp([0])/x) * exp( -0.5*pow( (( log([1]) - log(x) )*[2]),2 ) )", rangXmin, rangXmax);
@@ -429,8 +436,8 @@ void readFitChargeHisto()
   ptstats = new TPaveStats(0.63, 0.67, 0.96, 0.97,"brNDC");
   chFit->GetListOfFunctions()->Add(ptstats);
   chFit->SetTitle("");
-  chFit->GetXaxis()->SetRangeUser(0, 1000);
-  chFit->GetYaxis()->SetRangeUser(0, 1500);
+  chFit->GetXaxis()->SetRangeUser(0, 800);
+  chFit->GetYaxis()->SetRangeUser(0, 1600);
   chFit->SetLineColor(kBlue);
   chFit->SetLineWidth(1);
   chFit->GetXaxis()->SetTitle("[FADC]");
@@ -473,7 +480,7 @@ void readFitChargeHisto()
   c7->cd();
   residGraph->SetTitle("");
   residGraph->GetXaxis()->SetRangeUser(rangXmin-5, rangXmax+5);
-  residGraph->GetYaxis()->SetRangeUser(-6, 3.5);
+  residGraph->GetYaxis()->SetRangeUser(-5.5, 4);
   residGraph->SetLineColor(kBlue);
   residGraph->SetLineWidth(1);
   residGraph->SetMarkerSize(1.5);
@@ -499,7 +506,7 @@ void readFitChargeHisto()
   line->SetLineWidth(2);
   line->Draw();
 
-  line = new TLine(chargeVal, -6, chargeVal, 3.5);
+  line = new TLine(chargeVal, -5.5, chargeVal, 4);
   line->SetLineStyle(4);
   line->SetLineWidth(2);
   line->Draw();
@@ -567,8 +574,8 @@ void readFitChargeHisto()
   ptstats = new TPaveStats(0.63, 0.67, 0.96, 0.97,"brNDC");
   poly2Fit->GetListOfFunctions()->Add(ptstats);
   poly2Fit->SetTitle("");
-  poly2Fit->GetXaxis()->SetRangeUser(0, 1000);
-  poly2Fit->GetYaxis()->SetRangeUser(0, 1500);
+  poly2Fit->GetXaxis()->SetRangeUser(0, 800);
+  poly2Fit->GetYaxis()->SetRangeUser(0, 1600);
   poly2Fit->SetLineColor(kBlue);
   poly2Fit->SetLineWidth(1);
   poly2Fit->GetXaxis()->SetTitle("[FADC]");
@@ -585,7 +592,7 @@ void readFitChargeHisto()
 
   c9->cd();
   residGraphPoly2->SetTitle("");
-  residGraphPoly2->GetYaxis()->SetRangeUser(-6, 3.5);
+  residGraphPoly2->GetYaxis()->SetRangeUser(-5.5, 4.);
   residGraphPoly2->GetXaxis()->SetRangeUser(rangXmin-5, rangXmax+5);
   residGraphPoly2->SetLineColor(kBlue);
   residGraphPoly2->SetLineWidth(1);
@@ -600,7 +607,7 @@ void readFitChargeHisto()
   chindf.Form("%.2f", poly2->GetChisquare() / poly2->GetNDF() );
   valcharge.Form("%.2f", chargeVal);
 
-  leg = new TLegend(0.58,0.19,0.96,0.40);
+  leg = new TLegend(0.58,0.16,0.96,0.37);
   leg->AddEntry(residGraph,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valcharge+"}","f"); 
   leg->SetTextSize(0.065);
   leg->Draw();
@@ -610,7 +617,7 @@ void readFitChargeHisto()
   line->SetLineWidth(2);
   line->Draw();
 
-  line = new TLine(chargeVal, -6, chargeVal, 3.5);
+  line = new TLine(chargeVal, -5.5, chargeVal, 4.);
   line->SetLineStyle(4);
   line->SetLineWidth(2);
   line->Draw();

@@ -63,6 +63,7 @@ TH1F *getSmooth(TH1F &hist, double xb[])
     
     hstSmooth->SetBinContent(b+1, yi);
   }
+
   return hstSmooth;
 }
 
@@ -80,7 +81,6 @@ TH1F *histDerivative(TH1F &hist, double xb[]) // Central differences
     h = ( hist.GetBinCenter( kk+1 ) - hist.GetBinCenter( kk ) );
     der = ( hist.GetBinContent( kk+1 ) -  hist.GetBinContent( kk-1 ) )/ (2.*h);
     derihist->SetBinContent( kk, der );
-
   }
   return derihist;
 }
@@ -120,7 +120,10 @@ void readFitPeakHisto()
   dir.ReplaceAll("readFitPeakHisto.C","");
   dir.ReplaceAll("/./","/");
   ifstream in;
-  //in.open(Form("%skkpeak.dat",dir.Data()));
+  //in.open(Form("%ssample59437248.dat",dir.Data())); 
+  //in.open(Form("%skkpeak.dat",dir.Data())); // For PMT3: 59624212
+  // For PMT2: 59437248 59467329 59460513 59460513 59437248
+  // For PMT1: 59849488 59451316 59438664 59479413
   in.open(Form("%speakHist.dat",dir.Data()));
   
   srand (time(NULL)); 
@@ -140,7 +143,7 @@ void readFitPeakHisto()
   {
     in >> tmpXb >> tmpXfadc >> tmpYcnt;
     xbin[bincnt] = tmpXb;
-    xfadc[bincnt] = tmpXfadc+2; // Correct for binCenter
+    xfadc[bincnt] = tmpXfadc+0.5; // Correct for binCenter
     ycnt[bincnt] = tmpYcnt;
     bincnt++;
   }
@@ -156,7 +159,6 @@ void readFitPeakHisto()
     peak->SetBinContent(kk, ycnt[kk]);
 
   TH1F *peakDer = histDerivative(*peak, xfadc);
-
   TH1F *peakSmooth = getSmooth(*peak, xfadc);
   TH1F *peakSmooDer = histDerivative(*peakSmooth, xfadc);
   peakSmooDer->Smooth(700);
@@ -295,7 +297,7 @@ void readFitPeakHisto()
   double binMin = 0.;
   double binMax = 0.;
 
-  for ( int kk=75; kk>27; kk-- ) // from 300 FADC backward
+  for ( int kk=75; kk>27; kk-- ) // from 75 FADC backward
     if ( peakSmooDer->GetBinContent(kk) < 0 )
     {
       if ( binMax < fabs(peakSmooDer->GetBinContent( kk ) ) )
@@ -312,7 +314,7 @@ void readFitPeakHisto()
 
   binMin = 0;
   int tmpneg = 0;
-  for ( int kk=7; kk<binMax; kk++ ) // 20 FADC after 0 FADC
+  for ( int kk=7; kk<binMax; kk++ ) // 7 FADC after 0 FADC
   {
     if ( peakSmooDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
       break;
@@ -324,8 +326,8 @@ void readFitPeakHisto()
         tmpneg = 1;
       }
   } 
-  rangXmax *= 1.2;
-  rangXmin *= 0.9;
+  rangXmin *= 1.4; //0.9;
+  rangXmax *= 1.5; //1.2;
 
 	vector < double > xbins; // X bins for fit-function
 	vector < double > ycnts; // Y counts for fit-function
@@ -333,16 +335,19 @@ void readFitPeakHisto()
 
 	for( int b=0; b<nXbins; b++ ) 
   {
-		ycnts.push_back( peak->GetBinContent( b+1 ) );
+		ycnts.push_back( peak->GetBinContent( b+1 ) ); //peakSmooth->GetBinContent( b+1 ) ); //peak->GetBinContent( b+1 ) );
 		yerrs.push_back( sqrt( ycnts[b] ) );
-		xbins.push_back( peak->GetBinCenter(b+1) );
+		xbins.push_back( peak->GetBinCenter(b+1) ); // peakSmooth->GetBinCenter( b+1 ) ); //peak->GetBinCenter(b+1) );
 	}
+
+  //rangXmin = 18.;
+  //rangXmax = 56.;
+
+  cerr << "MSD " << rangXmin << " " << rangXmax << " " << binMax << endl;
 
 	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
 			&ycnts.front(), 0, &yerrs.front() );
 
-  cerr << "MSD " << rangXmin << " " << rangXmax << endl;
-  cerr << binMax << endl;
   TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
   fitFcn->SetParameters(11., binMax, 0.3, 6., binMax/8); //Set  init. fit par.
   chFit->Fit("fitFcn","RQ");
@@ -382,7 +387,7 @@ void readFitPeakHisto()
   TGraphErrors* residGraph = new TGraphErrors( xResid.size(), &xResid.front(),
       &yResid.front(), 0, &errResid.front() );
 
-  TH1F *logNormResid = new TH1F("logNormResid", "", 11, -5, 5);
+  TH1F *logNormResid = new TH1F("logNormResid", "", 21, -10, 10);
   for ( int val=0; val<yResid.size(); val++ )
     logNormResid->Fill( yResid[val] );
   
@@ -463,7 +468,7 @@ void readFitPeakHisto()
   chindf.Form("%.2f", fitFcn->GetChisquare() / fitFcn->GetNDF() );
   valpeak.Form("%.2f", peakVal);
 
-  leg = new TLegend(0.13, 0.76, 0.48, 0.97);
+  leg = new TLegend(0.59, 0.76, 0.96, 0.97);
   leg->AddEntry(residGraph,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valpeak+"}","f"); 
   leg->SetTextSize(0.065);
   leg->Draw();
@@ -499,7 +504,7 @@ void readFitPeakHisto()
 
   rangXmax = 1.3*binMax;
   rangXmin = 0.7*binMax;
-
+  
   TGraphErrors* poly2Fit = new TGraphErrors( xbins.size(), &xbins.front(),
       &ycnts.front(), 0, &yerrs.front() );
 
@@ -892,8 +897,8 @@ void readFitPeakHisto()
   logNormResid->SetFillStyle(3001);
   logNormResid->GetXaxis()->SetTitle("Residuals [au]");
   logNormResid->GetYaxis()->SetTitle("Counts [au]");
-  logNormResid->GetYaxis()->SetRangeUser(0, 11.5);
-  logNormResid->GetXaxis()->SetRangeUser(-6, 6);
+  logNormResid->GetYaxis()->SetRangeUser(0, 25);
+  logNormResid->GetXaxis()->SetRangeUser(-7, 7);
   histoStyle(logNormResid);
   logNormResid->Draw();
 

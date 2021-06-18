@@ -11,7 +11,7 @@ do
   echo ${list[${st}]} > list${list[${st}]}.dat
   for pmt in $(seq 1 3);
   do
-    ./analyseSDEUcalib list${list[${st}]}.dat ${pmt} ${month} ../gettingTraces/*${month}*.root > kk${list[${st}]}${month} 
+    ./analyseSDEUcalib list${list[${st}]}.dat ${pmt} ${month} ../../gettingUubEvents/*${month}*.root > kk${list[${st}]}${month} 
 
     #python3 root2jsonPeak.py ub ${pmt} ${month} ${list[${st}]}
   done
