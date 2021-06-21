@@ -28,8 +28,8 @@ class fitpeak {
 		TH1F *getPkCorr();
 
 	private:
-		unsigned int rangXmin;
-		unsigned int rangXmax;
+		int rangXmin;
+		int rangXmax;
 		unsigned int nXbins;
 		bool checkMax;
 		double critGoodFit;

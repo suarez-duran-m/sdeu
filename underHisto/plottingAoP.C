@@ -306,7 +306,7 @@ void plottingAoP(int st)
 
   hChpmt1->GetXaxis()->SetTitle("Charge [FADC*8.33 ns]");
   hChpmt1->GetYaxis()->SetTitle("Counts [au]");
-  hChpmt1->GetYaxis()->SetRangeUser(0, 64); // 98); for 863
+  hChpmt1->GetYaxis()->SetRangeUser(0, 66); // 98); for 863
   hChpmt1->GetXaxis()->SetRangeUser(1200, 1750);
   hChpmt1->SetLineColor(kBlue);
   hChpmt1->SetLineWidth(2);

@@ -120,8 +120,8 @@ void readFitPeakHisto()
   dir.ReplaceAll("readFitPeakHisto.C","");
   dir.ReplaceAll("/./","/");
   ifstream in;
-  //in.open(Form("%skkpeak.dat",dir.Data()));
-  in.open(Form("%speakHist.dat",dir.Data()));
+  //in.open(Form("%ssample62141292.dat",dir.Data()));
+  in.open(Form("%speakHist61219267.dat",dir.Data()));
   
   srand (time(NULL)); 
   const int nbins = 150;
@@ -159,6 +159,7 @@ void readFitPeakHisto()
 
   TH1F *peakSmooth = getSmooth(*peak, xfadc);
   TH1F *peakSmooDer = histDerivative(*peakSmooth, xfadc);
+  peakSmooDer->Smooth(700);
 
   TH1 *test = 0;
   TVirtualFFT::SetTransform(0);
@@ -295,53 +296,54 @@ void readFitPeakHisto()
   double binMax = 0.;
 
   for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
-    if ( peakFFTDer->GetBinContent(kk) < 0 )
+    if ( peakSmooDer->GetBinContent(kk) < 0 ) // peakFFTDer->GetBinContent(kk) < 0 )
     {
-      if ( binMax < fabs(peakFFTDer->GetBinContent( kk ) ) )
+      if ( binMax < fabs( peakSmooDer->GetBinContent( kk ) ) ) //peakFFTDer->GetBinContent( kk ) ) )
       {
-        binMax = fabs(peakFFTDer->GetBinContent(kk));
-        rangXmax = peakFFTDer->GetBinCenter(kk);
+        binMax = fabs( peakSmooDer->GetBinContent(kk)); //peakFFTDer->GetBinContent(kk));
+        rangXmax = peakSmooDer->GetBinCenter(kk); // peakFFTDer->GetBinCenter(kk);
       }
     }
     else
     {
-      binMax = peakFFTDer->GetBinCenter(kk);
+      binMax = peakSmooDer->GetBinCenter(kk); //peakFFTDer->GetBinCenter(kk);
       break;
     }
 
-  rangXmax *= 1.5;
-
   binMin = 0;
   int tmpneg = 0;
+  cerr << peakSmooDer->GetBinCenter(7) << endl;
   for ( int kk=7; kk<130; kk++ ) // 20 FADC after 0 FADC
   {
-    if ( peakFFTDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
+    if ( peakSmooDer->GetBinContent( kk ) > 0 && tmpneg == 1 ) //peakFFTDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
       break;
-    if ( peakFFTDer->GetBinContent( kk ) < 0 )
-      if ( binMin < fabs( peakFFTDer->GetBinContent( kk ) ) )
+    if ( peakSmooDer->GetBinContent( kk ) < 0 ) //peakFFTDer->GetBinContent( kk ) < 0 )
+      if ( binMin < fabs( peakSmooDer->GetBinContent( kk ) ) ) //peakFFTDer->GetBinContent( kk ) ) )
       {
-        rangXmin = peakFFTDer->GetBinCenter(kk);
-        binMin = fabs( peakFFTDer->GetBinContent( kk ) );
+        rangXmin = peakSmooDer->GetBinCenter(kk); //peakFFTDer->GetBinCenter(kk);
+        binMin = fabs( peakSmooDer->GetBinContent( kk ) ); //peakFFTDer->GetBinContent( kk ) );
         tmpneg = 1;
       }
   } 
-  //rangXmin += 10;
 
 	vector < double > xbins; // X bins for fit-function
 	vector < double > ycnts; // Y counts for fit-function
 	vector < double > yerrs; // Y errors for fit-function
 
 	for( int b=0; b<nXbins; b++ ) 
-  {
+  { 
 		ycnts.push_back( peak->GetBinContent( b+1 ) );
 		yerrs.push_back( sqrt( ycnts[b] ) );
 		xbins.push_back( peak->GetBinCenter(b+1) );
 	}
 
+  rangXmin *= 1.1;
+  rangXmax *= 1.3;
+  cerr << "MSD " << rangXmin << " " << rangXmax << " " << binMax << endl;
+
 	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
 			&ycnts.front(), 0, &yerrs.front() );
 
-  cerr << "MSD " << rangXmin << " " << rangXmax << endl;
   TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
   fitFcn->SetParameters(12.7, binMax, -3., 5., -266.2); //Set  init. fit par.
   chFit->Fit("fitFcn","RQ");

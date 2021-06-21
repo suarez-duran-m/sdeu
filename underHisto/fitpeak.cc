@@ -187,6 +187,7 @@ vector < double > minRangMaxSmooth( double x[], TH1F h )
   }
 
   TH1 *hsmoothDer = histDerivative(*hsmooth, x);
+  hsmoothDer->Smooth(700);
 
   for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
   {
@@ -204,8 +205,6 @@ vector < double > minRangMaxSmooth( double x[], TH1F h )
       break;
     }
   }
-
-  tmpMax *= 1.5;
 
   int tmpneg = 0;
   for ( int kk=7; kk<130; kk++ ) // 20 FADC after 0 FADC
@@ -274,8 +273,8 @@ void fitpeak::getFitPk(TH1F &hist)
   vector < double > tmp;
   tmp = minRangMaxFFT( xfadc, hist );
 
-  rangXmin = tmp[0];
-  rangXmax = tmp[1];
+  rangXmin = 1.1*tmp[0];
+  rangXmax = 1.3*tmp[1];
   double binMax = tmp[2];
 
 	TString parName; // For Fitted plot title
@@ -290,7 +289,8 @@ void fitpeak::getFitPk(TH1F &hist)
 		yerrs.push_back( sqrt( ycnts[b] ) );
 		xbins.push_back( hist.GetBinCenter(b+1) );
 	}
-	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
+
+  TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
 			&ycnts.front(), 0, &yerrs.front() );
 
   TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
@@ -301,7 +301,7 @@ void fitpeak::getFitPk(TH1F &hist)
   ndfPeak = fitFcn->GetNDF();
   probPeak = fitFcn->GetProb();
   vemPosPk = peakMaxPk(fitFcn);
-  critGoodFit = 5.;
+  critGoodFit = 4.;
 
   fitGraphPk = (TGraphErrors*)chFit->Clone();
   if ( (chisPeak/ndfPeak) < critGoodFit )
@@ -323,7 +323,6 @@ void fitpeak::getFitPk(TH1F &hist)
     ndfPeak = fitFcn->GetNDF();
     vemPosPk = peakMaxPk(fitFcn);
   }
-  
   if ( (chisPeak/ndfPeak) > critGoodFit )
     vemPosPk = 0.;
 
