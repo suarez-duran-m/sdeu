@@ -469,7 +469,7 @@ void readFitPeakHisto()
   leg->SetTextSize(0.065);
   leg->Draw();
 
-  line = new TLine(50, 0, 350, 0);
+  line = new TLine(rangXmin-5, 0, rangXmax+5, 0);
   line->SetLineStyle(4);
   line->SetLineWidth(2);
   line->Draw();
@@ -479,12 +479,12 @@ void readFitPeakHisto()
   line->SetLineWidth(2);
   line->Draw();
 
-  line = new TLine(50, 1, 350, 1);
+  line = new TLine(rangXmin-5, 1, rangXmax+5, 1);
   line->SetLineStyle(9);
   line->SetLineWidth(1);
   line->Draw();
 
-  line = new TLine(50, -1, 350, -1);
+  line = new TLine(rangXmin-5, -1, rangXmax+5, -1);
   line->SetLineStyle(9);
   line->SetLineWidth(1);
   line->Draw();

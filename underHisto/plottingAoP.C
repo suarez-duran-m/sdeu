@@ -139,11 +139,11 @@ TH1F *fillingAoP( TString bname, TString st, int pmt )
   int nevts = 0;
   int cday = 1606867200; // December 2nd, 2020, 00h:00m:00s
   int nday = 0;
-  int dday = 86400;
-  int day = 3600;
-  int ndays = 182;
+  const int dday = 86400;
+  const int ndays = 182;
   double xtime[ndays];
   double yaop[ndays];
+  double yerr[ndays];
 
   for ( int kk=0; kk<tmptimePk.size(); kk++ )
   {
@@ -153,7 +153,28 @@ TH1F *fillingAoP( TString bname, TString st, int pmt )
     if ( tmptimePk[kk] > cday )
     {
       xtime[nday] = cday;
-      yaop[nday] = tmpaop / nevts;
+      if ( nevts>1 )
+        yaop[nday] = tmpaop / nevts;
+      tmpaop = 0.;
+      nevts = 0;
+      nday++;
+      cday += dday;
+    }
+  }
+  cday = 1606867200;
+  nday = 0;
+  nevts = 0;
+  tmpaop = 0.;
+  for ( int kk=0; kk<tmptimePk.size(); kk++ )
+  {
+    if ( tmppeak[kk] > 0 )
+      tmpaop += ( (tmpcharge[kk]  / tmppeak[kk]) - yaop[nday] )*( (tmpcharge[kk]  / tmppeak[kk]) - yaop[nday] );
+    nevts++;
+    if ( tmptimePk[kk] > cday )
+    {
+      if ( nevts>1 )
+        yerr[nday] = sqrt(tmpaop / nevts);
+
       tmpaop = 0.;
       nevts = 0;
       nday++;
@@ -165,7 +186,11 @@ TH1F *fillingAoP( TString bname, TString st, int pmt )
   double tmp = 0.;
   for ( int kk=0; kk<ndays-1; kk++ )
     if ( yaop[kk] > 1 )
+    {
       aop->SetBinContent( kk+1, yaop[kk] ); 
+      aop->SetBinError( kk+1, yerr[kk] );
+      cerr << pmt << " " << xtime[kk] << " " << yaop[kk] << " " << yerr[kk] << endl;
+    }
 
   return aop;
   peakInfo->Delete();
@@ -246,7 +271,7 @@ void plottingAoP(int st)
 
   hPkpmt1->GetXaxis()->SetTitle("Peak [FADC]");
   hPkpmt1->GetYaxis()->SetTitle("Counts [au]");
-  hPkpmt1->GetYaxis()->SetRangeUser(0, 640); // 760); for 863
+  hPkpmt1->GetYaxis()->SetRangeUser(0, 760); // 760); for 863, 640); for 1740
   hPkpmt1->GetXaxis()->SetRangeUser(130, 210);
   hPkpmt1->SetLineColor(kBlue);
   hPkpmt1->SetLineWidth(2);
@@ -306,7 +331,7 @@ void plottingAoP(int st)
 
   hChpmt1->GetXaxis()->SetTitle("Charge [FADC*8.33 ns]");
   hChpmt1->GetYaxis()->SetTitle("Counts [au]");
-  hChpmt1->GetYaxis()->SetRangeUser(0, 66); // 98); for 863
+  hChpmt1->GetYaxis()->SetRangeUser(0, 98); // 98); for 863, 66); for 1740
   hChpmt1->GetXaxis()->SetRangeUser(1200, 1750);
   hChpmt1->SetLineColor(kBlue);
   hChpmt1->SetLineWidth(2);
@@ -357,6 +382,7 @@ void plottingAoP(int st)
 
   aophistpmt1->SetStats(0);
   aophistpmt1->SetMarkerColor(kBlue);
+  aophistpmt1->SetLineColor(kBlue);
   aophistpmt1->SetMarkerSize(1.5);
   aophistpmt1->SetMarkerStyle(8);
   aophistpmt1->GetXaxis()->SetTimeDisplay(1);
@@ -369,12 +395,14 @@ void plottingAoP(int st)
 
   aophistpmt2->SetStats(0);
   aophistpmt2->SetMarkerColor(kGreen+2);
+  aophistpmt2->SetLineColor(kGreen+2);
   aophistpmt2->SetMarkerSize(1.5);
   aophistpmt2->SetMarkerStyle(8);
   aophistpmt2->Draw("P sames");
 
   aophistpmt3->SetStats(0);
   aophistpmt3->SetMarkerColor(kRed+1);
+  aophistpmt3->SetLineColor(kRed+1);
   aophistpmt3->SetMarkerSize(1.5);
   aophistpmt3->SetMarkerStyle(8);
   aophistpmt3->Draw("P sames");

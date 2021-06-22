@@ -34,7 +34,7 @@ void histoStyle(TGraphErrors *hist)
 
 void fillingPk( TString bname, TString st, int pmt, TH1F *hist )
 {
-  TString monthUub[] = {"dec", "jan", "feb", "mar", "abr", "may"};
+  TString monthUub[] = {"aug", "sep", "oct", "nov"};
   TString pmtId;
   pmtId.Form("%d", pmt);
   TString fname = bname + pmtId+st+"Mth";
@@ -43,8 +43,9 @@ void fillingPk( TString bname, TString st, int pmt, TH1F *hist )
   TTree *peakInfo; 
   double tmppeak = 0.;
 
-  for ( int month=0; month<6; month++ )
+  for ( int month=0; month<4; month++ )
   {
+    cerr << fname+monthUub[month]+".root" << endl;
     f = TFile::Open(fname+monthUub[month]+".root");
     peakInfo = (TTree*)f->Get("PeakData");
 
@@ -64,7 +65,7 @@ void fillingPk( TString bname, TString st, int pmt, TH1F *hist )
 
 void fillingCh( TString bname, TString st, int pmt, TH1F *hist )
 {
-  TString monthUub[] = {"dec", "jan", "feb", "mar", "abr", "may"};
+  TString monthUub[] = {"aug", "sep", "oct", "nov"};
   TString pmtId;
   pmtId.Form("%d", pmt);
   TString fname = bname + pmtId+st+"Mth";
@@ -73,7 +74,7 @@ void fillingCh( TString bname, TString st, int pmt, TH1F *hist )
   TTree *chargeInfo; 
   double tmpcharge = 0.;
 
-  for ( int month=0; month<6; month++ )
+  for ( int month=0; month<4; month++ )
   {
     f = TFile::Open(fname+monthUub[month]+".root");
     chargeInfo = (TTree*)f->Get("ChargeData");
@@ -93,7 +94,7 @@ void fillingCh( TString bname, TString st, int pmt, TH1F *hist )
 
 TH1F *fillingAoP( TString bname, TString st, int pmt )
 {
-  TString monthUub[] = {"dec", "jan", "feb", "mar", "abr", "may"};
+  TString monthUub[] = {"aug", "sep", "oct", "nov"};
   TString pmtId;
   pmtId.Form("%d", pmt);
   TString fname = bname + pmtId+st+"Mth";
@@ -110,7 +111,7 @@ TH1F *fillingAoP( TString bname, TString st, int pmt )
   vector < int > tmptimePk;
   vector < int > tmptimeCh;
 
-  for ( int month=0; month<6; month++ )
+  for ( int month=0; month<4; month++ )
   {
     f = TFile::Open(fname+monthUub[month]+".root");
     peakInfo = (TTree*)f->Get("PeakData");
@@ -137,35 +138,73 @@ TH1F *fillingAoP( TString bname, TString st, int pmt )
   
   double tmpaop = 0.;
   int nevts = 0;
-  int cday = 1606867200; // December 2nd, 2020, 00h:00m:00s
+  int cday = 1596326400; // August 2nd, 2020, 00h:00m:00s
   int nday = 0;
-  int dday = 86400;
-  int day = 3600;
-  int ndays = 182;
+  const int dday = 86400;
+  const int ndays = 122;
   double xtime[ndays];
   double yaop[ndays];
+  double yerr[ndays]; 
 
   for ( int kk=0; kk<tmptimePk.size(); kk++ )
   {
     if ( tmppeak[kk] > 0 )
       tmpaop += tmpcharge[kk]  / tmppeak[kk];  
     nevts++;
+
     if ( tmptimePk[kk] > cday )
     {
       xtime[nday] = cday;
-      yaop[nday] = tmpaop / nevts;
+      if ( cday > 1603797703 && cday < 1605395135 )
+        yaop[nday] = 0;
+      if ( nevts==1 )
+        yaop[nday] = 0;
+      else
+        yaop[nday] = tmpaop / nevts;
+
       tmpaop = 0.;
       nevts = 0;
       nday++;
       cday += dday;
     }
   }
+  
+  cday = 1596326400;
+  nday = 0;
+  nevts = 0;
+  tmpaop = 0.;
+  for ( int kk=0; kk<tmptimePk.size(); kk++ )
+  {
+    if ( tmppeak[kk] > 0 )
+      tmpaop += ( (tmpcharge[kk]  / tmppeak[kk]) - yaop[nday] )*( (tmpcharge[kk]  / tmppeak[kk]) - yaop[nday] );
+    nevts++;
+    if ( tmptimePk[kk] > cday )
+    {
+      if ( cday > 1603797703 && cday < 1605395135 )
+        yerr[nday] = 0;
+      if ( nevts==1 )
+        yerr[nday] = 0;
+      yerr[nday] = sqrt(tmpaop / nevts);
+
+      tmpaop = 0.;
+      nevts = 0;
+      nday++;
+      cday += dday;
+    }
+  }
+  
 
   TH1F *aop = new TH1F ("aop", "", ndays-1, xtime);
   double tmp = 0.;
   for ( int kk=0; kk<ndays-1; kk++ )
     if ( yaop[kk] > 1 )
+    {
       aop->SetBinContent( kk+1, yaop[kk] ); 
+      aop->SetBinError( kk+1, yerr[kk] );
+      cerr << pmt << " " << xtime[kk] << " " << yaop[kk] << " " << yerr[kk] << endl;
+    }
+    else
+      cerr << pmt << " " << xtime[kk] << " " << 0 << " " << 0 << endl;
 
   return aop;
   peakInfo->Delete();
@@ -216,7 +255,7 @@ void plottingAoP(int st)
 {
   TString statId;
   statId.Form("St%d", st);
-  TString basename = "uubAoPPMT";
+  TString basename = "ubAoPPMT";
 
   TPaveStats *ptstats;
   TLegend *leg;
@@ -246,13 +285,14 @@ void plottingAoP(int st)
 
   hPkpmt1->GetXaxis()->SetTitle("Peak [FADC]");
   hPkpmt1->GetYaxis()->SetTitle("Counts [au]");
-  hPkpmt1->GetYaxis()->SetRangeUser(0, 640); // 760); for 863
-  hPkpmt1->GetXaxis()->SetRangeUser(130, 210);
+  hPkpmt1->GetYaxis()->SetRangeUser(0, 2200); // 760); for 863
+  hPkpmt1->GetXaxis()->SetRangeUser(25, 55); // 20, 60); for 863
   hPkpmt1->SetLineColor(kBlue);
   hPkpmt1->SetLineWidth(2);
   hPkpmt1->SetFillColor(kBlue);
   hPkpmt1->SetFillStyle(3001);
   histoStyle(hPkpmt1);
+  hPkpmt1->GetYaxis()->SetTitleOffset(1.1);
   hPkpmt1->Draw();
 
   ptstats = new TPaveStats(0.73, 0.77, 0.96, 0.97,"brNDC");
@@ -282,7 +322,7 @@ void plottingAoP(int st)
   hPkpmt3->SetName("Station "+statId+" PMT3");
   hPkpmt3->GetListOfFunctions()->Add(ptstats);
 
-  c1->Print("../plots/uubPeakDistPmts"+statId+".pdf");
+  c1->Print("../../plots/ubPeakDistPmts"+statId+".pdf");
 
   // ================================
   // *** *** Doing for Charge *** ***
@@ -306,8 +346,8 @@ void plottingAoP(int st)
 
   hChpmt1->GetXaxis()->SetTitle("Charge [FADC*8.33 ns]");
   hChpmt1->GetYaxis()->SetTitle("Counts [au]");
-  hChpmt1->GetYaxis()->SetRangeUser(0, 64); // 98); for 863
-  hChpmt1->GetXaxis()->SetRangeUser(1200, 1750);
+  hChpmt1->GetYaxis()->SetRangeUser(0, 280); // 98); for 863
+  hChpmt1->GetXaxis()->SetRangeUser(80, 200); // 80, 190); for 863
   hChpmt1->SetLineColor(kBlue);
   hChpmt1->SetLineWidth(2);
   hChpmt1->SetFillColor(kBlue);
@@ -342,7 +382,7 @@ void plottingAoP(int st)
   hChpmt3->SetName("Station "+statId+" PMT3");
   hChpmt3->GetListOfFunctions()->Add(ptstats);
 
-  c2->Print("../plots/uubChargeDistPmts"+statId+".pdf");
+  c2->Print("../../plots/ubChargeDistPmts"+statId+".pdf");
 
   // =====================================
   // *** *** *** Doing for AoP *** *** ***
@@ -357,24 +397,27 @@ void plottingAoP(int st)
 
   aophistpmt1->SetStats(0);
   aophistpmt1->SetMarkerColor(kBlue);
+  aophistpmt1->SetLineColor(kBlue);
   aophistpmt1->SetMarkerSize(1.5);
   aophistpmt1->SetMarkerStyle(8);
   aophistpmt1->GetXaxis()->SetTimeDisplay(1);
   aophistpmt1->GetXaxis()->SetTimeFormat("%d/%m");
-  aophistpmt1->GetXaxis()->SetTitle("Time since December 1st, 2020 [day/month]");
+  aophistpmt1->GetXaxis()->SetTitle("Time since August 1st, 2020 [day/month]");
   aophistpmt1->GetYaxis()->SetTitle("AoP [8.33 ns]");
-  aophistpmt1->GetYaxis()->SetRangeUser(6.8, 9.2);
+  aophistpmt1->GetYaxis()->SetRangeUser(2., 4.4);
   histoStyle(aophistpmt1); 
   aophistpmt1->Draw("P");
 
   aophistpmt2->SetStats(0);
   aophistpmt2->SetMarkerColor(kGreen+2);
+  aophistpmt2->SetLineColor(kGreen+2);
   aophistpmt2->SetMarkerSize(1.5);
   aophistpmt2->SetMarkerStyle(8);
   aophistpmt2->Draw("P sames");
 
   aophistpmt3->SetStats(0);
   aophistpmt3->SetMarkerColor(kRed+1);
+  aophistpmt3->SetLineColor(kRed+1);
   aophistpmt3->SetMarkerSize(1.5);
   aophistpmt3->SetMarkerStyle(8);
   aophistpmt3->Draw("P sames");
@@ -390,6 +433,6 @@ void plottingAoP(int st)
   leg->SetFillColor(0);
   leg->Draw();
 
-  c3->Print("../plots/uubAoP"+statId+"Pmts.pdf");
+  c3->Print("../../plots/ubAoP"+statId+"Pmts.pdf");
 
 }

@@ -168,8 +168,8 @@ void plottingFitsQltyPkCh(int st)
 
   hChiPkpmt1->GetXaxis()->SetTitle("#chi^{2} / ndf [au]");
   hChiPkpmt1->GetYaxis()->SetTitle("Counts [au]");
-  hChiPkpmt1->GetYaxis()->SetRangeUser(0, 270);
-  hChiPkpmt1->GetXaxis()->SetRangeUser(0, 10);
+  hChiPkpmt1->GetYaxis()->SetRangeUser(0, 380);// 270);
+  hChiPkpmt1->GetXaxis()->SetRangeUser(0, 5); //10);
   hChiPkpmt1->SetLineColor(kBlue);
   hChiPkpmt1->SetLineWidth(2);
   histoStyle(hChiPkpmt1);
@@ -271,7 +271,7 @@ void plottingFitsQltyPkCh(int st)
 
   hChiChpmt1->GetXaxis()->SetTitle("#chi^{2} / ndf [au]");
   hChiChpmt1->GetYaxis()->SetTitle("Counts [au]");
-  hChiChpmt1->GetYaxis()->SetRangeUser(0, 540);
+  hChiChpmt1->GetYaxis()->SetRangeUser(0, 550); //540);
   hChiChpmt1->GetXaxis()->SetRangeUser(0, 2.5);
   hChiChpmt1->SetLineColor(kBlue);
   hChiChpmt1->SetLineWidth(2);

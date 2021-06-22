@@ -234,14 +234,15 @@ int main (int argc, char *argv[]) {
         pkProb = fitPk.probPeak;
         peak = fitPk.vemPosPk;
         
-        if ( pkChi2/pkNdf > 4 && pkChi2/pkNdf < 5 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
+        if ( pkChi2/pkNdf > 4 ) //&& pkChi2/pkNdf < 5 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
         {
-          cout << "MSD " << " " << event.Id << " " << pkChi2 << " " << pkNdf << " " << pkChi2/pkNdf << endl;
+          cout << "MSD " << " " << event.Id << " " << event.UTCTime << " " << pkChi2 << " " << pkNdf << " " << pkChi2/pkNdf << endl;
           for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
             cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
-          //exit(0);
+          exit(0);
         }
         
+    
         //exit(0);
         //}
       

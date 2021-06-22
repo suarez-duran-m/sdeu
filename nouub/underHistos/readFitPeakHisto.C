@@ -120,7 +120,7 @@ void readFitPeakHisto()
   dir.ReplaceAll("readFitPeakHisto.C","");
   dir.ReplaceAll("/./","/");
   ifstream in;
-  //in.open(Form("%ssample59437248.dat",dir.Data())); 
+  //in.open(Form("%ssample59627310.dat",dir.Data())); 
   //in.open(Form("%skkpeak.dat",dir.Data())); // For PMT3: 59624212
   // For PMT2: 59437248 59467329 59460513 59460513 59437248
   // For PMT1: 59849488 59451316 59438664 59479413
@@ -150,7 +150,7 @@ void readFitPeakHisto()
   in.close();
 
   TCanvas *c1 = canvasStyle("c1"); 
-  TCanvas *c2 = canvasStyle("c2"); 
+  //TCanvas *c2 = canvasStyle("c2"); 
   TCanvas *c3 = canvasStyle("c3");
 
   TH1F *peak = new TH1F("peak", "", nbins, xfadc);
@@ -232,7 +232,7 @@ void readFitPeakHisto()
   leg->AddEntry(peakFFTDer,"First derivative FFT","f");
   leg->Draw();  
   c1->Print("../../plots/ubpeakHisto863.pdf");
-
+/*
   c2->cd();
   peakDer->SetStats(0);
   peakDer->SetLineColor(kBlue);
@@ -254,7 +254,7 @@ void readFitPeakHisto()
   leg->AddEntry(peakSmooDer,"First derivative","f");
   leg->Draw();
   c2->Print("../../plots/ubpeakDerHisto863.pdf");
-
+*/
   c3->cd();  
   peakSmooDer->SetLineColor(kOrange+10);
   peakSmooDer->SetLineWidth(1);
@@ -325,14 +325,15 @@ void readFitPeakHisto()
         binMin = fabs( peakSmooDer->GetBinContent( kk ) );
         tmpneg = 1;
       }
-  } 
-  rangXmin *= 1.4; //0.9;
+  }
+  rangXmin *= 1.5; //0.9;
   rangXmax *= 1.5; //1.2;
 
 	vector < double > xbins; // X bins for fit-function
 	vector < double > ycnts; // Y counts for fit-function
 	vector < double > yerrs; // Y errors for fit-function
 
+  //peak->Smooth(10);
 	for( int b=0; b<nXbins; b++ ) 
   {
 		ycnts.push_back( peak->GetBinContent( b+1 ) ); //peakSmooth->GetBinContent( b+1 ) ); //peak->GetBinContent( b+1 ) );
@@ -340,8 +341,8 @@ void readFitPeakHisto()
 		xbins.push_back( peak->GetBinCenter(b+1) ); // peakSmooth->GetBinCenter( b+1 ) ); //peak->GetBinCenter(b+1) );
 	}
 
-  //rangXmin = 18.;
-  //rangXmax = 56.;
+  //rangXmin = 23.;
+  //rangXmax = 108.;
 
   cerr << "MSD " << rangXmin << " " << rangXmax << " " << binMax << endl;
 
@@ -610,6 +611,7 @@ void readFitPeakHisto()
 
   // ===============================
   // *** *** Doing for Poly2 *** ***
+  /*
   TCanvas *c9 = canvasStyle("c9");
   TCanvas *c10 = canvasStyle("c10");
 
@@ -713,11 +715,11 @@ void readFitPeakHisto()
   line->Draw();
 
   c10->Print("../../plots/ubpeakFitSmoothResidualsPoly2863.pdf");
-
+*/
 
   // ====================================================
   // *** *** Fitting Log-Norm to Smooth histogram *** ***
-
+/*
   TCanvas *c11 = canvasStyle("c11");
   TCanvas *c12 = canvasStyle("c12");
 
@@ -881,12 +883,12 @@ void readFitPeakHisto()
   line->Draw();
 
   c12->Print("../../plots/ubpeakSmoothFitResiduals863.pdf");
-
+*/
   // ========================================================
   // *** *** *** Plotting Residuals distributions *** *** ***
 
   TCanvas *c13 = canvasStyle("c13");
-  TCanvas *c14 = canvasStyle("c14");
+  //TCanvas *c14 = canvasStyle("c14");
 
   c13->cd();
   logNormResid->SetStats(1);
@@ -920,7 +922,7 @@ void readFitPeakHisto()
   poly2Resid->GetListOfFunctions()->Add(ptstats);
 
   c13->Print("../../plots/ubpeakResidualsDist863.pdf");
-
+/*
   c14->cd();
   residLogNormSmooth->SetStats(1);
   residLogNormSmooth->SetTitle("");
@@ -953,5 +955,6 @@ void readFitPeakHisto()
   residPoly2Smooth->GetListOfFunctions()->Add(ptstats);
 
   c14->Print("../../plots/ubpeakSmoothResidualsDist863.pdf");
+  */
 
 }

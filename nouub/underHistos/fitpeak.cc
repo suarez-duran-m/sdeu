@@ -198,7 +198,7 @@ void fitpeak::getFitPk(TH1F &hist)
 		xbins.push_back( hist.GetBinCenter(b+1) );
 	}
 
-  //cout << "MSD0: " << rangXmin << " " << rangXmax << endl;
+  //cout << "MSD0: " << rangXmin << " " << rangXmax << " " << binMax << endl;
 	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
 			&ycnts.front(), 0, &yerrs.front() );
 
@@ -210,7 +210,7 @@ void fitpeak::getFitPk(TH1F &hist)
   ndfPeak = fitFcn->GetNDF();
   probPeak = fitFcn->GetProb();
   vemPosPk = peakMaxPk(fitFcn);
-  critGoodFit = 12.;
+  critGoodFit = 4.;
 
   fitGraphPk = (TGraphErrors*)chFit->Clone();
 
@@ -263,6 +263,91 @@ void fitpeak::getFitPk(TH1F &hist)
     vemPosPk = peakMaxPk(fitFcn);
   }
   
+  if ( chisPeak/ndfPeak > critGoodFit )
+  {
+    rangXmin = 1.1*tmp[0];
+    rangXmax = 1.5*tmp[1];
+
+    ycnts.clear();
+    yerrs.clear();
+    xbins.clear();
+  	for( unsigned int b=0; b<nXbins; b++ )
+    {
+      hist.Smooth(10);
+		  ycnts.push_back( hist.GetBinContent( b+1 ) );
+  		yerrs.push_back( sqrt( ycnts[b] ) );
+	  	xbins.push_back( hist.GetBinCenter(b+1) );
+	  }
+  	chFit = new TGraphErrors( xbins.size(), &xbins.front(),
+	  		&ycnts.front(), 0, &yerrs.front() );
+
+    //cout << "MSD4: " << rangXmin << " " << rangXmax << " " << binMax << endl;
+    TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
+    fitFcn->SetParameters(11., binMax, 0.3, 6., binMax/8.); //Set  init. fit par. 
+
+	  chFit->Fit("fitFcn","QR");
+    chisPeak = fitFcn->GetChisquare();
+    ndfPeak = fitFcn->GetNDF();
+    vemPosPk = peakMaxPk(fitFcn);
+    //cout << "MSD4: " << chisPeak << " " << ndfPeak << " " << chisPeak/ndfPeak << endl;
+  }
+  if ( chisPeak/ndfPeak > critGoodFit )
+  {
+    rangXmin = 1.1*tmp[0];
+    rangXmax = 1.3*tmp[1];
+    
+    //cout << "MSD5: " << rangXmin << " " << rangXmax << endl;
+    TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
+    fitFcn->SetParameters(11., binMax, 0.3, 6., binMax/8.); //Set  init. fit par. 
+
+	  chFit->Fit("fitFcn","QR");
+    chisPeak = fitFcn->GetChisquare();
+    ndfPeak = fitFcn->GetNDF();
+    vemPosPk = peakMaxPk(fitFcn);
+  }
+  if ( chisPeak/ndfPeak > critGoodFit )
+  {
+    rangXmin = 1.05*tmp[0];
+    rangXmax = 0.87*tmp[1];
+    
+    //cout << "MSD6: " << rangXmin << " " << rangXmax << endl;
+    TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
+    fitFcn->SetParameters(11., binMax, 0.3, 6., binMax/8.); //Set  init. fit par. 
+
+	  chFit->Fit("fitFcn","QR");
+    chisPeak = fitFcn->GetChisquare();
+    ndfPeak = fitFcn->GetNDF();
+    vemPosPk = peakMaxPk(fitFcn);
+  }
+  if ( chisPeak/ndfPeak > critGoodFit )
+  {
+    rangXmin = 1.3*tmp[0];
+    rangXmax = 1.5*tmp[1];
+    
+    cout << "MSD7: " << rangXmin << " " << rangXmax << endl;
+    TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
+    fitFcn->SetParameters(11., binMax, 0.3, 6., binMax/8.); //Set  init. fit par. 
+
+	  chFit->Fit("fitFcn","QR");
+    chisPeak = fitFcn->GetChisquare();
+    ndfPeak = fitFcn->GetNDF();
+    vemPosPk = peakMaxPk(fitFcn);
+  }
+  if ( chisPeak/ndfPeak > critGoodFit )
+  {
+    rangXmin = 1.3*tmp[0];
+    rangXmax = 1.4*tmp[1];
+    
+    cout << "MSD8: " << rangXmin << " " << rangXmax << endl;
+    TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
+    fitFcn->SetParameters(11., binMax, 0.3, 6., binMax/8.); //Set  init. fit par. 
+
+	  chFit->Fit("fitFcn","QR");
+    chisPeak = fitFcn->GetChisquare();
+    ndfPeak = fitFcn->GetNDF();
+    vemPosPk = peakMaxPk(fitFcn);
+  }
+ 
   if ( (chisPeak/ndfPeak) > critGoodFit )
     vemPosPk = 0.;
 
