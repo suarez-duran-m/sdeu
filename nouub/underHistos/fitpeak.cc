@@ -265,15 +265,15 @@ void fitpeak::getFitPk(TH1F &hist)
   
   if ( chisPeak/ndfPeak > critGoodFit )
   {
-    rangXmin = 1.1*tmp[0];
-    rangXmax = 1.5*tmp[1];
+    rangXmin = 1.2*tmp[0];
+    rangXmax = 1.3*tmp[1];
 
     ycnts.clear();
     yerrs.clear();
     xbins.clear();
+    hist.Smooth(10);
   	for( unsigned int b=0; b<nXbins; b++ )
     {
-      hist.Smooth(10);
 		  ycnts.push_back( hist.GetBinContent( b+1 ) );
   		yerrs.push_back( sqrt( ycnts[b] ) );
 	  	xbins.push_back( hist.GetBinCenter(b+1) );

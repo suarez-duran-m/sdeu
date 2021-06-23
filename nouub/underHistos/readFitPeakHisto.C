@@ -120,7 +120,7 @@ void readFitPeakHisto()
   dir.ReplaceAll("readFitPeakHisto.C","");
   dir.ReplaceAll("/./","/");
   ifstream in;
-  //in.open(Form("%ssample59627310.dat",dir.Data())); 
+  //in.open(Form("%ssample59615326.dat",dir.Data())); 
   //in.open(Form("%skkpeak.dat",dir.Data())); // For PMT3: 59624212
   // For PMT2: 59437248 59467329 59460513 59460513 59437248
   // For PMT1: 59849488 59451316 59438664 59479413
@@ -326,13 +326,15 @@ void readFitPeakHisto()
         tmpneg = 1;
       }
   }
-  rangXmin *= 1.5; //0.9;
+  rangXmin *= 1.3; //0.9;
   rangXmax *= 1.5; //1.2;
 
 	vector < double > xbins; // X bins for fit-function
 	vector < double > ycnts; // Y counts for fit-function
 	vector < double > yerrs; // Y errors for fit-function
 
+  TH1F *copyPeak = (TH1F*)peak->Clone();
+  //copyPeak->Smooth(700);
   //peak->Smooth(10);
 	for( int b=0; b<nXbins; b++ ) 
   {
@@ -340,6 +342,8 @@ void readFitPeakHisto()
 		yerrs.push_back( sqrt( ycnts[b] ) );
 		xbins.push_back( peak->GetBinCenter(b+1) ); // peakSmooth->GetBinCenter( b+1 ) ); //peak->GetBinCenter(b+1) );
 	}
+
+  //peak->Smooth(200);
 
   //rangXmin = 23.;
   //rangXmax = 108.;
@@ -419,7 +423,11 @@ void readFitPeakHisto()
   chFit->GetYaxis()->SetTitle("Counts [au]");
   histoStyle(chFit);
   chFit->Draw();
-
+/*
+  copyPeak->SetLineColor(kBlue);
+  copyPeak->SetLineWidth(1);
+  copyPeak->Draw("sames");
+*/
   expon->SetLineColor(kGreen+2);
   expon->Draw("same");
   lognorm->SetLineColor(kMagenta+2);
