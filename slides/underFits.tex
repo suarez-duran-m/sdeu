@@ -79,29 +79,23 @@
     \centering
     \begin{tabularx}{\textwidth}{CC}
       \begin{tabular}{l}
-        \includegraphics[width=.43\textwidth]{../plots/peakHisto863.pdf}
+        \includegraphics[width=.5\textwidth]{../plots/peakHisto863.pdf}
       \end{tabular}
       &
+      \begin{tabular}{l}
+        \includegraphics[width=.5\textwidth]{../plots/peakDerHisto863.pdf}
+      \end{tabular}
+      \\
       \footnotesize
       \begin{tabular}{l}
         The algorithm:
-        1. Smooth/FFT Histogram \\
-        2. Derivating of smooth/FFT Histogram \\
+        1. Smooth Histogram \\
+        2. Derivating of smooth Histogram \\
         3. Identifing Fit range (Slope changes) \\
         4. Fitting \\
         Two function checked: \\
         - Exp. + Log-normal \\
         - 2nd order polinomium
-      \end{tabular}
-    \end{tabularx}
-
-    \begin{tabularx}{\textwidth}{CC}
-      \begin{tabular}{l}
-        \includegraphics[width=.43\textwidth]{../plots/peakDerHisto863.pdf}
-      \end{tabular}
-      &
-      \begin{tabular}{l}
-        \includegraphics[width=.43\textwidth]{../plots/peakSmoothDerHisto863.pdf}
       \end{tabular}
     \end{tabularx}
   \end{figure}
@@ -130,50 +124,29 @@
       \end{tabular}
     \end{tabularx}
   \end{figure}
-  The Exp.+Log-normal fit better than second order polinomium.
 \end{frame}
-
-
-%\begin{frame}
-%  \frametitle{UUB Peak: Fit and Residuals smooth histogram}
-%  \begin{figure}
-%    \centering
-%    \begin{tabularx}{\textwidth}{CC}
-%      \begin{tabular}{l}
-%        \includegraphics[width=.48\textwidth]{../plots/peakSmoothFittedHisto863.pdf}
-%      \end{tabular}
-%      &
-%      \begin{tabular}{l}
-%        \includegraphics[width=.48\textwidth]{../plots/peakSmoothFitPoly2863.pdf}
-%      \end{tabular}
-%      \\
-%      \begin{tabular}{l}
-%        \includegraphics[width=.48\textwidth]{../plots/peakSmoothFitResiduals863.pdf}
-%      \end{tabular}
-%      &
-%      \begin{tabular}{l}
-%        \includegraphics[width=.48\textwidth]{../plots/peakFitSmoothResidualsPoly2863.pdf}
-%      \end{tabular}
-%    \end{tabularx}
-%  \end{figure}
-%\end{frame}
 
 
 \begin{frame}
-  \frametitle{UUB Peak: Residuals distribution}
+  \frametitle{UUB Peak: Comparison Fit and Residuals}
   \begin{figure}
     \centering
-    \begin{tabularx}{\textwidth}{C}
+    \begin{tabularx}{\textwidth}{CC}
       \begin{tabular}{l}
-        \includegraphics[width=.7\textwidth]{../plots/peakResidualsDist863.pdf}
+        \includegraphics[width=.49\textwidth]{../plots/peakFitCompar863.pdf}
       \end{tabular}
-%      &
-%      \begin{tabular}{l}
-%        \includegraphics[width=.5\textwidth]{../plots/peakSmoothResidualsDist863.pdf}
-%      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.49\textwidth]{../plots/peakResidualsCompar863.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=.49\textwidth]{../plots/peakResidualsDist863.pdf}
+      \end{tabular}
     \end{tabularx}
   \end{figure}
 \end{frame}
+
 
 
 \begin{frame}
