@@ -188,6 +188,7 @@ vector < double > minRangMaxSmooth( double x[], TH1F h )
 
   TH1 *hsmoothDer = histDerivative(*hsmooth, x);
   hsmoothDer->Smooth(700);
+  double rawbinMax = 0;
 
   for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
   {
@@ -202,23 +203,25 @@ vector < double > minRangMaxSmooth( double x[], TH1F h )
     else
     {
       tmpBinMax = hsmoothDer->GetBinCenter(kk);
+      rawbinMax = kk;
       break;
     }
   }
 
-  int tmpneg = 0;
-  for ( int kk=7; kk<130; kk++ ) // 20 FADC after 0 FADC
+  int nroot = 0;
+  for ( int kk=rawbinMax; kk>0; kk-- )
   {
-    if ( hsmoothDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
+    if ( tmpBinMin < hsmoothDer->GetBinContent( kk ) )
+    {
+      tmpBinMin = fabs( hsmoothDer->GetBinContent( kk ) );
+      tmpMin = hsmoothDer->GetBinCenter(kk);
+    }
+    if ( hsmoothDer->GetBinContent( kk ) < 0 && nroot==0 )
+      nroot = 1;
+    else if ( hsmoothDer->GetBinContent( kk ) > 0 && nroot==1 )
       break;
-    if ( hsmoothDer->GetBinContent( kk ) < 0 )
-      if ( tmpBinMin < fabs( hsmoothDer->GetBinContent( kk ) ) )
-      {
-        tmpMin = hsmoothDer->GetBinCenter(kk);
-        tmpBinMin = fabs( hsmoothDer->GetBinContent( kk ) );
-        tmpneg = 1;
-      }
   }
+
   minmax.push_back( tmpMin );
   minmax.push_back( tmpMax );
   minmax.push_back( tmpBinMax );
@@ -311,9 +314,10 @@ void fitpeak::getFitPk(TH1F &hist)
     tmp.clear();
     tmp = minRangMaxSmooth( xfadc, hist );
     
-    rangXmin = tmp[0];
-    rangXmax = tmp[1];
+    rangXmin = 1.5*tmp[0];
+    rangXmax = 1.4*tmp[1];
     double binMax = tmp[2];
+    cout << "MSD1 " << rangXmin << " " << rangXmax << endl;
 
     TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
     fitFcn->SetParameters(12.7, binMax, -3., 5., -266.2); //Set  init. fit par. 

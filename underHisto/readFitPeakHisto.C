@@ -45,18 +45,23 @@ TH1F *getSmooth(TH1F &hist, double xb[])
 	unsigned int nb = 150;
   double yi = 0.;
 
-	TH1F *hstSmooth = new TH1F("hstSmooth", "", nb, xb);
+  TString tmpname;
+  tmpname.Form("%d",rand());
+
+	TH1F *hstSmooth = new TH1F(tmpname, "", nb, xb);
 
 	for ( unsigned b=0; b<nb; b++ )
   {
-    if ( b > 1 && b<148 )
+    if ( b > 2 && b<147 )
     {
-      yi = hist.GetBinContent(b+1 - 2) 
-        + 2*hist.GetBinContent(b+1 - 1) 
-        + 3*hist.GetBinContent(b+1) 
-        + 2*hist.GetBinContent(b+1 + 1) 
-        + hist.GetBinContent(b+1 + 2);
-      yi = yi/9.;
+      yi = hist.GetBinContent(b+1 - 3) 
+        + hist.GetBinContent(b+1 - 2)
+        + hist.GetBinContent(b+1 - 1) 
+        + hist.GetBinContent(b+1) 
+        + hist.GetBinContent(b+1 + 1) 
+        + hist.GetBinContent(b+1 + 2)
+        + hist.GetBinContent(b+1 + 3);
+      yi = yi/7.;
     }
     else
       yi = hist.GetBinContent(b+1);
@@ -65,7 +70,6 @@ TH1F *getSmooth(TH1F &hist, double xb[])
   }
   return hstSmooth;
 }
-
 
 TH1F *histDerivative(TH1F &hist, double xb[]) // Central differences
 {
@@ -83,6 +87,60 @@ TH1F *histDerivative(TH1F &hist, double xb[]) // Central differences
 
   }
   return derihist;
+}
+
+
+vector < double > getFitRange( TH1F &h )
+{
+  vector < double > minmax;
+  int tmpMin = 0; // Min for fitting
+	int tmpMax = 0; // Max for fitting
+
+  double tmpBinMin = 0.;
+  double tmpBinMax = 0.;
+  double rawbinMax = 0.;
+  double rawbinMin = 0.;
+
+  for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
+    if ( h.GetBinContent(kk) < 0 ) // peakFFTDer->GetBinContent(kk) < 0 )
+    {
+      if ( tmpBinMax < fabs( h.GetBinContent( kk ) ) ) //peakFFTDer->GetBinContent( kk ) ) )
+      {
+        tmpBinMax = fabs( h.GetBinContent(kk)); //peakFFTDer->GetBinContent(kk));
+        tmpMax = h.GetBinCenter(kk); // peakFFTDer->GetBinCenter(kk);
+      }
+    }
+    else
+    {
+      tmpBinMax = h.GetBinCenter(kk); //peakFFTDer->GetBinCenter(kk);
+      rawbinMax = kk;
+      break;
+    }
+
+  tmpBinMin = 0;
+  int nroot = 0;
+  for ( int kk=rawbinMax; kk>0; kk-- ) // 20 FADC after 0 FADC
+  {
+    if ( tmpBinMin < fabs(h.GetBinContent( kk ) ) )
+    {
+      tmpBinMin = fabs( h.GetBinContent( kk ) );
+      tmpMin = h.GetBinCenter(kk-1);
+    }
+    if ( h.GetBinContent( kk ) < 0 && nroot==0 )
+    {
+      nroot = 1;
+      rawbinMin = h.GetBinCenter(kk);
+    }
+    else if ( h.GetBinContent( kk ) > 0 && nroot==1 )
+      break;
+  }
+
+  minmax.push_back( tmpMin );
+  minmax.push_back( tmpMax );
+  minmax.push_back( tmpBinMax );
+  minmax.push_back( rawbinMin );
+
+  return minmax;
 }
 
 
@@ -110,17 +168,35 @@ double peakMaxPk(TF1* f)
 }
 
 
+void getResiduals( TH1F *hist, TF1 *func,
+    double rangMin, double rangMax,
+    vector < double > &x, vector < double > &y, vector < double > &err )
+{
+  int nbins = hist->GetXaxis()->GetNbins();
+  double tmp = 0.;
+  for ( int kbin=1; kbin<nbins; kbin++ )
+    if ( hist->GetBinCenter(kbin) >= rangMin && hist->GetBinCenter(kbin) <= rangMax )
+    {
+      x.push_back( hist->GetBinCenter(kbin) );
+      tmp = func->Eval( hist->GetBinCenter(kbin) ) - hist->GetBinContent(kbin);
+      y.push_back( tmp / sqrt( hist->GetBinContent(kbin) ) );
+      err.push_back( sqrt( pow(sqrt( hist->GetBinContent(kbin) ),2)
+            + pow(sqrt( sqrt(func->Eval( hist->GetBinCenter(kbin) ) ) ),2)
+            ) / sqrt( hist->GetBinContent(kbin) ) );
+    }
+}
+
+
 // ==================================
 // *** ***  *** MAIN CODE *** *** *** 
 
 void readFitPeakHisto()
 {
-
   TString dir = gSystem->UnixPathName(gInterpreter->GetCurrentMacroName());
   dir.ReplaceAll("readFitPeakHisto.C","");
   dir.ReplaceAll("/./","/");
   ifstream in;
-  //in.open(Form("%ssample62141292.dat",dir.Data()));
+  //in.open(Form("%ssample62165707.dat",dir.Data()));
   in.open(Form("%speakHist61219267.dat",dir.Data()));
   
   srand (time(NULL)); 
@@ -148,7 +224,6 @@ void readFitPeakHisto()
 
   TCanvas *c1 = canvasStyle("c1"); 
   TCanvas *c2 = canvasStyle("c2"); 
-  TCanvas *c3 = canvasStyle("c3");
 
   TH1F *peak = new TH1F("peak", "", nbins, xfadc);
   
@@ -159,47 +234,7 @@ void readFitPeakHisto()
 
   TH1F *peakSmooth = getSmooth(*peak, xfadc);
   TH1F *peakSmooDer = histDerivative(*peakSmooth, xfadc);
-  peakSmooDer->Smooth(700);
-
-  TH1 *test = 0;
-  TVirtualFFT::SetTransform(0);
-  test = peak->FFT(test, "PH");
-
-  int n = test->GetXaxis()->GetNbins();
-  Double_t *re_full = new Double_t[n];
-  Double_t *im_full = new Double_t[n];
-
-  TVirtualFFT *fft = TVirtualFFT::GetCurrentTransform();
-  fft->GetPointsComplex(re_full,im_full);
-
-  int first = 0.06*n;
-  for ( int k=first; k<test->GetXaxis()->GetNbins(); k++ )
-  {
-    re_full[k] = 0;
-    im_full[k] = 0;
-  }
-
-  TVirtualFFT *fft_back = TVirtualFFT::FFT(1, &n, "C2R M K");
-  fft_back->SetPointsComplex(re_full,im_full);
-  fft_back->Transform();
-
-  TH1 *hbC = 0;
-  hbC = TH1::TransformHisto(fft_back,hbC,"Re");
-  hbC->SetTitle("The backward transform result");
-
-  double xc[151];
-  for (int j = 0; j < 102; j++)
-    xc[j] = 4.*j - 12;
-  for (int j = 0; j < 51; j++)
-    xc[100 + j] = 100*4. + 4.*4.*j;
-
-  TH1F *peakFFT = new TH1F("peakFFT","", 150, xc);
-  for (int j = 0; j < 102; j++)
-    peakFFT->SetBinContent(j + 1, hbC->GetBinContent(j)/150.);
-  for (int j = 0; j < 50; j++)
-    peakFFT->SetBinContent(j + 1 + 100, hbC->GetBinContent(j+100)/150.);
-
-  TH1 *peakFFTDer = histDerivative(*peakFFT, xfadc);
+  TH1F *peakSmooDerSmth = getSmooth(*peakSmooDer, xfadc);
 
   TLine *line;
   TLegend *leg;
@@ -214,20 +249,14 @@ void readFitPeakHisto()
   histoStyle(peak);
   peak->Draw();
 
-  peakSmooth->SetLineColor(kOrange+10);
-  peakSmooth->SetLineWidth(1);
+  peakSmooth->SetLineColor(kOrange+9);
+  peakSmooth->SetLineWidth(2);
   peakSmooth->Draw("same");
 
-  peakFFT->SetLineColor(kMagenta+1);
-  peakFFT->SetLineWidth(1);
-  peakFFT->Draw("same");
-
   leg = new TLegend(0.62,0.65,0.95,0.96);
-  //leg->SetHeader("#splitline{Peak histogrma Station 1740}{(Event 61509855)}");
   leg->SetHeader("#splitline{Peak histogrma Station 863}{(Event 61219267)}");
   leg->AddEntry(peak,"Peak histogram","f");
   leg->AddEntry(peakSmooth,"Smooth peak histogram","f");
-  leg->AddEntry(peakFFTDer,"First derivative FFT","f");
   leg->Draw();  
   c1->Print("../plots/peakHisto863.pdf");
 
@@ -242,93 +271,45 @@ void readFitPeakHisto()
   histoStyle(peakDer);
   peakDer->Draw();
 
+  peakSmooDer->SetStats(0);
+  peakSmooDer->SetLineColor(kOrange+9);
+  peakSmooDer->SetLineWidth(2);
+  peakSmooDer->Draw("sames");
+
+  peakSmooDerSmth->SetStats(0);
+  peakSmooDerSmth->SetLineColor(kGreen+3);
+  peakSmooDerSmth->SetLineWidth(2);
+  peakSmooDerSmth->Draw("sames");
+
   line = new TLine(0, 0, 1000, 0);
   line->SetLineStyle(4);
   line->SetLineWidth(2);
   line->Draw();
   
-  leg = new TLegend(0.65,0.7,0.95,0.87);
+  leg = new TLegend(0.45,0.7,0.95,0.97);
   leg->SetHeader("From peak histogram","C");
-  leg->AddEntry(peakSmooDer,"First derivative","f");
+  leg->AddEntry(peakDer,"First derivative Peak-H.","f");
+  leg->AddEntry(peakSmooDer,"First derivative Smooth-Peak-H.","f");
+  leg->AddEntry(peakSmooDerSmth,"Smooth First derivative Smooth-Peak-H.","f");
+  leg->SetTextSize(0.04);
   leg->Draw();
   c2->Print("../plots/peakDerHisto863.pdf");
-
-  c3->cd();  
-  peakSmooDer->SetLineColor(kOrange+10);
-  peakSmooDer->SetLineWidth(1);
-  peakSmooDer->SetStats(0);
-  peakSmooDer->GetXaxis()->SetRangeUser(-10, 1000);
-  peakSmooDer->GetXaxis()->SetTitle("[FADC]");
-  peakSmooDer->GetYaxis()->SetRangeUser(-50, 50);
-  peakSmooDer->GetYaxis()->SetTitle("[au]");
-  histoStyle(peakSmooDer);
-  peakSmooDer->Draw();
-
-  peakFFTDer->SetLineColor(kMagenta+1);
-  peakFFTDer->SetLineWidth(2);
-  peakFFTDer->Draw("hist same");
-
-  line = new TLine(0, 0, 1000, 0);
-  line->SetLineStyle(4);
-  line->SetLineWidth(2);
-  line->Draw();
-  
-  leg = new TLegend(0.5,0.64,0.95,0.9);
-  leg->SetHeader("From Smooth peak histogram","C");
-  leg->AddEntry(peakSmooDer,"First derivative smooth","f");
-  leg->AddEntry(peakFFTDer,"First derivative FFT","f");
-  leg->Draw();
-  c3->Print("../plots/peakSmoothDerHisto863.pdf");
 
 
   // ===============================
   // *** *** *** FITTING *** *** *** 
 
+  TCanvas *c3 = canvasStyle("c3");
   TCanvas *c4 = canvasStyle("c4");
-  //TCanvas *c5 = canvasStyle("c5");
-  TCanvas *c6 = canvasStyle("c6");
 
-	int rangXmin = 0; // Min for fitting
-	int rangXmax = 0; // Max for fitting
-	int nXbins = peak->GetXaxis()->GetNbins(); // Number of bins for fitting
+  vector < double > fitRange;
+  fitRange = getFitRange( *peakSmooDerSmth );
 
-  double binMin = 0.;
-  double binMax = 0.;
-
-  for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
-    if ( peakSmooDer->GetBinContent(kk) < 0 ) // peakFFTDer->GetBinContent(kk) < 0 )
-    {
-      if ( binMax < fabs( peakSmooDer->GetBinContent( kk ) ) ) //peakFFTDer->GetBinContent( kk ) ) )
-      {
-        binMax = fabs( peakSmooDer->GetBinContent(kk)); //peakFFTDer->GetBinContent(kk));
-        rangXmax = peakSmooDer->GetBinCenter(kk); // peakFFTDer->GetBinCenter(kk);
-      }
-    }
-    else
-    {
-      binMax = peakSmooDer->GetBinCenter(kk); //peakFFTDer->GetBinCenter(kk);
-      break;
-    }
-
-  binMin = 0;
-  int tmpneg = 0;
-  cerr << peakSmooDer->GetBinCenter(7) << endl;
-  for ( int kk=7; kk<130; kk++ ) // 20 FADC after 0 FADC
-  {
-    if ( peakSmooDer->GetBinContent( kk ) > 0 && tmpneg == 1 ) //peakFFTDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
-      break;
-    if ( peakSmooDer->GetBinContent( kk ) < 0 ) //peakFFTDer->GetBinContent( kk ) < 0 )
-      if ( binMin < fabs( peakSmooDer->GetBinContent( kk ) ) ) //peakFFTDer->GetBinContent( kk ) ) )
-      {
-        rangXmin = peakSmooDer->GetBinCenter(kk); //peakFFTDer->GetBinCenter(kk);
-        binMin = fabs( peakSmooDer->GetBinContent( kk ) ); //peakFFTDer->GetBinContent( kk ) );
-        tmpneg = 1;
-      }
-  } 
-
-	vector < double > xbins; // X bins for fit-function
+  vector < double > xbins; // X bins for fit-function
 	vector < double > ycnts; // Y counts for fit-function
 	vector < double > yerrs; // Y errors for fit-function
+
+  int nXbins = peak->GetXaxis()->GetNbins(); // Number of bins for fitting
 
 	for( int b=0; b<nXbins; b++ ) 
   { 
@@ -337,9 +318,15 @@ void readFitPeakHisto()
 		xbins.push_back( peak->GetBinCenter(b+1) );
 	}
 
-  rangXmin *= 1.1;
-  rangXmax *= 1.3;
-  cerr << "MSD " << rangXmin << " " << rangXmax << " " << binMax << endl;
+  double rangXmin = 0.;
+  double rangXmax = 0.;
+  double binMax = 0.;
+
+  rangXmin = 1.2*fitRange[0];
+  rangXmax = 1.4*fitRange[1];
+  binMax = fitRange[2];
+
+  cerr << "MSD " << fitRange[0] << " " << fitRange[1] << " " << fitRange[2] << endl;
 
 	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
 			&ycnts.front(), 0, &yerrs.front() );
@@ -367,18 +354,8 @@ void readFitPeakHisto()
   vector < double > xResid;
   vector < double > yResid;
   vector < double > errResid;
-  double tmp = 0.;
-  for ( int kbin=1; kbin<nXbins; kbin++ )
-    if ( peak->GetBinCenter(kbin) >= rangXmin && peak->GetBinCenter(kbin) <= rangXmax )
-    {
-      xResid.push_back( peak->GetBinCenter(kbin) );
-      tmp = fitFcn->Eval( peak->GetBinCenter(kbin) ) - peak->GetBinContent(kbin);
-      yResid.push_back( tmp / sqrt( peak->GetBinContent(kbin) ) );
-      errResid.push_back( sqrt( 
-            pow(sqrt( peak->GetBinContent(kbin) ),2) 
-            + pow(sqrt( sqrt(fitFcn->Eval( peak->GetBinCenter(kbin) ) ) ),2)
-            ) / sqrt( peak->GetBinContent(kbin) ) );
-    }
+
+  getResiduals( peak, fitFcn, rangXmin, rangXmax, xResid, yResid, errResid );
 
   TGraphErrors* residGraph = new TGraphErrors( xResid.size(), &xResid.front(),
       &yResid.front(), 0, &errResid.front() );
@@ -399,7 +376,7 @@ void readFitPeakHisto()
     tmp2->SetBinContent(i, y);
   }  
 
-  c4->cd();
+  c3->cd();
   TPaveStats *ptstats;
   gStyle->SetOptStat(1);
   gStyle->SetOptFit(1111);
@@ -432,29 +409,19 @@ void readFitPeakHisto()
   line->SetLineWidth(2);
   line->Draw();
 
-  c4->Print("../plots/peakFittedHisto863.pdf");
+  c3->Print("../plots/peakFittedHisto863.pdf");
 
-  //TRatioPlot *rpmean;
-  //c5->cd();
-  //TF1 *fitmean21 = chFit->GetFunction("fitFcn");
-  //tmp2->Fit(fitmean21,"QR");
-  //tmp2->GetXaxis()->SetRangeUser(50, 400);
-  //rpmean = new TRatioPlot(tmp2);
-  //rpmean->SetGraphDrawOpt("APL*");
-  //rpmean->Draw();
-  //rpmean->GetLowerRefYaxis()->SetRangeUser(-5, 5);
-  //c5->Update();
-
-  c6->cd();
+  c4->cd();
   residGraph->SetTitle("");
   residGraph->GetXaxis()->SetRangeUser(50, 500);
   residGraph->GetYaxis()->SetRangeUser(-8, 4);
-  residGraph->SetLineColor(kBlue);
+  residGraph->SetLineColor(kBlack);
   residGraph->SetLineWidth(1);
   residGraph->GetXaxis()->SetTitle("[FADC]");
-  residGraph->GetYaxis()->SetTitle("Residuals [au]");
+  residGraph->GetYaxis()->SetTitle("Residuals");
   residGraph->SetMarkerStyle(20);
-  residGraph->SetMarkerSize(1.5);
+  residGraph->SetMarkerColor(kBlack);
+  residGraph->SetMarkerSize(2);
   histoStyle(residGraph);
   residGraph->GetYaxis()->SetTitleOffset(0.8);
   residGraph->Draw("APL");
@@ -465,7 +432,7 @@ void readFitPeakHisto()
   valpeak.Form("%.2f", peakVal);
 
   leg = new TLegend(0.61,0.19,0.96,0.40);
-  leg->AddEntry(residGraph,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valpeak+"}","f"); 
+  leg->AddEntry(residGraph,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valpeak+"}","ep"); 
   leg->SetTextSize(0.065);
   leg->Draw();
 
@@ -489,17 +456,17 @@ void readFitPeakHisto()
   line->SetLineWidth(1);
   line->Draw();
 
-  c6->Print("../plots/peakFitResiduals863.pdf");
+  c4->Print("../plots/peakFitResiduals863.pdf");
 
 
   // =============================
   // *** *** Fitting Poly2 *** ***
 
-  TCanvas *c7 = canvasStyle("c7");
-  TCanvas *c8 = canvasStyle("c8");
+  TCanvas *c5 = canvasStyle("c5");
+  TCanvas *c6 = canvasStyle("c6");
 
-  rangXmax = 1.3*binMax;
-  rangXmin = 0.7*binMax;
+  rangXmin = fitRange[3];
+  rangXmax = fitRange[1];
 
   TGraphErrors* poly2Fit = new TGraphErrors( xbins.size(), &xbins.front(),
       &ycnts.front(), 0, &yerrs.front() );
@@ -513,29 +480,18 @@ void readFitPeakHisto()
   xResid.clear();
   yResid.clear();
   errResid.clear();
-  tmp = 0;
 
-  for ( int kbin=1; kbin<nXbins; kbin++ )
-    if ( peak->GetBinCenter(kbin) >= rangXmin && peak->GetBinCenter(kbin) <= rangXmax )
-    {
-      xResid.push_back( peak->GetBinCenter(kbin) );
-      tmp = poly2->Eval( peak->GetBinCenter(kbin) ) - peak->GetBinContent(kbin); 
-      yResid.push_back( tmp / sqrt( peak->GetBinContent(kbin) ) );
-      errResid.push_back( sqrt( 
-            pow(sqrt( peak->GetBinContent(kbin) ),2) 
-            + pow(sqrt( sqrt(poly2->Eval( peak->GetBinCenter(kbin) ) ) ),2)
-            ) / sqrt( peak->GetBinContent(kbin) ) );
-    }
+  getResiduals( peak, poly2, rangXmin, rangXmax, xResid, yResid, errResid );
 
   TGraphErrors* residGraphPoly2 = new TGraphErrors( xResid.size(), &xResid.front(),
       &yResid.front(), 0, &errResid.front() );
 
-  TH1F *poly2Resid = new TH1F("poly2Resid", "", 11, -5, 5);
+  TH1F *poly2Resid = new TH1F("poly2Resid", "", 14, -7, 7);
   for ( int val=0; val<yResid.size(); val++ )
     poly2Resid->Fill( yResid[val] );
 
 
-  c7->cd();
+  c5->cd();
   gStyle->SetOptStat(1);
   gStyle->SetOptFit(1111);
   ptstats = new TPaveStats(0.63, 0.67, 0.96, 0.97,"brNDC");
@@ -555,18 +511,19 @@ void readFitPeakHisto()
   line->SetLineWidth(2);
   line->Draw();
 
-  c7->Print("../plots/peakFitPoly2863.pdf");
+  c5->Print("../plots/peakFitPoly2863.pdf");
 
-  c8->cd();
+  c6->cd();
   residGraphPoly2->SetTitle("");
   residGraphPoly2->GetXaxis()->SetRangeUser(50, 500);
   residGraphPoly2->GetYaxis()->SetRangeUser(-8, 4);
-  residGraphPoly2->SetLineColor(kBlue);
+  residGraphPoly2->SetLineColor(kBlack);
   residGraphPoly2->SetLineWidth(1);
   residGraphPoly2->GetXaxis()->SetTitle("[FADC]");
-  residGraphPoly2->GetYaxis()->SetTitle("Residuals [au]");
-  residGraphPoly2->SetMarkerSize(1.5);
-  residGraphPoly2->SetMarkerStyle(20);
+  residGraphPoly2->GetYaxis()->SetTitle("Residuals");
+  residGraphPoly2->SetMarkerSize(3);
+  residGraphPoly2->SetMarkerColor(kBlack);
+  residGraphPoly2->SetMarkerStyle(23);
   histoStyle(residGraphPoly2);
   residGraphPoly2->GetYaxis()->SetTitleOffset(0.8);
   residGraphPoly2->Draw("APL");
@@ -574,8 +531,8 @@ void readFitPeakHisto()
   chindf.Form("%.2f", poly2->GetChisquare() / poly2->GetNDF() );
   valpeak.Form("%.2f", peakVal);
 
-  leg = new TLegend(0.14,0.19,0.50,0.40);
-  leg->AddEntry(residGraph,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valpeak+"}","f");
+  leg = new TLegend(0.61,0.19,0.96,0.40);
+  leg->AddEntry(residGraphPoly2,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valpeak+"}","ep");
   leg->SetTextSize(0.065);
   leg->Draw();
 
@@ -589,364 +546,175 @@ void readFitPeakHisto()
   line->SetLineWidth(2);
   line->Draw();
 
-  line = new TLine(rangXmin-10, 1, rangXmax+5, 1);
+  line = new TLine(rangXmin-5, 1, rangXmax+5, 1);
   line->SetLineStyle(9);
   line->SetLineWidth(1);
   line->Draw();
 
-  line = new TLine(rangXmin-10, -1, rangXmax+5, -1);
+  line = new TLine(rangXmin-5, -1, rangXmax+5, -1);
   line->SetLineStyle(9);
   line->SetLineWidth(1);
   line->Draw();
 
-  c8->Print("../plots/peakFitResidualsPoly2863.pdf");
+  c6->Print("../plots/peakFitResidualsPoly2863.pdf");
 
-  // ====================================================
-  // *** *** *** Aplying for Smooth Histogram *** *** *** 
+  // ==============================
+  // *** *** Comparing Chi2 *** ***
+  TCanvas *c7 = canvasStyle("c7");
+  TCanvas *c8 = canvasStyle("c8");
 
-  // ===============================
-  // *** *** Doing for Poly2 *** ***
-  TCanvas *c9 = canvasStyle("c9");
-  TCanvas *c10 = canvasStyle("c10");
+  // ===========
+  // Using the same range for Poly2
+  rangXmin = fitRange[3];
+  rangXmax = fitRange[1];
 
-  xbins.clear();
-  ycnts.clear();
-  yerrs.clear();
-	for( int b=0; b<nXbins; b++ ) 
-  {
-		ycnts.push_back( peakFFT->GetBinContent( b+1 ) );
-		yerrs.push_back( sqrt( ycnts[b] ) );
-		xbins.push_back( peakFFT->GetBinCenter(b+1) );
-	}
-
-  TGraphErrors* poly2FitSmooth = new TGraphErrors( xbins.size(), &xbins.front(),
-      &ycnts.front(), 0, &yerrs.front() );
-
-  TF1 *poly2Smooth = new TF1("poly2Smooth","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
-  poly2FitSmooth->Fit("poly2Smooth","QR");
-
-  peakVal = -poly2Smooth->GetParameter(1) / (2.*poly2Smooth->GetParameter(0));
-
-  // =====================================
-  // *** Computing residuals for Poly2 ***
   xResid.clear();
   yResid.clear();
   errResid.clear();
-  tmp = 0;
 
-  for ( int kbin=1; kbin<nXbins; kbin++ )
-    if ( peakFFT->GetBinCenter(kbin) >= rangXmin && peakFFT->GetBinCenter(kbin) <= rangXmax )
-    {
-      xResid.push_back( peakFFT->GetBinCenter(kbin) );
-      tmp = poly2Smooth->Eval( peakFFT->GetBinCenter(kbin) ) - peakFFT->GetBinContent(kbin);
-      yResid.push_back( tmp );
-      errResid.push_back( sqrt( 
-            pow(sqrt( peakFFT->GetBinContent(kbin) ),2) 
-            + pow(sqrt( sqrt(poly2Smooth->Eval( peakFFT->GetBinCenter(kbin) ) ) ),2)
-            ) );
-    }
+  getResiduals( peak, fitFcn, rangXmin, rangXmax, xResid, yResid, errResid );
 
-  TGraphErrors* residGraphPoly2Smooth = new TGraphErrors( xResid.size(), &xResid.front(),
-      &yResid.front(), 0, &errResid.front() );
-
-  TH1F *residPoly2Smooth = new TH1F("residPoly2Smooth", "", 33, -100, 100);
+  TH1F *logNormResid2 = new TH1F("logNormResid2", "", 14, -7, 7);
   for ( int val=0; val<yResid.size(); val++ )
-    residPoly2Smooth->Fill( yResid[val] );
+    logNormResid2->Fill( yResid[val] );
 
-  c9->cd();
-  gStyle->SetOptStat(1);
-  gStyle->SetOptFit(1111);
-  ptstats = new TPaveStats(0.63, 0.67, 0.96, 0.97,"brNDC");
-  poly2FitSmooth->GetListOfFunctions()->Add(ptstats);
-  poly2FitSmooth->SetTitle("");
-  poly2FitSmooth->GetXaxis()->SetRangeUser(10, 500);
-  poly2FitSmooth->GetYaxis()->SetRangeUser(0, 4000);
-  poly2FitSmooth->SetLineColor(kBlue);
-  poly2FitSmooth->SetLineWidth(1);
-  poly2FitSmooth->GetXaxis()->SetTitle("[FADC]");
-  poly2FitSmooth->GetYaxis()->SetTitle("Counts [au]");
-  histoStyle(poly2FitSmooth);
-  poly2FitSmooth->Draw();
+  double sum = 0.;
+  for ( int kk=0; kk<xResid.size(); kk++ )
+    sum += yResid[kk]*yResid[kk];
 
-  line = new TLine(peakVal, 0, peakVal, 4000);
-  line->SetLineStyle(4);
-  line->SetLineWidth(2);
-  line->Draw();
+  TGraphErrors *residGraph2 = new TGraphErrors( xResid.size(), &xResid.front(),
+      &yResid.front(), 0, &errResid.front() );
+  peakVal = peakMaxPk(fitFcn);
 
-  c9->Print("../plots/peakSmoothFitPoly2863.pdf");
+  c7->cd();
+  residGraph2->SetTitle("");
+  residGraph2->GetYaxis()->SetRangeUser(-13, 5);
+  residGraph2->SetLineColor(kRed);
+  residGraph2->SetMarkerColor(kRed);
+  residGraph2->SetLineWidth(2);
+  residGraph2->GetXaxis()->SetTitle("[FADC]");
+  residGraph2->GetYaxis()->SetTitle("Residuals");
+  residGraph2->SetMarkerStyle(20);
+  residGraph2->SetMarkerSize(2);
+  histoStyle(residGraph2);
+  residGraph2->GetYaxis()->SetTitleOffset(0.8);
+  residGraph2->Draw("AP same");
 
-  c10->cd();
-  residGraphPoly2Smooth->SetTitle("");
-  residGraphPoly2Smooth->GetXaxis()->SetRangeUser(50, 500);
-  residGraphPoly2Smooth->GetYaxis()->SetRangeUser(-320,200);
-  residGraphPoly2Smooth->SetLineColor(kBlue);
-  residGraphPoly2Smooth->SetLineWidth(1);
-  residGraphPoly2Smooth->GetXaxis()->SetTitle("[FADC]");
-  residGraphPoly2Smooth->GetYaxis()->SetTitle("y_{fit} - y_{data} [au]");
-  residGraphPoly2Smooth->SetMarkerStyle(20);
-  residGraphPoly2Smooth->SetMarkerSize(1.5);
-  histoStyle(residGraphPoly2Smooth);
-  residGraphPoly2Smooth->Draw("APL");
-
-  chindf.Form("%.2f", poly2Smooth->GetChisquare() / poly2Smooth->GetNDF() );
+  residGraphPoly2->SetLineColor(kGreen+3);
+  residGraphPoly2->SetLineWidth(2);
+  residGraphPoly2->SetMarkerStyle(23);
+  residGraphPoly2->SetMarkerColor(kGreen+3);
+  residGraphPoly2->SetMarkerSize(3);
+  residGraphPoly2->Draw("p same");
+  
+  leg = new TLegend(0.12,0.16,0.75,0.48);
+  TString chi2;
+  chi2.Form("%.2f", sum );
+  TString ndf;
+  ndf.Form("%lu",  xResid.size()-5);
   valpeak.Form("%.2f", peakVal);
-
-
-  leg = new TLegend(0.6,0.19,0.96,0.47);
-  leg->AddEntry(residGraph,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valpeak+"}","f"); 
-  leg->SetTextSize(0.065);
+  leg->AddEntry(residGraph2,"#splitline{Exp+Lognormal: #chi^{2}/ndf = "+chi2+"/"+ndf+" = 3.52}{Peak val.: "+valpeak+"}","ep"); 
+  chindf.Form("%.2f", poly2->GetChisquare() / poly2->GetNDF()  );
+  peakVal = -poly2->GetParameter(1) / (2.*poly2->GetParameter(0)); 
+  valpeak.Form("%.2f", peakVal);
+  chi2.Form("%.2f", poly2->GetChisquare() );
+  ndf.Form("%d", poly2->GetNDF());
+  leg->AddEntry(residGraphPoly2,"#splitline{Poly2: #chi^{2}/ndf = "+chi2+"/"+ndf+" = 3.09}{Peak val.: "+valpeak+"}","ep"); 
+  leg->SetTextSize(0.05);
   leg->Draw();
-
+  
   line = new TLine(rangXmin-5, 0, rangXmax+5, 0);
   line->SetLineStyle(4);
   line->SetLineWidth(2);
+  line->Draw();  
+  
+  line = new TLine(rangXmin-5, 1, rangXmax+5, 1);
+  line->SetLineStyle(9);
+  line->SetLineWidth(1);
   line->Draw();
 
-
-  line = new TLine(peakVal, -320, peakVal, 200);
-  line->SetLineStyle(4);
-  line->SetLineWidth(2);
+  line = new TLine(rangXmin-5, -1, rangXmax+5, -1);
+  line->SetLineStyle(9);
+  line->SetLineWidth(1);
   line->Draw();
 
-  c10->Print("../plots/peakFitSmoothResidualsPoly2863.pdf");
-
-
-  // ====================================================
-  // *** *** Fitting Log-Norm to Smooth histogram *** ***
-
-  TCanvas *c11 = canvasStyle("c11");
-  TCanvas *c12 = canvasStyle("c12");
-
-  rangXmax = 1.8*binMax;
-  binMax = 0.;
-
-  for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
-    if ( peakFFTDer->GetBinContent(kk) < 0 )
-    {
-      if ( binMax < fabs(peakFFTDer->GetBinContent( kk ) ) )
-      {
-        binMax = fabs(peakFFTDer->GetBinContent(kk));
-        rangXmax = peakFFTDer->GetBinCenter(kk);
-      }
-    }
-    else
-    {
-      binMax = peakFFTDer->GetBinCenter(kk);
-      break;
-    }
-
-  rangXmax *= 1.5;
-
-  binMin = 0;
-  tmpneg = 0;
-  for ( int kk=7; kk<130; kk++ ) // 20 FADC after 0 FADC
-  {
-    if ( peakFFTDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
-      break;
-    if ( peakFFTDer->GetBinContent( kk ) < 0 )
-      if ( binMin < fabs( peakFFTDer->GetBinContent( kk ) ) )
-      {
-        rangXmin = peakFFTDer->GetBinCenter(kk); // 20 FADC fordward EM-Peak
-        binMin = fabs( peakFFTDer->GetBinContent( kk ) );
-        tmpneg = 1;
-      }
-  }
-
-  //rangXmin += 10;
+  c7->Print("../plots/peakResidualsCompar863.pdf");
 
   xbins.clear();
   ycnts.clear();
   yerrs.clear();
 
-	for( int b=0; b<nXbins; b++ ) 
+  for( int b=0; b<nXbins; b++ )
   {
-		ycnts.push_back( peakFFT->GetBinContent( b+1 ) );
+		ycnts.push_back( peak->GetBinContent( b+1 ) );
 		yerrs.push_back( sqrt( ycnts[b] ) );
-		xbins.push_back( peakFFT->GetBinCenter(b+1) );
+		xbins.push_back( peak->GetBinCenter(b+1) );
 	}
 
-	chFit = new TGraphErrors( xbins.size(), &xbins.front(),
-			&ycnts.front(), 0, &yerrs.front() );
+  TGraphErrors* chFit2 = new TGraphErrors( xbins.size(), &xbins.front(),
+      &ycnts.front(), 0, &yerrs.front() );
 
-  fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
-  fitFcn->SetParameters(12.7, binMax, -3., 5., -266.2); //Set  init. fit par.
-  chFit->Fit("fitFcn","QR");
-  
-  peakVal = peakMaxPk(fitFcn);
+  c8->cd();
+  gStyle->SetOptStat(0);
+  chFit2->SetTitle("");
+  chFit2->GetXaxis()->SetRangeUser(30, 350);
+  chFit2->GetYaxis()->SetRangeUser(1000, 3700);
+  chFit2->SetLineColor(kBlue);
+  chFit2->SetLineWidth(1);
+  chFit2->GetXaxis()->SetTitle("[FADC]");
+  chFit2->GetYaxis()->SetTitle("Counts [au]");
+  histoStyle(chFit2);
+  chFit2->Draw();
 
-  expon = new TF1("expon", "exp( [0] - [1]/x )", rangXmin, rangXmax);
-  lognorm = new TF1("lognorm", "(exp([0])/x) * exp( -0.5*pow( (( log([1]) - log(x) )*[2]),2 ) )", rangXmin, rangXmax);
-  
-  expon->SetParameter(0, fitFcn->GetParameter(3));
-  expon->SetParameter(1, fitFcn->GetParameter(4));
-  
-  lognorm->SetParameter(0, fitFcn->GetParameter(0));
-  lognorm->SetParameter(1, fitFcn->GetParameter(1));
-  lognorm->SetParameter(2, fitFcn->GetParameter(2));
+  poly2->SetLineColor(kGreen+3);
+  poly2->Draw("sames");
 
-  // ===================================================
-  // *** *** Doing residuals for Log-Norm Smooth *** ***
-  xResid.clear();
-  yResid.clear();
-  errResid.clear();
-  tmp = 0.;
-  for ( int kbin=1; kbin<nXbins; kbin++ )
-    if ( peakFFT->GetBinCenter(kbin) >= rangXmin && peakFFT->GetBinCenter(kbin) <= rangXmax )
-    {
-      xResid.push_back( peakFFT->GetBinCenter(kbin) );
-      tmp = fitFcn->Eval( peakFFT->GetBinCenter(kbin) ) - peakFFT->GetBinContent(kbin);
-      yResid.push_back( tmp ); /// sqrt( peak->GetBinContent(kbin) ) );
-      errResid.push_back( sqrt( 
-            pow(sqrt( peakFFT->GetBinContent(kbin) ),2) 
-            + pow(sqrt( sqrt(fitFcn->Eval( peakFFT->GetBinCenter(kbin) ) ) ),2)
-            ) );
-    }
-    
-  TGraphErrors *residGraphLogNormSmooth = new TGraphErrors( xResid.size(), &xResid.front(), &yResid.front(), 0, &errResid.front() );
+  fitFcn->SetLineColor(kRed);
+  fitFcn->Draw("sames");
 
-  TH1F *residLogNormSmooth = new TH1F("residLogNormSmooth", "", 33, -100, 100);
-  for ( int val=0; val<yResid.size(); val++ )
-    residLogNormSmooth->Fill( yResid[val] );
-      
-  c11->cd();
+  leg = new TLegend(0.71,0.75,0.96,0.96);
+  leg->AddEntry(residGraph2,"Exp+Lognormal","l");
+  leg->AddEntry(residGraphPoly2,"Poly2","l"); 
+  leg->SetTextSize(0.05);
+  leg->Draw();
 
+  c8->Print("../plots/peakFitCompar863.pdf");
+
+  // ======================================
+  // *** *** Residuals distribution *** ***
+
+  TCanvas *c9 = canvasStyle("c9");
   gStyle->SetOptStat(1);
   gStyle->SetOptFit(1111);
-  ptstats = new TPaveStats(0.63, 0.67, 0.96, 0.97,"brNDC");
-  chFit->GetListOfFunctions()->Add(ptstats);
-  
-  chFit->SetTitle("");
-  chFit->GetXaxis()->SetRangeUser(10, 500);
-  chFit->GetYaxis()->SetRangeUser(0, 4000);
-  chFit->SetLineColor(kBlue);
-  chFit->SetLineWidth(1);
-  chFit->GetXaxis()->SetTitle("[FADC]");
-  chFit->GetYaxis()->SetTitle("Counts [au]");
-  histoStyle(chFit);
-  chFit->Draw();
 
-  expon->SetLineColor(kGreen+2);
-  expon->Draw("same");
-  lognorm->SetLineColor(kMagenta+2);
-  lognorm->Draw("same");
-                                               
-  leg = new TLegend(0.63,0.34,0.96,0.65);
-  leg->AddEntry(peak,"Peak histogram","f");
-  leg->AddEntry(fitFcn,"Fit Exp+Lognormal","f");
-  leg->AddEntry(expon,"Fit Exp","f");
-  leg->AddEntry(lognorm,"Fit Lognormal","f");
-  leg->Draw();
-
-  line = new TLine(peakVal, 0, peakVal, 4000);
-  line->SetLineStyle(4);
-  line->SetLineWidth(2);
-  line->Draw();
-
-  c11->Print("../plots/peakSmoothFittedHisto863.pdf");
-
-  c12->cd();
-
-  residGraphLogNormSmooth->SetTitle("");
-  residGraphLogNormSmooth->GetXaxis()->SetRangeUser(50, 500);
-  residGraphLogNormSmooth->GetYaxis()->SetRangeUser(-320, 200);
-  residGraphLogNormSmooth->SetLineColor(kBlue);
-  residGraphLogNormSmooth->SetLineWidth(1);
-  residGraphLogNormSmooth->GetXaxis()->SetTitle("[FADC]");
-  residGraphLogNormSmooth->GetYaxis()->SetTitle("y_{fit} - y_{data} [au]");
-  residGraphLogNormSmooth->SetMarkerStyle(20);
-  residGraphLogNormSmooth->SetMarkerSize(1.5);
-  histoStyle(residGraphLogNormSmooth);
-  residGraphLogNormSmooth->Draw("APL");
-
-  chindf.Form("%.2f", fitFcn->GetChisquare() / fitFcn->GetNDF() );
-  valpeak.Form("%.2f", peakVal);
-
-  leg = new TLegend(0.6,0.19,0.96,0.47);
-  leg->AddEntry(residGraphLogNormSmooth,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valpeak+"}","f"); 
-  leg->SetTextSize(0.065);
-  leg->Draw();
-
-  line = new TLine(50, 0, 400, 0);
-  line->SetLineStyle(4);
-  line->SetLineWidth(2);
-  line->Draw();
-
-  line = new TLine(peakVal, -320, peakVal, 200);
-  line->SetLineStyle(4);
-  line->SetLineWidth(2);
-  line->Draw();
-
-  c12->Print("../plots/peakSmoothFitResiduals863.pdf");
-
-  // ========================================================
-  // *** *** *** Plotting Residuals distributions *** *** ***
-
-  TCanvas *c13 = canvasStyle("c13");
-  TCanvas *c14 = canvasStyle("c14");
-
-  c13->cd();
-  logNormResid->SetStats(1);
-  logNormResid->SetTitle("");
-  logNormResid->SetLineColor(kBlack);
-  logNormResid->SetLineWidth(1);
-  logNormResid->SetFillColor(kBlack);
-  logNormResid->SetFillStyle(3001);
-  logNormResid->GetXaxis()->SetTitle("Residuals [au]");
-  logNormResid->GetYaxis()->SetTitle("Counts [au]");
-  logNormResid->GetYaxis()->SetRangeUser(0, 15.5);
-  histoStyle(logNormResid);
-  logNormResid->Draw();
+  c9->cd();
+  logNormResid2->SetStats(1);
+  logNormResid2->SetTitle("");
+  logNormResid2->SetLineColor(kRed);
+  logNormResid2->SetFillColor(kRed);
+  logNormResid2->SetFillStyle(3354);
+  logNormResid2->SetLineWidth(1);
+  logNormResid2->GetXaxis()->SetTitle("Residual");
+  logNormResid2->GetYaxis()->SetTitle("Counts [au]");
+  histoStyle(logNormResid2);
+  logNormResid2->Draw();
 
   poly2Resid->SetTitle("");
-  poly2Resid->SetLineColor(kBlue);
-  poly2Resid->SetFillColor(kBlue);
-  poly2Resid->SetFillStyle(3001); 
+  poly2Resid->SetLineColor(kGreen+3);
+  poly2Resid->SetFillColor(kGreen+3);
+  poly2Resid->SetFillStyle(3345);
   poly2Resid->SetLineWidth(1);
   poly2Resid->Draw("sames");
 
   ptstats = new TPaveStats(0.13, 0.7, 0.36, 0.97,"brNDC");
-  ptstats->SetTextColor(kBlack);
-  logNormResid->SetName("Resid. LogNorm");
-  logNormResid->GetListOfFunctions()->Add(ptstats);
+  ptstats->SetTextColor(kRed);
+  logNormResid2->SetName("Residuals Exp.+ LogNorm");
+  logNormResid2->GetListOfFunctions()->Add(ptstats);
 
-  ptstats = new TPaveStats(0.73, 0.7, 0.96, 0.97,"brNDC");
-  ptstats->SetTextColor(kBlue);
-  poly2Resid->SetName("Resid. Poly2");
+  ptstats = new TPaveStats(0.72, 0.7, 0.96, 0.97,"brNDC");
+  ptstats->SetTextColor(kGreen+3);
+  poly2Resid->SetName("Residual Poly2");
   poly2Resid->GetListOfFunctions()->Add(ptstats);
 
-  c13->Print("../plots/peakResidualsDist863.pdf");
-
-  c14->cd();
-  residLogNormSmooth->SetStats(1);
-  residLogNormSmooth->SetTitle("");
-  residLogNormSmooth->SetLineColor(kBlack);
-  residLogNormSmooth->SetLineWidth(1);
-  residLogNormSmooth->SetFillColor(kBlack);
-  residLogNormSmooth->SetFillStyle(3001);
-  residLogNormSmooth->GetXaxis()->SetTitle("y_{fit} - y_{data} [au]");
-  residLogNormSmooth->GetYaxis()->SetTitle("Counts [au]");
-  residLogNormSmooth->GetYaxis()->SetRangeUser(0, 11.2);
-  residLogNormSmooth->GetXaxis()->SetRangeUser(-90, 90);
-  histoStyle(residLogNormSmooth);
-  residLogNormSmooth->Draw();
-
-  residPoly2Smooth->SetTitle("");
-  residPoly2Smooth->SetLineColor(kBlue);
-  residPoly2Smooth->SetFillColor(kBlue);
-  residPoly2Smooth->SetFillStyle(3001); 
-  residPoly2Smooth->SetLineWidth(1);
-  residPoly2Smooth->Draw("sames");
-
-  ptstats = new TPaveStats(0.13, 0.7, 0.36, 0.97,"brNDC");
-  ptstats->SetTextColor(kBlack);
-  residLogNormSmooth->SetName("Resid. FFT LogNorm");
-  residLogNormSmooth->GetListOfFunctions()->Add(ptstats);
-
-  ptstats = new TPaveStats(0.73, 0.7, 0.96, 0.97,"brNDC");
-  ptstats->SetTextColor(kBlue);
-  residPoly2Smooth->SetName("Resid. FFT Poly2");
-  residPoly2Smooth->GetListOfFunctions()->Add(ptstats);
-
-  c14->Print("../plots/peakSmoothResidualsDist863.pdf");
-
+  c9->Print("../plots/peakResidualsDist863.pdf");
 }
