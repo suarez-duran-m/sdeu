@@ -45,18 +45,23 @@ TH1F *getSmooth(TH1F &hist, double xb[])
 	unsigned int nb = 600;
   double yi = 0.;
 
-	TH1F *hstSmooth = new TH1F("hstSmooth", "", nb, xb);
+  TString tmpname;
+  tmpname.Form("%d",rand());
+
+	TH1F *hstSmooth = new TH1F(tmpname, "", nb, xb);
 
 	for ( unsigned b=0; b<nb; b++ )
   {
-    if ( b > 1 && b<nb-2 )
+    if ( b > 1 && b<nb-3 )
     {
-      yi = hist.GetBinContent(b+1 - 2) 
-        + 2*hist.GetBinContent(b+1 - 1) 
-        + 3*hist.GetBinContent(b+1) 
-        + 2*hist.GetBinContent(b+1 + 1) 
-        + hist.GetBinContent(b+1 + 2);
-      yi = yi/9.;
+      yi = hist.GetBinContent(b+1 - 3) 
+        + hist.GetBinContent(b+1 - 2)
+        + hist.GetBinContent(b+1 - 1) 
+        + hist.GetBinContent(b+1) 
+        + hist.GetBinContent(b+1 + 1) 
+        + hist.GetBinContent(b+1 + 2)
+        + hist.GetBinContent(b+1 + 3);
+      yi = yi/7.;
     }
     else
       yi = hist.GetBinContent(b+1);
@@ -71,7 +76,9 @@ TH1F *histDerivative(TH1F &hist, double xb[]) // Central differences
 {
   int nbins = 600;
   int h = 0;
-  TH1F *derihist = new TH1F("derihist", "", nbins, xb);
+  TString tmpname;
+  tmpname.Form("%d",rand());
+  TH1F *derihist = new TH1F(tmpname, "", nbins, xb);
   double der = 0.;
   for ( int kk=1; kk<nbins-1; kk++ )
   {
@@ -105,6 +112,79 @@ double chargeMaxPk(TF1* f)
   delete der;
   delete c;
   return d0x;
+}
+
+
+vector < double > getFitRange( TH1F &h )
+{
+  vector < double > minmax;
+  int tmpMin = 0; // Min for fitting
+	int tmpMax = 0; // Max for fitting
+
+  double tmpBinMin = 0.;
+  double tmpBinMax = 0.;
+  double rawbinMax = 0.;
+  double rawbinMin = 0.;
+
+  for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
+    if ( h.GetBinContent(kk) < 0 ) 
+    {
+      if ( tmpBinMax < fabs( h.GetBinContent( kk ) ) ) 
+      {
+        tmpBinMax = fabs( h.GetBinContent(kk)); 
+        tmpMax = h.GetBinCenter(kk); 
+      }
+    }
+    else
+    {
+      tmpBinMax = h.GetBinCenter(kk); 
+      rawbinMax = kk;
+      break;
+    }
+
+  tmpBinMin = 0;
+  int nroot = 0;
+  for ( int kk=rawbinMax; kk>0; kk-- ) // 20 FADC after 0 FADC
+  {
+    if ( tmpBinMin < fabs(h.GetBinContent( kk ) ) )
+    {
+      tmpBinMin = fabs( h.GetBinContent( kk ) );
+      tmpMin = h.GetBinCenter(kk-1);
+    }
+    if ( h.GetBinContent( kk ) < 0 && nroot==0 )
+    {
+      nroot = 1;
+      rawbinMin = h.GetBinCenter(kk);
+    }
+    else if ( h.GetBinContent( kk ) > 0 && nroot==1 )
+      break;
+  }
+
+  minmax.push_back( tmpMin );
+  minmax.push_back( tmpMax );
+  minmax.push_back( tmpBinMax );
+  minmax.push_back( rawbinMin );
+
+  return minmax;
+}
+
+
+void getResiduals( TH1F *hist, TF1 *func,
+    double rangMin, double rangMax,
+    vector < double > &x, vector < double > &y, vector < double > &err )
+{
+  int nbins = hist->GetXaxis()->GetNbins();
+  double tmp = 0.;
+  for ( int kbin=1; kbin<nbins; kbin++ )
+    if ( hist->GetBinCenter(kbin) >= rangMin && hist->GetBinCenter(kbin) <= rangMax )
+    {
+      x.push_back( hist->GetBinCenter(kbin) );
+      tmp = func->Eval( hist->GetBinCenter(kbin) ) - hist->GetBinContent(kbin);
+      y.push_back( tmp / sqrt( hist->GetBinContent(kbin) ) );
+      err.push_back( sqrt( pow(sqrt( hist->GetBinContent(kbin) ),2)
+            + pow(sqrt( sqrt(func->Eval( hist->GetBinCenter(kbin) ) ) ),2)
+            ) / sqrt( hist->GetBinContent(kbin) ) );
+    }
 }
 
 
@@ -145,8 +225,6 @@ void readFitChargeHisto()
 
   TCanvas *c1 = canvasStyle("c1"); 
   TCanvas *c2 = canvasStyle("c2"); 
-  TCanvas *c3 = canvasStyle("c3"); 
-  TCanvas *c4 = canvasStyle("c4");
 
   TH1F *charge = new TH1F("charge", "", nbins, xfadc);
  
@@ -157,46 +235,7 @@ void readFitChargeHisto()
 
   TH1F *chargeSmooth = getSmooth(*charge, xfadc);
   TH1F *chargeSmooDer = histDerivative(*chargeSmooth, xfadc);
-  //chargeSmooDer->Smooth(500);
-
-  TH1 *test = 0;
-  TVirtualFFT::SetTransform(0);
-  test = charge->FFT(test, "PH");
-
-  int n = test->GetXaxis()->GetNbins();
-  Double_t *re_full = new Double_t[n];
-  Double_t *im_full = new Double_t[n];
-
-  TVirtualFFT *fft = TVirtualFFT::GetCurrentTransform();
-  fft->GetPointsComplex(re_full,im_full);
-
-  int first = 0.03*n;
-  for ( int k=first; k<test->GetXaxis()->GetNbins(); k++ )
-  {
-    re_full[k] = 0;
-    im_full[k] = 0;
-  }
-
-  TVirtualFFT *fft_back = TVirtualFFT::FFT(1, &n, "C2R M K");
-  fft_back->SetPointsComplex(re_full,im_full);
-  fft_back->Transform();
-
-  TH1 *hbC = 0;
-  hbC = TH1::TransformHisto(fft_back,hbC,"Re");
-
-  double xc[601];
-  for (int j = 0; j < 402; j++)
-    xc[j] = 8.*j;
-  for (int j = 0; j < 201; j++)
-    xc[400 + j] = 400*8. + 4.*8.*j;
-
-  TH1F *chargeFFT = new TH1F("chargeFFT","", 600, xc);
-  for (int j = 0; j < 402; j++)
-    chargeFFT->SetBinContent(j + 1, hbC->GetBinContent(j)/600.);
-  for (int j = 0; j < 200; j++)
-    chargeFFT->SetBinContent(j + 1 + 400, hbC->GetBinContent(j+400)/600.);
-
-  TH1 *chargeFFTDer = histDerivative(*chargeFFT, xfadc);
+  TH1F *chargeSmooDerSmth = getSmooth(*chargeSmooDer, xfadc);
 
 
   TLine *line;
@@ -214,58 +253,35 @@ void readFitChargeHisto()
   chargeSmooth->SetLineColor(kOrange+10);
   chargeSmooth->SetLineWidth(1);
   chargeSmooth->Draw("same"); 
-
-  chargeFFT->SetLineColor(kMagenta+1);
-  chargeFFT->SetLineWidth(1);
-  chargeFFT->Draw("same");
   
   leg = new TLegend(0.62,0.65,0.95,0.96);
-  //leg->SetHeader("#splitline{Charge chargeFFTgrma Station 1740}{(Event 61203949)}");
-  leg->SetHeader("#splitline{Charge chargeFFTgrma Station 863}{(Event 61219267)}");
-  leg->AddEntry(charge,"Charge chargeFFTgram","f");
-  leg->AddEntry(chargeSmooth,"Smooth charge chargeFFTgram","f");
-  leg->AddEntry(chargeFFT,"Smooth FFT charge histogram","f");
+  leg->SetHeader("#splitline{Charge histogram Station 863}{(Event 61219267)}");
+  leg->AddEntry(charge,"Charge histogram","f");
+  leg->AddEntry(chargeSmooth,"Smooth charge histogram ","f");
   leg->Draw();  
   
   c1->Print("../plots/chargeHisto863.pdf");
 
   c2->cd();
-  charge->SetStats(0);
-  charge->SetLineColor(kBlue);
-  charge->SetLineWidth(1);
-  charge->GetXaxis()->SetTitle("[FADC]");
-  charge->GetYaxis()->SetTitle("Counts [au]");
-  charge->GetXaxis()->SetRangeUser(1300, 1700);
-  histoStyle(charge);
-  charge->Draw();
-
-  chargeSmooth->SetLineColor(kOrange+10);
-  chargeSmooth->SetLineWidth(1);
-  chargeSmooth->Draw("same");
-
-  chargeFFT->SetLineColor(kMagenta+1);
-  chargeFFT->SetLineWidth(1);
-  chargeFFT->Draw("same");
-                                                                               
-  leg = new TLegend(0.62,0.65,0.95,0.96);
-  leg->SetHeader("#splitline{Charge histogrma Station 863}{(Event 61219267)}");
-  leg->AddEntry(charge,"Charge histogram","f");
-  leg->AddEntry(chargeSmooth,"Smooth charge histogram","f");
-  leg->AddEntry(chargeFFT,"Smooth FFT charge histogram","f");
-  leg->Draw();  
- 
-  c2->Print("../plots/chargeHistoZoom863.pdf");
-
-  c3->cd();
   chargeDer->SetStats(0);
   chargeDer->SetLineColor(kBlue);
   chargeDer->SetLineWidth(1);
   chargeDer->GetXaxis()->SetTitle("[FADC]");
   chargeDer->GetYaxis()->SetTitle("[au]");
-  chargeDer->GetYaxis()->SetRangeUser(-10,10);
+  chargeDer->GetYaxis()->SetRangeUser(-4,6);
   chargeDer->GetXaxis()->SetRangeUser(0,3000);
   histoStyle(chargeDer);
   chargeDer->Draw();
+
+  chargeSmooDer->SetStats(0);
+  chargeSmooDer->SetLineColor(kOrange+9);
+  chargeSmooDer->SetLineWidth(1);
+  chargeSmooDer->Draw("sames");
+
+  chargeSmooDerSmth->SetStats(0);
+  chargeSmooDerSmth->SetLineColor(kGreen+3);
+  chargeSmooDerSmth->SetLineWidth(2);
+  chargeSmooDerSmth->Draw("sames");
 
   line = new TLine(0, 0, 3000, 0);
   line->SetLineStyle(4);
@@ -276,9 +292,9 @@ void readFitChargeHisto()
   leg->SetHeader("From charge histogram","C");
   leg->AddEntry(chargeSmooDer,"First derivative","f");
   leg->Draw();
-  c3->Print("../plots/chargeDerHisto863.pdf");
+  c2->Print("../plots/chargeDerHisto863.pdf");
 
-
+/*
   c4->cd(); 
   chargeSmooDer->SetLineColor(kOrange+10);
   chargeSmooDer->SetLineWidth(1);
@@ -461,19 +477,6 @@ void readFitChargeHisto()
   line->Draw();
 
   c5->Print("../plots/chargeFittedHisto863.pdf");
-
-  /*
-  c6->cd();
-  TRatioPlot *rpmean;
-  TF1 *fitmean21 = chFit->GetFunction("fitFcn");
-  tmp2->Fit(fitmean21,"QR");
-  tmp2->GetXaxis()->SetRangeUser(100, 2200);
-  rpmean = new TRatioPlot(tmp2);
-  rpmean->SetGraphDrawOpt("APL*");
-  rpmean->Draw();
-  rpmean->GetLowerRefYaxis()->SetRangeUser(-5, 5);
-  c6->Update();
-  */
 
   c7->cd();
   residGraph->SetTitle("");
@@ -973,5 +976,5 @@ void readFitChargeHisto()
   residPoly2Smooth->GetListOfFunctions()->Add(ptstats);
 
   c15->Print("../plots/chargeFFTResidualsDist863.pdf");
-
+*/
 }

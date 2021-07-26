@@ -45,8 +45,10 @@ double getrms( vector<int> *arr, double meanarr, unsigned int nb, bool lok ){
 // ========================== 
 // ******** The MAIN ********
 // ==========================
-int main (int argc, char *argv[]) {
-   if ( argc < 4 ) {
+int main (int argc, char *argv[]) 
+{
+   if ( argc < 4 ) 
+   {
 		 cout << endl
          << "Usage: " << argv[0] << " <stationsFile>  <PMT>  <Month> <files>" << endl
          << "  <stationsFile>: file with a list of stations" << endl
@@ -65,21 +67,25 @@ int main (int argc, char *argv[]) {
   const char* whichmonth = argv[3];
   AugerIoSd input(argc-4, argv+4);
   const unsigned int totalNrEvents = input.NumberOfEvents();
-
   ifstream stationsFile(stationsFileName, ios::in);
-  if (!stationsFile.is_open()){
+
+  if (!stationsFile.is_open())
+  {
     cout << "Could not open file: " << stationsFileName << endl;
     exit(0);
   }
+
   vector<unsigned int> stationsIds;
-  while (stationsFile.good()) {
+  while (stationsFile.good()) 
+  {
     unsigned int st = 0;
     stationsFile >> st;
     if (st)
       stationsIds.push_back(st);
   }
   
-  if (stationsIds.empty()){
+  if (stationsIds.empty())
+  {
     cout << "Please specify the stations ids in the file " << endl;
     exit(0);
   }
@@ -87,14 +93,14 @@ int main (int argc, char *argv[]) {
   TString nameStati = to_string( stationsIds[0] );
   TString pmtname = whichpmt;
   int pmtId= atoi( pmtname );
-  if ( pmtId > 0 && pmtId < 4 ){
+  if ( pmtId > 0 && pmtId < 4 )
      pmtname = "PMT"+to_string( pmtId );
-  }
   else if ( pmtId == 4 )
     pmtname = "SPMT";
   else if ( pmtId == 5 )
     pmtname = "PMTSSD";
-  else{
+  else
+  {
     cout << "==================================================" << endl;
     cout << "Wrong Id for PMT, please introduce a valid PMT Id:" << endl;
     cout << "1 For PMT1; " << "2 For PMT2; " << "3 For PMT3; " 
@@ -121,12 +127,18 @@ int main (int argc, char *argv[]) {
   double pkNdf = 0.;
   double pkProb = 0.;
   double peak = 0.;
+  double pkPar0 = 0.; 
+  double pkPar1 = 0.; 
+  double pkPar2 = 0.; 
 
   TGraphErrors *chHistFit = new TGraphErrors();
   double chChi2 = 0.;
   double chNdf = 0.;
   double chProb = 0.;
   double charge = 0.; 
+  double chPar0 = 0.; 
+  double chPar1 = 0.; 
+  double chPar2 = 0.; 
 
   unsigned int evtIdPk = 0; //Storing event Id
   unsigned int evtTimePk = 0; //Storing day-Unixtime
@@ -158,6 +170,9 @@ int main (int argc, char *argv[]) {
   treePeak->Branch("chi2",&pkChi2,"pkChi2/D");
   treePeak->Branch("ndf",&pkNdf,"pkNdf/D");
   treePeak->Branch("prob",&pkProb,"pkProb/D");
+  treePeak->Branch("pkPar0",&pkPar0,"pkPar0/D");
+  treePeak->Branch("pkPar1",&pkPar1,"pkPar1/D");
+  treePeak->Branch("pkPar2",&pkPar2,"pkPar2/D")
   treePeak->Branch("eventId",&evtIdPk,"evtIdPk/I");
   treePeak->Branch("timeEvnt",&evtTimePk,"evtTimePk/I");
 
@@ -165,6 +180,9 @@ int main (int argc, char *argv[]) {
   treeCharge->Branch("chi2",&chChi2,"chChi2/D");
   treeCharge->Branch("ndf",&chNdf,"chNdf/D");
   treeCharge->Branch("prob",&chProb,"chProb/D");
+  treePeak->Branch("chPar0",&chPar0,"chPar0/D");
+  treePeak->Branch("chPar1",&chPar1,"chPar1/D");
+  treePeak->Branch("chPar2",&chPar2,"chPar2/D");
   treeCharge->Branch("eventId",&evtIdCh,"evtIdCh/I");
   treeCharge->Branch("timeEvnt",&evtTimeCh,"evtTimeCh/I");
 
@@ -227,7 +245,7 @@ int main (int argc, char *argv[]) {
             pkNdf = fitPk.ndfPeak;
             pkProb = fitPk.probPeak;
             peak = fitPk.vemPosPk;
-            /*
+            
             if ( peak==0 )
             {
               cout << "MSD " << " " << event.Id << " " << pkChi2 << " " << pkNdf << " " << pkChi2/pkNdf << endl;
@@ -235,7 +253,6 @@ int main (int argc, char *argv[]) {
                 cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
               exit(0);
             }
-            */
             
             if ( pkChi2/pkNdf > 4 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
             {

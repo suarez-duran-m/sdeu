@@ -9,7 +9,6 @@
 #include <TCanvas.h>
 #include <TGraph.h>
 #include <TGraphErrors.h>
-#include "TVirtualFFT.h"
 
 #include "fitpeak.h"
 
@@ -21,6 +20,38 @@ double fitFunctionPk(double *x0, double *par) {
   const double lognormal = exp(par[0])*x*exp( -0.5*pow( ((log(x)+log(par[1]))*par[2]),2 ) );
   const double expo = exp( par[3] - par[4]*x );
 	return lognormal+expo;
+}
+
+
+TH1F *getSmooth(TH1F &hist, double xb[])
+{
+	unsigned int nb = 150;
+  double yi = 0.;
+
+  TString tmpname;
+  tmpname.Form("%d",rand());
+
+	TH1F *hstSmooth = new TH1F(tmpname, "", nb, xb);
+
+	for ( unsigned b=0; b<nb; b++ )
+  {
+    if ( b > 2 && b<147 )
+    {
+      yi = hist.GetBinContent(b+1 - 3) 
+        + hist.GetBinContent(b+1 - 2)
+        + hist.GetBinContent(b+1 - 1) 
+        + hist.GetBinContent(b+1) 
+        + hist.GetBinContent(b+1 + 1) 
+        + hist.GetBinContent(b+1 + 2)
+        + hist.GetBinContent(b+1 + 3);
+      yi = yi/7.;
+    }
+    else
+      yi = hist.GetBinContent(b+1);
+    
+    hstSmooth->SetBinContent(b+1, yi);
+  }
+  return hstSmooth;
 }
 
 
@@ -64,167 +95,57 @@ double peakMaxPk(TF1* f) {
 }
 
 
-vector < double > minRangMaxFFT( double x[], TH1F h )
+vector < double > minRangMax( TH1F &h )
 {
   vector < double > minmax;
-  double tmpMax = 0.;
   double tmpMin = 0.;
-  double tmpBinMax = 0.;
-  double tmpBinMin = 0.;
-  TString tmpname;
-  tmpname.Form("%d",rand());
-
-  TH1 *test = 0;
-  TVirtualFFT::SetTransform(0);
-  test = h.FFT(test, "PH");
-
-  int n = test->GetXaxis()->GetNbins();
-  Double_t *re_full = new Double_t[n];
-  Double_t *im_full = new Double_t[n];
-  
-  TVirtualFFT *fft = TVirtualFFT::GetCurrentTransform();
-  fft->GetPointsComplex(re_full,im_full);
-  
-  int first = 0.06*n;
-  for ( int k=first; k<test->GetXaxis()->GetNbins(); k++ )
-  {
-    re_full[k] = 0;
-    im_full[k] = 0;
-  }
- 
-  TVirtualFFT *fft_back = TVirtualFFT::FFT(1, &n, "C2R M K");
-  fft_back->SetPointsComplex(re_full,im_full);
-  fft_back->Transform();
- 
-  TH1 *hbC = 0;
-  hbC = TH1::TransformHisto(fft_back,hbC,"Re");
-  
-  double xc[151];
-  for (int j = 0; j < 102; j++)
-    xc[j] = 4.*j - 12;
-  for (int j = 0; j < 51; j++)
-    xc[100 + j] = 100*4. + 4.*4.*j;
-  
-  TH1F *peakFFT = new TH1F(tmpname,"", 150, xc);
-  for (int j = 0; j < 102; j++)
-    peakFFT->SetBinContent(j + 1, hbC->GetBinContent(j)/150.);
-  for (int j = 0; j < 50; j++)
-    peakFFT->SetBinContent(j + 1 + 100, hbC->GetBinContent(j+100)/150.);
-  
-  TH1 *peakFFTDer = histDerivative(*peakFFT, x);
-
-  for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
-    if ( peakFFTDer->GetBinContent(kk) < 0 )
-    {
-      if ( tmpBinMax < fabs(peakFFTDer->GetBinContent( kk ) ) )
-      {
-        tmpBinMax = fabs(peakFFTDer->GetBinContent(kk));
-        tmpMax = peakFFTDer->GetBinCenter(kk);
-      }
-    }
-    else
-    {
-      tmpBinMax = peakFFTDer->GetBinCenter(kk);
-      break;
-    }
-
-  tmpMax *= 1.5;
-
-  int tmpneg = 0;
-  for ( int kk=7; kk<130; kk++ ) // 20 FADC after 0 FADC
-  {
-    if ( peakFFTDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
-      break;
-    if ( peakFFTDer->GetBinContent( kk ) < 0 )
-      if ( tmpBinMin < fabs( peakFFTDer->GetBinContent( kk ) ) )
-      {
-        tmpMin = peakFFTDer->GetBinCenter(kk);
-        tmpBinMin = fabs( peakFFTDer->GetBinContent( kk ) );
-        tmpneg = 1;
-      }
-  }
-  minmax.push_back( tmpMin );
-  minmax.push_back( tmpMax );
-  minmax.push_back( tmpBinMax );
-
-  delete test;
-  delete hbC;
-  return minmax;
-}
-
-
-vector < double > minRangMaxSmooth( double x[], TH1F h )
-{
-  vector < double > minmax;
-
-	unsigned int nb = 150;
-  double yi = 0.;
   double tmpMax = 0.;
-  double tmpMin = 0.;
-  double tmpBinMax = 0.;
+
   double tmpBinMin = 0.;
-
-  TString tmpname;
-  tmpname.Form("%d",rand());
-
-	TH1F *hsmooth = new TH1F(tmpname, tmpname, nb, x);
-
-	for ( unsigned b=0; b<nb; b++ )
-  {
-    if ( b > 1 && b<148 )
-    {
-      yi = h.GetBinContent(b+1 - 2) 
-        + 2*h.GetBinContent(b+1 - 1) 
-        + 3*h.GetBinContent(b+1) 
-        + 2*h.GetBinContent(b+1 + 1) 
-        + h.GetBinContent(b+1 + 2);
-      yi = yi/9.;
-    }
-    else
-      yi = h.GetBinContent(b+1);
-
-    hsmooth->SetBinContent(b+1, yi);
-  }
-
-  TH1 *hsmoothDer = histDerivative(*hsmooth, x);
-  hsmoothDer->Smooth(700);
+  double tmpBinMax = 0.;
+  double rawbinMin = 0;
   double rawbinMax = 0;
 
   for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
   {
-    if ( hsmoothDer->GetBinContent(kk) < 0 )
+    if ( h.GetBinContent(kk) < 0 )
     {
-      if ( tmpBinMax < fabs(hsmoothDer->GetBinContent( kk ) ) )
+      if ( tmpBinMax < fabs(h.GetBinContent( kk ) ) )
       {
-        tmpBinMax = fabs(hsmoothDer->GetBinContent(kk));
-        tmpMax = hsmoothDer->GetBinCenter(kk);
+        tmpBinMax = fabs(h.GetBinContent(kk));
+        tmpMax = h.GetBinCenter(kk); // Change of concavity
       }
     }
     else
     {
-      tmpBinMax = hsmoothDer->GetBinCenter(kk);
-      rawbinMax = kk;
+      tmpBinMax = h.GetBinCenter(kk); // tmp FADC for VEM
+      rawbinMax = kk; // Bin for tmp VEM
       break;
     }
   }
 
+  tmpBinMin = 0;
   int nroot = 0;
   for ( int kk=rawbinMax; kk>0; kk-- )
   {
-    if ( tmpBinMin < hsmoothDer->GetBinContent( kk ) )
+    if ( tmpBinMin < h.GetBinContent( kk ) )
     {
-      tmpBinMin = fabs( hsmoothDer->GetBinContent( kk ) );
-      tmpMin = hsmoothDer->GetBinCenter(kk);
+      tmpBinMin = fabs( h.GetBinContent( kk ) );
+      tmpMin = h.GetBinCenter(kk); // Change of concavity
     }
-    if ( hsmoothDer->GetBinContent( kk ) < 0 && nroot==0 )
+    if ( h.GetBinContent( kk ) < 0 && nroot==0 )
+    {
       nroot = 1;
-    else if ( hsmoothDer->GetBinContent( kk ) > 0 && nroot==1 )
+      rawbinMin = h.GetBinCenter(kk); // Bin for local minimum
+    }
+    else if ( h.GetBinContent( kk ) > 0 && nroot==1 )
       break;
   }
 
   minmax.push_back( tmpMin );
   minmax.push_back( tmpMax );
   minmax.push_back( tmpBinMax );
+  minmax.push_back( rawbinMin );
 
   return minmax;
 }
@@ -274,10 +195,15 @@ void fitpeak::getFitPk(TH1F &hist)
     xfadc[b] = hist.GetBinCenter(b+1);
 
   vector < double > tmp;
-  tmp = minRangMaxFFT( xfadc, hist );
+  TH1F *peakSmooth = getSmooth(hist, xfadc);
+  TH1F *peakSmooDer = histDerivative(*peakSmooth, xfadc);
+  TH1F *peakSmooDerSmth = getSmooth(*peakSmooDer, xfadc);
 
-  rangXmin = 1.1*tmp[0];
-  rangXmax = 1.3*tmp[1];
+  tmp = minRangMax( *peakSmooDerSmth );
+
+
+  rangXmin = tmp[3]; //1.1*tmp[0];
+  rangXmax = tmp[1]; //1.3*tmp[1];
   double binMax = tmp[2];
 
 	TString parName; // For Fitted plot title
@@ -296,19 +222,22 @@ void fitpeak::getFitPk(TH1F &hist)
   TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
 			&ycnts.front(), 0, &yerrs.front() );
 
-  TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
-  fitFcn->SetParameters(12.7, binMax, -3., 5., -266.2); //Set  init. fit par. 
-
+  //TF1 *fitFcn = new TF1("fitFcn", fitFunctionPk, rangXmin, rangXmax, 5);
+  //fitFcn->SetParameters(12.7, binMax, -3., 5., -266.2); //Set  init. fit par. 
+  TF1 *fitFcn = new TF1("fitFcn","[0]*x*x+[1]*x+[2]",rangXmin-2,rangXmax-2);
 	chFit->Fit("fitFcn","QR");
+
   chisPeak = fitFcn->GetChisquare();
   ndfPeak = fitFcn->GetNDF();
   probPeak = fitFcn->GetProb();
-  vemPosPk = peakMaxPk(fitFcn);
+  //vemPosPk = peakMaxPk(fitFcn);
+  vemPosPk = -fitFcn->GetParameter(1) / (2.*fitFcn->GetParameter(0));
   critGoodFit = 4.;
 
   fitGraphPk = (TGraphErrors*)chFit->Clone();
   if ( (chisPeak/ndfPeak) < critGoodFit )
     fitPkOk = true;
+  /*
   else if ( chisPeak/ndfPeak > critGoodFit )
   {
     tmp.clear();
@@ -327,7 +256,8 @@ void fitpeak::getFitPk(TH1F &hist)
     ndfPeak = fitFcn->GetNDF();
     vemPosPk = peakMaxPk(fitFcn);
   }
-  if ( (chisPeak/ndfPeak) > critGoodFit )
+  */
+  if ( (chisPeak/ndfPeak) > critGoodFit || ndfPeak==0 )
     vemPosPk = 0.;
 
 	delete chFit;

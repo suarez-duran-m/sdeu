@@ -102,18 +102,18 @@ vector < double > getFitRange( TH1F &h )
   double rawbinMin = 0.;
 
   for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
-    if ( h.GetBinContent(kk) < 0 ) // peakFFTDer->GetBinContent(kk) < 0 )
+    if ( h.GetBinContent(kk) < 0 )
     {
-      if ( tmpBinMax < fabs( h.GetBinContent( kk ) ) ) //peakFFTDer->GetBinContent( kk ) ) )
+      if ( tmpBinMax < fabs( h.GetBinContent( kk ) ) )
       {
-        tmpBinMax = fabs( h.GetBinContent(kk)); //peakFFTDer->GetBinContent(kk));
-        tmpMax = h.GetBinCenter(kk); // peakFFTDer->GetBinCenter(kk);
+        tmpBinMax = fabs( h.GetBinContent(kk));
+        tmpMax = h.GetBinCenter(kk); // Change of concavity
       }
     }
     else
     {
-      tmpBinMax = h.GetBinCenter(kk); //peakFFTDer->GetBinCenter(kk);
-      rawbinMax = kk;
+      tmpBinMax = h.GetBinCenter(kk); // tmp FADC for VEM
+      rawbinMax = kk; // Bin for tmp VEM
       break;
     }
 
@@ -123,13 +123,13 @@ vector < double > getFitRange( TH1F &h )
   {
     if ( tmpBinMin < fabs(h.GetBinContent( kk ) ) )
     {
-      tmpBinMin = fabs( h.GetBinContent( kk ) );
-      tmpMin = h.GetBinCenter(kk-1);
+      tmpBinMin = fabs( h.GetBinContent( kk ) ); 
+      tmpMin = h.GetBinCenter(kk-1); // Change of concavity
     }
     if ( h.GetBinContent( kk ) < 0 && nroot==0 )
     {
       nroot = 1;
-      rawbinMin = h.GetBinCenter(kk);
+      rawbinMin = h.GetBinCenter(kk); // Bin for local minimum
     }
     else if ( h.GetBinContent( kk ) > 0 && nroot==1 )
       break;
@@ -180,9 +180,11 @@ void getResiduals( TH1F *hist, TF1 *func,
       x.push_back( hist->GetBinCenter(kbin) );
       tmp = func->Eval( hist->GetBinCenter(kbin) ) - hist->GetBinContent(kbin);
       y.push_back( tmp / sqrt( hist->GetBinContent(kbin) ) );
-      err.push_back( sqrt( pow(sqrt( hist->GetBinContent(kbin) ),2)
+      err.push_back( 
+          sqrt( pow(sqrt( hist->GetBinContent(kbin) ),2)
             + pow(sqrt( sqrt(func->Eval( hist->GetBinCenter(kbin) ) ) ),2)
-            ) / sqrt( hist->GetBinContent(kbin) ) );
+            ) / sqrt( hist->GetBinContent(kbin) )
+          );
     }
 }
 
@@ -196,8 +198,8 @@ void readFitPeakHisto()
   dir.ReplaceAll("readFitPeakHisto.C","");
   dir.ReplaceAll("/./","/");
   ifstream in;
-  //in.open(Form("%ssample62165707.dat",dir.Data()));
-  in.open(Form("%speakHist61219267.dat",dir.Data()));
+  in.open(Form("%ssample61219267.dat",dir.Data()));
+  //in.open(Form("%speakHist61219267.dat",dir.Data()));
   
   srand (time(NULL)); 
   const int nbins = 150;
@@ -230,11 +232,10 @@ void readFitPeakHisto()
   for ( int kk=0; kk<nbins; kk++ )
     peak->SetBinContent(kk, ycnt[kk]);
 
-  TH1F *peakDer = histDerivative(*peak, xfadc);
-
-  TH1F *peakSmooth = getSmooth(*peak, xfadc);
-  TH1F *peakSmooDer = histDerivative(*peakSmooth, xfadc);
-  TH1F *peakSmooDerSmth = getSmooth(*peakSmooDer, xfadc);
+  TH1F *peakDer = histDerivative(*peak, xfadc); // Peak raw Derivative
+  TH1F *peakSmooth = getSmooth(*peak, xfadc); // Smooth Peak
+  TH1F *peakSmooDer = histDerivative(*peakSmooth, xfadc); // Peak Smooth Derivative
+  TH1F *peakSmooDerSmth = getSmooth(*peakSmooDer, xfadc); // Smooth Peak-Smooth-Derivative
 
   TLine *line;
   TLegend *leg;
@@ -250,7 +251,7 @@ void readFitPeakHisto()
   peak->Draw();
 
   peakSmooth->SetLineColor(kOrange+9);
-  peakSmooth->SetLineWidth(2);
+  peakSmooth->SetLineWidth(1);
   peakSmooth->Draw("same");
 
   leg = new TLegend(0.62,0.65,0.95,0.96);
@@ -273,12 +274,12 @@ void readFitPeakHisto()
 
   peakSmooDer->SetStats(0);
   peakSmooDer->SetLineColor(kOrange+9);
-  peakSmooDer->SetLineWidth(2);
+  peakSmooDer->SetLineWidth(1);
   peakSmooDer->Draw("sames");
 
   peakSmooDerSmth->SetStats(0);
   peakSmooDerSmth->SetLineColor(kGreen+3);
-  peakSmooDerSmth->SetLineWidth(2);
+  peakSmooDerSmth->SetLineWidth(1);
   peakSmooDerSmth->Draw("sames");
 
   line = new TLine(0, 0, 1000, 0);
@@ -322,11 +323,9 @@ void readFitPeakHisto()
   double rangXmax = 0.;
   double binMax = 0.;
 
-  rangXmin = 1.2*fitRange[0];
+  rangXmin = 1.2*fitRange[0]; // For Exp + LogNorm
   rangXmax = 1.4*fitRange[1];
   binMax = fitRange[2];
-
-  cerr << "MSD " << fitRange[0] << " " << fitRange[1] << " " << fitRange[2] << endl;
 
 	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
 			&ycnts.front(), 0, &yerrs.front() );
@@ -465,8 +464,10 @@ void readFitPeakHisto()
   TCanvas *c5 = canvasStyle("c5");
   TCanvas *c6 = canvasStyle("c6");
 
-  rangXmin = fitRange[3];
+  rangXmin = fitRange[3]; // For Poly2
   rangXmax = fitRange[1];
+
+  cerr << rangXmin << " " << rangXmax << endl;
 
   TGraphErrors* poly2Fit = new TGraphErrors( xbins.size(), &xbins.front(),
       &ycnts.front(), 0, &yerrs.front() );
