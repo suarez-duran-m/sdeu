@@ -127,6 +127,8 @@ int main (int argc, char *argv[])
   double pkNdf = 0.;
   double pkProb = 0.;
   double peak = 0.;
+  double pkLow = 0.;
+  double pkHigh = 0.;
   double pkPar0 = 0.; 
   double pkPar1 = 0.; 
   double pkPar2 = 0.; 
@@ -135,7 +137,9 @@ int main (int argc, char *argv[])
   double chChi2 = 0.;
   double chNdf = 0.;
   double chProb = 0.;
-  double charge = 0.; 
+  double charge = 0.;
+  double chLow = 0.;
+  double chHigh = 0.;
   double chPar0 = 0.; 
   double chPar1 = 0.; 
   double chPar2 = 0.; 
@@ -148,41 +152,41 @@ int main (int argc, char *argv[])
   unsigned int nrEventsRead = 0;
   unsigned int nrEvents = 0;
   bool found = false;
-  unsigned int nblbins = 100;
 	double blCorrHbase = 0.;
-  double meanf = 0.;
-  double meanl = 0.;
-  double rmsf = 0.;
 
   TH1F *tmp = new TH1F();
   TString tmpName;
   fitpeak fitPk;
   fitcharge fitCh;
-  vector < int > *blpmth  = new vector < int >;
 
   // ======================================
   // *** *** *** Creating Trees *** *** *** 
   TTree *treePeak = new TTree("PeakData","");
   TTree *treeCharge = new TTree("ChargeData","");
 
-  //treePeak->Branch("","",&);
+  treePeak->Branch("graph","TGraphErrors",&pkHistFit,32000,0);
   treePeak->Branch("peakVal",&peak,"peak/D");
   treePeak->Branch("chi2",&pkChi2,"pkChi2/D");
   treePeak->Branch("ndf",&pkNdf,"pkNdf/D");
   treePeak->Branch("prob",&pkProb,"pkProb/D");
+  treePeak->Branch("low",&pkLow,"pkLow/D");
+  treePeak->Branch("high",&pkHigh,"pkHigh/D");
   treePeak->Branch("pkPar0",&pkPar0,"pkPar0/D");
   treePeak->Branch("pkPar1",&pkPar1,"pkPar1/D");
-  treePeak->Branch("pkPar2",&pkPar2,"pkPar2/D")
+  treePeak->Branch("pkPar2",&pkPar2,"pkPar2/D");
   treePeak->Branch("eventId",&evtIdPk,"evtIdPk/I");
   treePeak->Branch("timeEvnt",&evtTimePk,"evtTimePk/I");
 
+  treeCharge->Branch("graph","TGraphErrors",&chHistFit,32000,0);
   treeCharge->Branch("chargeVal",&charge,"charge/D");
   treeCharge->Branch("chi2",&chChi2,"chChi2/D");
   treeCharge->Branch("ndf",&chNdf,"chNdf/D");
   treeCharge->Branch("prob",&chProb,"chProb/D");
-  treePeak->Branch("chPar0",&chPar0,"chPar0/D");
-  treePeak->Branch("chPar1",&chPar1,"chPar1/D");
-  treePeak->Branch("chPar2",&chPar2,"chPar2/D");
+  treeCharge->Branch("low",&chLow,"chLow/D");
+  treeCharge->Branch("high",&chHigh,"chHigh/D");
+  treeCharge->Branch("chPar0",&chPar0,"chPar0/D");
+  treeCharge->Branch("chPar1",&chPar1,"chPar1/D");
+  treeCharge->Branch("chPar2",&chPar2,"chPar2/D");
   treeCharge->Branch("eventId",&evtIdCh,"evtIdCh/I");
   treeCharge->Branch("timeEvnt",&evtTimeCh,"evtTimeCh/I");
 
@@ -220,86 +224,91 @@ int main (int argc, char *argv[])
           << endl;
         if (event.Stations[i].Error==256)
         {
-          blpmth->clear();
-          blpmth->resize(event.Stations[i].UFadc->NSample);
-          for ( unsigned int k=0;k<event.Stations[i].UFadc->NSample;k++ )
-            (*blpmth)[k] = ( event.Stations[i].UFadc->GetValue(pmtId-1,0,k) );
+          tmpName.Form("%d%d", event.UTCTime, nrEventsRead-1);
+          blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean(); // Extracting calib-baseline
+          
+          recePk = event.Stations[i].HPeak(pmtId-1); // Receiving Peak histogram
+          //cerr << blCorrHbase << " " << recePk->GetBinCenter(0) << " " << recePk->GetBinCenter(1) << endl;
+          blCorrHbase = ( fabs(blCorrHbase - recePk->GetBinCenter(1) < 20 ) ? (recePk->GetBinCenter(1)):0 ); // From OffLine
+          fitPk.getCrr(*recePk, blCorrHbase, tmpName+"Hbpk"); // Correcting for calib-baseline
+          tmp = fitPk.getPkCorr(); // Receiving corrected histogram
+          //cerr << blCorrHbase << " " << tmp->GetBinCenter(0) << " " << tmp->GetBinCenter(1) << endl;
+          fitPk.getFitPk(*tmp); // Fitting
 
-          meanf = getmean(blpmth, nblbins, false);
-          meanl = getmean(blpmth, nblbins, true);
-          rmsf = getrms(blpmth, meanf, nblbins, false);
-          if (fabs(meanl-meanf) < 2*rmsf ) // Reading event with stable baseline
+          pkHistFit = fitPk.getFitGraphPk();
+          pkChi2 = fitPk.chisPeak;
+          pkNdf = fitPk.ndfPeak;
+          pkProb = fitPk.probPeak;
+          peak = fitPk.vemPosPk;
+          pkLow = fitPk.rangXmin;
+          pkHigh = fitPk.rangXmax;
+          pkPar0 = fitPk.par0;
+          pkPar1 = fitPk.par1;
+          pkPar2 = fitPk.par2;
+          //cerr << "MSD: " << peak << endl;
+          /*
+          if ( event.Id == 61387849 )//peak==0 )
           {
-            // ================
-            // *** Baseline ***
-            blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean(); // Extracting calib-baseline
-            tmpName.Form("%d%d", event.UTCTime, nrEventsRead-1);
-
-            recePk = event.Stations[i].HPeak(pmtId-1); // Receiving Peak histogram
-            fitPk.getCrr(*recePk, blCorrHbase, tmpName+"Hbpk"); // Correcting for calib-baseline
-            tmp = fitPk.getPkCorr(); // Receiving corrected histogram
-            fitPk.getFitPk(*tmp); // Fitting
-
-            pkHistFit = fitPk.getFitGraphPk();
-            pkChi2 = fitPk.chisPeak;
-            pkNdf = fitPk.ndfPeak;
-            pkProb = fitPk.probPeak;
-            peak = fitPk.vemPosPk;
-            
-            if ( peak==0 )
+            //cout << "MSD " << " " << event.Id << " " << pkChi2 << " " << pkNdf << " " << pkChi2/pkNdf << endl;
+            for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
+              cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
+            exit(0);
+          }
+          */
+          
+          /*
+          if ( pkChi2/pkNdf > 4 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
+          {
+            int tmpkk = 0;
+            for ( int kk=0; kk<10; kk++ )
+              tmpkk += tmp->GetBinContent(kk);
+            if ( tmpkk > 0 )
             {
               cout << "MSD " << " " << event.Id << " " << pkChi2 << " " << pkNdf << " " << pkChi2/pkNdf << endl;
               for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
                 cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
               exit(0);
             }
-            
-            if ( pkChi2/pkNdf > 4 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
-            {
-              int tmpkk = 0;
-              for ( int kk=0; kk<10; kk++ )
-                tmpkk += tmp->GetBinContent(kk);
-              if ( tmpkk > 0 )
-              {
-                cout << "MSD " << " " << event.Id << " " << pkChi2 << " " << pkNdf << " " << pkChi2/pkNdf << endl;
-                for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
-                  cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
-                exit(0);
-              }
-            }
-            
-            receCh = event.Stations[i].HCharge(pmtId-1);
-            fitCh.getChCrr(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6]/20., tmpName+"Hbch");
-            tmp = fitCh.getChCrr();           
-            fitCh.getFitCh(*tmp);
-          
-            chHistFit = fitCh.getFitGraphCh();
-            chChi2 = fitCh.chisCharge;
-            chNdf = fitCh.ndfCharge;
-            chProb = fitCh.probCharge;
-            charge =  fitCh.vemPosCh;
-            /*
-            if ( chChi2/chNdf > 4 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
-            {
-              cout << "MSD " << " " << event.Id << " " << chChi2 << " " << chNdf << " " << chChi2/pkNdf << endl;
-              for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
-                cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
-              exit(0);
-            }
-            */
-            
-            evtIdPk = event.Id;
-            evtIdCh = event.Id;
-            evtTimePk = event.utctime();
-            evtTimeCh = event.utctime();
-
-            treePeak->Fill();
-            treeCharge->Fill();
-
-            //exit(0);
-            
-		  			break; // Apply if the is running for a single station.
           }
+          */
+            
+          receCh = event.Stations[i].HCharge(pmtId-1);
+          fitCh.setChCrr(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6], tmpName+"Hbch");
+          tmp = fitCh.getChCrr();           
+          fitCh.getFitCh(*tmp);
+          
+          chHistFit = fitCh.getFitGraphCh();
+          chChi2 = fitCh.chisCharge;
+          chNdf = fitCh.ndfCharge;
+          chProb = fitCh.probCharge;
+          charge =  fitCh.vemPosCh;
+          chLow = fitCh.rangXmin;
+          chHigh = fitCh.rangXmax;
+          chPar0 = fitCh.par0;
+          chPar1 = fitCh.par1; 
+          chPar2 = fitCh.par2;
+          /*
+          if ( chChi2/chNdf > 4 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
+          {
+            cout << "MSD " << " " << event.Id << " " << chChi2 << " " << chNdf << " " << chChi2/pkNdf << endl;
+            for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
+              cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
+            exit(0);
+          }
+          */
+          
+          evtIdPk = event.Id;
+          evtIdCh = event.Id;
+          evtTimePk = event.UTCTime - 315964782;
+          evtTimeCh = event.UTCTime - 315964782;
+
+          treePeak->Fill();
+          treeCharge->Fill();
+
+          //exit(0);
+          
+          
+          break; // Apply if the is running for a single station.
         }
       }
     }

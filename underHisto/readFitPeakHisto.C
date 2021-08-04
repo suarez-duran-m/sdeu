@@ -32,7 +32,8 @@ void histoStyle(TGraphErrors *hist)
   hist->GetYaxis()->SetTitleSize(0.05);
 }
 
-double fitFunctionPk(double *x0, double *par) {
+double fitFunctionPk(double *x0, double *par) 
+{
 	const double x = 1./x0[0];
   const double lognormal = exp(par[0])*x*exp( -0.5*pow( ((log(x)+log(par[1]))*par[2]),2 ) );
   const double expo = exp( par[3] - par[4]*x );
@@ -119,6 +120,7 @@ vector < double > getFitRange( TH1F &h )
 
   tmpBinMin = 0;
   int nroot = 0;
+  int binavocero = 0;
   for ( int kk=rawbinMax; kk>0; kk-- ) // 20 FADC after 0 FADC
   {
     if ( tmpBinMin < fabs(h.GetBinContent( kk ) ) )
@@ -126,11 +128,13 @@ vector < double > getFitRange( TH1F &h )
       tmpBinMin = fabs( h.GetBinContent( kk ) ); 
       tmpMin = h.GetBinCenter(kk-1); // Change of concavity
     }
-    if ( h.GetBinContent( kk ) < 0 && nroot==0 )
+    if ( h.GetBinContent( kk ) < 0 && nroot==0 && binavocero>3 )
     {
       nroot = 1;
       rawbinMin = h.GetBinCenter(kk); // Bin for local minimum
     }
+    if ( h.GetBinContent( kk ) > 0 )
+      binavocero++;
     else if ( h.GetBinContent( kk ) > 0 && nroot==1 )
       break;
   }
@@ -198,30 +202,32 @@ void readFitPeakHisto()
   dir.ReplaceAll("readFitPeakHisto.C","");
   dir.ReplaceAll("/./","/");
   ifstream in;
-  in.open(Form("%ssample61219267.dat",dir.Data()));
+  //in.open(Form("%ssample61387849.dat",dir.Data()));
   //in.open(Form("%speakHist61219267.dat",dir.Data()));
+  in.open(Form("%ssamplePeak61219267.dat", dir.Data()));
   
   srand (time(NULL)); 
-  const int nbins = 150;
+  const int nbins = 151;
 
   double tmpXb;
   double tmpXfadc;
   double tmpYcnt;
 
-  double xbin[nbins+1];
-  double xfadc[nbins+1];
-  double ycnt[nbins+1];
+  double xbin[nbins];
+  double xfadc[nbins];
+  double ycnt[nbins];
 
   int bincnt = 0;
 
-  while ( bincnt < nbins+1 ) 
+  while ( bincnt < nbins ) 
   {
-    in >> tmpXb >> tmpXfadc >> tmpYcnt;
+    in >> tmpXb >> tmpXfadc >> tmpYcnt;  
     xbin[bincnt] = tmpXb;
-    xfadc[bincnt] = tmpXfadc+2; // Correct for binCenter
+    xfadc[bincnt] = tmpXfadc;
     ycnt[bincnt] = tmpYcnt;
     bincnt++;
   }
+  xfadc[bincnt] = xfadc[bincnt-1] + 16;
   in.close();
 
   TCanvas *c1 = canvasStyle("c1"); 
@@ -231,6 +237,9 @@ void readFitPeakHisto()
   
   for ( int kk=0; kk<nbins; kk++ )
     peak->SetBinContent(kk, ycnt[kk]);
+  cerr << peak->GetBinCenter(0) << " " << peak->GetBinContent(0) << endl;
+  cerr << peak->GetBinCenter(1) << " " << peak->GetBinContent(1) << endl;
+  cerr << peak->GetBinCenter(2) << " " << peak->GetBinContent(2) << endl;
 
   TH1F *peakDer = histDerivative(*peak, xfadc); // Peak raw Derivative
   TH1F *peakSmooth = getSmooth(*peak, xfadc); // Smooth Peak
@@ -243,7 +252,7 @@ void readFitPeakHisto()
   c1->cd();
   peak->SetStats(0);
   peak->SetLineColor(kBlue);
-  peak->GetXaxis()->SetRangeUser(-100, 1000);
+  peak->GetXaxis()->SetRangeUser(0, 1000);
   peak->SetLineWidth(1);
   peak->GetXaxis()->SetTitle("[FADC]");
   peak->GetYaxis()->SetTitle("Counts [au]");
@@ -263,11 +272,11 @@ void readFitPeakHisto()
 
   c2->cd();
   peakDer->SetStats(0);
-  peakDer->SetLineColor(kBlue);
+  peakDer->SetLineColor(kGray);
   peakDer->SetLineWidth(1);
   peakDer->GetXaxis()->SetRangeUser(-10, 1000);
   peakDer->GetXaxis()->SetTitle("[FADC]");
-  peakDer->GetYaxis()->SetRangeUser(-50, 50);
+  peakDer->GetYaxis()->SetRangeUser(-15, 10);
   peakDer->GetYaxis()->SetTitle("[au]");
   histoStyle(peakDer);
   peakDer->Draw();
@@ -284,7 +293,7 @@ void readFitPeakHisto()
 
   line = new TLine(0, 0, 1000, 0);
   line->SetLineStyle(4);
-  line->SetLineWidth(2);
+  line->SetLineWidth(1);
   line->Draw();
   
   leg = new TLegend(0.45,0.7,0.95,0.97);
@@ -323,8 +332,8 @@ void readFitPeakHisto()
   double rangXmax = 0.;
   double binMax = 0.;
 
-  rangXmin = 1.2*fitRange[0]; // For Exp + LogNorm
-  rangXmax = 1.4*fitRange[1];
+  rangXmin = fitRange[0]; // For Exp + LogNorm
+  rangXmax = fitRange[1];
   binMax = fitRange[2];
 
 	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),

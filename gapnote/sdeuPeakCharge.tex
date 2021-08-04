@@ -1,0 +1,373 @@
+\documentclass[twoside, final, 10pt]{articleMine}
+\usepackage[english]{babel}
+\usepackage[sc]{mathpazo}
+\usepackage{a4wide}
+\usepackage{subfigure}
+
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+\usepackage[right]{lineno}
+\usepackage{xspace}
+\usepackage{accents}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{color}
+\usepackage{units}
+\usepackage{enumitem}
+\usepackage{todonotes}
+\usepackage[capitalize]{cleveref}
+\usepackage{nameref}
+\usepackage{csquotes}
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=XML,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\usepackage[thinc]{esdiff}
+
+
+\usepackage{booktabs}
+\usepackage{mcite}
+
+
+\graphicspath{{plots/}}
+\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+  \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+  \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+  \renewenvironment{#1}%
+     {\linenomath\csname old#1\endcsname}%
+     {\csname oldend#1\endcsname\endlinenomath}}%
+\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+  \patchAmsMathEnvironmentForLineno{#1}%
+  \patchAmsMathEnvironmentForLineno{#1*}}%
+\AtBeginDocument{%
+\patchBothAmsMathEnvironmentsForLineno{equation}%
+\patchBothAmsMathEnvironmentsForLineno{align}%
+\patchBothAmsMathEnvironmentsForLineno{flalign}%
+\patchBothAmsMathEnvironmentsForLineno{alignat}%
+\patchBothAmsMathEnvironmentsForLineno{gather}%
+\patchBothAmsMathEnvironmentsForLineno{multline}%
+}
+
+\newcommand{\putat}[3]{\begin{picture}(0,0)(0,0)\put(#1,#2){#3}\end{picture}} % just a shorthand
+
+
+\parskip 4.2pt           % sets spacing between paragraphs
+%\parindend 0pt           % sets spacing between paragraphs
+\def\Offline{\mbox{$\overline{\rm
+Off}$\hspace{.05em}\raisebox{.4ex}{$\underline{\rm line}$}}\xspace}
+\def\OfflineB{\mbox{$\bf\overline{\rm\bf
+Off}$\hspace{.05em}\raisebox{.4ex}{$\bf\underline{\rm\bf line}$}}\xspace}
+
+\include{myabbr}
+
+
+
+\begin{document}
+\setpagewiselinenumbers
+\modulolinenumbers[2]
+
+\linenumbers
+
+\renewcommand\linenumberfont{\small\rmfamily}
+\begin{flushright}
+GAP-2021-xx
+\end{flushright}
+
+\begin{flushright}
+
+%  \vspace*{ex}
+  \rule{\linewidth}{0.5mm}
+  \\[17mm]
+
+  \vspace*{-3ex}{\Large Base Line studies for SDEU}
+
+  \large
+  \parbox[b]{15cm}{
+    \begin{flushright}
+      Mauricio Su\'arez-Dur\'an and  Ioana~C.~Mari\c{s}
+     \\[6mm]
+       {\small Universit{\'e} Libre de Bruxelles, Belgium}
+
+  \end{flushright}}
+  %
+  \\[5mm]
+  \rule{\linewidth}{0.5mm}
+
+  %
+  %
+\end{flushright}
+%
+%\vspace*{-5ex}
+%
+\thispagestyle{empty}
+\noindent
+\begin{abstract}
+  \noindent
+	Second batch of SDEU	
+
+\end{abstract}
+
+%
+%\newpage
+%
+\thispagestyle{empty}
+$\;$
+%\listoftodos
+%\newpage
+\noindent
+
+\section*{Introduction}
+  At the end
+	\begin{figure}[!tbh]
+		\centering
+		\subfigure{\includegraphics[width=0.55\textwidth]{figs/mapStations.pdf}}
+		\caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+		\label{figMapSt}
+	\end{figure}
+\clearpage
+
+\section*{Method implemented in CDAS}
+Peak case:
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/peakHisto863.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/peakDerHisto863.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figPkVemserie}
+\end{figure}
+
+
+\clearpage
+
+\section*{Peak Histograms}
+Comparison between OffLine SdCalibrator (ad files) and our method for CDAS files.
+For peak, chi2/Ndof $<3.5$.
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlinePkCompaSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/offlineResidPkSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figPkVemserie}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineVEMpkSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasVEMpkSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figPkVemserie}
+\end{figure}
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineChi2pkSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasChi2pkSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figPkNdfserie}
+\end{figure}
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineNDFpkSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasNDFpkSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figPkNdfserie}
+\end{figure}
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineChi2NdfPkSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasChi2NdfPkSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figPkChi2Ndfserie}
+\end{figure}
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineLowHihgpkSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasLowHighpkSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figPkLowHigh}
+\end{figure}
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineFailedPeakSt863PMT1Evt61319769.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasFailedPeakSt863PMT1Evt61304543.pdf}
+  }
+  \caption{Left: failed fit Peak histogram for OffLine; event Id: 61319769, Dec 18, 2020.
+  Right: failed Peak histogram for CDAS; event Id: 61304543, Dec 17, 2020.}
+  \label{figPkFailsfit}
+\end{figure}
+\clearpage
+
+\section*{Charge Histograms}
+Comparison between OffLine SdCalibrator (ad files) and our method for CDAS files.
+For charge, chi2/Ndof $<5.5$.
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineChCompaSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/offlineResidChSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChVemserie}
+\end{figure}
+
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineVEMchSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasVEMchSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChVemserie}
+\end{figure}
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineChi2chSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasChi2chSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChChi2serie}
+\end{figure}
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineNDFchSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasNDFchSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChNdfserie}
+\end{figure}
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineChi2NdfChSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasChi2NdfChSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChChi2Ndfserie}
+\end{figure}
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineLowHihgchSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasLowHighchSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineFailedChargeSt863PMT1Evt61378695.pdf}
+  }
+  \caption{OffLine failed fit for Charge histogram, 863 station, event 61378695, pmt1. 
+  In red, the fit obtenined in CDAS.}
+  \label{figChLowHigh}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section*{Calibration histograms}
+Hi
+
+TO DO
+
+\end{document}

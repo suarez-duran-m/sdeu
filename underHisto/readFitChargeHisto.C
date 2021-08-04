@@ -32,7 +32,8 @@ void histoStyle(TGraphErrors *hist)
   hist->GetYaxis()->SetTitleSize(0.05);
 }
 
-double fitFunctionCh(double *x0, double *par) {
+double fitFunctionCh(double *x0, double *par) 
+{
 	const double x = 1./x0[0];
   const double lognormal = exp(par[0])*x*exp( -0.5*pow( ((log(x)+log(par[1]))*par[2]),2 ) );
   const double expo = exp( par[3] - par[4]*x );
@@ -52,16 +53,24 @@ TH1F *getSmooth(TH1F &hist, double xb[])
 
 	for ( unsigned b=0; b<nb; b++ )
   {
-    if ( b > 1 && b<nb-3 )
+    if ( b>6 && b<nb-7 )
     {
-      yi = hist.GetBinContent(b+1 - 3) 
+      yi = hist.GetBinContent(b+1 - 7) 
+        + hist.GetBinContent(b+1 - 6) 
+        + hist.GetBinContent(b+1 - 5) 
+        + hist.GetBinContent(b+1 - 4) 
+        + hist.GetBinContent(b+1 - 3) 
         + hist.GetBinContent(b+1 - 2)
         + hist.GetBinContent(b+1 - 1) 
         + hist.GetBinContent(b+1) 
         + hist.GetBinContent(b+1 + 1) 
         + hist.GetBinContent(b+1 + 2)
-        + hist.GetBinContent(b+1 + 3);
-      yi = yi/7.;
+        + hist.GetBinContent(b+1 + 3)
+        + hist.GetBinContent(b+1 + 4)
+        + hist.GetBinContent(b+1 + 5)
+        + hist.GetBinContent(b+1 + 6)
+        + hist.GetBinContent(b+1 + 7);
+      yi = yi/15.;
     }
     else
       yi = hist.GetBinContent(b+1);
@@ -91,6 +100,60 @@ TH1F *histDerivative(TH1F &hist, double xb[]) // Central differences
 }
 
 
+vector < double > getFitRange( TH1F &h )
+{
+  vector < double > minmax;
+  int minRng = 0; // Min for fitting
+	int maxRng = 0; // Max for fitting
+
+  double binMin = 0.;
+  double binMax = 0.;
+  double rawbinMax = 0.;
+  double rawbinMin = 0.;
+
+  for ( int kk=275; kk>125; kk-- ) // from ~2000 FADC backward
+    if ( h.GetBinContent(kk) < 0 )
+    {
+      if ( binMax < fabs( h.GetBinContent( kk ) ) )
+      {
+        binMax = fabs( h.GetBinContent(kk));
+        maxRng = h.GetBinCenter(kk); // Change of concavity
+      }
+    }
+    else
+    {
+      binMax = h.GetBinCenter(kk); // tmp FADC for VEM
+      rawbinMax = kk; // Bin for tmp VEM
+      break;
+    }
+
+  binMin = 0;
+  for ( int kk=rawbinMax; kk>0; kk-- )
+    if ( h.GetBinContent(kk) > 0 )
+    {
+      if ( binMin < h.GetBinContent(kk) )
+      {
+        binMin = h.GetBinContent(kk); 
+        minRng = h.GetBinCenter(kk); // Change of concavity
+      }
+    }
+    else
+    {
+      binMin =  h.GetBinCenter(kk);
+      minRng = binMin;
+      rawbinMin = kk;
+      break;
+    }
+
+  minmax.push_back( minRng );
+  minmax.push_back( maxRng );
+  minmax.push_back( binMax );
+  minmax.push_back( rawbinMin );
+
+  return minmax;
+}
+
+
 double chargeMaxPk(TF1* f) 
 {
 	TCanvas* c = new TCanvas("c","c",800,600);
@@ -112,60 +175,6 @@ double chargeMaxPk(TF1* f)
   delete der;
   delete c;
   return d0x;
-}
-
-
-vector < double > getFitRange( TH1F &h )
-{
-  vector < double > minmax;
-  int tmpMin = 0; // Min for fitting
-	int tmpMax = 0; // Max for fitting
-
-  double tmpBinMin = 0.;
-  double tmpBinMax = 0.;
-  double rawbinMax = 0.;
-  double rawbinMin = 0.;
-
-  for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
-    if ( h.GetBinContent(kk) < 0 ) 
-    {
-      if ( tmpBinMax < fabs( h.GetBinContent( kk ) ) ) 
-      {
-        tmpBinMax = fabs( h.GetBinContent(kk)); 
-        tmpMax = h.GetBinCenter(kk); 
-      }
-    }
-    else
-    {
-      tmpBinMax = h.GetBinCenter(kk); 
-      rawbinMax = kk;
-      break;
-    }
-
-  tmpBinMin = 0;
-  int nroot = 0;
-  for ( int kk=rawbinMax; kk>0; kk-- ) // 20 FADC after 0 FADC
-  {
-    if ( tmpBinMin < fabs(h.GetBinContent( kk ) ) )
-    {
-      tmpBinMin = fabs( h.GetBinContent( kk ) );
-      tmpMin = h.GetBinCenter(kk-1);
-    }
-    if ( h.GetBinContent( kk ) < 0 && nroot==0 )
-    {
-      nroot = 1;
-      rawbinMin = h.GetBinCenter(kk);
-    }
-    else if ( h.GetBinContent( kk ) > 0 && nroot==1 )
-      break;
-  }
-
-  minmax.push_back( tmpMin );
-  minmax.push_back( tmpMax );
-  minmax.push_back( tmpBinMax );
-  minmax.push_back( rawbinMin );
-
-  return minmax;
 }
 
 
@@ -193,13 +202,12 @@ void getResiduals( TH1F *hist, TF1 *func,
 
 void readFitChargeHisto()
 {
-
   TString dir = gSystem->UnixPathName(gInterpreter->GetCurrentMacroName());
   dir.ReplaceAll("readFitChargeHisto.C","");
   dir.ReplaceAll("/./","/");
   ifstream in;
   //in.open(Form("%skkcharge.dat",dir.Data()));
-  in.open(Form("%schargeHist.dat",dir.Data()));
+  in.open(Form("%schargeHist61219267.dat",dir.Data()));
 
   const int nbins = 600;
 
@@ -236,7 +244,7 @@ void readFitChargeHisto()
   TH1F *chargeSmooth = getSmooth(*charge, xfadc);
   TH1F *chargeSmooDer = histDerivative(*chargeSmooth, xfadc);
   TH1F *chargeSmooDerSmth = getSmooth(*chargeSmooDer, xfadc);
-
+  chargeSmooDerSmth = getSmooth(*chargeSmooDerSmth, xfadc);
 
   TLine *line;
   TLegend *leg;
@@ -258,8 +266,7 @@ void readFitChargeHisto()
   leg->SetHeader("#splitline{Charge histogram Station 863}{(Event 61219267)}");
   leg->AddEntry(charge,"Charge histogram","f");
   leg->AddEntry(chargeSmooth,"Smooth charge histogram ","f");
-  leg->Draw();  
-  
+  leg->Draw();   
   c1->Print("../plots/chargeHisto863.pdf");
 
   c2->cd();
@@ -268,7 +275,7 @@ void readFitChargeHisto()
   chargeDer->SetLineWidth(1);
   chargeDer->GetXaxis()->SetTitle("[FADC]");
   chargeDer->GetYaxis()->SetTitle("[au]");
-  chargeDer->GetYaxis()->SetRangeUser(-4,6);
+  chargeDer->GetYaxis()->SetRangeUser(-4,7);
   chargeDer->GetXaxis()->SetRangeUser(0,3000);
   histoStyle(chargeDer);
   chargeDer->Draw();
@@ -288,88 +295,31 @@ void readFitChargeHisto()
   line->SetLineWidth(2);
   line->Draw();
   
-  leg = new TLegend(0.65,0.7,0.95,0.87);
+  leg = new TLegend(0.53,0.78,0.96,0.97);
   leg->SetHeader("From charge histogram","C");
-  leg->AddEntry(chargeSmooDer,"First derivative","f");
+  leg->AddEntry(chargeDer,"First derivative Charge-H.","f");
+  leg->AddEntry(chargeSmooDer,"First derivative Smooth-Charge-H.","f");
+  leg->AddEntry(chargeSmooDerSmth,"First derivative Smooth-Charge-H.","f");
+
+  leg->SetTextSize(0.04);
   leg->Draw();
   c2->Print("../plots/chargeDerHisto863.pdf");
-
-/*
-  c4->cd(); 
-  chargeSmooDer->SetLineColor(kOrange+10);
-  chargeSmooDer->SetLineWidth(1);
-  chargeSmooDer->SetStats(0);
-  chargeSmooDer->GetYaxis()->SetTitle("[au]");
-  chargeSmooDer->GetXaxis()->SetTitle("[FADC]");
-  chargeSmooDer->GetYaxis()->SetRangeUser(-10,10);
-  chargeSmooDer->GetXaxis()->SetRangeUser(0,3000);
-  histoStyle(chargeSmooDer);
-  chargeSmooDer->Draw();
-
-  chargeFFTDer->SetLineColor(kMagenta+1);
-  chargeFFTDer->SetLineWidth(1);
-  chargeFFTDer->Draw("hist same");
-
-  line = new TLine(0, 0, 3000, 0);
-  line->SetLineStyle(4);
-  line->SetLineWidth(1);
-  line->Draw();
-  
-  leg = new TLegend(0.55,0.7,0.95,0.92);
-  leg->SetHeader("From Smooth charge histogram","C");
-  leg->AddEntry(chargeSmooDer,"First derivative smooth","f");
-  leg->AddEntry(chargeFFTDer,"First derivative FFT","f");
-  leg->Draw();
-  c4->Print("../plots/chargeSmoothDerHisto863.pdf");
 
 
   // ===============================
   // *** *** *** FITTING *** *** *** 
 
-  TCanvas *c5 = canvasStyle("c5");
-  TCanvas *c6 = canvasStyle("c6");
-  TCanvas *c7 = canvasStyle("c7");
+  TCanvas *c3 = canvasStyle("c3");
+  TCanvas *c4 = canvasStyle("c4");
 
 	int rangXmin = 0; // Min for fitting
 	int rangXmax = 0; // Max for fitting
+  double chargeVal = 0.;
 	int nXbins = charge->GetXaxis()->GetNbins(); // Number of bins for fitting
 
-  double binMax = 0;
-  double binMin = 0;
-  for ( int kk=275; kk>125; kk-- ) // from 2496 FADC backward
-    if ( chargeFFTDer->GetBinContent( kk ) < 0 ) //chargeSmooDer->GetBinContent( kk ) < 0 )
-    {
-      if ( binMax < fabs( chargeFFTDer->GetBinContent( kk ) ) ) //chargeSmooDer->GetBinContent( kk ) ) )
-      {
-        binMax = fabs(chargeFFTDer->GetBinContent(kk)); // chargeSmooDer->GetBinContent(kk));
-        rangXmax = chargeFFTDer->GetBinCenter(kk); //chargeSmooDer->GetBinCenter(kk);
-      }
-    }
-    else
-    {
-      binMax = chargeFFTDer->GetBinCenter(kk); //chargeSmooDer->GetBinCenter(kk);
-      break;
-    }
-
-  //rangXmax *= 1.2;
-
-  binMin = 0;
-  int tmpneg = 0;
-  for ( int kk=25; kk<binMax; kk++ ) // 200 FADC after 0 FADC
-  {
-    if ( chargeFFTDer->GetBinContent( kk ) > 0 && tmpneg == 1 ) //chargeSmooDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
-      break;
-    if ( chargeFFTDer->GetBinContent( kk ) < 0 ) //chargeSmooDer->GetBinContent( kk ) < 0 )
-      if ( binMin < fabs( chargeFFTDer->GetBinContent( kk ) ) ) //chargeSmooDer->GetBinContent( kk ) ) )
-      {
-        rangXmin = chargeFFTDer->GetBinCenter(kk); //chargeSmooDer->GetBinCenter(kk); // 20 FADC fordward EM-Peak
-        binMin = fabs( chargeFFTDer->GetBinContent( kk ) ); //chargeSmooDer->GetBinContent( kk ) );
-        tmpneg = 1;
-      }
-  }
-
-  //rangXmin *= 2.5;
-  rangXmin *= 0.8;
+  vector < double > fitRange = getFitRange(*chargeSmooDerSmth);
+  rangXmin = fitRange[0];
+  rangXmax = fitRange[1];
   
 	vector < double > xbins; // X bins for fit-function
 	vector < double > ycnts; // Y counts for fit-function
@@ -382,29 +332,10 @@ void readFitChargeHisto()
 		xbins.push_back( charge->GetBinCenter(b+1) );
 	}
 
-
-	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
+	TGraphErrors* chToFit = new TGraphErrors( xbins.size(), &xbins.front(),
 			&ycnts.front(), 0, &yerrs.front() );
 
-  TF1 *fitFcn = new TF1("fitFcn", fitFunctionCh, rangXmin, rangXmax, 5);
-  fitFcn->SetParameters(13.38, binMax, 4.34, 4.81, -1659.76);
-  chFit->Fit("fitFcn","QR");
-
-  cerr << rangXmin << " " << rangXmax << " " << binMax << endl;
-  cerr << fitFcn->GetChisquare() << " " << fitFcn->GetNDF() << endl;
-
-  TF1 *expon = new TF1("expon", "exp( [0] - [1]/x )", rangXmin, rangXmax);
-  TF1 *lognorm = new TF1("lognorm", "(exp([0])/x) * exp( -0.5*pow( (( log([1]) - log(x) )*[2]),2 ) )", rangXmin, rangXmax);
-
-  double chargeVal = 0.;
-  chargeVal = chargeMaxPk(fitFcn);
-
-  expon->SetParameter(0, fitFcn->GetParameter(3));
-  expon->SetParameter(1, fitFcn->GetParameter(4));
-
-  lognorm->SetParameter(0, fitFcn->GetParameter(0));
-  lognorm->SetParameter(1, fitFcn->GetParameter(1));
-  lognorm->SetParameter(2, fitFcn->GetParameter(2));
+  TF1 *poly2;
 
   // ===========================
   // *** Computing Residuals ***
@@ -413,88 +344,131 @@ void readFitChargeHisto()
   vector < double > yResid;
   vector < double > errResid;
   double tmp = 0.;
-  for ( int kbin=1; kbin<nXbins; kbin++ )
-    if ( charge->GetBinCenter(kbin) >= rangXmin && charge->GetBinCenter(kbin) <= rangXmax )
+  int bigRsd = 0;
+  double reduceFactor = 0.05;
+  double chi2Ndf = 500.; 
+  double bestXmin = 0.;
+  double bestXmax = 0.;
+
+  for ( int nl=0; nl<10; nl++ ) 
+  {
+    bigRsd = 0;
+    tmp = 0;
+
+    poly2 = new TF1("poly2","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
+    chToFit->Fit("poly2","QR");
+
+    xResid.clear();
+    yResid.clear();
+    errResid.clear();
+
+    for ( int kbin=1; kbin<nXbins; kbin++ )
+      if ( charge->GetBinCenter(kbin) >= rangXmin && charge->GetBinCenter(kbin) <= rangXmax )
+      {
+        xResid.push_back( charge->GetBinCenter(kbin) );
+        tmp = poly2->Eval( charge->GetBinCenter(kbin) ) - charge->GetBinContent(kbin);
+        yResid.push_back( tmp / sqrt( charge->GetBinContent(kbin) ) );
+        errResid.push_back( sqrt(
+              pow(sqrt( charge->GetBinContent(kbin) ),2) 
+              + pow(sqrt( sqrt(poly2->Eval( charge->GetBinCenter(kbin) ) ) ),2)
+              ) / sqrt( charge->GetBinContent(kbin) ) );
+      }
+
+    for ( int rsd=0; rsd<yResid.size(); rsd++ )
+      if ( fabs ( yResid[rsd] ) > 1 )
+        bigRsd++;
+
+    if ( chi2Ndf > poly2->GetChisquare() / poly2->GetNDF() )
     {
-      xResid.push_back( charge->GetBinCenter(kbin) );
-      tmp = fitFcn->Eval( charge->GetBinCenter(kbin) ) - charge->GetBinContent(kbin);
-      yResid.push_back( tmp / sqrt( charge->GetBinContent(kbin) ) );
-      errResid.push_back( sqrt(
-            pow(sqrt( charge->GetBinContent(kbin) ),2) 
-            + pow(sqrt( sqrt(fitFcn->Eval( charge->GetBinCenter(kbin) ) ) ),2)
-            ) / sqrt( charge->GetBinContent(kbin) ) );
+      chi2Ndf = poly2->GetChisquare() / poly2->GetNDF();
+      bestXmin = rangXmin;
+      bestXmax = rangXmax;
     }
+    if ( bigRsd < 0.3*yResid.size() )
+      break;
+    else
+    {
+      rangXmin = (1.+reduceFactor)*fitRange[0];
+      rangXmax = (1.-reduceFactor)*fitRange[1];
+      reduceFactor += 0.01;
+    }
+  }
+
+  if ( chi2Ndf < poly2->GetChisquare() / poly2->GetNDF() )
+  {
+    rangXmin = bestXmin;
+    rangXmax = bestXmax;
+    poly2 = new TF1("poly2","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
+    chToFit->Fit("poly2","QR");
+
+    xResid.clear();
+    yResid.clear();
+    errResid.clear();
+    tmp = 0;
+
+    for ( int kbin=1; kbin<nXbins; kbin++ )
+      if ( charge->GetBinCenter(kbin) >= rangXmin && charge->GetBinCenter(kbin) <= rangXmax )
+      {
+        xResid.push_back( charge->GetBinCenter(kbin) );
+        tmp = poly2->Eval( charge->GetBinCenter(kbin) ) - charge->GetBinContent(kbin);
+        yResid.push_back( tmp / sqrt( charge->GetBinContent(kbin) ) );
+        errResid.push_back( sqrt(
+              pow(sqrt( charge->GetBinContent(kbin) ),2) 
+              + pow(sqrt( sqrt(poly2->Eval( charge->GetBinCenter(kbin) ) ) ),2)
+              ) / sqrt( charge->GetBinContent(kbin) ) );
+      }
+  }
+  chargeVal = -poly2->GetParameter(1) / (2.*poly2->GetParameter(0));
+
+  cerr << rangXmin << " " << rangXmax << " " << chargeVal << endl;
+  cerr << poly2->GetChisquare() << " " 
+    << poly2->GetNDF() << " " 
+    << poly2->GetChisquare() / poly2->GetNDF()
+    << endl;
 
   TGraphErrors* residGraph = new TGraphErrors( xResid.size(), &xResid.front(),
       &yResid.front(), 0, &errResid.front() );
 
-  TH1F *logNormResid = new TH1F("logNormResid", "", 11, -5, 5);
-  for ( int val=0; val<yResid.size(); val++ )
-    logNormResid->Fill( yResid[val] );
-
-  int nPoints = chFit->GetN();
-  int nbins2 = ( chFit->GetPointX(nPoints - 1) - chFit->GetPointX(0) ) / 8.;
-  TH1F *tmp2 = new TH1F("tmp2", "", nbins2, chFit->GetPointX(0), chFit->GetPointX(nPoints-1));
-
-  double x, y;
-  for(int i=0; i < nPoints; i++ )
-  {
-    chFit->GetPoint(i, x, y);
-    tmp2->SetBinContent(i, y);
-  }
- 
-  c5->cd();
+  c3->cd();
   TPaveStats *ptstats;
   gStyle->SetOptStat(1);
   gStyle->SetOptFit(1111);
   ptstats = new TPaveStats(0.63, 0.67, 0.96, 0.97,"brNDC");
-  chFit->GetListOfFunctions()->Add(ptstats);
-  chFit->SetTitle("");
-  chFit->GetXaxis()->SetRangeUser(100, 3000);
-  chFit->GetYaxis()->SetRangeUser(0, 1600);
-  chFit->SetLineColor(kBlue);
-  chFit->SetLineWidth(1);
-  chFit->GetXaxis()->SetTitle("[FADC]");
-  chFit->GetYaxis()->SetTitle("Counts [au]");
-  histoStyle(chFit);
-  chFit->Draw();
-
-  expon->SetLineColor(kGreen+2);
-  expon->Draw("same");
-  lognorm->SetLineColor(kMagenta+2);
-  lognorm->Draw("same");
-
-  leg = new TLegend(0.25,0.67,0.61,0.97);
-  leg->AddEntry(charge,"Charge histogram","f");
-  leg->AddEntry(fitFcn,"Fit Exp+Lognormal","f");
-  leg->AddEntry(expon,"Fit Exp","f");
-  leg->AddEntry(lognorm,"Fit Lognormal","f");
-  leg->Draw();
+  chToFit->GetListOfFunctions()->Add(ptstats);
+  chToFit->SetTitle("");
+  chToFit->GetXaxis()->SetRangeUser(100, 3000);
+  chToFit->GetYaxis()->SetRangeUser(100, 1300);
+  chToFit->SetLineColor(kBlue);
+  chToFit->SetLineWidth(1);
+  chToFit->GetXaxis()->SetTitle("[FADC]");
+  chToFit->GetYaxis()->SetTitle("Counts [au]");
+  histoStyle(chToFit);
+  chToFit->Draw(); 
 
   line = new TLine(chargeVal, 0, chargeVal, 1600);
   line->SetLineStyle(4);
   line->SetLineWidth(2);
   line->Draw();
+  c3->Print("../plots/chargeFittedHisto863.pdf");
 
-  c5->Print("../plots/chargeFittedHisto863.pdf");
 
-  c7->cd();
+  c4->cd();
   residGraph->SetTitle("");
-  residGraph->GetXaxis()->SetRangeUser(100, 3000);
+  residGraph->GetXaxis()->SetRangeUser(rangXmin-50, rangXmax+50);
   residGraph->GetYaxis()->SetRangeUser(-7, 4.2);
   residGraph->SetLineColor(kBlue);
   residGraph->SetLineWidth(1);
   residGraph->SetMarkerSize(1.5);
   residGraph->SetMarkerStyle(20);
   residGraph->GetXaxis()->SetTitle("[FADC * 8.33 ns]");
-  residGraph->GetYaxis()->SetTitle("Residuals [au]");
+  residGraph->GetYaxis()->SetTitle("Residuals");
   histoStyle(residGraph);
   residGraph->GetYaxis()->SetTitleOffset(0.8);
   residGraph->Draw("APL");
 
   TString chindf;
   TString valcharge;
-  chindf.Form("%.2f", fitFcn->GetChisquare() / fitFcn->GetNDF() );
+  chindf.Form("%.2f", poly2->GetChisquare() / poly2->GetNDF() );
   valcharge.Form("%.2f", chargeVal);
 
   leg = new TLegend(0.14,0.19,0.52,0.40);
@@ -502,7 +476,7 @@ void readFitChargeHisto()
   leg->SetTextSize(0.065);
   leg->Draw();
 
-  line = new TLine(300, 0, 1950, 0);
+  line = new TLine(rangXmin-50, 0, rangXmax+50, 0);
   line->SetLineStyle(4);
   line->SetLineWidth(2);
   line->Draw();
@@ -512,19 +486,19 @@ void readFitChargeHisto()
   line->SetLineWidth(2);
   line->Draw();
 
-  line = new TLine(300, 1, 1950, 1);
+  line = new TLine(rangXmin-50, 1, rangXmax+50, 1);
   line->SetLineStyle(9);
   line->SetLineWidth(1);
   line->Draw();
 
-  line = new TLine(300, -1, 1950, -1);
+  line = new TLine(rangXmin-50, -1, rangXmax+50, -1);
   line->SetLineStyle(9);
   line->SetLineWidth(1);
   line->Draw();
 
-  c7->Print("../plots/chargeFitResiduals863.pdf");
+  c4->Print("../plots/chargeFitResiduals863.pdf");
 
-
+/*
   // =============================
   // *** *** Fitting Poly2 *** ***
 

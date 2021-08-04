@@ -18,6 +18,11 @@ class fitpeak {
     double chisPeak;
     double ndfPeak;
     double probPeak;
+    double par0;
+    double par1;
+    double par2;
+		int rangXmin;
+		int rangXmax;
 		bool getGraph;
 		bool fitPkOk;
 
@@ -28,8 +33,6 @@ class fitpeak {
 		TH1F *getPkCorr();
 
 	private:
-		int rangXmin;
-		int rangXmax;
 		unsigned int nXbins;
 		bool checkMax;
 		double critGoodFit;
