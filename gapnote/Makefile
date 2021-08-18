@@ -83,7 +83,7 @@ includes.tex		?= myabbr.tex
 #
 # If you list files or wildcards here, they will *not* be cleaned - default is
 # to allow everything to be cleaned.
-#neverclean		?= *.pdf
+neverclean		?= *.pdf
 #
 # Alternatively (recommended), you can add those lines to a Makefile.ini file
 # and it will get picked up automatically without your having to edit this
