@@ -248,7 +248,7 @@ void readingChMonthsFitting(int st)
   double meanDerPmt1 = getmean( chargeDerPmt1 );
   double rmsDerPmt1 = getrms( chargeDerPmt1, meanDerPmt1 );
   TGraph *chPmt1 = new TGraph(nPoints,xtimePmt1,yChPmt1);
-  TGraph *pkDerPmt1 = new TGraph(nPoints,xtimePmt1,yChDerPmt1);
+  TGraph *chDerPmt1 = new TGraph(nPoints,xtimePmt1,yChDerPmt1);
 
   nPoints = timePmt2.size();
   double xtimePmt2[ nPoints ];
@@ -265,7 +265,7 @@ void readingChMonthsFitting(int st)
   double meanDerPmt2 = getmean( chargeDerPmt2 );
   double rmsDerPmt2 = getrms( chargeDerPmt2, meanDerPmt2 );
   TGraph *chPmt2 = new TGraph(nPoints,xtimePmt2,yChPmt2);
-  TGraph *pkDerPmt2 = new TGraph(nPoints,xtimePmt2,yChDerPmt2);
+  TGraph *chDerPmt2 = new TGraph(nPoints,xtimePmt2,yChDerPmt2);
 
   nPoints = timePmt3.size();
   double xtimePmt3[ nPoints ];
@@ -282,7 +282,7 @@ void readingChMonthsFitting(int st)
   double meanDerPmt3 = getmean( chargeDerPmt3 );
   double rmsDerPmt3 = getrms( chargeDerPmt3, meanDerPmt3 );
   TGraph *chPmt3 = new TGraph(nPoints,xtimePmt3,yChPmt3);
-  TGraph *pkDerPmt3 = new TGraph(nPoints,xtimePmt3,yChDerPmt3);
+  TGraph *chDerPmt3 = new TGraph(nPoints,xtimePmt3,yChDerPmt3);
 
   TString avePkStr;
   TString rmsPkStr;
@@ -299,26 +299,28 @@ void readingChMonthsFitting(int st)
   chPmt1->GetYaxis()->SetTitle("Charge-BXL [FADC]");
   chPmt1->GetYaxis()->SetRangeUser(0, 2200);
   chPmt1->SetMarkerStyle(25);
+  chPmt1->SetMarkerSize(2);
   chPmt1->SetMarkerColor(kAzure+10);
   chPmt1->SetLineColor(kAzure+10);
   chPmt1->SetLineWidth(2);
   histoStyle(chPmt1);
   chPmt1->Draw("AP same");
 
-  pkDerPmt1->SetMarkerStyle(32);
-  pkDerPmt1->SetMarkerColor(kOrange+10);
-  pkDerPmt1->SetLineColor(kOrange+10);
-  pkDerPmt1->SetLineWidth(2);
-  pkDerPmt1->Draw("P same");
+  chDerPmt1->SetMarkerStyle(32);
+  chDerPmt1->SetMarkerSize(2);
+  chDerPmt1->SetMarkerColor(kOrange+10);
+  chDerPmt1->SetLineColor(kOrange+10);
+  chDerPmt1->SetLineWidth(2);
+  chDerPmt1->Draw("P same");
 
   avePkStr.Form("%.2f", meanPmt1);
   rmsPkStr.Form("%.2f", rmsPmt1);
   leg = new TLegend(0.15,0.31,0.52,0.5);
   leg->SetHeader("PMT1");
-  leg->AddEntry(chPmt1, "Average Charge-Fit: "+avePkStr+"; RMS: "+rmsPkStr,"f");
+  leg->AddEntry(chPmt1, "Average Charge-Fit: "+avePkStr+"; RMS: "+rmsPkStr,"p");
   avePkStr.Form("%.2f", meanDerPmt1);
   rmsPkStr.Form("%.2f", rmsDerPmt1);
-  leg->AddEntry(pkDerPmt1, "Average Charge-Der.: "+avePkStr+"; RMS: "+rmsPkStr,"f");
+  leg->AddEntry(chDerPmt1, "Average Charge-Der.: "+avePkStr+"; RMS: "+rmsPkStr,"p");
   leg->SetTextSize(0.06);
   leg->SetBorderSize(0);
   leg->Draw();
@@ -337,26 +339,28 @@ void readingChMonthsFitting(int st)
   chPmt2->GetYaxis()->SetTitle("Charge-BXL [FADC]");
   chPmt2->GetYaxis()->SetRangeUser(0, 2200);
   chPmt2->SetMarkerStyle(25);
+  chPmt2->SetMarkerSize(2);
   chPmt2->SetMarkerColor(kAzure+10);
   chPmt2->SetLineColor(kAzure+10);
   chPmt2->SetLineWidth(2);
   histoStyle(chPmt2);
   chPmt2->Draw("AP same");
 
-  pkDerPmt2->SetMarkerStyle(32);
-  pkDerPmt2->SetMarkerColor(kOrange+10);
-  pkDerPmt2->SetLineColor(kOrange+10);
-  pkDerPmt2->SetLineWidth(2);
-  pkDerPmt2->Draw("P same");
+  chDerPmt2->SetMarkerStyle(32);
+  chDerPmt2->SetMarkerSize(2);
+  chDerPmt2->SetMarkerColor(kOrange+10);
+  chDerPmt2->SetLineColor(kOrange+10);
+  chDerPmt2->SetLineWidth(2);
+  chDerPmt2->Draw("P same");
 
   avePkStr.Form("%.2f", meanPmt2);
   rmsPkStr.Form("%.2f", rmsPmt2);
   leg = new TLegend(0.15,0.31,0.52,0.5);
   leg->SetHeader("PMT2");
-  leg->AddEntry(chPmt2, "Average Charge-Fit: "+avePkStr+"; RMS: "+rmsPkStr,"f");
+  leg->AddEntry(chPmt2, "Average Charge-Fit: "+avePkStr+"; RMS: "+rmsPkStr,"p");
   avePkStr.Form("%.2f", meanDerPmt2);
   rmsPkStr.Form("%.2f", rmsDerPmt2);
-  leg->AddEntry(pkDerPmt2, "Average Charge-Der.: "+avePkStr+"; RMS: "+rmsPkStr,"f");
+  leg->AddEntry(chDerPmt2, "Average Charge-Der.: "+avePkStr+"; RMS: "+rmsPkStr,"p");
   leg->SetTextSize(0.06);
   leg->SetBorderSize(0);
   leg->Draw();
@@ -375,26 +379,28 @@ void readingChMonthsFitting(int st)
   chPmt3->GetYaxis()->SetTitle("Charge-OffLine [FADC]");
   chPmt3->GetYaxis()->SetRangeUser(0, 2200);
   chPmt3->SetMarkerStyle(25);
+  chPmt3->SetMarkerSize(2);
   chPmt3->SetMarkerColor(kAzure+10);
   chPmt3->SetLineColor(kAzure+10);
   chPmt3->SetLineWidth(2);
   histoStyle(chPmt3);
   chPmt3->Draw("AP same");
 
-  pkDerPmt3->SetMarkerStyle(32);
-  pkDerPmt3->SetMarkerColor(kOrange+10);
-  pkDerPmt3->SetLineColor(kOrange+10);
-  pkDerPmt3->SetLineWidth(2);
-  pkDerPmt3->Draw("P same");
+  chDerPmt3->SetMarkerStyle(32);
+  chDerPmt3->SetMarkerSize(2);
+  chDerPmt3->SetMarkerColor(kOrange+10);
+  chDerPmt3->SetLineColor(kOrange+10);
+  chDerPmt3->SetLineWidth(2);
+  chDerPmt3->Draw("P same");
 
   avePkStr.Form("%.2f", meanPmt3);
   rmsPkStr.Form("%.2f", rmsPmt3);
   leg = new TLegend(0.15,0.31,0.52,0.5);
   leg->SetHeader("PMT3");
-  leg->AddEntry(chPmt3, "Average Charge-Fit: "+avePkStr+"; RMS: "+rmsPkStr,"f");
+  leg->AddEntry(chPmt3, "Average Charge-Fit: "+avePkStr+"; RMS: "+rmsPkStr,"p");
   avePkStr.Form("%.2f", meanDerPmt3);
   rmsPkStr.Form("%.2f", rmsDerPmt3);
-  leg->AddEntry(pkDerPmt3, "Average Charge-Der.: "+avePkStr+"; RMS: "+rmsPkStr,"f");
+  leg->AddEntry(chDerPmt3, "Average Charge-Der.: "+avePkStr+"; RMS: "+rmsPkStr,"p");
   leg->SetTextSize(0.06);
   leg->SetBorderSize(0);
   leg->Draw();
