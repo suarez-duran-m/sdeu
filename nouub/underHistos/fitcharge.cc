@@ -15,13 +15,6 @@
 // =======================
 // *** Local Functions ***
 // =======================
-double fitFunctionCh(double *x0, double *par) {
-	const double x = 1./x0[0];
-  const double lognormal = exp(par[0])*x*exp( -0.5*pow( ((log(x)+log(par[1]))*par[2]),2 ) );
-  const double expo = exp( par[3] - par[4]*x );
-	return lognormal+expo;
-}
-
 
 TH1F *histDerivativeCh(TH1F &hist, double xb[]) // Central differences
 {
@@ -43,96 +36,94 @@ TH1F *histDerivativeCh(TH1F &hist, double xb[]) // Central differences
 }
 
 
-double peakMaxCh(TF1* f) {
-	TCanvas* c = new TCanvas("c","c",800,600);
-  TGraph* der = (TGraph*)f->DrawDerivative("goff");
-  double * x = der->GetX();
-  double * yd1 = der->GetY();
-  int n = der->GetN();
-  double d0x = 0;
-  double d0y = 1000;
-  for (int j = 1; j < n; ++j){
-    const double yd2 = f->Derivative2(x[j]);
-    if (yd2 <0 && d0y > fabs(yd1[j])){
-      d0y = fabs(yd1[j]);
-      d0x = x[j];
-    }
-  }
-  delete der;
-  delete c;
-  return d0x;
-}
-
-
-vector < double > minRangMaxSmoothCh( double x[], TH1F h )
+TH1F *getSmoothCh(TH1F &hist, double xb[])
 {
-  vector < double > minmax;
-
 	unsigned int nb = 600;
   double yi = 0.;
-  double tmpMax = 0.;
-  double tmpMin = 0.;
-  double tmpBinMax = 0.;
-  double tmpBinMin = 0.;
 
   TString tmpname;
   tmpname.Form("%d",rand());
 
-	TH1F *hsmooth = new TH1F(tmpname, tmpname, nb, x);
+	TH1F *hstSmooth = new TH1F(tmpname, "", nb, xb);
 
 	for ( unsigned b=0; b<nb; b++ )
   {
-    if ( b > 1 && b<nb-2 )
+    if ( b>6 && b<nb-7 )
     {
-      yi = h.GetBinContent(b+1 - 2) 
-        + 2*h.GetBinContent(b+1 - 1) 
-        + 3*h.GetBinContent(b+1) 
-        + 2*h.GetBinContent(b+1 + 1) 
-        + h.GetBinContent(b+1 + 2);
-      yi = yi/9.;
+      yi = hist.GetBinContent(b+1 - 7) 
+        + hist.GetBinContent(b+1 - 6) 
+        + hist.GetBinContent(b+1 - 5) 
+        + hist.GetBinContent(b+1 - 4) 
+        + hist.GetBinContent(b+1 - 3) 
+        + hist.GetBinContent(b+1 - 2)
+        + hist.GetBinContent(b+1 - 1) 
+        + hist.GetBinContent(b+1) 
+        + hist.GetBinContent(b+1 + 1) 
+        + hist.GetBinContent(b+1 + 2)
+        + hist.GetBinContent(b+1 + 3)
+        + hist.GetBinContent(b+1 + 4)
+        + hist.GetBinContent(b+1 + 5)
+        + hist.GetBinContent(b+1 + 6)
+        + hist.GetBinContent(b+1 + 7);
+      yi = yi/15.;
     }
     else
-      yi = h.GetBinContent(b+1);
-
-    hsmooth->SetBinContent(b+1, yi);
+      yi = hist.GetBinContent(b+1);
+    
+    hstSmooth->SetBinContent(b+1, yi);
   }
+  return hstSmooth;
+}
 
-  TH1 *hsmoothDer = histDerivativeCh(*hsmooth, x);
-  hsmoothDer->Smooth(700);
+vector < double > getFitRangeCh( TH1F &h )
+{
+  vector < double > minmax;
+  int minRng = 0;
+  int maxRng = 0;
 
-  for ( int kk=200; kk>63; kk-- ) // from 217 FADC backward
-  {
-    if ( hsmoothDer->GetBinContent(kk) < 0 )
+  double binMin = 0.;
+  double binMax = 0.;
+  double rawbinMax = 0.;
+  double rawbinMin = 0.;
+
+  for ( int kk=275; kk>125; kk-- ) // from ~2000 FADC backward
+    if ( h.GetBinContent(kk) < 0 )
     {
-      if ( tmpBinMax < fabs(hsmoothDer->GetBinContent( kk ) ) )
+      if ( binMax < fabs( h.GetBinContent( kk ) ) )
       {
-        tmpBinMax = fabs(hsmoothDer->GetBinContent(kk));
-        tmpMax = hsmoothDer->GetBinCenter(kk);
+        binMax = fabs( h.GetBinContent(kk));
+        maxRng = h.GetBinCenter(kk); // Change of concavity
       }
     }
     else
     {
-      tmpBinMax = hsmoothDer->GetBinCenter(kk);
+      binMax = h.GetBinCenter(kk); // tmp FADC for VEM
+      rawbinMax = kk; // Bin for tmp VEM
       break;
     }
-  }
 
-  int tmpneg = 0;
-  for ( int kk=25; kk<tmpBinMax; kk++ ) // 200 FADC after 0 FADC
-  {
-    if ( hsmoothDer->GetBinContent( kk ) > 0 && tmpneg == 1 )
-      break;
-    if ( hsmoothDer->GetBinContent( kk ) < 0 )
-      if ( tmpBinMin < fabs( hsmoothDer->GetBinContent( kk ) ) )
+  binMin = 0;
+  for ( int kk=rawbinMax; kk>0; kk-- )
+    if ( h.GetBinContent(kk) > 0 )
+    {
+      if ( binMin < h.GetBinContent(kk) )
       {
-        tmpMin = hsmoothDer->GetBinCenter(kk);
-        tmpBinMin = fabs( hsmoothDer->GetBinContent( kk ) );
-        tmpneg = 1;
+        binMin = h.GetBinContent(kk); 
+        minRng = h.GetBinCenter(kk); // Change of concavity
       }
-  }
-  minmax.push_back( tmpMin );
-  minmax.push_back( tmpMax );
-  minmax.push_back( tmpBinMax );
+    }
+    else
+    {
+      binMin =  h.GetBinCenter(kk);
+      minRng = binMin;
+      rawbinMin = kk;
+      break;
+    }
+
+  minmax.push_back( minRng );
+  minmax.push_back( maxRng );
+  minmax.push_back( binMax );
+  minmax.push_back( rawbinMin );  
 
   return minmax;
 }
@@ -145,6 +136,9 @@ fitcharge::fitcharge()
 	fitChOk = false;
 
   chisCharge = 0.;
+  par0 = 0.;
+  par1 = 0.;
+  par2 = 0.;
 	rangXmin = 0;
 	rangXmax = 0;
 	nXbins = 0;
@@ -178,19 +172,20 @@ void fitcharge::getFitCh(TH1F &hist)
 	rangXmax = 0; // Max for fitting
 	nXbins = hist.GetXaxis()->GetNbins(); // Number of bins for fitting
 	critGoodFit = 0.; // Criterium for "good" fitting
+  vector < double > rangeValues;
 
   double xfadc[nXbins+1];
   for( unsigned int b=0; b<nXbins+1; b++ )
     xfadc[b] = hist.GetBinCenter(b+1);
 
-  vector < double > tmp;
-  tmp = minRangMaxSmoothCh( xfadc, hist );
+  TH1F *chargeSmooth = getSmoothCh(hist, xfadc);
+  TH1F *chargeSmooDer = histDerivativeCh(*chargeSmooth, xfadc);
+  TH1F *chargeSmooDerSmth = getSmoothCh(*chargeSmooDer, xfadc);
+  chargeSmooDerSmth = getSmoothCh(*chargeSmooDerSmth, xfadc);
 
-  rangXmin = 1.*tmp[0];
-  rangXmax = 1.*tmp[1];
-  double binMax = tmp[2];
-
-	TString parName; // For Fitted plot title
+  rangeValues = getFitRangeCh(*chargeSmooDerSmth);
+  rangXmin = rangeValues[0];
+  rangXmax = rangeValues[1];
 
 	vector < double > xbins; // X bins for fit-function
 	vector < double > ycnts; // Y counts for fit-function
@@ -208,64 +203,95 @@ void fitcharge::getFitCh(TH1F &hist)
 	TGraphErrors* chFit = new TGraphErrors( xbins.size(), &xbins.front(),
 			&ycnts.front(), 0, &yerrs.front() );
 
-	TF1 *fitFcn = new TF1("fitFcn", fitFunctionCh, rangXmin, rangXmax, 5);
-	fitFcn->SetParameters(11.61, binMax, 1.9, 5.01, -69.15); // Set  init. fit par.
+  TF1 *poly2;
+  vector < double > xResid;
+  vector < double > yResid;
+  vector < double > errResid;
+  double tmp = 0.;
+  int bigRsd = 0;
+  double reduceFactor = 0.05;
+  double chi2Ndf = 500.; 
+  double bestXmin = 0.;
+  double bestXmax = 0.;
 
-	chFit->Fit("fitFcn", "QR");
-  chisCharge = fitFcn->GetChisquare();
-  ndfCharge = fitFcn->GetNDF();
-  probCharge = fitFcn->GetProb();
-	vemPosCh = peakMaxCh(fitFcn);
-	critGoodFit = 2;
-
-  if ( (chisCharge/ndfCharge) < critGoodFit )
-    fitChOk = true;
-  else if ( (chisCharge/ndfCharge) > critGoodFit )
+  for ( int nl=0; nl<10; nl++ ) 
   {
-    rangXmax += 4;
-    rangXmin += 4;
-    binMax += 4;
-    fitFcn = new TF1("fitFcn", fitFunctionCh, rangXmin, rangXmax, 5);
-    fitFcn->SetParameters(11.61, binMax, 1.9, 5.01, -69.15); //Set  init. fit par.
-  	chFit->Fit("fitFcn", "QR");
-    chisCharge = fitFcn->GetChisquare();
-    ndfCharge = fitFcn->GetNDF();
-	  vemPosCh = peakMaxCh(fitFcn);
-  } 
-  if ( (chisCharge/ndfCharge) > critGoodFit )
-  {
-    tmp.clear();
-    tmp = minRangMaxSmoothCh( xfadc, hist );
-    
-    rangXmin = 2.5*tmp[0];
-    rangXmax = 1.5*tmp[1];
-    binMax = tmp[2];
+    bigRsd = 0;
+    tmp = 0;
 
-    fitFcn = new TF1("fitFcn", fitFunctionCh, rangXmin, rangXmax, 5);
-    fitFcn->SetParameters(11.61, binMax, 1.9, 5.01, -69.15);
+    poly2 = new TF1("poly2","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
+    chToFit->Fit("poly2","QR");
 
-	  chFit->Fit("fitFcn","QR");
-    chisCharge = fitFcn->GetChisquare();
-    ndfCharge = fitFcn->GetNDF();
-    vemPosCh = peakMaxCh(fitFcn);
+    xResid.clear();
+    yResid.clear();
+    errResid.clear();
+
+    for ( int kbn=1; kbn<nXbins; kbn++ )
+      if ( hist.GetBinCenter(kbn) >= rangXmin && hist.GetBinCenter(kbn) <= rangXmax )
+      {
+        xResid.push_back( hist.GetBinCenter(kbn) );
+        tmp = poly2->Eval( hist.GetBinCenter(kbn) ) - hist.GetBinContent(kbn);
+        yResid.push_back( tmp / sqrt( hist.GetBinContent(kbn) ) );
+        errResid.push_back( sqrt(
+              pow(sqrt( hist.GetBinContent(kbn) ),2) 
+              + pow(sqrt( sqrt(poly2->Eval( hist.GetBinCenter(kbn) ) ) ),2)
+              ) / sqrt( hist.GetBinContent(kbn) ) );
+      }
+
+    for ( int rsd=0; rsd<yResid.size(); rsd++ )
+      if ( fabs ( yResid[rsd] ) > 1 )
+        bigRsd++;
+
+    if ( chi2Ndf > poly2->GetChisquare() / poly2->GetNDF() )
+    {
+      chi2Ndf = poly2->GetChisquare() / poly2->GetNDF();
+      bestXmin = rangXmin;
+      bestXmax = rangXmax;
+    }
+    if ( bigRsd < 0.3*yResid.size() )
+      break;
+    else
+    {
+      rangXmin = (1.+reduceFactor)*rangeValues[0];
+      rangXmax = (1.-reduceFactor)*rangeValues[1];
+      reduceFactor += 0.01;
+    }
   }
-  if ( (chisCharge/ndfCharge) > critGoodFit )
+
+  if ( chi2Ndf < poly2->GetChisquare() / poly2->GetNDF() )
   {
-    tmp.clear();
-    tmp = minRangMaxSmoothCh( xfadc, hist );
-    
-    rangXmin = 1.*tmp[0];
-    rangXmax = 0.9*tmp[1];
-    binMax = tmp[2];
+    rangXmin = bestXmin;
+    rangXmax = bestXmax;
+    poly2 = new TF1("poly2","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
+    chToFit->Fit("poly2","QR");
 
-    fitFcn = new TF1("fitFcn", fitFunctionCh, rangXmin, rangXmax, 5);
-    fitFcn->SetParameters(11.61, binMax, 1.9, 5.01, -69.15);
+    xResid.clear();
+    yResid.clear();
+    errResid.clear();
+    tmp = 0;
 
-	  chFit->Fit("fitFcn","QR");
-    chisCharge = fitFcn->GetChisquare();
-    ndfCharge = fitFcn->GetNDF();
-    vemPosCh = peakMaxCh(fitFcn); 
+    for ( int kbn=1; kbn<nXbins; kbn++ )
+      if ( hist.GetBinCenter(kbn) >= rangXmin && hist.GetBinCenter(kbn) <= rangXmax )
+      {
+        xResid.push_back( hist.GetBinCenter(kbn) );
+        tmp = poly2->Eval( hist.GetBinCenter(kbn) ) - hist.GetBinContent(kbn);
+        yResid.push_back( tmp / sqrt( hist.GetBinContent(kbn) ) );
+        errResid.push_back( sqrt(
+              pow(sqrt( hist.GetBinContent(kbn) ),2) 
+              + pow(sqrt( sqrt(poly2->Eval( hist.GetBinCenter(kbn) ) ) ),2)
+              ) / sqrt( hist.GetBinContent(kbn) ) );
+      }
   }
+
+  chisCharge = poly2->GetChisquare();
+  ndfCharge = poly2->GetNDF();
+  probCharge = poly2->GetProb();
+	vemPosCh = -poly2->GetParameter(1) / (2.*poly2->GetParameter(0));;
+	critGoodFit = 5.5;
+  par0 = poly2->GetParameter(0);
+  par1 = poly2->GetParameter(1);
+  par2 = poly2->GetParameter(2);
+  fitGraphCh = (TGraphErrors*)chToFit->Clone();
 
   if ( (chisCharge/ndfCharge) > critGoodFit )
     vemPosCh = 0.;

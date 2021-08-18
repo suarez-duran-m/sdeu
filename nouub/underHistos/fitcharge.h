@@ -18,6 +18,11 @@ class fitcharge {
     double chisCharge;
     double ndfCharge;
     double probCharge;
+    double par0;
+    double par1;
+    double par2;
+		int rangXmin;
+		int rangXmax;
 		bool getGraph;
 		bool fitChOk;
 
@@ -28,8 +33,6 @@ class fitcharge {
 		TH1F *getChCrr();
 
 	private:
-		unsigned int rangXmin;
-		unsigned int rangXmax;
 		unsigned int nXbins;
 		double critGoodFit;
 
