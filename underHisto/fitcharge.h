@@ -15,6 +15,7 @@ class fitcharge {
   public:
 		fitcharge();
     double vemPosCh;
+    double vemPosDeri;
     double chisCharge;
     double ndfCharge;
     double probCharge;

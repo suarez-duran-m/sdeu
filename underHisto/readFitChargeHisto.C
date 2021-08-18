@@ -110,6 +110,7 @@ vector < double > getFitRange( TH1F &h )
   double binMax = 0.;
   double rawbinMax = 0.;
   double rawbinMin = 0.;
+  double vemDer = 0.;
 
   for ( int kk=275; kk>125; kk-- ) // from ~2000 FADC backward
     if ( h.GetBinContent(kk) < 0 )
@@ -124,6 +125,9 @@ vector < double > getFitRange( TH1F &h )
     {
       binMax = h.GetBinCenter(kk); // tmp FADC for VEM
       rawbinMax = kk; // Bin for tmp VEM
+      vemDer = h.GetBinCenter(kk) + 4.;
+      // +4 because the zero is between this pixel and
+      // the next one.
       break;
     }
 
@@ -149,6 +153,7 @@ vector < double > getFitRange( TH1F &h )
   minmax.push_back( maxRng );
   minmax.push_back( binMax );
   minmax.push_back( rawbinMin );
+  minmax.push_back( vemDer );
 
   return minmax;
 }
@@ -271,11 +276,11 @@ void readFitChargeHisto()
 
   c2->cd();
   chargeDer->SetStats(0);
-  chargeDer->SetLineColor(kBlue);
+  chargeDer->SetLineColor(kGray);
   chargeDer->SetLineWidth(1);
   chargeDer->GetXaxis()->SetTitle("[FADC]");
   chargeDer->GetYaxis()->SetTitle("[au]");
-  chargeDer->GetYaxis()->SetRangeUser(-4,7);
+  chargeDer->GetYaxis()->SetRangeUser(-3,4);
   chargeDer->GetXaxis()->SetRangeUser(0,3000);
   histoStyle(chargeDer);
   chargeDer->Draw();
@@ -445,9 +450,19 @@ void readFitChargeHisto()
   histoStyle(chToFit);
   chToFit->Draw(); 
 
-  line = new TLine(chargeVal, 0, chargeVal, 1600);
+  poly2->SetLineWidth(4);
+  poly2->Draw("same");
+
+  line = new TLine(chargeVal, 1e2, chargeVal, 1300);
   line->SetLineStyle(4);
-  line->SetLineWidth(2);
+  line->SetLineColor(kRed);
+  line->SetLineWidth(3);
+  line->Draw();
+
+  line = new TLine(fitRange[4], 1e2, fitRange[4], 1300);
+  line->SetLineStyle(4);
+  line->SetLineColor(kGreen+3);
+  line->SetLineWidth(3);
   line->Draw();
   c3->Print("../plots/chargeFittedHisto863.pdf");
 
@@ -455,25 +470,35 @@ void readFitChargeHisto()
   c4->cd();
   residGraph->SetTitle("");
   residGraph->GetXaxis()->SetRangeUser(rangXmin-50, rangXmax+50);
-  residGraph->GetYaxis()->SetRangeUser(-7, 4.2);
-  residGraph->SetLineColor(kBlue);
+  residGraph->GetYaxis()->SetRangeUser(-9, 4.);
+  residGraph->SetLineColor(kBlack);
   residGraph->SetLineWidth(1);
   residGraph->SetMarkerSize(1.5);
   residGraph->SetMarkerStyle(20);
-  residGraph->GetXaxis()->SetTitle("[FADC * 8.33 ns]");
+  residGraph->GetXaxis()->SetTitle("[FADC]");
   residGraph->GetYaxis()->SetTitle("Residuals");
+  residGraph->SetMarkerSize(3);
+  residGraph->SetMarkerColor(kBlack);
+  residGraph->SetMarkerStyle(23);
   histoStyle(residGraph);
   residGraph->GetYaxis()->SetTitleOffset(0.8);
   residGraph->Draw("APL");
 
   TString chindf;
   TString valcharge;
+  TString valchargeDer;
   chindf.Form("%.2f", poly2->GetChisquare() / poly2->GetNDF() );
   valcharge.Form("%.2f", chargeVal);
+  valchargeDer.Form("%.2f", fitRange[4]);
 
-  leg = new TLegend(0.14,0.19,0.52,0.40);
-  leg->AddEntry(residGraph,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valcharge+"}","f"); 
-  leg->SetTextSize(0.065);
+
+  leg = new TLegend(0.39,0.16,0.66,0.50);
+  //leg->AddEntry(residGraph,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valcharge+"}","");
+  leg->AddEntry(residGraph,"#frac{#chi^{2}}{ndf} = "+chindf,"");
+  leg->AddEntry(residGraph,"Peak val. from fit: "+valcharge,"");
+  leg->AddEntry(residGraph,"Peak val. from BXL-method: "+valchargeDer,"");
+  leg->SetLineWidth(0);
+  leg->SetTextSize(0.06);
   leg->Draw();
 
   line = new TLine(rangXmin-50, 0, rangXmax+50, 0);
@@ -481,9 +506,16 @@ void readFitChargeHisto()
   line->SetLineWidth(2);
   line->Draw();
 
-  line = new TLine(chargeVal, -7, chargeVal, 4.2);
+  line = new TLine(chargeVal, -9, chargeVal, 4.);
   line->SetLineStyle(4);
-  line->SetLineWidth(2);
+  line->SetLineColor(kRed);
+  line->SetLineWidth(3);
+  line->Draw();
+
+  line = new TLine(fitRange[4], -9, fitRange[4], 4.);
+  line->SetLineStyle(4);
+  line->SetLineColor(kGreen+3);
+  line->SetLineWidth(3);
   line->Draw();
 
   line = new TLine(rangXmin-50, 1, rangXmax+50, 1);

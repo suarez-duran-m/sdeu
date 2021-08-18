@@ -38,6 +38,7 @@ TH1F *histDerivativeCh(TH1F &hist, double xb[]) // Central differences
 fitcharge::fitcharge() 
 {
 	vemPosCh = 0.;
+  vemPosDeri = 0.;
 	getGraph = false;
 	fitChOk = false;
 
@@ -98,6 +99,7 @@ vector < double > getFitRangeCh( TH1F &h )
   int minRng = 0; // Min for fitting
 	int maxRng = 0; // Max for fitting
 
+  double vemDer = 0.;
   double binMin = 0.;
   double binMax = 0.;
   double rawbinMax = 0.;
@@ -116,6 +118,9 @@ vector < double > getFitRangeCh( TH1F &h )
     {
       binMax = h.GetBinCenter(kk); // tmp FADC for VEM
       rawbinMax = kk; // Bin for tmp VEM
+      vemDer = h.GetBinCenter(kk) + 4.;
+      // +4 because the zero is between this pixel and
+      // the next one.
       break;
     }
 
@@ -141,6 +146,7 @@ vector < double > getFitRangeCh( TH1F &h )
   minmax.push_back( maxRng );
   minmax.push_back( binMax );
   minmax.push_back( rawbinMin );
+  minmax.push_back( vemDer );
 
   return minmax;
 }
@@ -152,7 +158,7 @@ void fitcharge::setChCrr(TH1F &hist, const int corr, TString name)
 	double xb [nb];
 
 	for ( unsigned int b=1; b<nb; b++ )
-		xb[b] = hist.GetBinCenter(b) + 4;//corr;
+		xb[b] = hist.GetBinCenter(b) - 4 - hist.GetBinCenter(0);//corr;
   xb[0] = 0;
 	xb[nb] = xb[nb-1] + hist.GetBinWidth(1);
 
@@ -226,6 +232,10 @@ void fitcharge::getFitCh(TH1F &hist)
     poly2 = new TF1("poly2","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
     chToFit->Fit("poly2","QR");
 
+    //cerr << poly2->GetChisquare() / poly2->GetNDF() << endl;
+    if ( poly2->GetChisquare() / poly2->GetNDF() > 0.22) 
+      cout << "MSD: " << poly2->GetChisquare() / poly2->GetNDF() << endl;
+
     xResid.clear();
     yResid.clear();
     errResid.clear();
@@ -290,7 +300,8 @@ void fitcharge::getFitCh(TH1F &hist)
   chisCharge = poly2->GetChisquare();
   ndfCharge = poly2->GetNDF();
   probCharge = poly2->GetProb();
-	vemPosCh = -poly2->GetParameter(1) / (2.*poly2->GetParameter(0));;
+	vemPosCh = -poly2->GetParameter(1) / (2.*poly2->GetParameter(0));
+  vemPosDeri = rangeValues[4];
 	critGoodFit = 5.5;
   par0 = poly2->GetParameter(0);
   par1 = poly2->GetParameter(1);

@@ -101,6 +101,7 @@ vector < double > getFitRange( TH1F &h )
   double tmpBinMax = 0.;
   double rawbinMax = 0.;
   double rawbinMin = 0.;
+  double vemDer = 0.;
 
   for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
     if ( h.GetBinContent(kk) < 0 )
@@ -115,6 +116,9 @@ vector < double > getFitRange( TH1F &h )
     {
       tmpBinMax = h.GetBinCenter(kk); // tmp FADC for VEM
       rawbinMax = kk; // Bin for tmp VEM
+      vemDer = h.GetBinCenter(kk) + 2.;
+      // +2 because the zero is between this pixel and
+      // the previus one.
       break;
     }
 
@@ -143,6 +147,7 @@ vector < double > getFitRange( TH1F &h )
   minmax.push_back( tmpMax );
   minmax.push_back( tmpBinMax );
   minmax.push_back( rawbinMin );
+  minmax.push_back( vemDer );
 
   return minmax;
 }
@@ -202,9 +207,11 @@ void readFitPeakHisto()
   dir.ReplaceAll("readFitPeakHisto.C","");
   dir.ReplaceAll("/./","/");
   ifstream in;
+  //in.open(Form("%ssamplePeak62175266.dat",dir.Data()));
   //in.open(Form("%ssample61387849.dat",dir.Data()));
   //in.open(Form("%speakHist61219267.dat",dir.Data()));
-  in.open(Form("%ssamplePeak61219267.dat", dir.Data()));
+  in.open(Form("%ssamplePeak61219267.dat", dir.Data())); //
+  //Deafult
   
   srand (time(NULL)); 
   const int nbins = 151;
@@ -276,6 +283,7 @@ void readFitPeakHisto()
   peakDer->SetLineWidth(1);
   peakDer->GetXaxis()->SetRangeUser(-10, 1000);
   peakDer->GetXaxis()->SetTitle("[FADC]");
+  //peakDer->GetYaxis()->SetRangeUser(-6, 4);
   peakDer->GetYaxis()->SetRangeUser(-15, 10);
   peakDer->GetYaxis()->SetTitle("[au]");
   histoStyle(peakDer);
@@ -304,6 +312,7 @@ void readFitPeakHisto()
   leg->SetTextSize(0.04);
   leg->Draw();
   c2->Print("../plots/peakDerHisto863.pdf");
+  //c2->Print("../plots/peakDerHisto863Evt62175266.pdf");
 
 
   // ===============================
@@ -508,17 +517,27 @@ void readFitPeakHisto()
   poly2Fit->GetListOfFunctions()->Add(ptstats);
   poly2Fit->SetTitle("");
   poly2Fit->GetXaxis()->SetRangeUser(10, 500);
-  poly2Fit->GetYaxis()->SetRangeUser(0, 4000);
+  poly2Fit->GetYaxis()->SetRangeUser(0, 960);
   poly2Fit->SetLineColor(kBlue);
   poly2Fit->SetLineWidth(1);
-  poly2Fit->GetXaxis()->SetTitle("[FADC]");
+  poly2Fit->GetXaxis()->SetTitle("[FADC/8.33 ns]");
   poly2Fit->GetYaxis()->SetTitle("Counts [au]");
   histoStyle(poly2Fit);
   poly2Fit->Draw();
 
-  line = new TLine(peakVal, 0, peakVal, 4000);
+  poly2->SetLineWidth(4);
+  poly2->Draw("same");
+
+  line = new TLine(peakVal, 0, peakVal, 960);
+  line->SetLineColor(kRed);
   line->SetLineStyle(4);
-  line->SetLineWidth(2);
+  line->SetLineWidth(3);
+  line->Draw();
+
+  line = new TLine(fitRange[4], 0, fitRange[4], 960);
+  line->SetLineColor(kGreen+3);
+  line->SetLineStyle(4);
+  line->SetLineWidth(3);
   line->Draw();
 
   c5->Print("../plots/peakFitPoly2863.pdf");
@@ -529,7 +548,7 @@ void readFitPeakHisto()
   residGraphPoly2->GetYaxis()->SetRangeUser(-8, 4);
   residGraphPoly2->SetLineColor(kBlack);
   residGraphPoly2->SetLineWidth(1);
-  residGraphPoly2->GetXaxis()->SetTitle("[FADC]");
+  residGraphPoly2->GetXaxis()->SetTitle("[FADC/8.33 ns]");
   residGraphPoly2->GetYaxis()->SetTitle("Residuals");
   residGraphPoly2->SetMarkerSize(3);
   residGraphPoly2->SetMarkerColor(kBlack);
@@ -540,10 +559,16 @@ void readFitPeakHisto()
 
   chindf.Form("%.2f", poly2->GetChisquare() / poly2->GetNDF() );
   valpeak.Form("%.2f", peakVal);
+  TString vemFromDer;
+  vemFromDer.Form("%.2f", fitRange[4]);
 
-  leg = new TLegend(0.61,0.19,0.96,0.40);
-  leg->AddEntry(residGraphPoly2,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val.: "+valpeak+"}","ep");
-  leg->SetTextSize(0.065);
+  leg = new TLegend(0.4,0.19,0.66,0.50);
+  //leg->AddEntry(residGraphPoly2,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{Peak val. from fit: "+valpeak+"}","ep");
+  leg->AddEntry(residGraphPoly2,"#frac{#chi^{2}}{ndf} = "+chindf,"");
+  leg->AddEntry(residGraphPoly2,"Peak val. from fit: "+valpeak,"");
+  leg->AddEntry(residGraphPoly2,"Peak val. from BXL-method: "+vemFromDer,"");
+  leg->SetLineWidth(0);
+  leg->SetTextSize(0.06);
   leg->Draw();
 
   line = new TLine(rangXmin-5, 0, rangXmax+5, 0);
@@ -552,8 +577,15 @@ void readFitPeakHisto()
   line->Draw();
 
   line = new TLine(peakVal, -8, peakVal, 4);
+  line->SetLineColor(kRed);
   line->SetLineStyle(4);
-  line->SetLineWidth(2);
+  line->SetLineWidth(3);
+  line->Draw();
+
+  line = new TLine(fitRange[4], -8, fitRange[4], 4);
+  line->SetLineColor(kGreen+3);
+  line->SetLineStyle(4);
+  line->SetLineWidth(3);
   line->Draw();
 
   line = new TLine(rangXmin-5, 1, rangXmax+5, 1);

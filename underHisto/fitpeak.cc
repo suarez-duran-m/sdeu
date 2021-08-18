@@ -16,6 +16,28 @@
 // *** Local Functions ***
 // =======================
 
+
+fitpeak::fitpeak() 
+{
+  srand (time(NULL));
+	vemPosPk = 0.;
+  vemFromDeri = 0.;
+	getGraph = false;
+	fitPkOk = false;
+
+  chisPeak = 0.;
+  ndfPeak = 0.;
+  par0 = 0.;
+  par1 = 0.;
+  par2 = 0.;
+	rangXmin = 0;
+	rangXmax = 0;
+	nXbins = 0;
+	checkMax = false;
+	critGoodFit = 0.;
+}
+
+
 TH1F *getSmooth(TH1F &hist, double xb[])
 {
 	unsigned int nb = 150;
@@ -76,8 +98,9 @@ vector < double > minRangMax( TH1F &h )
 
   double tmpBinMin = 0.;
   double tmpBinMax = 0.;
-  double rawbinMin = 0;
-  double rawbinMax = 0;
+  double rawbinMin = 0.;
+  double rawbinMax = 0.;
+  double vemDer = 0.;
 
   for ( int kk=77; kk>27; kk-- ) // from 300 FADC backward
     if ( h.GetBinContent(kk) < 0 )
@@ -92,6 +115,10 @@ vector < double > minRangMax( TH1F &h )
     {
       tmpBinMax = h.GetBinCenter(kk); // tmp FADC for VEM
       rawbinMax = kk; // Bin for tmp VEM
+      if ( h.GetBinContent(kk) > 0 )
+        vemDer = h.GetBinCenter(kk) + 2.;
+      // +2 because the zero is between this pixel and 
+      // the previus one.
       break;
     }
 
@@ -120,29 +147,11 @@ vector < double > minRangMax( TH1F &h )
   minmax.push_back( tmpMax );
   minmax.push_back( tmpBinMax );
   minmax.push_back( rawbinMin );
+  minmax.push_back( vemDer );
 
   return minmax;
 }
 
-
-fitpeak::fitpeak() 
-{
-  srand (time(NULL));
-	vemPosPk = 0.;
-	getGraph = false;
-	fitPkOk = false;
-
-  chisPeak = 0.;
-  ndfPeak = 0.;
-  par0 = 0.;
-  par1 = 0.;
-  par2 = 0.;
-	rangXmin = 0;
-	rangXmax = 0;
-	nXbins = 0;
-	checkMax = false;
-	critGoodFit = 0.;
-}
 
 void fitpeak::getCrr(TH1F &hist, const int corr, TString name) 
 {
@@ -209,6 +218,7 @@ void fitpeak::getFitPk(TH1F &hist)
   ndfPeak = fitFcn->GetNDF();
   probPeak = fitFcn->GetProb();
   vemPosPk = -fitFcn->GetParameter(1) / (2.*fitFcn->GetParameter(0));
+  vemFromDeri = rangeValues[4];
   par0 = rangXmin;//fitFcn->GetParameter(0);
   par1 = rangXmax;//fitFcn->GetParameter(1);
   par2 = fitFcn->GetParameter(2);

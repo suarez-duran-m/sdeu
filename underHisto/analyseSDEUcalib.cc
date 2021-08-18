@@ -47,20 +47,20 @@ double getrms( vector<int> *arr, double meanarr, unsigned int nb, bool lok ){
 // ==========================
 int main (int argc, char *argv[]) 
 {
-   if ( argc < 4 ) 
-   {
-		 cout << endl
-         << "Usage: " << argv[0] << " <stationsFile>  <PMT>  <Month> <files>" << endl
-         << "  <stationsFile>: file with a list of stations" << endl
-         << "  <PMT>: ID for the PMT you want to analyse" << endl
-         << "  <Month>: Month in which you want to analyse" << endl
-         << "  <files>: IoSd or IoAuger files to be read" << endl
-				 << " " << endl
-				 << "In case you want the distribution of all events for a specific Station, " << endl
-				 << "just make sure the stationsFile conteins a single station." << endl
-				 << endl;
- 		 exit(0);
-	 }	
+  if ( argc < 4 ) 
+  {
+    cout << endl
+      << "Usage: " << argv[0] << " <stationsFile>  <PMT>  <Month> <files>" << endl
+      << "  <stationsFile>: file with a list of stations" << endl
+      << "  <PMT>: ID for the PMT you want to analyse" << endl
+      << "  <Month>: Month in which you want to analyse" << endl
+      << "  <files>: IoSd or IoAuger files to be read" << endl
+			<< " " << endl
+			<< "In case you want the distribution of all events for a specific Station, " << endl
+			<< "just make sure the stationsFile conteins a single station." << endl
+			<< endl;
+    exit(0);
+  }	
 
   const char* stationsFileName = argv[1];
   const char* whichpmt = argv[2];
@@ -117,16 +117,19 @@ int main (int argc, char *argv[])
  
   string doMonth = string(whichmonth);
   pmtname +=  "Mth" + doMonth;
-  TFile hfile("uubAoP"+pmtname+".root","RECREATE","");
+  //TFile hfile("uubAoP"+pmtname+".root","RECREATE","");
+  TFile hfile("kk.root", "RECREATE","");
 
 	TH1F *recePk = new TH1F (); // Receive Pk from IoSdStation::HPeak
 	TH1F *receCh = new TH1F (); // Receive Ch from IoSdStation::HCharge
 
   TGraphErrors *pkHistFit = new TGraphErrors();
+  TH1F *pkForFit = new TH1F();
   double pkChi2 = 0.;
-  double pkNdf = 0.;
+  int pkNdf = 0.;
   double pkProb = 0.;
   double peak = 0.;
+  double peakDeri = 0.;
   double pkLow = 0.;
   double pkHigh = 0.;
   double pkPar0 = 0.; 
@@ -134,10 +137,12 @@ int main (int argc, char *argv[])
   double pkPar2 = 0.; 
 
   TGraphErrors *chHistFit = new TGraphErrors();
+  TH1F *chForFit = new TH1F();
   double chChi2 = 0.;
-  double chNdf = 0.;
+  int chNdf = 0.;
   double chProb = 0.;
   double charge = 0.;
+  double chargeDeri = 0.;
   double chLow = 0.;
   double chHigh = 0.;
   double chPar0 = 0.; 
@@ -165,9 +170,11 @@ int main (int argc, char *argv[])
   TTree *treeCharge = new TTree("ChargeData","");
 
   treePeak->Branch("graph","TGraphErrors",&pkHistFit,32000,0);
+  treePeak->Branch("peakForFit","TH1F",&pkForFit,32000,0);
   treePeak->Branch("peakVal",&peak,"peak/D");
+  treePeak->Branch("peakValDer",&peakDeri,"peakDeri/D");
   treePeak->Branch("chi2",&pkChi2,"pkChi2/D");
-  treePeak->Branch("ndf",&pkNdf,"pkNdf/D");
+  treePeak->Branch("ndf",&pkNdf,"pkNdf/I");
   treePeak->Branch("prob",&pkProb,"pkProb/D");
   treePeak->Branch("low",&pkLow,"pkLow/D");
   treePeak->Branch("high",&pkHigh,"pkHigh/D");
@@ -178,9 +185,11 @@ int main (int argc, char *argv[])
   treePeak->Branch("timeEvnt",&evtTimePk,"evtTimePk/I");
 
   treeCharge->Branch("graph","TGraphErrors",&chHistFit,32000,0);
+  treeCharge->Branch("chargeForFit","TH1F",&chForFit,32000,0);
   treeCharge->Branch("chargeVal",&charge,"charge/D");
+  treeCharge->Branch("chargeValDer",&chargeDeri,"chargeDeri/D");
   treeCharge->Branch("chi2",&chChi2,"chChi2/D");
-  treeCharge->Branch("ndf",&chNdf,"chNdf/D");
+  treeCharge->Branch("ndf",&chNdf,"chNdf/I");
   treeCharge->Branch("prob",&chProb,"chProb/D");
   treeCharge->Branch("low",&chLow,"chLow/D");
   treeCharge->Branch("high",&chHigh,"chHigh/D");
@@ -232,6 +241,7 @@ int main (int argc, char *argv[])
           blCorrHbase = ( fabs(blCorrHbase - recePk->GetBinCenter(1) < 20 ) ? (recePk->GetBinCenter(1)):0 ); // From OffLine
           fitPk.getCrr(*recePk, blCorrHbase, tmpName+"Hbpk"); // Correcting for calib-baseline
           tmp = fitPk.getPkCorr(); // Receiving corrected histogram
+          pkForFit = fitPk.getPkCorr();
           //cerr << blCorrHbase << " " << tmp->GetBinCenter(0) << " " << tmp->GetBinCenter(1) << endl;
           fitPk.getFitPk(*tmp); // Fitting
 
@@ -240,21 +250,21 @@ int main (int argc, char *argv[])
           pkNdf = fitPk.ndfPeak;
           pkProb = fitPk.probPeak;
           peak = fitPk.vemPosPk;
+          peakDeri = fitPk.vemFromDeri;
           pkLow = fitPk.rangXmin;
           pkHigh = fitPk.rangXmax;
           pkPar0 = fitPk.par0;
           pkPar1 = fitPk.par1;
           pkPar2 = fitPk.par2;
-          //cerr << "MSD: " << peak << endl;
-          /*
-          if ( event.Id == 61387849 )//peak==0 )
+          
+          if ( event.Id == 62175266 )//61634237 )//peak==0 )
           {
             //cout << "MSD " << " " << event.Id << " " << pkChi2 << " " << pkNdf << " " << pkChi2/pkNdf << endl;
             for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
               cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
             exit(0);
           }
-          */
+          
           
           /*
           if ( pkChi2/pkNdf > 4 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
@@ -274,7 +284,8 @@ int main (int argc, char *argv[])
             
           receCh = event.Stations[i].HCharge(pmtId-1);
           fitCh.setChCrr(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6], tmpName+"Hbch");
-          tmp = fitCh.getChCrr();           
+          tmp = fitCh.getChCrr();
+          chForFit = fitCh.getChCrr();
           fitCh.getFitCh(*tmp);
           
           chHistFit = fitCh.getFitGraphCh();
@@ -282,6 +293,7 @@ int main (int argc, char *argv[])
           chNdf = fitCh.ndfCharge;
           chProb = fitCh.probCharge;
           charge =  fitCh.vemPosCh;
+          chargeDeri =  fitCh.vemPosDeri;
           chLow = fitCh.rangXmin;
           chHigh = fitCh.rangXmax;
           chPar0 = fitCh.par0;
@@ -311,7 +323,7 @@ int main (int argc, char *argv[])
           break; // Apply if the is running for a single station.
         }
       }
-    }
+     }
   }
 
   hfile.Write();

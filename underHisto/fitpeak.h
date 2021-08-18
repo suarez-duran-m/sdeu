@@ -18,6 +18,7 @@ class fitpeak {
     double chisPeak;
     double ndfPeak;
     double probPeak;
+    double vemFromDeri;
     double par0;
     double par1;
     double par2;
