@@ -95,27 +95,20 @@ GAP-2021-xx
 \end{flushright}
 
 \begin{flushright}
-
-%  \vspace*{ex}
   \rule{\linewidth}{0.5mm}
   \\[17mm]
-
   \vspace*{-3ex}{\Large Base Line studies for SDEU}
-
   \large
-  \parbox[b]{15cm}{
+  \parbox[b]{15cm}
+  {
     \begin{flushright}
       Mauricio Su\'arez-Dur\'an and  Ioana~C.~Mari\c{s}
-     \\[6mm]
-       {\small Universit{\'e} Libre de Bruxelles, Belgium}
-
-  \end{flushright}}
-  %
+      \\[6mm]
+      {\small Universit{\'e} Libre de Bruxelles, Belgium}
+    \end{flushright}
+  }
   \\[5mm]
   \rule{\linewidth}{0.5mm}
-
-  %
-  %
 \end{flushright}
 %
 %\vspace*{-5ex}
@@ -142,7 +135,8 @@ $\;$
 	\begin{figure}[!tbh]
 		\centering
 		\subfigure{\includegraphics[width=0.55\textwidth]{figs/mapStations.pdf}}
-		\caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+		\caption{Stations for first pre-production batch including
+    UUB, small PMT and SSD.}
 		\label{figMapSt}
 	\end{figure}
 \clearpage
@@ -191,16 +185,28 @@ differing in average less than $\sim0.6$\,\%. These plots show
 that sometimes the BXL-method got a VEM value but fit method does
 not. Figures from \ref{figPkSampleFailFitGoodDerpmt12} to
 \ref{figPkSampleFailFitDerpmt3} show the histograms for which the
-fitting method and/or BXL-method fail. From
-\ref{figPkSampleFailFitGoodDerpmt12}, and
-\ref{figPkSampleFailFitGoodDerpmt3} is possible to see that the
-BXL-method is more effective to find the VEM value. Nevertheless,
-figure \ref{figPkSampleFailFitDerpmt3} show that sometimes the
-peak histogram has not a peak for the VEM value, so the
-BXL-method fails just because there is not a local
-maximum.\\\\For charge cases, 
+fitting method and/or BXL-method fail. From these results, it is
+possible to see that the BXL-method is more effective to find the
+VEM value. Nevertheless, figure \ref{figPkSampleFailFitDerpmt3}
+show that sometimes the peak histogram has not a peak for the VEM
+value, so the BXL-method fails just because there is not a local
+maximum.\\\\Figures \ref{figChVemCompFitDerTimePmt1} (left and
+right), and \ref{figChVemCompFitDerTimePmt3} show the VEM values
+for charge histograms. There, as for peak cases, it can be seen
+the agreement between the VEM values getting by BXL-method with
+the ones from the fit method; with an average difference of the
+order of $\sim0.7$\,\%. In these plots, it is possible to see
+some outliers for the fitting method. Figures
+\ref{figChSampleFailFitGoodDerpmt12} and
+\ref{figChSampleFailFitGoodDerpmt3} present some samples of these
+outliers, showing that the fitting method fails due to it does
+not set correctly the fitting range. The BXL-method shows to be
+more effective than the fitting method to find the VEM value in
+charge histograms.
 \clearpage
 
+% ==================
+% *** The method ***
 \begin{figure}[!tbh]
   \centering
   \subfigure
@@ -236,6 +242,8 @@ maximum.\\\\For charge cases,
 \end{figure}
 \clearpage
 
+% ===================================
+% *** Peak: Comparison with Poly2 ***
 \begin{figure}[!tbh]
   \centering
   \subfigure
@@ -269,6 +277,8 @@ maximum.\\\\For charge cases,
 \end{figure}
 \clearpage
 
+% ===========================================
+% *** Peak: Comparison with Poly2 in time *** 
 \begin{figure}[!tbh]
   \centering
   \subfigure
@@ -304,6 +314,8 @@ maximum.\\\\For charge cases,
 \end{figure}
 \clearpage
 
+% ==================
+% *** Fails Peak ***
 \begin{figure}[!tbh]
   \centering
   \subfigure
@@ -328,20 +340,6 @@ maximum.\\\\For charge cases,
   dashed line.}
   \label{figPkSampleFailFitGoodDerpmt3}
 \end{figure}
-\clearpage
-
-\begin{figure}[!tbh]
-  \centering
-  \subfigure
-  {
-    \includegraphics[width=0.55\textwidth]{../plots/samplePkHistoDerVem249Pmt1.pdf}
-    \includegraphics[width=0.55\textwidth]{../plots/samplePkHistoDerVem406Pmt2.pdf}
-  }
-  \caption{Peak histogram. Failed VEM value for PMT1 (left) and
-  PMT2 (right) from fitting a second order polynomial, but a
-  succesfull BXL-method, green dashed line.}
-  \label{figPkSampleFailFitDerpmt12}
-\end{figure}
 
 \begin{figure}[!tbh]
   \centering
@@ -357,8 +355,8 @@ maximum.\\\\For charge cases,
 \end{figure}
 \clearpage
 
-% ==================
-% *** For Charge ***
+% =====================================
+% *** Charge: Comparison with Poly2 ***
 
 \begin{figure}[!tbh]
   \centering
@@ -367,7 +365,13 @@ maximum.\\\\For charge cases,
     \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromDerSt863pmt1.pdf}
     \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromDerSt863pmt2.pdf}
   }
-  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \caption{VEM values for 863-station's charge histograms (VEM
+  Charge), from 1st December, 2020 to 31st July, 2021. The blue
+  squares corresponds for values obtained by fitting a second
+  order polynomial, and red triangles to the values from
+  BXL-method. Right, VEM values for PMT1; left, VEM values for
+  PMT2. It can be seen some outliers, both PMTs, for the fitting
+  method. See details in the text.}
   \label{figChVemCompFitDerTimePmt1}
 \end{figure}
 
@@ -377,46 +381,67 @@ maximum.\\\\For charge cases,
   {
     \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromDerSt863pmt3.pdf}
   }
-  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \caption{VEM values for 863-station's charge histograms (VEM
+  Charge), PMT3 from 1st December, 2020 to 31st July, 2021. The
+  blue squares corresponds for values obtained by fitting a
+  second order polynomial, and red triangles to the values from
+  BXL-method. It can be seen some outliers for fitting method.
+  See details in the text.} 
   \label{figChVemCompFitDerTimePmt3}
 \end{figure}
 \clearpage
 
-
-
-\subsection*{Peak case}
-Ok.
-
-\subsection*{Charge case}
-{\bf OffLine implementation}
-The fit will be applied if the maximum of counts is bigger
-than 500 (a number setting by default SdCarlibrator class),
-and ignoring the last 5 bins. As first step to fit the
-histogram the fitting range is setting from the shoulderLow to
-shoulderHigh. Where the shoulderLow is established as the
-first bin with the maximum number of counts, starting from the
-start bin, i.e. the start bin is defined as the one with more
-than 40 counts (a number setting by default), from this bin,
-the algorithm looking for the first bin with a number of
-counts such that the next three bins have a number of counts
-lower than the $75$\,\% of counts of this first bin. This last
-percentage can be setting by the user.
+% ==================
+% *** Fails Peak ***
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/sampleChHistoDerVem365Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/sampleChHistoDerVem251Pmt2.pdf}
+  }
+  \caption{Charge histogram. Failed VEM value for PMT1 (left) and
+  PMT2 (right) from fitting a second order polynomial, but a
+  succesful BXL-method, green dashed line. For both PMTs, the
+  fitting method fails in finding the proper interval.}
+  \label{figChSampleFailFitGoodDerpmt12}
+\end{figure}
 
 \begin{figure}[!tbh]
   \centering
   \subfigure
   {
-    \includegraphics[width=0.55\textwidth]{../plots/chargeFitPoly2863.pdf}
-    \includegraphics[width=0.55\textwidth]{../plots/chargeFitResidualsPoly2863.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/sampleChHistoDerVem237Pmt3.pdf}
   }
-  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
-  \label{figPkVemserie}
+  \caption{Charge histogram. Failed VEM value for PMT3 from
+  fitting a second order polynomial, but a succesfull BXL-method,
+  green dashed line. The fitting method fails in finding the
+  proper interval.}
+  \label{figChSampleFailFitGoodDerpmt3}
 \end{figure}
 \clearpage
 
+
+\subsection*{OffLine Method}
+The OffLine algorithm to search for the VEM value (for peak and
+charge histograms) is implemented in the SdCalibrator module,
+using the {\it ad} files.\\\\This algorithm will be applied if
+the maximum of counts in the histogram is bigger than 500 (a
+number setting by default SdCarlibrator class), and ignoring the
+last 5 bins. As first step to fit the histogram the fitting range
+is setting from the shoulderLow to shoulderHigh. Where the
+shoulderLow is established as the first bin with the maximum
+number of counts, starting from the start bin, i.e. the start bin
+is defined as the one with more than 40 counts (a number setting
+by default), from this bin, the algorithm looking for the first
+bin with a number of counts such that the next three bins have a
+number of counts lower than the $75$\,\% of counts of this first
+bin; this last percentage can be setting by the user.
+\clearpage
+
 \section*{Peak Histograms}
-Comparison between OffLine SdCalibrator (ad files) and our method for CDAS files.
-For peak, chi2/Ndof $<3.5$.
+Comparison between OffLine SdCalibrator (ad files) and our method
+for CDAS files. For peak, chi2/Ndof $<3.5$.
 
 \begin{figure}[!tbh]
   \centering
@@ -425,8 +450,13 @@ For peak, chi2/Ndof $<3.5$.
     \includegraphics[width=0.55\textwidth]{../plots/offlinePkCompaSt863Pmt1.pdf}
     \includegraphics[width=0.55\textwidth]{../plots/offlineResidPkSt863Pmt1.pdf}
   }
-  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
-  \label{figPkVemserie}
+  \caption{Peak histogram. Right, Comparison for VEM value using
+  OffLine (blue line), second order polynomial fitting (red
+  line), and BXL-method (green dashed line). Left, residuals for
+  OffLine (blue points) and second order polynomial fit (red
+  points). As it can be seen, the polynomial and BXL-method set
+  properly the VEM value, but OffLine fit is not correct.}
+  \label{figPkCompaOffFitDer}
 \end{figure}
 
 \begin{figure}[!tbh]
@@ -434,10 +464,13 @@ For peak, chi2/Ndof $<3.5$.
   \subfigure
   {
     \includegraphics[width=0.55\textwidth]{../plots/offlineVEMpkSt863Pmt1.pdf}
-    \includegraphics[width=0.55\textwidth]{../plots/cdasVEMpkSt863Pmt1.pdf}
   }
-  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
-  \label{figPkVemserie}
+  \caption{Comparison for VEM peak values obtained by OffLine and
+  BXL-method, from 1st of December, 2020 to 31st of July, 2021.
+  Here, the OffLine algorithm fails to fit some histograms (blue
+  dots at zero counts) but BXL-method is successful for all
+  histograms.}
+  \label{figPkCompVemOffBxl}
 \end{figure}
 \clearpage
 
@@ -500,8 +533,8 @@ For peak, chi2/Ndof $<3.5$.
 \clearpage
 
 \section*{Charge Histograms}
-Comparison between OffLine SdCalibrator (ad files) and our method for CDAS files.
-For charge, chi2/Ndof $<5.5$.
+Comparison between OffLine SdCalibrator (ad files) and our method
+for CDAS files. For charge, chi2/Ndof $<5.5$.
 \clearpage
 
 \begin{figure}[!tbh]
@@ -511,8 +544,13 @@ For charge, chi2/Ndof $<5.5$.
     \includegraphics[width=0.55\textwidth]{../plots/offlineChCompaSt863Pmt1.pdf}
     \includegraphics[width=0.55\textwidth]{../plots/offlineResidChSt863Pmt1.pdf}
   }
-  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
-  \label{figChVemserie}
+  \caption{Charge histogram. Right, Comparison for VEM value
+  using OffLine (blue line), second order polynomial fitting (red
+  line), and BXL-method (green dashed line). Left, residuals for
+  OffLine (blue points) and second order polynomial fit (red
+  points). As it can be seen, the polynomial and BXL-method set
+  properly the VEM value, but OffLine fit is not correct.}
+  \label{figChCompaOffFitDer}
 \end{figure}
 
 \begin{figure}[!tbh]
@@ -520,10 +558,13 @@ For charge, chi2/Ndof $<5.5$.
   \subfigure
   {
     \includegraphics[width=0.55\textwidth]{../plots/offlineVEMchSt863Pmt1.pdf}
-    \includegraphics[width=0.55\textwidth]{../plots/cdasVEMchSt863Pmt1.pdf}
   }
-  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
-  \label{figChVemserie}
+  \caption{Comparison for VEM charge values obtained by OffLine
+  and BXL-method, from 1st of December, 2020 to 31st of July,
+  2021. Here, the OffLine algorithm fails to fit some histograms
+  (blue dots at zero counts) but BXL-method is successful for all
+  histograms.}
+  \label{figChCompVemOffBxl}
 \end{figure}
 \clearpage
 
@@ -667,7 +708,8 @@ For charge, chi2/Ndof $<5.5$.
     \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromDerSt1740pmt1.pdf}
     \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromOffSt1740pmt1.pdf}
   }
-  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \caption{Stations for first pre-production batch including UUB,
+  small PMT and SSD.}
   \label{figChLowHigh}
 \end{figure}
 
