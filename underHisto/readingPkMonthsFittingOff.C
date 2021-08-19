@@ -258,6 +258,7 @@ void readingPkMonthsFittingOff(int st)
   pkPmt1->GetYaxis()->SetTitle("Peak-OffLine [FADC/8.33 ns]");
   pkPmt1->GetYaxis()->SetRangeUser(0, 300);
   pkPmt1->SetMarkerStyle(25);
+  pkPmt1->SetMarkerSize(2);
   pkPmt1->SetMarkerColor(kAzure+10);
   pkPmt1->SetLineColor(kAzure+10);
   pkPmt1->SetLineWidth(2);
@@ -268,7 +269,7 @@ void readingPkMonthsFittingOff(int st)
   rmsPkStr.Form("%.2f", rmsPmt1);
   leg = new TLegend(0.15,0.31,0.52,0.5);
   leg->SetHeader("PMT1");
-  leg->AddEntry(pkPmt1, "Average Peak-Fit: "+avePkStr+"; RMS: "+rmsPkStr,"f");
+  leg->AddEntry(pkPmt1, "Average Peak-Fit: "+avePkStr+"; RMS: "+rmsPkStr,"p");
   leg->SetTextSize(0.06);
   leg->SetBorderSize(0);
   leg->Draw();
@@ -286,6 +287,7 @@ void readingPkMonthsFittingOff(int st)
   pkPmt2->GetYaxis()->SetTitle("Peak-OffLine [FADC/8.33 ns]");
   pkPmt2->GetYaxis()->SetRangeUser(0, 300);
   pkPmt2->SetMarkerStyle(25);
+  pkPmt2->SetMarkerSize(2);
   pkPmt2->SetMarkerColor(kAzure+10);
   pkPmt2->SetLineColor(kAzure+10);
   pkPmt2->SetLineWidth(2);
@@ -296,7 +298,7 @@ void readingPkMonthsFittingOff(int st)
   rmsPkStr.Form("%.2f", rmsPmt2);
   leg = new TLegend(0.15,0.31,0.52,0.5);
   leg->SetHeader("PMT2");
-  leg->AddEntry(pkPmt2, "Average Peak-Fit: "+avePkStr+"; RMS: "+rmsPkStr,"f");
+  leg->AddEntry(pkPmt2, "Average Peak-Fit: "+avePkStr+"; RMS: "+rmsPkStr,"p");
   leg->SetTextSize(0.06);
   leg->SetBorderSize(0);
   leg->Draw();
@@ -314,6 +316,7 @@ void readingPkMonthsFittingOff(int st)
   pkPmt3->GetYaxis()->SetTitle("Peak-OffLine [FADC/8.33 ns]");
   pkPmt3->GetYaxis()->SetRangeUser(0, 300);
   pkPmt3->SetMarkerStyle(25);
+  pkPmt3->SetMarkerSize(2);
   pkPmt3->SetMarkerColor(kAzure+10);
   pkPmt3->SetLineColor(kAzure+10);
   pkPmt3->SetLineWidth(2);
@@ -324,7 +327,7 @@ void readingPkMonthsFittingOff(int st)
   rmsPkStr.Form("%.2f", rmsPmt3);
   leg = new TLegend(0.15,0.31,0.52,0.5);
   leg->SetHeader("PMT3");
-  leg->AddEntry(pkPmt3, "Average Peak-Fit: "+avePkStr+"; RMS: "+rmsPkStr,"f");
+  leg->AddEntry(pkPmt3, "Average Peak-Fit: "+avePkStr+"; RMS: "+rmsPkStr,"p");
   leg->SetTextSize(0.06);
   leg->SetBorderSize(0);
   leg->Draw();

@@ -1,4 +1,4 @@
-base=underFits
+base=miniReport
 #version=_v5
 name=${base}
 #name=${base}${version}

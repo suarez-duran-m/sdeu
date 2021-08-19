@@ -256,8 +256,9 @@ void readingChMonthsFittingOff(int st)
   chPmt1->GetXaxis()->SetTitle("Time since Dec. 2020 [month/day]");
   chPmt1->GetXaxis()->SetTimeOffset(315964782,"gmt");
   chPmt1->GetYaxis()->SetTitle("Charge-OffLine [FADC]");
-  chPmt1->GetYaxis()->SetRangeUser(180, 2200);
+  chPmt1->GetYaxis()->SetRangeUser(180, 2000);
   chPmt1->SetMarkerStyle(25);
+  chPmt1->SetMarkerSize(2);
   chPmt1->SetMarkerColor(kAzure+10);
   chPmt1->SetLineColor(kAzure+10);
   chPmt1->SetLineWidth(2);
@@ -268,7 +269,7 @@ void readingChMonthsFittingOff(int st)
   rmsChStr.Form("%.2f", rmsPmt1);
   leg = new TLegend(0.15,0.31,0.52,0.5);
   leg->SetHeader("PMT1");
-  leg->AddEntry(chPmt1, "Average Charge-Fit: "+aveChStr+"; RMS: "+rmsChStr,"f");
+  leg->AddEntry(chPmt1, "Average Charge-OffLine: "+aveChStr+"; RMS: "+rmsChStr,"p");
   leg->SetTextSize(0.06);
   leg->SetBorderSize(0);
   leg->Draw();
@@ -284,8 +285,9 @@ void readingChMonthsFittingOff(int st)
   chPmt2->GetXaxis()->SetTitle("Time since Dec. 2020 [month/day]");
   chPmt2->GetXaxis()->SetTimeOffset(315964782,"gmt");
   chPmt2->GetYaxis()->SetTitle("Charge-OffLine[FADC]");
-  chPmt2->GetYaxis()->SetRangeUser(180, 2200);
+  chPmt2->GetYaxis()->SetRangeUser(180, 2100);
   chPmt2->SetMarkerStyle(25);
+  chPmt2->SetMarkerSize(2);
   chPmt2->SetMarkerColor(kAzure+10);
   chPmt2->SetLineColor(kAzure+10);
   chPmt2->SetLineWidth(2);
@@ -296,7 +298,7 @@ void readingChMonthsFittingOff(int st)
   rmsChStr.Form("%.2f", rmsPmt2);
   leg = new TLegend(0.15,0.31,0.52,0.5);
   leg->SetHeader("PMT2");
-  leg->AddEntry(chPmt2, "Average Charge-Fit: "+aveChStr+"; RMS: "+rmsChStr,"f");
+  leg->AddEntry(chPmt2, "Average Charge-OffLine: "+aveChStr+"; RMS: "+rmsChStr,"p");
   leg->SetTextSize(0.06);
   leg->SetBorderSize(0);
   leg->Draw();
@@ -312,8 +314,9 @@ void readingChMonthsFittingOff(int st)
   chPmt3->GetXaxis()->SetTitle("Time since Dec. 2020 [month/day]");
   chPmt3->GetXaxis()->SetTimeOffset(315964782,"gmt");
   chPmt3->GetYaxis()->SetTitle("Charge-OffLine [FADC]");
-  chPmt3->GetYaxis()->SetRangeUser(180, 2200);
+  chPmt3->GetYaxis()->SetRangeUser(180, 2000);
   chPmt3->SetMarkerStyle(25);
+  chPmt3->SetMarkerSize(2);
   chPmt3->SetMarkerColor(kAzure+10);
   chPmt3->SetLineColor(kAzure+10);
   chPmt3->SetLineWidth(2);
@@ -324,7 +327,7 @@ void readingChMonthsFittingOff(int st)
   rmsChStr.Form("%.2f", rmsPmt3);
   leg = new TLegend(0.15,0.31,0.52,0.5);
   leg->SetHeader("PMT3");
-  leg->AddEntry(chPmt3, "Average Charge-Fit: "+aveChStr+"; RMS: "+rmsChStr,"f");
+  leg->AddEntry(chPmt3, "Average Charge-OffLine: "+aveChStr+"; RMS: "+rmsChStr,"p");
   leg->SetTextSize(0.06);
   leg->SetBorderSize(0);
   leg->Draw();

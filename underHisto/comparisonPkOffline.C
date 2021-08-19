@@ -281,44 +281,28 @@ void comparisonPkOffline()
 
   TGraph *gr1 = new TGraph (NntrsOff, pkoffTime, pkoffVem);
   gr1->SetTitle("");
-  gr1->GetYaxis()->SetTitle("VEMpk-Offline [FADC/8.33 ns]");
+  gr1->GetYaxis()->SetTitle("VEM-Peak [FADC/8.33 ns]");
   gr1->GetYaxis()->SetRangeUser(0, 180);
   gr1->GetXaxis()->SetTitle("Time since December 1st, 2020 [day/month]");
   gr1->GetXaxis()->SetTimeFormat("%m/%d");
-  gr1->GetXaxis()->SetTimeOffset(315964782,"gmt");
-  
+  gr1->GetXaxis()->SetTimeOffset(315964782,"gmt"); 
   gr1->SetMarkerStyle(8);
   gr1->SetMarkerColor(kBlue);
-  gr1->SetMarkerSize(1.5);
+  gr1->SetMarkerSize(2);
   gr1->SetLineWidth(0);
   histoStyle(gr1);
   gr1->Draw("AP");
 
-  leg = new TLegend(0.12,0.31,0.42,0.5);
-  leg->AddEntry(gr1, "Average Peak: "+strPkMean,"f");
-  leg->AddEntry(gr1, "RMS:  "+strPkRms,"f");
-  leg->AddEntry(gr1, "Fail Fits: "+strFails+"/"+strNtrs+" = "+strPerFails,"f");
-  leg->SetTextSize(0.065);
-  leg->SetBorderSize(0);
-  leg->Draw();
-  c1->Print("../plots/offlineVEMpkSt863Pmt1.pdf");
-
-
-  TCanvas *c2 = canvasStyle("c2");
-  c2->cd();
   TGraph *gr2 = new TGraph (NntrsCdas, pkcdasTime, pkcdasVem);
-  gr2->SetTitle(""); 
-  gr2->GetYaxis()->SetTitle("VEMpk-BXL [FADC/8.33 ns]");
-  gr2->GetYaxis()->SetRangeUser(0, 180);
-  gr2->GetXaxis()->SetTitle("Time since December 1st, 2020 [day/month]");
-  gr2->GetXaxis()->SetTimeFormat("%m/%d");
-  gr2->GetXaxis()->SetTimeOffset(315964782,"gmt");
   gr2->SetMarkerStyle(32);
   gr2->SetMarkerColor(kRed);
-  gr2->SetMarkerSize(1.5);
-  gr2->SetLineWidth(0);
-  histoStyle(gr2);
-  gr2->Draw("AP");
+  gr2->SetMarkerSize(2);
+  gr2->Draw("P same");
+
+  leg = new TLegend(0.52,0.22,0.82,0.62);
+  leg->AddEntry(gr1, "Average Peak-OffLine: "+strPkMean,"p");
+  leg->AddEntry(gr1, "RMS:  "+strPkRms,"");
+  leg->AddEntry(gr1, "Fail Fits: "+strFails+"/"+strNtrs+" = "+strPerFails,"");
 
   strPkMean.Form("%.2f", avePkCdas);
   strPkRms.Form("%.2f", rmsPkCdas);
@@ -326,14 +310,13 @@ void comparisonPkOffline()
   strNtrs.Form("%d", NntrsCdas);
   strPerFails.Form("%.2f", (double)nFailsCdas/NntrsCdas);
 
-  leg = new TLegend(0.12,0.31,0.42,0.5);
-  leg->AddEntry(gr2, "Average Peak: "+strPkMean,"f");
-  leg->AddEntry(gr2, "RMS:  "+strPkRms,"f");
-  leg->AddEntry(gr2, "Fail Fits: "+strFails+"/"+strNtrs+" = "+strPerFails,"f");
-  leg->SetTextSize(0.065);
+  leg->AddEntry(gr2, "Average Peak-BXL: "+strPkMean,"p");
+  leg->AddEntry(gr2, "RMS:  "+strPkRms,"");
+  leg->AddEntry(gr2, "Fail Fits: "+strFails+"/"+strNtrs+" = "+strPerFails,"");
+  leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->Draw();
-  c2->Print("../plots/cdasVEMpkSt863Pmt1.pdf");
+  c1->Print("../plots/offlineVEMpkSt863Pmt1.pdf");
 
   TCanvas *c21 = canvasStyle("c21");
   c21->cd();
@@ -360,8 +343,6 @@ void comparisonPkOffline()
   leg->SetTextSize(0.065);
   leg->SetBorderSize(0);
   leg->Draw();
-
-
 
 
   TCanvas *c3 = canvasStyle("c3");
@@ -573,18 +554,27 @@ void comparisonPkOffline()
   offFunct->SetLineWidth(4);
   offFunct->Draw("same");
 
-  TString vemCdas;
+  TString vemFit;
+  TString vemDer;
   TString vemOff;
-  vemCdas.Form("%.2f", pkCdasVem);
+  vemFit.Form("%.2f", pkCdasVem);
+  vemDer.Form("%.2f", pkCdasVemDer);
   vemOff.Form("%.2f", 151.596);
 
-  leg = new TLegend(0.39,0.66,0.69,0.86);
-  leg->AddEntry(offFunct, "Fit from OffLine, VEM-Peak: "+vemOff,"f");
-  leg->AddEntry(poly, "Fit from BXL, VEM-Peak: "+vemCdas,"f");
+  leg = new TLegend(0.5,.66,0.8,0.86);
+  leg->AddEntry(offFunct, "VEM from OffLine: "+vemOff,"p");
+  leg->AddEntry(poly, "VEM from Poly2: "+vemFit,"p");
+  leg->AddEntry(poly, "VEM from BXL-method: "+vemDer,"p");
+  leg->AddEntry(poly, "(Green line)","");
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->Draw();
 
+  line = new TLine(pkCdasVemDer, 1e2, pkCdasVemDer, 1e3);
+  line->SetLineColor(kGreen+3);
+  line->SetLineStyle(4);
+  line->SetLineWidth(3);
+  line->Draw();
   c11->Print("../plots/offlinePkCompaSt863Pmt1.pdf");
 
 
@@ -657,11 +647,11 @@ void comparisonPkOffline()
   strchi2Ndf.Form("%.2f", 43.7414/17.);
 
   leg = new TLegend(0.50,0.19,0.76,0.33);
-  leg->AddEntry(rsdGrphOff, "OffLine, #chi^{2}/ndf = "+strchi2+"/"+strndf+" = "+strchi2Ndf,"f");
+  leg->AddEntry(rsdGrphOff, "OffLine, #chi^{2}/ndf = "+strchi2+"/"+strndf+" = "+strchi2Ndf,"ep");
   strchi2.Form("%.2f", pkCdasChi2);
   strndf.Form("%d", pkCdasNdof);
   strchi2Ndf.Form("%.2f", pkCdasChi2/pkCdasNdof);
-  leg->AddEntry(rsdGrphCdas, "BXL, #chi^{2}/ndf = "+strchi2+"/"+strndf+" = "+strchi2Ndf,"f");
+  leg->AddEntry(rsdGrphCdas, "Poly2, #chi^{2}/ndf = "+strchi2+"/"+strndf+" = "+strchi2Ndf,"ep");
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->Draw();
@@ -701,7 +691,7 @@ void comparisonPkOffline()
   poly->SetLineWidth(4);
   poly->Draw("same");
 
-  vemCdas.Form("%.2f", pkCdasVem);
+  vemFit.Form("%.2f", pkCdasVem);
 
   line = new TLine(pkCdasVemDer,1e2,pkCdasVemDer,1e3);
   line->SetLineStyle(4);
@@ -715,7 +705,7 @@ void comparisonPkOffline()
 
   leg = new TLegend(0.39,0.66,0.69,0.86);
   leg->AddEntry(graphFitted, "Failed fit for OffLine", "f");
-  leg->AddEntry(poly, "Fit from BXL, VEM-Peak: "+vemCdas,"f");
+  leg->AddEntry(poly, "Fit from BXL, VEM-Peak: "+vemDer,"f");
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->Draw();

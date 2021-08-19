@@ -1,0 +1,217 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{UUB Charge and Peak histograms}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Getting VEM values in UUB} %: Peak histogram Station863}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=.5\textwidth]{../plots/chargeHisto863.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=.5\textwidth]{../plots/chargeDerHisto863.pdf}
+      \end{tabular}
+      \\
+      \footnotesize
+      \begin{tabular}{l}
+        The BXL-method: \\
+        1. Smoothing the histogram \\
+        2. Deriving the smoothed-histogram \\
+        3. Smoothing the smoothed-derivative-histogram, i.e. the
+        histogram getting in previous step \\
+        4. Searching for the VEM-value, i.e. first bin for
+        derivative equal zero; from right to left. \\
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
+
+\begin{frame} 
+  \frametitle{Comparison with second order polynomial fitting}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=0.5\textwidth]{../plots/chargeFittedHisto863.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.5\textwidth]{../plots/chargeFitResiduals863.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  Comparison between the VEM value obtained for a charge
+  histogram by fitting a second order polynomial (red line), and
+  the same one by BXL-method. The red vertical dashed line
+  correspond to VEM value from the polynomial fit
+  ($1249.13$\,FADC), and the green one from BXL-method
+  ($1244.00$\,FADC).
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Comparison with OffLine}
+  {\bf 863 Station}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=0.5\textwidth]{../plots/uubChargeFromDerSt863pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.5\textwidth]{../plots/uubChargeFromOffSt863pmt1.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  Here, Charge-Fit correspond to second order polynomial fit,
+  Charge-Der. is the value from BXL-method, and Charge-OffLine is
+  the VEM obtained from OffLine. In average, the relative
+  difference for BXL-method, respect of OffLine, is $\sim
+  6.11$\,\%. In the right plot, wrong fitting from OffLine can be
+  seen (values between $200$\,FADC and $400$\,FADC). For the
+  month of July, there are not histograms to fit.
+\end{frame}
+
+\begin{frame} 
+  \frametitle{Comparison with OffLine}
+  {\bf 1740 Station}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=0.5\textwidth]{../plots/uubChargeFromDerSt1740pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.5\textwidth]{../plots/uubChargeFromOffSt1740pmt2.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  Another station, another PMT. Charge-Fit correspond to second
+  order polynomial fit, Charge-Der. is the value from BXL-method,
+  and Charge-OffLine is the VEM obtained from OffLine. In
+  average, the relative difference for BXL-method, respect of
+  OffLine, is $\sim 0.83$\,\%. For the month of July, there are
+  not histograms to fit.
+\end{frame}
+
+\begin{frame} 
+  \frametitle{Comparison with OffLine}
+  {\bf 1217 Station}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=0.5\textwidth]{../plots/uubChargeFromDerSt1217pmt3.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.5\textwidth]{../plots/uubChargeFromOffSt1217pmt3.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  Another station, another PMT. Charge-Fit correspond to second
+  order polynomial fit, Charge-Der. is the value from BXL-method,
+  and Charge-OffLine is the VEM obtained from OffLine. In
+  average, the relative difference for BXL-method, respect of
+  OffLine, is $\sim 0.21$\,\%. In this case, there are histograms
+  to fit for the month of July.
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Some examples for failed fitting for Peak
+  histograms}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=0.46\textwidth]{../plots/samplePkHistoDerVem163Pmt3.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.46\textwidth]{../plots/peakDerHisto863Evt62175266.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=0.46\textwidth]{../plots/samplePkHistoDerVem406Pmt2.pdf}
+      \end{tabular}
+      &
+      \footnotesize
+      \begin{tabular}{l}
+        Top left, it can be seen how the two methods, \\
+        fitting 2nd order polynomial and BXL-method, \\
+        fail getting a VEM-Value. This could be explain \\
+        checking the derivative plot (top right), where \\
+        there is not a maximum after the EM peak. \\
+        Bottom left, an example of a failed fitting but \\
+        successfully BXL-method.
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
+
+
+\end{document}

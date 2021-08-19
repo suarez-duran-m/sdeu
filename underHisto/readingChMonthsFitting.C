@@ -82,9 +82,9 @@ vector < double > fillingCh( TString bname, TString st, int pmt, TString whichIn
   vector < double > returnVals;
   int evtId = 0;
   TGraphErrors *gr = new TGraphErrors();
-  //TCanvas *c0 = canvasStyle("c0");
   TString ngr;
-  TString vem;
+  TString vemDer;
+  TString vemFit;
   TString pmtStr;
 
   for ( int month=0; month<8; month++ )
@@ -105,23 +105,51 @@ vector < double > fillingCh( TString bname, TString st, int pmt, TString whichIn
       returnVals.push_back( tmpVals );
       //if ( pmt==2 && whichInfo=="chargeValDer" && tmpVals < 80 && tmpVals > 60 )
         //cerr << etry << endl;
-      /*
-      if ( pmt==2 && whichInfo=="chargeVal" && tmpVals < 50 )
+     
+      //if ( pmt==1 && whichInfo=="chargeVal" && tmpVals < 1000 && month == 5 )
+      //if ( pmt==2 && whichInfo=="chargeVal" && tmpVals < 1200 && month == 4 )
+      if ( pmt==3 && whichInfo=="chargeVal" && tmpVals < 1000 && month == 3 )
       {
+        TCanvas *c0 = canvasStyle("c0");
         c0->ResetDrawn();
         c0->cd();
         ngr.Form("%d",etry);
-        vem.Form("%.2f", tmpDer);
+        vemDer.Form("%.2f", tmpDer);
+        vemFit.Form("%.2f", tmpVals);
         pmtStr.Form("%d", pmt);
-        gr->SetTitle("St 863 PMT "+pmtStr+" VEM from Der. "+vem);
-        gr->GetXaxis()->SetTitle("[FADC/8.33 ns]");
-        gr->GetXaxis()->SetRangeUser(0, 600);
+        gr->SetTitle("");
+        gr->GetXaxis()->SetTitle("[FADC]");
+        gr->GetXaxis()->SetRangeUser(0, 4e3);
+        gr->GetYaxis()->SetRangeUser(0, 165);
         gr->GetYaxis()->SetTitle("Counts [au]");
+        histoStyle(gr);
         gr->Draw();
-        c0->Print("sampleChHistoDerVem"+ngr+"Pmt"+pmt+".pdf");
-        c0->Clear();
+
+        TF1 *poly;
+        poly = gr->GetFunction("poly2");
+        poly->SetLineColor(kRed);
+        poly->SetLineWidth(2);
+        poly->Draw("same");
+        cout << poly->GetParameter(0) << " " << poly->GetParameter(1) << " " << poly->GetParameter(2) << endl;
+
+        TLegend *leg = new TLegend(0.5,0.5,0.76,0.8);
+        leg->AddEntry(gr,"St 863 PMT "+pmtStr,"");
+        leg->AddEntry(gr,"VEM from Fit: "+vemFit,"");
+        leg->AddEntry(gr,"VEM from Der.: "+vemDer,"");
+        leg->SetLineWidth(0);
+        leg->SetTextSize(0.06);
+        leg->Draw();
+
+        TLine *line = new TLine(tmpDer, 0, tmpDer, 165);
+        line->SetLineColor(kGreen+3);
+        line->SetLineStyle(4);
+        line->SetLineWidth(3);
+        line->Draw();
+        //c0->Print("kk.C");
+        c0->Print("../plots/sampleChHistoDerVem"+ngr+"Pmt"+pmt+".pdf");
+        //break;
       }
-      */
+     
     }
   }
   chargeInfo->Delete();
@@ -296,8 +324,8 @@ void readingChMonthsFitting(int st)
   chPmt1->GetXaxis()->SetTimeFormat("%m/%d");
   chPmt1->GetXaxis()->SetTitle("Time since Dec. 2020 [month/day]");
   chPmt1->GetXaxis()->SetTimeOffset(315964782,"gmt");
-  chPmt1->GetYaxis()->SetTitle("Charge-BXL [FADC]");
-  chPmt1->GetYaxis()->SetRangeUser(0, 2200);
+  chPmt1->GetYaxis()->SetTitle("Charge [FADC]");
+  chPmt1->GetYaxis()->SetRangeUser(0, 1800);
   chPmt1->SetMarkerStyle(25);
   chPmt1->SetMarkerSize(2);
   chPmt1->SetMarkerColor(kAzure+10);
@@ -336,8 +364,8 @@ void readingChMonthsFitting(int st)
   chPmt2->GetXaxis()->SetTimeFormat("%m/%d");
   chPmt2->GetXaxis()->SetTitle("Time since Dec. 2020 [month/day]");
   chPmt2->GetXaxis()->SetTimeOffset(315964782,"gmt");
-  chPmt2->GetYaxis()->SetTitle("Charge-BXL [FADC]");
-  chPmt2->GetYaxis()->SetRangeUser(0, 2200);
+  chPmt2->GetYaxis()->SetTitle("Charge [FADC]");
+  chPmt2->GetYaxis()->SetRangeUser(0, 1800);
   chPmt2->SetMarkerStyle(25);
   chPmt2->SetMarkerSize(2);
   chPmt2->SetMarkerColor(kAzure+10);
@@ -355,7 +383,7 @@ void readingChMonthsFitting(int st)
 
   avePkStr.Form("%.2f", meanPmt2);
   rmsPkStr.Form("%.2f", rmsPmt2);
-  leg = new TLegend(0.15,0.31,0.52,0.5);
+  leg = new TLegend(0.15,0.21,0.52,0.4);
   leg->SetHeader("PMT2");
   leg->AddEntry(chPmt2, "Average Charge-Fit: "+avePkStr+"; RMS: "+rmsPkStr,"p");
   avePkStr.Form("%.2f", meanDerPmt2);
@@ -376,8 +404,8 @@ void readingChMonthsFitting(int st)
   chPmt3->GetXaxis()->SetTimeFormat("%m/%d");
   chPmt3->GetXaxis()->SetTitle("Time since Dec. 2020 [month/day]");
   chPmt3->GetXaxis()->SetTimeOffset(315964782,"gmt");
-  chPmt3->GetYaxis()->SetTitle("Charge-OffLine [FADC]");
-  chPmt3->GetYaxis()->SetRangeUser(0, 2200);
+  chPmt3->GetYaxis()->SetTitle("Charge [FADC]");
+  chPmt3->GetYaxis()->SetRangeUser(0, 1800);
   chPmt3->SetMarkerStyle(25);
   chPmt3->SetMarkerSize(2);
   chPmt3->SetMarkerColor(kAzure+10);

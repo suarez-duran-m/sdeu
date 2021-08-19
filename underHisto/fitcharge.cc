@@ -118,7 +118,8 @@ vector < double > getFitRangeCh( TH1F &h )
     {
       binMax = h.GetBinCenter(kk); // tmp FADC for VEM
       rawbinMax = kk; // Bin for tmp VEM
-      vemDer = h.GetBinCenter(kk) + 4.;
+      if ( h.GetBinContent(kk) > 0 )
+        vemDer = h.GetBinCenter(kk) + 4.;
       // +4 because the zero is between this pixel and
       // the next one.
       break;
@@ -233,8 +234,8 @@ void fitcharge::getFitCh(TH1F &hist)
     chToFit->Fit("poly2","QR");
 
     //cerr << poly2->GetChisquare() / poly2->GetNDF() << endl;
-    if ( poly2->GetChisquare() / poly2->GetNDF() > 0.22) 
-      cout << "MSD: " << poly2->GetChisquare() / poly2->GetNDF() << endl;
+    //if ( poly2->GetChisquare() / poly2->GetNDF() > 0.22) 
+      //cout << "MSD: " << poly2->GetChisquare() / poly2->GetNDF() << endl;
 
     xResid.clear();
     yResid.clear();

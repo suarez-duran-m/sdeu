@@ -117,8 +117,8 @@ int main (int argc, char *argv[])
  
   string doMonth = string(whichmonth);
   pmtname +=  "Mth" + doMonth;
-  //TFile hfile("uubAoP"+pmtname+".root","RECREATE","");
-  TFile hfile("kk.root", "RECREATE","");
+  TFile hfile("uubAoP"+pmtname+".root","RECREATE","");
+  //TFile hfile("kk.root", "RECREATE","");
 
 	TH1F *recePk = new TH1F (); // Receive Pk from IoSdStation::HPeak
 	TH1F *receCh = new TH1F (); // Receive Ch from IoSdStation::HCharge
@@ -256,7 +256,7 @@ int main (int argc, char *argv[])
           pkPar0 = fitPk.par0;
           pkPar1 = fitPk.par1;
           pkPar2 = fitPk.par2;
-          
+          /*
           if ( event.Id == 62175266 )//61634237 )//peak==0 )
           {
             //cout << "MSD " << " " << event.Id << " " << pkChi2 << " " << pkNdf << " " << pkChi2/pkNdf << endl;
@@ -264,8 +264,7 @@ int main (int argc, char *argv[])
               cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
             exit(0);
           }
-          
-          
+          */          
           /*
           if ( pkChi2/pkNdf > 4 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
           {

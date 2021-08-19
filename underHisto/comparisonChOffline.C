@@ -250,7 +250,7 @@ void comparisonChOffline()
 
   TGraph *gr1 = new TGraph (NntrsOff, choffTime, choffVem);
   gr1->SetTitle("");
-  gr1->GetYaxis()->SetTitle("VEMch-Offline [FADC]");
+  gr1->GetYaxis()->SetTitle("VEM Charge [FADC]");
   gr1->GetYaxis()->SetRangeUser(200, 1400);
   gr1->GetXaxis()->SetTitle("Time since December 1st, 2020 [month/day]");
   gr1->GetXaxis()->SetTimeFormat("%m/%d");
@@ -258,36 +258,22 @@ void comparisonChOffline()
   
   gr1->SetMarkerStyle(8);
   gr1->SetMarkerColor(kBlue);
-  gr1->SetMarkerSize(1.5);
+  gr1->SetMarkerSize(2);
   gr1->SetLineWidth(0);
   histoStyle(gr1);
   gr1->Draw("AP");
 
-  leg = new TLegend(0.12,0.31,0.42,0.55);
-  leg->SetHeader("        PMT1");
-  leg->AddEntry(gr1, "Average Charge: "+strChMean,"f");
-  leg->AddEntry(gr1, "RMS:  "+strChRms,"f");
-  leg->AddEntry(gr1, "Fail Fits: "+strFails+"/"+strNtrs+" = "+strPerFails,"f");
-  leg->SetTextSize(0.06);
-  leg->SetBorderSize(0);
-  leg->Draw();
-  c1->Print("../plots/offlineVEMchSt863Pmt1.pdf");
-
-  TCanvas *c2 = canvasStyle("c2");
-  c2->cd();
   TGraph *gr2 = new TGraph (NntrsCdas, chcdasTime, chcdasVem);
-  gr2->SetTitle(""); 
-  gr2->GetYaxis()->SetTitle("VEMch-BXL [FADC]");
-  gr2->GetYaxis()->SetRangeUser(200, 1400);
-  gr2->GetXaxis()->SetTitle("Time since December 1st, 2020 [month/day]");
-  gr2->GetXaxis()->SetTimeFormat("%m/%d");
-  gr2->GetXaxis()->SetTimeOffset(315964782,"gmt");
   gr2->SetMarkerStyle(32);
   gr2->SetMarkerColor(kRed);
-  gr2->SetMarkerSize(1.5);
-  gr2->SetLineWidth(0);
-  histoStyle(gr2);
-  gr2->Draw("AP");
+  gr2->SetMarkerSize(2);
+  gr2->Draw("P same");
+
+  leg = new TLegend(0.52,0.3,0.82,0.72);
+  leg->SetHeader("        PMT1");
+  leg->AddEntry(gr1, "Average Charge: "+strChMean,"p");
+  leg->AddEntry(gr1, "RMS:  "+strChRms,"f");
+  leg->AddEntry(gr1, "Fail Fits: "+strFails+"/"+strNtrs+" = "+strPerFails,"f");
 
   strChMean.Form("%.2f", aveChCdas);
   strChRms.Form("%.2f", rmsChCdas);
@@ -295,15 +281,16 @@ void comparisonChOffline()
   strNtrs.Form("%d", NntrsCdas);
   strPerFails.Form("%.2f", (double)nFailsCdas/NntrsCdas);
 
-  leg = new TLegend(0.12,0.31,0.42,0.55);
   leg->SetHeader("        PMT1");
-  leg->AddEntry(gr2, "Average Charge: "+strChMean,"f");
-  leg->AddEntry(gr2, "RMS:  "+strChRms,"f");
-  leg->AddEntry(gr2, "Fail Fits: "+strFails+"/"+strNtrs+" = "+strPerFails,"f");
-  leg->SetTextSize(0.06);
+  leg->AddEntry(gr2, "Average Charge: "+strChMean,"p");
+  leg->AddEntry(gr2, "RMS:  "+strChRms,"");
+  leg->AddEntry(gr2, "Fail Fits: "+strFails+"/"+strNtrs+" = "+strPerFails,"");
+  leg->SetBorderSize(0);
+  leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->Draw();
-  c2->Print("../plots/cdasVEMchSt863Pmt1.pdf");
+  c1->Print("../plots/offlineVEMchSt863Pmt1.pdf");
+
 
   TCanvas *c21 = canvasStyle("c21");
   c21->cd();
@@ -498,9 +485,7 @@ void comparisonChOffline()
   TCanvas *c11 = canvasStyle("c11");
   cdasmeInfo->SetBranchAddress("graph", &graphFitted);
   c11->cd();
-
   cdasmeInfo->GetEntry(0);
-  cerr << chCdasEvId << endl;
 
   TF1 *offFunct = new TF1("offFunct","-0.000164817*(x-1238.37)*(x-1238.37) + 89.2575",916,1556);
   TF1 *poly22 = new TF1("poly22","[0]*x*x + [1]*x + [2]",916,1556);
@@ -508,7 +493,7 @@ void comparisonChOffline()
 
   graphFitted->SetTitle("");
   graphFitted->GetXaxis()->SetTitle("[FADC]");
-  graphFitted->GetYaxis()->SetTitle("Counts/FADC");
+  graphFitted->GetYaxis()->SetTitle("Counts [FADC]");
   graphFitted->GetXaxis()->SetRangeUser(0, 2500);
   graphFitted->GetYaxis()->SetRangeUser(0, 170);
   graphFitted->SetMarkerStyle(89);
@@ -525,19 +510,28 @@ void comparisonChOffline()
   offFunct->SetLineWidth(4);
   offFunct->Draw("same");
 
-  TString vemCdas;
+  TString vemFit;
+  TString vemDer;
   TString vemOff;
-  vemCdas.Form("%.2f", chCdasVem);
+  vemFit.Form("%.2f", chCdasVem);
+  vemDer.Form("%.2f", chCdasVemDer);
   vemOff.Form("%.2f", 1238.37);
 
-  leg = new TLegend(0.39,0.66,0.69,0.91);
+  leg = new TLegend(0.5,.66,0.8,0.95);
   leg->SetHeader("        PMT1");
-  leg->AddEntry(offFunct, "Fit from OffLine, VEM-Charge: "+vemOff,"f");
-  leg->AddEntry(poly, "Fit from BXL, VEM-Charge: "+vemCdas,"f");
+  leg->AddEntry(offFunct, "VEM from OffLine: "+vemOff,"p");
+  leg->AddEntry(poly, "VEM from Poly2: "+vemFit,"p");
+  leg->AddEntry(poly, "VEM from BXL-method: "+vemDer,"p");
+  leg->AddEntry(poly, "(Green line)","");
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->Draw();
 
+  line = new TLine(chCdasVemDer, 0, chCdasVemDer, 170);
+  line->SetLineColor(kGreen+3);
+  line->SetLineStyle(4);
+  line->SetLineWidth(3);
+  line->Draw();
   c11->Print("../plots/offlineChCompaSt863Pmt1.pdf");
 
   vector < double > xRsdCdas;
@@ -604,7 +598,7 @@ void comparisonChOffline()
   strchi2.Form("%.2f", chCdasChi2 );
   strndf.Form("%d", chCdasNdof );
   strchi2Ndf.Form("%.2f", chCdasChi2/chCdasNdof);
-  leg->AddEntry(rsdGrphCdas,"BXL, #chi^{2}/ndf = "+strchi2+"/"+strndf+" = "+strchi2Ndf,"ep"); 
+  leg->AddEntry(rsdGrphCdas,"Poly2, #chi^{2}/ndf = "+strchi2+"/"+strndf+" = "+strchi2Ndf,"ep"); 
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->Draw();

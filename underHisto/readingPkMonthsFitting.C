@@ -113,11 +113,11 @@ vector < double > fillingPk( TString bname, TString st, int pmt, TString whichIn
       //if ( pmt==2 && whichInfo=="peakValDer" && tmpVals < 80 && tmpVals > 60 )
         //cerr << etry << endl;
       
-      //if ( pmt==1 && whichInfo=="peakVal" && evtId==62955574 ) // PMT1 vemFit = 0; vemDer = 130
+      if ( pmt==1 && whichInfo=="peakVal" && evtId==62955574 ) // PMT1 vemFit = 0; vemDer = 130
       //if ( pmt==2 && whichInfo=="peakVal" && evtId==63819183 ) // PMT2 vemFit = 0; vemDer = 134
       //if ( pmt==3 && whichInfo=="peakVal" && evtId==61422934 ) // PMT2 vemFit = 0; vemDer = 138
       //if ( pmt==3 && whichInfo=="peakVal" && evtId==64188933 ) // PMT3 July vemFit = 0; vemDer = 0
-      if ( pmt==3 && whichInfo=="peakVal" && evtId==62175266 ) // PMT3 Feb vemFit = 0; vemDer = 138
+      //if ( pmt==3 && whichInfo=="peakVal" && evtId==62175266 ) // PMT3 Feb vemFit = 0; vemDer = 138
       {
         cerr << time << endl;
         TCanvas *c0 = canvasStyle("c0");
@@ -132,6 +132,7 @@ vector < double > fillingPk( TString bname, TString st, int pmt, TString whichIn
         gr->GetXaxis()->SetTitle("[FADC/8.33 ns]");
         gr->GetXaxis()->SetRangeUser(0, 600);
         gr->GetYaxis()->SetTitle("Counts [au]");
+        histoStyle(gr);
         gr->Draw();
       
         TLegend *leg = new TLegend(0.5,0.5,0.76,0.8);
