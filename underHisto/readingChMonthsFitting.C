@@ -148,14 +148,14 @@ vector < double > fillingCh( TString bname, TString st, int pmt, TString whichIn
         //c0->Print("kk.C");
         c0->Print("../plots/sampleChHistoDerVem"+ngr+"Pmt"+pmt+".pdf");
         //break;
-      }
-     
+      } 
     }
   }
   chargeInfo->Delete();
   f->Delete();
   return returnVals;
 }
+
 
 vector < int > fillingCh( TString bname, TString st, int pmt, bool whichInfo)
 {
@@ -165,7 +165,7 @@ vector < int > fillingCh( TString bname, TString st, int pmt, bool whichInfo)
   TString fname = bname + pmtId+st+"Mth";
 
   TFile *f;
-  TTree *peakInfo;
+  TTree *chargeInfo;
   int tmpVals = 0.;
   vector < int > returnVals;
 
@@ -173,23 +173,136 @@ vector < int > fillingCh( TString bname, TString st, int pmt, bool whichInfo)
   if ( whichInfo )
     getinfo = "timeEvnt";
   else
-   getinfo = "eventId";
+    getinfo = "eventId";
 
   for ( int month=0; month<8; month++ )
   {
     f = TFile::Open(fname+monthUub[month]+".root");
-    peakInfo = (TTree*)f->Get("PeakData");
+    chargeInfo = (TTree*)f->Get("ChargeData");
 
     tmpVals = 0.;
-    peakInfo->SetBranchAddress(getinfo, &tmpVals);
+    chargeInfo->SetBranchAddress(getinfo, &tmpVals);
 
-    for( int etry=0; etry<peakInfo->GetEntries(); etry++)
+    for( int etry=0; etry<chargeInfo->GetEntries(); etry++)
     {
-      peakInfo->GetEntry(etry);
+      chargeInfo->GetEntry(etry);
       returnVals.push_back( tmpVals );
     }
   }
-  peakInfo->Delete();
+  chargeInfo->Delete();
+  f->Delete();
+  return returnVals;
+}
+
+
+vector < double > fillingDayCh( TString bname, TString st, int pmt, TString whichInfo)
+{
+  TString monthUub[] = {"dec", "jan", "feb", "mar", "abr", "may", "jun", "jul"};
+  TString pmtId;
+  pmtId.Form("%d", pmt);
+  TString fname = bname + pmtId+st+"Mth";
+
+  TFile *f;
+  TTree *chargeInfo;
+  double tmpVals = 0.;
+  double aveChDay = 0.;
+  int tmpTime = 0;
+  int nvals = 0;
+  int startTime = 1290816018; //Dec 1st, 2020. //1290902418; //Dec 2nd, 2020.
+  int diff = 0;
+  vector < double > returnVals;
+
+  for ( int month=0; month<8; month++ )
+  {
+    f = TFile::Open(fname+monthUub[month]+".root");
+    chargeInfo = (TTree*)f->Get("ChargeData");
+
+    tmpVals = 0.;
+    chargeInfo->SetBranchAddress(whichInfo, &tmpVals);
+    chargeInfo->SetBranchAddress("timeEvnt", &tmpTime);
+
+    for( int etry=0; etry<chargeInfo->GetEntries(); etry++)
+    {
+      chargeInfo->GetEntry(etry);
+      if ( etry==0 )
+      {
+        diff = startTime - tmpTime;
+        while ( diff < 0 )
+        {
+          startTime += 86400;
+          diff = startTime - tmpTime; // Set time for first event
+        }
+      }
+      if ( tmpTime >= startTime-86400 && tmpTime < startTime )
+      {
+        if ( tmpVals > 0 )
+        {
+          aveChDay += tmpVals;
+          nvals++;
+        }
+      }
+      if ( tmpTime >= startTime )
+      {
+        if ( nvals > 0 )
+          returnVals.push_back( aveChDay/nvals );
+        else
+          returnVals.push_back(0);
+        if ( tmpVals > 0 )
+          nvals = 1;
+        else
+          nvals = 0;
+        aveChDay = tmpVals;
+        startTime += 86400;
+      }
+    }
+  }
+  chargeInfo->Delete();
+  f->Delete();
+  return returnVals;
+}
+
+vector < int > fillingDayCh( TString bname, TString st, int pmt)
+{
+  TString monthUub[] = {"dec", "jan", "feb", "mar", "abr", "may", "jun", "jul"};
+  TString pmtId;
+  pmtId.Form("%d", pmt);
+  TString fname = bname + pmtId+st+"Mth";
+
+  TFile *f;
+  TTree *chargeInfo;
+  double aveChDay = 0.;
+  int tmpTime = 0;
+  int nvals = 0;
+  int startTime = 1290816018; //Dec 1st, 2020. //1290902418; //Dec 2nd, 2020.
+  int diff = 0;
+  vector < int > returnVals;
+
+  for ( int month=0; month<8; month++ )
+  {
+    f = TFile::Open(fname+monthUub[month]+".root");
+    chargeInfo = (TTree*)f->Get("ChargeData");
+    chargeInfo->SetBranchAddress("timeEvnt", &tmpTime);
+
+    for( int etry=0; etry<chargeInfo->GetEntries(); etry++)
+    {
+      chargeInfo->GetEntry(etry);
+      if ( etry==0 )
+      {
+        diff = startTime - tmpTime;
+        while ( diff < 0 )
+        {
+          startTime += 86400;
+          diff = startTime - tmpTime; // Set time for first event
+        }
+      }
+      if ( tmpTime >= startTime )
+      {
+        returnVals.push_back( startTime-43200 );
+        startTime += 86400;
+      }
+    }
+  }
+  chargeInfo->Delete();
   f->Delete();
   return returnVals;
 }
@@ -235,6 +348,9 @@ void readingChMonthsFitting(int st)
 
   TPaveStats *ptstats;
   TLegend *leg;
+  bool gettime = true;
+  TString whinfo = "chargeVal";
+  int nPoints = 0;
 
   vector < int > timePmt1;
   vector < int > timePmt2;
@@ -246,11 +362,11 @@ void readingChMonthsFitting(int st)
   vector < double > chargeDerPmt2;
   vector < double > chargeDerPmt3;
 
-  bool gettime = true;
+  gettime = true;
   timePmt1 = fillingCh( basename, statId, 1, gettime);
   timePmt2 = fillingCh( basename, statId, 2, gettime);
   timePmt3 = fillingCh( basename, statId, 3, gettime);
-  TString whinfo = "chargeVal";
+  whinfo = "chargeVal";
   chargePmt1 = fillingCh( basename, statId, 1, whinfo);
   chargePmt2 = fillingCh( basename, statId, 2, whinfo);
   chargePmt3 = fillingCh( basename, statId, 3, whinfo);
@@ -259,12 +375,13 @@ void readingChMonthsFitting(int st)
   chargeDerPmt2 = fillingCh( basename, statId, 2, whinfo);
   chargeDerPmt3 = fillingCh( basename, statId, 3, whinfo);
 
-  int nPoints = timePmt1.size();
+  nPoints = timePmt1.size();
   double xtimePmt1[ nPoints ];
   double yChPmt1[ nPoints ];
   double yChDerPmt1[ nPoints ];
   double yPkMeanPmt1 = 0.;
   double yPkRmsPmt1 = 0.;
+  
   for ( int i=0; i<nPoints; i++ )
   {
     xtimePmt1[i] = timePmt1[i];
@@ -323,9 +440,9 @@ void readingChMonthsFitting(int st)
   chPmt1->SetTitle("");
   chPmt1->GetXaxis()->SetTimeFormat("%m/%d");
   chPmt1->GetXaxis()->SetTitle("Time since Dec. 2020 [month/day]");
-  chPmt1->GetXaxis()->SetTimeOffset(315964782,"gmt");
+  chPmt1->GetXaxis()->SetTimeOffset(315964800,"gmt");
   chPmt1->GetYaxis()->SetTitle("Charge [FADC]");
-  chPmt1->GetYaxis()->SetRangeUser(0, 1800);
+  chPmt1->GetYaxis()->SetRangeUser(0, 2200); //2200 for 1729; 1800 others;
   chPmt1->SetMarkerStyle(25);
   chPmt1->SetMarkerSize(2);
   chPmt1->SetMarkerColor(kAzure+10);
@@ -365,7 +482,7 @@ void readingChMonthsFitting(int st)
   chPmt2->GetXaxis()->SetTitle("Time since Dec. 2020 [month/day]");
   chPmt2->GetXaxis()->SetTimeOffset(315964782,"gmt");
   chPmt2->GetYaxis()->SetTitle("Charge [FADC]");
-  chPmt2->GetYaxis()->SetRangeUser(0, 1800);
+  chPmt2->GetYaxis()->SetRangeUser(0, 2200); //2200 for 1729; 1800 others
   chPmt2->SetMarkerStyle(25);
   chPmt2->SetMarkerSize(2);
   chPmt2->SetMarkerColor(kAzure+10);
@@ -405,7 +522,7 @@ void readingChMonthsFitting(int st)
   chPmt3->GetXaxis()->SetTitle("Time since Dec. 2020 [month/day]");
   chPmt3->GetXaxis()->SetTimeOffset(315964782,"gmt");
   chPmt3->GetYaxis()->SetTitle("Charge [FADC]");
-  chPmt3->GetYaxis()->SetRangeUser(0, 1800);
+  chPmt3->GetYaxis()->SetRangeUser(0, 2200); //2200 for 1729; 1800 others
   chPmt3->SetMarkerStyle(25);
   chPmt3->SetMarkerSize(2);
   chPmt3->SetMarkerColor(kAzure+10);
@@ -433,4 +550,37 @@ void readingChMonthsFitting(int st)
   leg->SetBorderSize(0);
   leg->Draw();
   c3->Print("../plots/uubChargeFromDerSt"+statId+"pmt3.pdf");
+
+
+  TCanvas *c4 = canvasStyle("c4");
+  c4->cd();
+  vector < double > chargeDayPmt1;
+  vector < int > timeChDayPmt1;
+  statId.Form("St%d", st);
+
+  chargeDayPmt1 = fillingDayCh( basename, statId, 2, whinfo);
+  timeChDayPmt1 = fillingDayCh( basename, statId, 2 );
+  nPoints = chargeDayPmt1.size();
+  double xChDayPmt1[ nPoints ];
+  double yChDayPmt1[ nPoints ];
+  cout << timeChDayPmt1[0] << endl;
+  for ( int i=0; i<nPoints; i++ )
+  {
+    xChDayPmt1[i] = timeChDayPmt1[i];
+    yChDayPmt1[i] = chargeDayPmt1[i];
+  }
+  TGraph *chDayPmt1 = new TGraph(nPoints,xChDayPmt1,yChDayPmt1);
+  chDayPmt1->SetTitle("");
+  chDayPmt1->GetXaxis()->SetTimeFormat("%m/%d");
+  chDayPmt1->GetXaxis()->SetTitle("Time since Dec. 2020 [month/day]");
+  chDayPmt1->GetXaxis()->SetTimeOffset(315964800,"gmt"); //315980000,"gmt");
+  chDayPmt1->GetYaxis()->SetTitle("Charge [FADC]");
+  chDayPmt1->GetYaxis()->SetRangeUser(0, 1800);
+  chDayPmt1->SetMarkerStyle(25);
+  chDayPmt1->SetMarkerSize(2);
+  chDayPmt1->SetMarkerColor(kAzure+10);
+  chDayPmt1->SetLineColor(kAzure+10);
+  chDayPmt1->SetLineWidth(2);
+  histoStyle(chDayPmt1);
+  chDayPmt1->Draw("AP");
 }

@@ -322,7 +322,7 @@ int main (int argc, char *argv[])
           break; // Apply if the is running for a single station.
         }
       }
-     }
+    }
   }
 
   hfile.Write();

@@ -197,12 +197,12 @@ void readingChMonthsFittingOff(int st)
 
   bool gettime = true;
   timePmt1 = fillingCh( basename, statId, 1, gettime);
-  timePmt2 = fillingCh( basename, statId, 2, gettime);
-  timePmt3 = fillingCh( basename, statId, 3, gettime);
+  timePmt2 = fillingCh( basename, statId, 1, gettime);
+  timePmt3 = fillingCh( basename, statId, 1, gettime);
   TString whinfo = "chargeVal";
   chargePmt1 = fillingCh( basename, statId, 1, whinfo);
-  chargePmt2 = fillingCh( basename, statId, 2, whinfo);
-  chargePmt3 = fillingCh( basename, statId, 3, whinfo);
+  chargePmt2 = fillingCh( basename, statId, 1, whinfo);
+  chargePmt3 = fillingCh( basename, statId, 1, whinfo);
   int nPoints = 0;
 
   nPoints = timePmt1.size();

@@ -322,7 +322,7 @@ void comparisonPkOffline()
   c21->cd();
   TGraph *gr21 = new TGraph (NntrsCdas, pkcdasTime, pkcdasVemDer);
   gr21->SetTitle(""); 
-  gr21->GetYaxis()->SetTitle("VEMpk-BXL [FADC/8.33 ns]");
+  gr21->GetYaxis()->SetTitle("VEM Peak [FADC/8.33 ns]");
   gr21->GetYaxis()->SetRangeUser(0, 180);
   gr21->GetXaxis()->SetTitle("Time since December 1st, 2020 [day/month]");
   gr21->GetXaxis()->SetTimeFormat("%m/%d");
@@ -334,15 +334,36 @@ void comparisonPkOffline()
   histoStyle(gr21);
   gr21->Draw("AP");
 
+  gr1->SetMarkerStyle(32);
+  gr1->SetMarkerColor(kBlue);
+  gr1->SetMarkerSize(2);
+  gr1->Draw("P same");
+
   strPkMean.Form("%.2f", avePkCdasDer);
   strPkRms.Form("%.2f", rmsPkCdasDer);
 
-  leg = new TLegend(0.12,0.31,0.42,0.5);
-  leg->AddEntry(gr2, "Average Peak from Derivative: "+strPkMean,"f");
-  leg->AddEntry(gr2, "RMS:  "+strPkRms,"f");
-  leg->SetTextSize(0.065);
+  leg = new TLegend(0.12,0.2,0.42,0.6);
+  strPkMean.Form("%.2f", avePkCdasDer);
+  strPkRms.Form("%.2f", rmsPkCdasDer);
+  strFails.Form("%d", nFailsCdas);
+  strNtrs.Form("%d", NntrsCdas);
+  strPerFails.Form("%.2f", (double)nFailsOff/NntrsOff);
+  leg->AddEntry(gr21, "Average Peak-BXL: "+strPkMean,"p");
+  leg->AddEntry(gr21, "RMS:  "+strPkRms,"");
+  leg->AddEntry(gr21, "Fail fits: "+strPerFails,"");
+
+  strPkMean.Form("%.2f", avePkOff);
+  strPkRms.Form("%.2f", rmsPkOff);
+  strFails.Form("%d", nFailsOff);
+  strNtrs.Form("%d", NntrsOff);
+  strPerFails.Form("%.2f", (double)nFailsOff/NntrsOff);
+  leg->AddEntry(gr1, "Average Peak-OffLine: "+strPkMean,"p");
+  leg->AddEntry(gr1, "RMS:  "+strPkRms,"");
+  leg->AddEntry(gr1, "Fail fits: "+strPerFails,"");
+  leg->SetTextSize(0.06);
   leg->SetBorderSize(0);
   leg->Draw();
+  c21->Print("../plots/offlineVEMpkDerSt863Pmt1.pdf");
 
 
   TCanvas *c3 = canvasStyle("c3");
@@ -546,8 +567,8 @@ void comparisonPkOffline()
   histoStyle(graphFitted);
   graphFitted->Draw("ap");
 
-  poly->SetLineColor(kRed);
-  poly->SetLineWidth(4);
+  //poly->SetLineColor(kRed);
+  poly->SetLineWidth(0);
   poly->Draw("same");
 
   offFunct->SetLineColor(kBlue);
@@ -562,9 +583,9 @@ void comparisonPkOffline()
   vemOff.Form("%.2f", 151.596);
 
   leg = new TLegend(0.5,.66,0.8,0.86);
-  leg->AddEntry(offFunct, "VEM from OffLine: "+vemOff,"p");
-  leg->AddEntry(poly, "VEM from Poly2: "+vemFit,"p");
-  leg->AddEntry(poly, "VEM from BXL-method: "+vemDer,"p");
+  leg->AddEntry(offFunct, "VEM from OffLine: "+vemOff,"l");
+  //leg->AddEntry(poly, "VEM from Poly2: "+vemFit,"l");
+  leg->AddEntry(poly, "VEM from BXL-method: "+vemDer,"");
   leg->AddEntry(poly, "(Green line)","");
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
