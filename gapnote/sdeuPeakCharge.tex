@@ -130,7 +130,7 @@ $\;$
 %\newpage
 \noindent
 
-\section*{Introduction}
+\section{Introduction}
   At the end
 	\begin{figure}[!tbh]
 		\centering
@@ -141,7 +141,7 @@ $\;$
 	\end{figure}
 \clearpage
 
-\section*{BXL: Fit method implemented in CDAS}
+\section{BXL: Fit method implemented in CDAS}
 In order to get a fit method user independent, we use the first
 derivative of the histogram (peak and/or charge) to find out the
 respective VEM value; we called this method BXL-method.\\\\The
@@ -422,47 +422,49 @@ charge histograms.
 \clearpage
 
 
-\subsection*{OffLine Method}
-The OffLine algorithm to search for the VEM value (for peak and
-charge histograms) is implemented in the SdCalibrator module,
-using the {\it ad} files.\\\\This algorithm will be applied if
-the maximum of counts in the histogram is bigger than 500 (a
-number setting by default SdCarlibrator class), and ignoring the
-last 5 bins. As first step to fit the histogram the fitting range
-is setting from the shoulderLow to shoulderHigh. Where the
-shoulderLow is established as the first bin with the maximum
-number of counts, starting from the start bin, i.e. the start bin
-is defined as the one with more than 40 counts (a number setting
-by default), from this bin, the algorithm looking for the first
-bin with a number of counts such that the next three bins have a
-number of counts lower than the $75$\,\% of counts of this first
-bin; this last percentage can be setting by the user.
+\section{OffLine Fit Method}
+The OffLine fitting algorithm fits a second order polynomial to
+set the VEM value (for peak and charge histograms); this
+algorithm  is implemented in the SdCalibrator module, using the
+{\it ad} files. This algorithm will be applied to certain
+histogram if its maximum of counts is bigger than 500 (a number
+setting by default in SdCarlibrator class), furthermore the last
+5 bins are ignore.\\As second step, the fitting range is setting
+from the shoulderLow to the shoulderHigh, where the shoulderLow
+is established as the first bin with the maximum number of
+counts, starting from the start bin, i.e. the bin with more than
+40 counts (a number setting by default). From this bin, the
+algorithm looking for a bin with a number of counts such that the
+next three bins have a number of counts lower than the $75$\,\%
+of counts of this first bin; this last percentage it is setting
+by the user.\\\\A comparison between OffLine and BXL fitting
+method, for a peak histogram, is presented in
+\ref{figPkCompaOffFitDer}. As can be seen OffLine method fit
+inappropriately (open upwards) but BXL method fit correctly.
 \clearpage
 
-\section*{Peak Histograms}
-Comparison between OffLine SdCalibrator (ad files) and our method
-for CDAS files. For peak, chi2/Ndof $<3.5$.
+
+%\begin{figure}[!tbh]
+%  \centering
+%  \subfigure
+%  {
+%    \includegraphics[width=0.55\textwidth]{../plots/offlinePkCompaSt863Pmt1.pdf}
+%    \includegraphics[width=0.55\textwidth]{../plots/offlineResidPkSt863Pmt1.pdf}
+%  }
+%  \caption{Peak histogram. Right, Comparison for VEM value using
+%  OffLine (blue line), second order polynomial fitting (red
+%  line), and BXL-method (green dashed line). Left, residuals for
+%  OffLine (blue points) and second order polynomial fit (red
+%  points). As it can be seen, the polynomial and BXL-method set
+%  properly the VEM value, but OffLine fit is not correct.}
+%  \label{figPkCompaOffFitDer}
+%\end{figure}
 
 \begin{figure}[!tbh]
   \centering
   \subfigure
   {
     \includegraphics[width=0.55\textwidth]{../plots/offlinePkCompaSt863Pmt1.pdf}
-    \includegraphics[width=0.55\textwidth]{../plots/offlineResidPkSt863Pmt1.pdf}
-  }
-  \caption{Peak histogram. Right, Comparison for VEM value using
-  OffLine (blue line), second order polynomial fitting (red
-  line), and BXL-method (green dashed line). Left, residuals for
-  OffLine (blue points) and second order polynomial fit (red
-  points). As it can be seen, the polynomial and BXL-method set
-  properly the VEM value, but OffLine fit is not correct.}
-  \label{figPkCompaOffFitDer}
-\end{figure}
-
-\begin{figure}[!tbh]
-  \centering
-  \subfigure
-  {
     \includegraphics[width=0.55\textwidth]{../plots/offlineVEMpkSt863Pmt1.pdf}
   }
   \caption{Comparison for VEM peak values obtained by OffLine and
