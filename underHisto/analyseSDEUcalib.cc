@@ -47,12 +47,13 @@ double getrms( vector<int> *arr, double meanarr, unsigned int nb, bool lok ){
 // ==========================
 int main (int argc, char *argv[]) 
 {
-  if ( argc < 4 ) 
+  if ( argc < 5 ) 
   {
     cout << endl
       << "Usage: " << argv[0] << " <stationsFile>  <PMT>  <Month> <files>" << endl
       << "  <stationsFile>: file with a list of stations" << endl
       << "  <PMT>: ID for the PMT you want to analyse" << endl
+      << "  <lrb>: N bins for fit (n towards left, n towards right)" << endl
       << "  <Month>: Month in which you want to analyse" << endl
       << "  <files>: IoSd or IoAuger files to be read" << endl
 			<< " " << endl
@@ -64,8 +65,9 @@ int main (int argc, char *argv[])
 
   const char* stationsFileName = argv[1];
   const char* whichpmt = argv[2];
-  const char* whichmonth = argv[3];
-  AugerIoSd input(argc-4, argv+4);
+  const char* nlrb = argv[3];
+  const char* whichmonth = argv[4];
+  AugerIoSd input(argc-5, argv+5);
   const unsigned int totalNrEvents = input.NumberOfEvents();
   ifstream stationsFile(stationsFileName, ios::in);
 
@@ -92,6 +94,7 @@ int main (int argc, char *argv[])
   
   TString nameStati = to_string( stationsIds[0] );
   TString pmtname = whichpmt;
+  TString strNblr = nlrb;
   int pmtId= atoi( pmtname );
   if ( pmtId > 0 && pmtId < 4 )
      pmtname = "PMT"+to_string( pmtId );
@@ -116,8 +119,9 @@ int main (int argc, char *argv[])
 		pmtname += "St"+to_string( stationsIds[0] );
  
   string doMonth = string(whichmonth);
-  pmtname +=  "Mth" + doMonth;
-  TFile hfile("uubAoP"+pmtname+".root","RECREATE","");
+  pmtname +=  "lrb" + strNblr + doMonth;
+
+  TFile hfile("uubChPk"+pmtname+".root","RECREATE","");
   //TFile hfile("kk.root", "RECREATE","");
 
 	TH1F *recePk = new TH1F (); // Receive Pk from IoSdStation::HPeak
@@ -285,7 +289,7 @@ int main (int argc, char *argv[])
           fitCh.setChCrr(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6], tmpName+"Hbch");
           tmp = fitCh.getChCrr();
           chForFit = fitCh.getChCrr();
-          fitCh.getFitCh(*tmp);
+          fitCh.getFitCh(*tmp, atoi(argv[3]) );
           
           chHistFit = fitCh.getFitGraphCh();
           chChi2 = fitCh.chisCharge;

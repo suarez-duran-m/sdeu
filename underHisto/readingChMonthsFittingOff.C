@@ -70,7 +70,7 @@ void getResiduals( TGraphErrors *grphErr, TF1 *func,
 
 vector < double > fillingCh( TString bname, TString st, int pmt, TString whichInfo)
 {
-  TString monthUub[] = {"Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"};
+  TString monthUub[] = {"Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"};
   TString pmtId;
   pmtId.Form("%d", pmt);
   TString fname;
@@ -83,10 +83,12 @@ vector < double > fillingCh( TString bname, TString st, int pmt, TString whichIn
   TString ngr;
   TString vem;
   TString pmtStr;
+  int nMonths = 8;
 
-  for ( int month=0; month<8; month++ )
+  for ( int month=nMonths; month<nMonths+1; month++ )
   {
     fname = bname+monthUub[month]+"/offlineUub"+monthUub[month]+st+"Pmt"+pmtId+".root";
+
     f = TFile::Open(fname);
     chargeInfo = (TTree*)f->Get("charge");
 
@@ -97,7 +99,7 @@ vector < double > fillingCh( TString bname, TString st, int pmt, TString whichIn
     for( int etry=0; etry<chargeInfo->GetEntries(); etry++)
     {
       chargeInfo->GetEntry(etry);
-      returnVals.push_back( tmpVals ); 
+      returnVals.push_back( tmpVals );
     }
   }
   chargeInfo->Delete();
@@ -107,15 +109,16 @@ vector < double > fillingCh( TString bname, TString st, int pmt, TString whichIn
 
 vector < int > fillingCh( TString bname, TString st, int pmt, bool whichInfo)
 {
-  TString monthUub[] = {"Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"};
+  TString monthUub[] = {"Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"};
   TString pmtId;
   pmtId.Form("%d", pmt);
   TString fname;
-
   TFile *f;
   TTree *chargeInfo;
-  int tmpVals = 0.;
+  
+  int tmpVals = 0;
   vector < int > returnVals;
+  int nMonths = 8;
 
   TString getinfo;
   if ( whichInfo )
@@ -123,9 +126,10 @@ vector < int > fillingCh( TString bname, TString st, int pmt, bool whichInfo)
   else
    getinfo = "evtId";
 
-  for ( int month=0; month<8; month++ )
+  for ( int month=nMonths; month<nMonths+1; month++ )
   {
     fname = bname+monthUub[month]+"/offlineUub"+monthUub[month]+st+"Pmt"+pmtId+".root";
+
     f = TFile::Open(fname);
     chargeInfo = (TTree*)f->Get("charge");
 
@@ -143,6 +147,58 @@ vector < int > fillingCh( TString bname, TString st, int pmt, bool whichInfo)
   return returnVals;
 }
 
+vector < double > failingCh( TString bname, int st, int pmt, TString whichInfo)
+{
+  TString monthUub[] = {"Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"};
+  TString pmtId;
+  TString strSt;
+  strSt.Form("St%d", st);
+  pmtId.Form("%d", pmt);
+  TString fname;
+
+  TFile *f;
+  TTree *chargeInfo;
+  double tmpVals = 0.;
+  vector < double > returnVals;
+  int evtId = 0;
+  int evttime = 0;
+  TString ngr;
+  TString vem;
+  TString pmtStr;
+  int nMonths = 8;
+
+  for ( int month=nMonths; month<nMonths+1; month++ )
+  {
+    fname = bname+monthUub[month]+"/offlineUub"+monthUub[month]+strSt+"Pmt"+pmtId+".root";
+
+    f = TFile::Open(fname);
+    chargeInfo = (TTree*)f->Get("charge");
+
+    tmpVals = 0.;
+    chargeInfo->SetBranchAddress(whichInfo, &tmpVals); 
+    chargeInfo->SetBranchAddress("evtId", &evtId);
+    chargeInfo->SetBranchAddress("GpsTime", &evttime);
+
+    for( int etry=0; etry<chargeInfo->GetEntries(); etry++)
+    {
+      chargeInfo->GetEntry(etry);
+      if ( st!=1729 )
+      {
+        if ( evttime < 1308441618 || evttime > 1314057618 )
+          if ( tmpVals < 1e3 || tmpVals > 2e3 )
+            returnVals.push_back( tmpVals );
+      }
+      else
+      {
+        if ( tmpVals < 1e3 || tmpVals > 2e3 )
+          returnVals.push_back( tmpVals );
+      }
+    }
+  }
+  chargeInfo->Delete();
+  f->Delete();
+  return returnVals;
+}
 
 double getmean( vector<double> arr )
 {
@@ -152,8 +208,11 @@ double getmean( vector<double> arr )
     for (int i=0; i<nb; i++)
       if ( arr[i] > 100 )
       {
-        mean += arr[i];
-        ngoodb++;
+        if ( arr[i] > 1e3 && arr[i] < 2e3 )
+        {
+          mean += arr[i];
+          ngoodb++;
+        }
       }
   return mean/ngoodb;
 }
@@ -166,8 +225,11 @@ double getrms( vector<double> arr, double meanarr )
   for (int i=0; i<nb; i++)
     if ( arr[i] > 100 )
     {
-      rms += (arr[i] - meanarr)*(arr[i] - meanarr);
-      ngoodb++;
+      if ( arr[i] > 1e3 && arr[i] < 2e3 )
+      {
+        rms += (arr[i] - meanarr)*(arr[i] - meanarr);
+        ngoodb++;
+      }
     }
   return sqrt(rms/ngoodb);
 }
@@ -191,18 +253,26 @@ void readingChMonthsFittingOff(int st)
   vector < double > chargePmt1;
   vector < double > chargePmt2;
   vector < double > chargePmt3;
+  vector < double > chfailpmt1;
+  vector < double > chfailpmt2;
+  vector < double > chfailpmt3;
   vector < double > chargeDerPmt1;
   vector < double > chargeDerPmt2;
   vector < double > chargeDerPmt3;
 
   bool gettime = true;
   timePmt1 = fillingCh( basename, statId, 1, gettime);
-  timePmt2 = fillingCh( basename, statId, 1, gettime);
-  timePmt3 = fillingCh( basename, statId, 1, gettime);
+  timePmt2 = fillingCh( basename, statId, 2, gettime);
+  timePmt3 = fillingCh( basename, statId, 3, gettime);
   TString whinfo = "chargeVal";
   chargePmt1 = fillingCh( basename, statId, 1, whinfo);
-  chargePmt2 = fillingCh( basename, statId, 1, whinfo);
-  chargePmt3 = fillingCh( basename, statId, 1, whinfo);
+  chargePmt2 = fillingCh( basename, statId, 2, whinfo);
+  chargePmt3 = fillingCh( basename, statId, 3, whinfo);
+  whinfo = "chargeVal";
+  chfailpmt1 = failingCh( basename, st, 1, whinfo);
+  chfailpmt2 = failingCh( basename, st, 2, whinfo);
+  chfailpmt3 = failingCh( basename, st, 3, whinfo);
+
   int nPoints = 0;
 
   nPoints = timePmt1.size();
@@ -210,6 +280,7 @@ void readingChMonthsFittingOff(int st)
   double yChPmt1[ nPoints ];
   double yPkMeanPmt1 = 0.;
   double yPkRmsPmt1 = 0.;
+  int pmt1fails = chfailpmt1.size();
   for ( int i=0; i<nPoints; i++ )
   {
     xtimePmt1[i] = timePmt1[i];
@@ -222,6 +293,7 @@ void readingChMonthsFittingOff(int st)
   nPoints = timePmt2.size();
   double xtimePmt2[ nPoints ];
   double yChPmt2[ nPoints ];
+  int pmt2fails = chfailpmt2.size();
   for ( int i=0; i<nPoints; i++ )
   {
     xtimePmt2[i] = timePmt2[i];
@@ -234,6 +306,7 @@ void readingChMonthsFittingOff(int st)
   nPoints = timePmt3.size();
   double xtimePmt3[ nPoints ];
   double yChPmt3[ nPoints ];
+  int pmt3fails = chfailpmt3.size();
   for ( int i=0; i<nPoints; i++ )
   {
     xtimePmt3[i] = timePmt3[i];
@@ -245,6 +318,8 @@ void readingChMonthsFittingOff(int st)
 
   TString aveChStr;
   TString rmsChStr;
+  TString strFails;
+  TString strTotEvt;
 
   TCanvas *c1 = canvasStyle("c1");
   c1->cd();
@@ -253,10 +328,10 @@ void readingChMonthsFittingOff(int st)
 
   chPmt1->SetTitle("");
   chPmt1->GetXaxis()->SetTimeFormat("%m/%d");
-  chPmt1->GetXaxis()->SetTitle("Time since Dec. 2020 [month/day]");
+  chPmt1->GetXaxis()->SetTitle("Time [month/day]");
   chPmt1->GetXaxis()->SetTimeOffset(315964782,"gmt");
-  chPmt1->GetYaxis()->SetTitle("Charge-OffLine [FADC]");
-  chPmt1->GetYaxis()->SetRangeUser(180, 2000);
+  chPmt1->GetYaxis()->SetTitle("VEM-Charge [FADC]");
+  chPmt1->GetYaxis()->SetRangeUser(0, 2200);
   chPmt1->SetMarkerStyle(25);
   chPmt1->SetMarkerSize(2);
   chPmt1->SetMarkerColor(kAzure+10);
@@ -267,12 +342,17 @@ void readingChMonthsFittingOff(int st)
 
   aveChStr.Form("%.2f", meanPmt1);
   rmsChStr.Form("%.2f", rmsPmt1);
+  strFails.Form("%d", pmt1fails);
+  strTotEvt.Form("%d", (int)chargePmt1.size());
   leg = new TLegend(0.15,0.31,0.52,0.5);
   leg->SetHeader("PMT1");
-  leg->AddEntry(chPmt1, "Average Charge-OffLine: "+aveChStr+"; RMS: "+rmsChStr,"p");
+  leg->AddEntry(chPmt1, "From OffLine (Ave.: "+aveChStr+", RMS: "+rmsChStr+")","p");
+  leg->AddEntry(chPmt1, "Fails: "+strFails+"/"+strTotEvt,"");
   leg->SetTextSize(0.06);
   leg->SetBorderSize(0);
   leg->Draw();
+  //c1->Print("kk.pdf");
+  
   c1->Print("../plots/uubChargeFromOffSt"+statId+"pmt1.pdf");
 
   TCanvas *c2 = canvasStyle("c2");
@@ -282,10 +362,10 @@ void readingChMonthsFittingOff(int st)
 
   chPmt2->SetTitle("");
   chPmt2->GetXaxis()->SetTimeFormat("%m/%d");
-  chPmt2->GetXaxis()->SetTitle("Time since Dec. 2020 [month/day]");
+  chPmt2->GetXaxis()->SetTitle("Time [month/day]");
   chPmt2->GetXaxis()->SetTimeOffset(315964782,"gmt");
-  chPmt2->GetYaxis()->SetTitle("Charge-OffLine[FADC]");
-  chPmt2->GetYaxis()->SetRangeUser(180, 2100);
+  chPmt2->GetYaxis()->SetTitle("VEM-Charge [FADC]");
+  chPmt2->GetYaxis()->SetRangeUser(0, 2200);
   chPmt2->SetMarkerStyle(25);
   chPmt2->SetMarkerSize(2);
   chPmt2->SetMarkerColor(kAzure+10);
@@ -296,9 +376,12 @@ void readingChMonthsFittingOff(int st)
 
   aveChStr.Form("%.2f", meanPmt2);
   rmsChStr.Form("%.2f", rmsPmt2);
+  strFails.Form("%d", pmt2fails);
+  strTotEvt.Form("%d", (int)chargePmt2.size());
   leg = new TLegend(0.15,0.31,0.52,0.5);
   leg->SetHeader("PMT2");
-  leg->AddEntry(chPmt2, "Average Charge-OffLine: "+aveChStr+"; RMS: "+rmsChStr,"p");
+  leg->AddEntry(chPmt2, "From OffLine (Ave.: "+aveChStr+", RMS: "+rmsChStr+")","p");
+  leg->AddEntry(chPmt2, "Fails: "+strFails+"/"+strTotEvt,"");
   leg->SetTextSize(0.06);
   leg->SetBorderSize(0);
   leg->Draw();
@@ -311,10 +394,10 @@ void readingChMonthsFittingOff(int st)
 
   chPmt3->SetTitle("");
   chPmt3->GetXaxis()->SetTimeFormat("%m/%d");
-  chPmt3->GetXaxis()->SetTitle("Time since Dec. 2020 [month/day]");
+  chPmt3->GetXaxis()->SetTitle("Time [month/day]");
   chPmt3->GetXaxis()->SetTimeOffset(315964782,"gmt");
-  chPmt3->GetYaxis()->SetTitle("Charge-OffLine [FADC]");
-  chPmt3->GetYaxis()->SetRangeUser(180, 2000);
+  chPmt3->GetYaxis()->SetTitle("VEM-Charge [FADC]");
+  chPmt3->GetYaxis()->SetRangeUser(0, 2200);
   chPmt3->SetMarkerStyle(25);
   chPmt3->SetMarkerSize(2);
   chPmt3->SetMarkerColor(kAzure+10);
@@ -325,9 +408,12 @@ void readingChMonthsFittingOff(int st)
 
   aveChStr.Form("%.2f", meanPmt3);
   rmsChStr.Form("%.2f", rmsPmt3);
+  strFails.Form("%d", pmt3fails);
+  strTotEvt.Form("%d", (int)chargePmt3.size());
   leg = new TLegend(0.15,0.31,0.52,0.5);
   leg->SetHeader("PMT3");
-  leg->AddEntry(chPmt3, "Average Charge-OffLine: "+aveChStr+"; RMS: "+rmsChStr,"p");
+  leg->AddEntry(chPmt3, "From OffLine (Ave.: "+aveChStr+", RMS: "+rmsChStr+")","p");
+  leg->AddEntry(chPmt3, "Fails: "+strFails+"/"+strTotEvt,"");
   leg->SetTextSize(0.06);
   leg->SetBorderSize(0);
   leg->Draw();

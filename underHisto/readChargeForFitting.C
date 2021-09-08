@@ -102,45 +102,35 @@ vector < double > getFitRange( TH1F &h )
   double binMax = 0.;
   double rawbinMax = 0.;
   double rawbinMin = 0.;
+  int rightleftBins = 35;
 
   for ( int kk=275; kk>125; kk-- ) // from ~2000 FADC backward
-    if ( h.GetBinContent(kk) < 0 )
-    {
-      if ( binMax < fabs( h.GetBinContent( kk ) ) )
-      {
-        binMax = fabs( h.GetBinContent(kk));
-        maxRng = h.GetBinCenter(kk); // Change of concavity
-      }
-    }
-    else
-    {
-      binMax = h.GetBinCenter(kk); // tmp FADC for VEM
-      rawbinMax = kk; // Bin for tmp VEM
-      break;
-    }
-
-  binMin = 0;
-  for ( int kk=rawbinMax; kk>0; kk-- )
     if ( h.GetBinContent(kk) > 0 )
     {
-      if ( binMin < h.GetBinContent(kk) )
+      if ( h.GetBinCenter(kk) < fabs(h.GetBinCenter(kk-1)) )
       {
-        binMin = h.GetBinContent(kk); 
-        minRng = h.GetBinCenter(kk); // Change of concavity
+        binMax = h.GetBinCenter(kk); // tmp FADC for VEM
+        rawbinMax = kk; // Bin for tmp VEM
       }
-    }
-    else
-    {
-      binMin =  h.GetBinCenter(kk);
-      minRng = binMin;
-      rawbinMin = kk;
+      else
+      {
+        binMax = h.GetBinCenter(kk-1);
+        rawbinMax = kk; // Bin for tmp VEM
+      }
       break;
     }
+  
+  minRng = h.GetBinCenter(rawbinMax-rightleftBins);
+  maxRng = h.GetBinCenter(rawbinMax+rightleftBins);
 
   minmax.push_back( minRng );
   minmax.push_back( maxRng );
-  minmax.push_back( binMax );
-  minmax.push_back( rawbinMin );
+  minmax.push_back( rawbinMax-rightleftBins );
+  minmax.push_back( rawbinMax );
+  minmax.push_back( binMax ); 
+  // +4 because the zero is between this pixel and
+  // the next one.
+  cout << "MSD: " << binMax << " " << rawbinMax << " " << minRng << " " << maxRng << endl;
 
   return minmax;
 }
@@ -173,6 +163,8 @@ void readChargeForFitting()
 {
   //TString cdasmeName = "uubAoPPMT1St863Mthjan.root"; 
   TString cdasmeName = "uubAoPPMT1St863Mthdec.root"; 
+  //TString cdasmeName = "uubAoPPMT2St863Mthjun.root"; 
+  //TString cdasmeName = "uubAoPPMT2St863Mthabr.root"; 
   TFile *cdasmeF = TFile::Open(cdasmeName);
   TTree *cdasmeInfo = (TTree*)cdasmeF->Get("ChargeData");
 
@@ -193,11 +185,13 @@ void readChargeForFitting()
   for ( int ntr = 0; ntr<cdasmeInfo->GetEntries(); ntr++ )
   {
     cdasmeInfo->GetEntry(ntr);
-    if ( evt == 61638711 )
+    if ( evt == 62972307 ) //61638711 )
       selectEntry = ntr;
   }
-  //cdasmeInfo->GetEntry(selectEntry);
-  cdasmeInfo->GetEntry(0);
+  cdasmeInfo->GetEntry(selectEntry);
+  //cdasmeInfo->GetEntry(0);
+  cout << evt << endl;
+
 
   int nXbins = charge->GetXaxis()->GetNbins();
   double xfadc[nXbins+1];
@@ -219,7 +213,7 @@ void readChargeForFitting()
   charge->SetStats(0);
   charge->SetTitle("");
   charge->SetLineColor(kBlue);
-  charge->GetXaxis()->SetRangeUser(0, 5e3);
+  charge->GetXaxis()->SetRangeUser(0, 3e3);
   charge->GetYaxis()->SetRangeUser(0, 160);
   charge->SetLineWidth(1);
   charge->GetXaxis()->SetTitle("[FADC]");
@@ -227,7 +221,7 @@ void readChargeForFitting()
   histoStyle(charge);
   charge->Draw();
 
-  chargeSmooth->SetLineColor(kOrange+9);
+  chargeSmooth->SetLineColor(kBlack); //Orange+9);
   chargeSmooth->SetLineWidth(1);
   chargeSmooth->Draw("same");
 
@@ -235,20 +229,20 @@ void readChargeForFitting()
   strEvt.Form("%d", evt); 
 
   leg = new TLegend(0.62,0.65,0.95,0.96);
-  leg->SetHeader("#splitline{Peak histogrma Station 863}{(Event "+strEvt+")}");
-  leg->AddEntry(charge,"Peak histogram","f");
-  leg->AddEntry(chargeSmooth,"Smooth charge histogram","f");
+  leg->SetHeader("#splitline{Charge histogrma Station 863}{(Event "+strEvt+")}");
+  leg->AddEntry(charge,"Charge histogram","l");
+  leg->AddEntry(chargeSmooth,"H_{S} histogram","l");
   leg->Draw();  
   c1->Print("../plots/chargeHisto863.pdf");
 
   TCanvas *c2 = canvasStyle("c2");
   c2->cd();
   chargeSmooDer->SetStats(0);
-  chargeSmooDer->SetLineColor(kGray);
+  chargeSmooDer->SetLineColor(kBlack);
   chargeSmooDer->SetLineWidth(1);
   chargeSmooDer->GetXaxis()->SetRangeUser(0, 3e3);
   chargeSmooDer->GetXaxis()->SetTitle("[FADC]");
-  chargeSmooDer->GetYaxis()->SetRangeUser(-1, 1);
+  chargeSmooDer->GetYaxis()->SetRangeUser(-0.6, 0.6);
   chargeSmooDer->GetYaxis()->SetTitle("[au]");
   histoStyle(chargeSmooDer);
   chargeSmooDer->Draw();
@@ -262,12 +256,20 @@ void readChargeForFitting()
   line->SetLineStyle(4);
   line->SetLineWidth(1);
   line->Draw();
-  
-  leg = new TLegend(0.45,0.7,0.95,0.97);
-  leg->SetHeader("From charge histogram","C");
-  leg->AddEntry(chargeSmooDer,"First derivative Smooth Charge.","f");
-  leg->AddEntry(chargeSmooDerSmth,"Smooth First derivative Smooth-Charge","f");
-  leg->SetTextSize(0.04);
+
+  line = new TLine(1224, -0.6, 1224, 0.6);
+  line->SetLineStyle(1);
+  line->SetLineWidth(2);
+  line->SetLineColor(kGreen+3);
+  line->Draw();
+
+  leg = new TLegend(0.6,0.7,0.95,0.97);
+  //leg->SetHeader("From charge histogram","C");
+  leg->AddEntry(chargeSmooDer,"H_{DS}","l");
+  leg->AddEntry(chargeSmooDerSmth,"H_{SDS}","l");
+  leg->AddEntry(chargeSmooDer, "First estimated", "");
+  leg->AddEntry(chargeSmooDer, "VEM-hump (green line)", "");
+  leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->Draw();
   c2->Print("../plots/chargeDerHisto863.pdf");
@@ -309,11 +311,13 @@ void readChargeForFitting()
   double bestXmin = 0.;
   double bestXmax = 0.;
 
+  // A method to improve the fit, reducing the range 
+  // using as criterium the number residulas out of +- 1
+  /*
   for ( int nl=0; nl<10; nl++ ) 
   {
     bigRsd = 0;
     tmp = 0;
-
     poly2 = new TF1("poly2","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
     chToFit->Fit("poly2","QR");
 
@@ -321,6 +325,7 @@ void readChargeForFitting()
     yResid.clear();
     errResid.clear();
 
+    // Calculating residuals
     for ( int kbn=1; kbn<nXbins; kbn++ )
       if ( charge->GetBinCenter(kbn) >= rangXmin && charge->GetBinCenter(kbn) <= rangXmax )
       {
@@ -332,11 +337,9 @@ void readChargeForFitting()
               + pow(sqrt( sqrt(poly2->Eval( charge->GetBinCenter(kbn) ) ) ),2)
               ) / sqrt( charge->GetBinContent(kbn) ) );
       }
-
     for ( int rsd=0; rsd<yResid.size(); rsd++ )
       if ( fabs ( yResid[rsd] ) > 1 )
         bigRsd++;
-
     if ( chi2Ndf > poly2->GetChisquare() / poly2->GetNDF() )
     {
       chi2Ndf = poly2->GetChisquare() / poly2->GetNDF();
@@ -352,7 +355,6 @@ void readChargeForFitting()
       reduceFactor += 0.01;
     }
   }
-
   if ( chi2Ndf < poly2->GetChisquare() / poly2->GetNDF() )
   {
     rangXmin = bestXmin;
@@ -377,6 +379,27 @@ void readChargeForFitting()
               ) / sqrt( charge->GetBinContent(kbn) ) );
       }
   }
+  */
+
+  poly2 = new TF1("poly2","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
+  chToFit->Fit("poly2","QR");
+                                                                                          
+  xResid.clear();
+  yResid.clear();
+  errResid.clear();
+                                                                                          
+  // Calculating residuals
+  for ( int kbn=1; kbn<nXbins; kbn++ )
+    if ( charge->GetBinCenter(kbn) >= rangXmin && charge->GetBinCenter(kbn) <= rangXmax )
+    {
+      xResid.push_back( charge->GetBinCenter(kbn) );
+      tmp = poly2->Eval( charge->GetBinCenter(kbn) ) - charge->GetBinContent(kbn);
+      yResid.push_back( tmp / sqrt( charge->GetBinContent(kbn) ) );
+      errResid.push_back( sqrt(
+            pow(sqrt( charge->GetBinContent(kbn) ),2) 
+            + pow(sqrt( sqrt(poly2->Eval( charge->GetBinCenter(kbn) ) ) ),2)
+            ) / sqrt( charge->GetBinContent(kbn) ) );
+    }
 
   TGraphErrors *residPoly2 = new TGraphErrors( xResid.size(), &xResid.front(),
       &yResid.front(), 0, &errResid.front() );
@@ -385,14 +408,11 @@ void readChargeForFitting()
  
   TCanvas *c3 = canvasStyle("c3");
   c3->cd();
-  gStyle->SetOptStat(1);
-  gStyle->SetOptFit(1111);
-  ptstats = new TPaveStats(0.63, 0.67, 0.96, 0.97,"brNDC");
-  chToFit->GetListOfFunctions()->Add(ptstats);
+
   chToFit->SetTitle("");
   chToFit->GetXaxis()->SetRangeUser(0, 3e3);
   chToFit->GetYaxis()->SetRangeUser(0, 170);
-  chToFit->SetLineColor(kBlue);
+  chToFit->SetLineColor(kGray+2);
   chToFit->SetLineWidth(1);
   chToFit->GetXaxis()->SetTitle("[FADC]");
   chToFit->GetYaxis()->SetTitle("Counts [au]");
@@ -400,10 +420,30 @@ void readChargeForFitting()
   chToFit->Draw();
 
   poly2->SetLineWidth(4);
+  poly2->SetLineColor(kBlue);
   poly2->Draw("same");
 
-  line = new TLine(vemPk, 0, vemPk, 1e3);
-  line->SetLineStyle(4);
+  TString strVem;
+  strVem.Form("%.2f", vemPk);
+  leg = new TLegend(0.42,0.7,0.88,0.92);
+  TLegendEntry* l1 = leg->AddEntry(poly2,"VEM Fitting-Poly2 (35-bin): "+strVem,"");
+  l1->SetTextColor(kBlue);
+  strVem.Form("%.2f", rangeValues[4]);
+  l1 = leg->AddEntry(poly2,"VEM-hump.: "+strVem,"");
+  l1->SetTextColor(kGreen+3);
+  leg->SetTextSize(0.05);
+  leg->SetBorderSize(0);
+  leg->Draw();
+
+  line = new TLine(vemPk, 0, vemPk, 170);
+  line->SetLineColor(kBlue);
+  line->SetLineStyle(1);
+  line->SetLineWidth(2);
+  line->Draw();
+
+  line = new TLine(rangeValues[4], 0, rangeValues[4], 170);
+  line->SetLineColor(kGreen+3);
+  line->SetLineStyle(1);
   line->SetLineWidth(2);
   line->Draw();
 
@@ -413,7 +453,7 @@ void readChargeForFitting()
   c4->cd();
   residPoly2->SetTitle("");
   residPoly2->GetXaxis()->SetRangeUser(rangXmin-5, rangXmax+5);
-  residPoly2->GetYaxis()->SetRangeUser(-8, 4);
+  residPoly2->GetYaxis()->SetRangeUser(-6, 4);
   residPoly2->SetLineColor(kBlack);
   residPoly2->SetLineWidth(1);
   residPoly2->GetXaxis()->SetTitle("[FADC]");
@@ -429,9 +469,15 @@ void readChargeForFitting()
   TString strVemPk;
   chindf.Form("%.2f", poly2->GetChisquare() / poly2->GetNDF() );
   strVemPk.Form("%.2f", vemPk);
+  TString strChi;
+  TString strNdf; 
+  strChi.Form("%.2f", poly2->GetChisquare());
+    strNdf.Form("%d", poly2->GetNDF());
 
-  leg = new TLegend(0.56,0.19,0.94,0.40);
-  leg->AddEntry(residPoly2,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{VEM-Peak: "+strVemPk+"}","ep");
+  leg = new TLegend(0.5,0.19,0.9,0.40);
+  l1 = leg->AddEntry(residPoly2,"#frac{#chi^{2}}{ndf} = #frac{"+strChi+"}{"+strNdf+"}","");
+  //l1 = leg->AddEntry(residPoly2,"#splitline{ #frac{#chi^{2}}{ndf} = "+chindf+"}{VEM-Charge: "+strVemPk+"}","");
+  l1->SetTextColor(kBlue);
   leg->SetTextSize(0.065);
   leg->SetBorderSize(0);
   leg->Draw();
@@ -441,8 +487,9 @@ void readChargeForFitting()
   line->SetLineWidth(2);
   line->Draw();
 
-  line = new TLine(vemPk, -8, vemPk, 4);
-  line->SetLineStyle(4);
+  line = new TLine(vemPk, -6, vemPk, 4);
+  line->SetLineColor(kBlue);
+  line->SetLineStyle(1);
   line->SetLineWidth(2);
   line->Draw();
 

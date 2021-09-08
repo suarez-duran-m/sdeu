@@ -276,7 +276,7 @@ void readFitChargeHisto()
 
   c2->cd();
   chargeDer->SetStats(0);
-  chargeDer->SetLineColor(kGray);
+  chargeDer->SetLineColor(kBlack);
   chargeDer->SetLineWidth(1);
   chargeDer->GetXaxis()->SetTitle("[FADC]");
   chargeDer->GetYaxis()->SetTitle("[au]");
@@ -302,9 +302,9 @@ void readFitChargeHisto()
   
   leg = new TLegend(0.53,0.78,0.96,0.97);
   leg->SetHeader("From charge histogram","C");
-  leg->AddEntry(chargeDer,"First derivative Charge-H.","f");
-  leg->AddEntry(chargeSmooDer,"First derivative Smooth-Charge-H.","f");
-  leg->AddEntry(chargeSmooDerSmth,"First derivative Smooth-Charge-H.","f");
+  leg->AddEntry(chargeDer,"First derivative Charge-H.","l");
+  leg->AddEntry(chargeSmooDer,"First derivative Smooth-Charge-H.","l");
+  leg->AddEntry(chargeSmooDerSmth,"First derivative Smooth-Charge-H.","l");
 
   leg->SetTextSize(0.04);
   leg->Draw();
@@ -436,9 +436,10 @@ void readFitChargeHisto()
 
   c3->cd();
   TPaveStats *ptstats;
-  gStyle->SetOptStat(1);
+  //gStyle->SetOptStat();
   gStyle->SetOptFit(1111);
   ptstats = new TPaveStats(0.63, 0.67, 0.96, 0.97,"brNDC");
+  ptstats->SetFillColor(0);
   chToFit->GetListOfFunctions()->Add(ptstats);
   chToFit->SetTitle("");
   chToFit->GetXaxis()->SetRangeUser(100, 3000);
@@ -448,7 +449,7 @@ void readFitChargeHisto()
   chToFit->GetXaxis()->SetTitle("[FADC]");
   chToFit->GetYaxis()->SetTitle("Counts [au]");
   histoStyle(chToFit);
-  chToFit->Draw(); 
+  chToFit->Draw();
 
   poly2->SetLineWidth(4);
   poly2->Draw("same");

@@ -74,6 +74,7 @@ void getResiduals( TGraphErrors *grphErr, TF1 *func,
 void comparisonChOffline()
 {
   TString offlineName = "/home/msd/2021/offlineCourse/Offline2020/practice/uub/offlineUubDecSt863Pmt1.root";
+  //TString offlineName = "/home/msd/2021/offlineCourse/Offline2020/practice/uub/Dec/offlineUubDecSt863Pmt1.root";
   TString cdasmeName = "uubAoPPMT1St863Mthdec.root";
 
   TPaveStats *ptstats;
@@ -91,6 +92,9 @@ void comparisonChOffline()
   int chOffNdof = 0;
   double chOffLow = 0.;
   double chOffHigh = 0.;
+  double chOffP0 = 0.;
+  double chOffP1 = 0.;
+  double chOffP2 = 0.;
 
   offlineInfo->SetBranchAddress("evtId", &chOffEvId);
   offlineInfo->SetBranchAddress("GpsTime", &chOffTime);
@@ -99,6 +103,9 @@ void comparisonChOffline()
   offlineInfo->SetBranchAddress("chargeNdofl", &chOffNdof);
   offlineInfo->SetBranchAddress("chargeLow", &chOffLow);
   offlineInfo->SetBranchAddress("chargeHigh", &chOffHigh);
+  offlineInfo->SetBranchAddress("chargeP0", &chOffP0);
+  offlineInfo->SetBranchAddress("chargeP1", &chOffP1);
+  offlineInfo->SetBranchAddress("chargeP2", &chOffP2);
 
   int NntrsOff = offlineInfo->GetEntries();
   double choffId[NntrsOff];
@@ -117,6 +124,7 @@ void comparisonChOffline()
   double rmsChi2NdosOf = 0.;
   int nFailsOff = 0;
   vector < int > idFailsOff;
+  vector < int > etryFailsOff;
 
   for ( int ntry=0; ntry<NntrsOff; ntry++ )
   {
@@ -139,6 +147,7 @@ void comparisonChOffline()
     {
       nFailsOff++;
       idFailsOff.push_back( chOffEvId );
+      etryFailsOff.push_back( ntry );
     }
   }
   aveChOff /= nChOks;
@@ -502,9 +511,11 @@ void comparisonChOffline()
   histoStyle(graphFitted);
   graphFitted->Draw("ap");
 
+  
   poly->SetLineColor(kRed);
-  poly->SetLineWidth(4);
+  poly->SetLineWidth(0);
   poly->Draw("same");
+  
 
   offFunct->SetLineColor(kBlue);
   offFunct->SetLineWidth(4);
@@ -518,20 +529,21 @@ void comparisonChOffline()
   vemOff.Form("%.2f", 1238.37);
 
   leg = new TLegend(0.5,.66,0.8,0.95);
-  leg->SetHeader("        PMT1");
-  leg->AddEntry(offFunct, "VEM from OffLine: "+vemOff,"p");
-  leg->AddEntry(poly, "VEM from Poly2: "+vemFit,"p");
-  leg->AddEntry(poly, "VEM from BXL-method: "+vemDer,"p");
-  leg->AddEntry(poly, "(Green line)","");
+  //leg->SetHeader("        PMT1");
+  //leg->AddEntry(offFunct, "VEM from OffLine: "+vemOff,"p");
+  //leg->AddEntry(poly, "VEM from Poly2: "+vemFit,"p");
+  //leg->AddEntry(poly, "VEM from BXL-method: "+vemDer,"p");
+  //leg->AddEntry(poly, "(Green line)","");
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->Draw();
-
+/*
   line = new TLine(chCdasVemDer, 0, chCdasVemDer, 170);
   line->SetLineColor(kGreen+3);
   line->SetLineStyle(4);
   line->SetLineWidth(3);
   line->Draw();
+  */
   c11->Print("../plots/offlineChCompaSt863Pmt1.pdf");
 
   vector < double > xRsdCdas;
@@ -619,7 +631,7 @@ void comparisonChOffline()
   line->Draw();
 
   c12->Print("../plots/offlineResidChSt863Pmt1.pdf");
-/*
+
   int chosenEvt = 0;
   for ( int i=0; i<cdasmeInfo->GetEntries(); i++ )
   {
@@ -637,7 +649,15 @@ void comparisonChOffline()
   c13->cd();
 
   poly = graphFitted->GetFunction("poly2");
-  offFunct = new TF1("offFunct","-0.00131403*(x-281.677)*(x-281.677) + 140.319",140,452);
+  //offFunct = new TF1("offFunct","-0.00126428*(x-138.443)*(x-138.443) + 318.509",chOffLow,chOffHigh);
+  offFunct = new TF1("offFunct","-0.00131403*(x-321.677)*(x-321.677) + 140.319",190,450);
+  offlineInfo->GetEntry( etryFailsOff[15] );
+  cout << "Ch: " << chOffVem << endl;
+  cout << "P0: " << chOffP0 << endl;
+  cout << "P1: " << chOffP1 << endl;
+  cout << "P2: " << chOffP2 << endl;
+  cout << "Charge Low: " << chOffLow << endl;
+  cout << "Charge High: " << chOffHigh << endl;
 
   graphFitted->SetTitle("");
   graphFitted->GetXaxis()->SetTitle("[FADC/8.33 ns]");
@@ -651,28 +671,30 @@ void comparisonChOffline()
   graphFitted->Draw("ap");
 
   poly->SetLineColor(kRed);
-  poly->SetLineWidth(4);
+  poly->SetLineWidth(0);
   poly->Draw("same");
 
   offFunct->SetLineColor(kBlue);
   offFunct->SetLineWidth(4);
   offFunct->Draw("same");
 
-  vemCdas.Form("%.2f", chCdasVem);
+  //vemCdas.Form("%.2f", chCdasVem);
   vemOff.Form("%.2f", 281.677);
+  TString strEvt;
+  strEvt.Form("%d", chCdasEvId);
 
   leg = new TLegend(0.39,0.66,0.69,0.86);
-  leg->AddEntry(offFunct, "Failed fit for OffLine, VEM-Charge: "+vemOff, "f");
-  leg->AddEntry(poly, "Fit from BXL, VEM-Charge: "+vemCdas,"f");
+  leg->AddEntry(offFunct, "Failed fit for OffLine, VEM-Charge: "+vemOff, "l");
+  leg->AddEntry(offFunct, "(Event "+strEvt+")", "");
+  //leg->AddEntry(poly, "Fit from BXL, VEM-Charge: "+vemCdas,"l");
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->Draw();
 
-  TString strEvt;
-  strEvt.Form("%d", chCdasEvId);
   cerr << chCdasTime << endl;
+  cerr << strEvt << endl;
   c13->Print("../plots/offlineFailedChargeSt863PMT1Evt"+strEvt+".pdf");
-
+/*
   line = new TLine(chCdasVemDer, 0, chCdasVemDer, 170);
   line->SetLineStyle(4);
   line->SetLineWidth(2);

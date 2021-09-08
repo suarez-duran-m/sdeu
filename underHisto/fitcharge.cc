@@ -93,7 +93,7 @@ TH1F *getSmoothCh(TH1F &hist, double xb[])
 }
 
 
-vector < double > getFitRangeCh( TH1F &h )
+vector < double > getFitRangeCh( TH1F &h, int rightleftBins )
 {
   vector < double > minmax;
   int minRng = 0; // Min for fitting
@@ -106,48 +106,29 @@ vector < double > getFitRangeCh( TH1F &h )
   double rawbinMin = 0.;
 
   for ( int kk=275; kk>125; kk-- ) // from ~2000 FADC backward
-    if ( h.GetBinContent(kk) < 0 )
-    {
-      if ( binMax < fabs( h.GetBinContent( kk ) ) )
-      {
-        binMax = fabs( h.GetBinContent(kk));
-        maxRng = h.GetBinCenter(kk); // Change of concavity
-      }
-    }
-    else
-    {
-      binMax = h.GetBinCenter(kk); // tmp FADC for VEM
-      rawbinMax = kk; // Bin for tmp VEM
-      if ( h.GetBinContent(kk) > 0 )
-        vemDer = h.GetBinCenter(kk) + 4.;
-      // +4 because the zero is between this pixel and
-      // the next one.
-      break;
-    }
-
-  binMin = 0;
-  for ( int kk=rawbinMax; kk>0; kk-- )
     if ( h.GetBinContent(kk) > 0 )
     {
-      if ( binMin < h.GetBinContent(kk) )
+      if ( h.GetBinCenter(kk) < fabs(h.GetBinCenter(kk-1)) )
       {
-        binMin = h.GetBinContent(kk); 
-        minRng = h.GetBinCenter(kk); // Change of concavity
+        binMax = h.GetBinCenter(kk); // tmp FADC for VEM
+        rawbinMax = kk; // Bin for tmp VEM
       }
-    }
-    else
-    {
-      binMin =  h.GetBinCenter(kk);
-      minRng = binMin;
-      rawbinMin = kk;
+      else 
+      {
+        binMax = h.GetBinCenter(kk-1);
+        rawbinMax = kk; // Bin for tmp VEM
+      }
       break;
     }
+  
+  minRng = h.GetBinCenter(rawbinMax-rightleftBins);
+  maxRng = h.GetBinCenter(rawbinMax+rightleftBins);
 
   minmax.push_back( minRng );
   minmax.push_back( maxRng );
-  minmax.push_back( binMax );
-  minmax.push_back( rawbinMin );
-  minmax.push_back( vemDer );
+  minmax.push_back( binMax ); 
+  //minmax.push_back( rawbinMax-rightleftBins );
+  //minmax.push_back( rawbinMax );
 
   return minmax;
 }
@@ -175,7 +156,7 @@ void fitcharge::setChCrr(TH1F &hist, const int corr, TString name)
 }
 
 
-void fitcharge::getFitCh(TH1F &hist) 
+void fitcharge::getFitCh(TH1F &hist, int nblr) 
 {
   TString tmpname;
   tmpname.Form("%d",rand());
@@ -195,7 +176,7 @@ void fitcharge::getFitCh(TH1F &hist)
   TH1F *chargeSmooDerSmth = getSmoothCh(*chargeSmooDer, xfadc);
   chargeSmooDerSmth = getSmoothCh(*chargeSmooDerSmth, xfadc);
 
-  rangeValues = getFitRangeCh(*chargeSmooDerSmth);
+  rangeValues = getFitRangeCh(*chargeSmooDerSmth, nblr);
   rangXmin = rangeValues[0];
   rangXmax = rangeValues[1];
 
@@ -224,85 +205,15 @@ void fitcharge::getFitCh(TH1F &hist)
   double chi2Ndf = 500.; 
   double bestXmin = 0.;
   double bestXmax = 0.;
-
-  for ( int nl=0; nl<10; nl++ ) 
-  {
-    bigRsd = 0;
-    tmp = 0;
-
-    poly2 = new TF1("poly2","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
-    chToFit->Fit("poly2","QR");
-
-    //cerr << poly2->GetChisquare() / poly2->GetNDF() << endl;
-    //if ( poly2->GetChisquare() / poly2->GetNDF() > 0.22) 
-      //cout << "MSD: " << poly2->GetChisquare() / poly2->GetNDF() << endl;
-
-    xResid.clear();
-    yResid.clear();
-    errResid.clear();
-
-    for ( int kbn=1; kbn<nXbins; kbn++ )
-      if ( hist.GetBinCenter(kbn) >= rangXmin && hist.GetBinCenter(kbn) <= rangXmax )
-      {
-        xResid.push_back( hist.GetBinCenter(kbn) );
-        tmp = poly2->Eval( hist.GetBinCenter(kbn) ) - hist.GetBinContent(kbn);
-        yResid.push_back( tmp / sqrt( hist.GetBinContent(kbn) ) );
-        errResid.push_back( sqrt(
-              pow(sqrt( hist.GetBinContent(kbn) ),2) 
-              + pow(sqrt( sqrt(poly2->Eval( hist.GetBinCenter(kbn) ) ) ),2)
-              ) / sqrt( hist.GetBinContent(kbn) ) );
-      }
-
-    for ( int rsd=0; rsd<yResid.size(); rsd++ )
-      if ( fabs ( yResid[rsd] ) > 1 )
-        bigRsd++;
-
-    if ( chi2Ndf > poly2->GetChisquare() / poly2->GetNDF() )
-    {
-      chi2Ndf = poly2->GetChisquare() / poly2->GetNDF();
-      bestXmin = rangXmin;
-      bestXmax = rangXmax;
-    }
-    if ( bigRsd < 0.3*yResid.size() )
-      break;
-    else
-    {
-      rangXmin = (1.+reduceFactor)*rangeValues[0];
-      rangXmax = (1.-reduceFactor)*rangeValues[1];
-      reduceFactor += 0.01;
-    }
-  }
-
-  if ( chi2Ndf < poly2->GetChisquare() / poly2->GetNDF() )
-  {
-    rangXmin = bestXmin;
-    rangXmax = bestXmax;
-    poly2 = new TF1("poly2","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
-    chToFit->Fit("poly2","QR");
-
-    xResid.clear();
-    yResid.clear();
-    errResid.clear();
-    tmp = 0;
-
-    for ( int kbn=1; kbn<nXbins; kbn++ )
-      if ( hist.GetBinCenter(kbn) >= rangXmin && hist.GetBinCenter(kbn) <= rangXmax )
-      {
-        xResid.push_back( hist.GetBinCenter(kbn) );
-        tmp = poly2->Eval( hist.GetBinCenter(kbn) ) - hist.GetBinContent(kbn);
-        yResid.push_back( tmp / sqrt( hist.GetBinContent(kbn) ) );
-        errResid.push_back( sqrt(
-              pow(sqrt( hist.GetBinContent(kbn) ),2) 
-              + pow(sqrt( sqrt(poly2->Eval( hist.GetBinCenter(kbn) ) ) ),2)
-              ) / sqrt( hist.GetBinContent(kbn) ) );
-      }
-  }
+  
+  poly2 = new TF1("poly2","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
+  chToFit->Fit("poly2","QR");
   
   chisCharge = poly2->GetChisquare();
   ndfCharge = poly2->GetNDF();
   probCharge = poly2->GetProb();
 	vemPosCh = -poly2->GetParameter(1) / (2.*poly2->GetParameter(0));
-  vemPosDeri = rangeValues[4];
+  vemPosDeri = rangeValues[2];
 	critGoodFit = 5.5;
   par0 = poly2->GetParameter(0);
   par1 = poly2->GetParameter(1);

@@ -28,7 +28,7 @@ class fitcharge {
 		bool fitChOk;
 
 		void setChCrr(TH1F &hist, const int corr, TString name);
-		void getFitCh(TH1F &hist);
+		void getFitCh(TH1F &hist, int nblr);
 
 		TGraphErrors *getFitGraphCh();
 		TH1F *getChCrr();

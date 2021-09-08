@@ -102,7 +102,9 @@ int main (int argc, char *argv[]) {
         //cout << "# Error " << event.Stations[i].Error << endl;        
 
         IoSdEvent event(pos);
-        if (event.RootClassName == "AugerEvent") {
+        if (event.RootClassName == "AugerEvent") 
+        {
+          cout << "MSD" << endl;
           if (!adFile)
             adFile = new AugerFile(outputName, AugerFile::eWrite);
           adFile->Write(*(event.RawAugerEvent()), false);
