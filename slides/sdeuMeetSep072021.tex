@@ -1,0 +1,693 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{Towards a new calibration algorithm for UUB?}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{The current algorithm (OffLine SdCalibrator Module)}
+  \begin{center}
+    \includegraphics<1>[width=.65\textwidth]{../plots/offlineChCompaSt863Pmt1.pdf}
+  \end{center}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<2->[width=1.\textwidth]{../plots/uubChargeFromOffSt863pmt1.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<3->[width=1.\textwidth]{../plots/offlineFailedChargeSt863PMT1Evt61435819.pdf}
+    \end{column}
+  \end{columns}
+    Find "head-and-shoulder": from the right side of the histogram,
+    search for local maximum (head), surrounded by drops (shoulders)
+    with shoulder/head value ratio less than
+    fChargeWindowShoulderHeadRatio (as default 0.75)
+\end{frame}
+
+% Presentation of BXL-Method
+\begin{frame}
+  \frametitle{Obtaining initial parameters through derivatives} %: Peak histogram Station863}
+  \begin{columns}
+    \begin{column}{0.55\textwidth}
+      \includegraphics<1->[width=1.\textwidth]{../plots/chargeHisto863.pdf}
+    \end{column}
+    \begin{column}{0.55\textwidth}
+      \includegraphics<2->[width=1.\textwidth]{../plots/chargeDerHisto863.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{enumerate}
+    \item<1-> Smoothing the histogram by 15-bin sliding
+      window, $H_S$\\
+    \item<2-> Obtain first derivative of the $H_S$
+      ($\frac{f(x+1)-f(x-1)}{2h}$), $H_{DS}$ (black line)\\
+    \item<3-> Smoothing $H_{DS}$, obtaining $H_{SDS}$ (red line) \\ 
+    \item<4-> Searching for the VEM hump, i.e. first bin for
+      $H_{SDS}$ equal to zero; from right to left. \\
+    \item <5-> Fixing the fitting range using n-bin leftward
+      and n-bin rightward from VEM hump.
+  \end{enumerate}
+\end{frame}
+
+% An example for BXL-Method
+\begin{frame} 
+  \frametitle{Describing the muon hump with a second polynomial}
+  \begin{columns}
+    \begin{column}{0.55\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots/chargeFitPoly2863.pdf}
+    \end{column}
+    \begin{column}{0.55\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots/chargeFitResidualsPoly2863.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Improving BXL-Method
+\begin{frame} 
+  \frametitle{Choosing the number of bins}
+  \begin{enumerate}
+    \item Using the hump value from the derivative as initial parameter
+    \item Fixing the number of bins to the left and right
+      with an extra condition of not reaching the valley
+    \item Checking the spread of the VEM values versus number
+      of used n-bin
+  \end{enumerate}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.55\textwidth}
+        \includegraphics[width=1.\textwidth]{../plots/uubChRmsFitBinsLrSt863.pdf}
+      \end{column}
+      \begin{column}{0.55\textwidth}
+        \includegraphics[width=1.\textwidth]{../plots/uubChRmsFitBinsLrSt863zoom.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+     \hfill $\Rightarrow$ A number of about 35 bins is sufficient 
+\end{frame}
+
+
+% Fail for 25 bins BXL-Method
+%Comparison with OffLine
+\begin{frame} 
+  \frametitle{863 Station}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{LCR}
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt863pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt863pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt863pmt3.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt863pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt863pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt863pmt3.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  From December 2020, this method fit properly all histograms,
+  including the ones for which OffLine-SdCalibrator algorithm
+  fails.
+\end{frame}
+
+\begin{frame} 
+  \frametitle{Station 1740}
+ 
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{LCR}
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1740pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1740pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1740pmt3.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1740pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1740pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1740pmt3.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
+
+\begin{frame} 
+  \frametitle{Station 1729}
+ 
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{LCR}
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1729pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1729pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1729pmt3.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1729pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1729pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1729pmt3.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
+
+\begin{frame} 
+  \frametitle{Station 1221}
+ 
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{LCR}
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1221pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1221pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1221pmt3.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1221pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1221pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1221pmt3.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  Full August. 
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Conclusions and outlook}
+  Towards a fix of the Offline VEM-calibration  
+
+  \begin{itemize}
+    \item[-] The OffLine algorithm fails to find for all the calibration histograms the second peak
+    \item[-] Based on the first derivative of the histograms we
+      can correctly identify the muon hump in all cases ( 18 
+      stations* )
+      \item[-] The new algorithm works on smoothed histograms and
+        the obtained hump values can be used as initial
+        parameters in to obtain the VEM-charge values
+      \item[-] The new algorithm is user-independent
+    \item[-] Implementation in Offline?
+  \end{itemize}
+
+  Statistics for August (see also Alex's and Corinne's analysis)
+
+  \begin{itemize}
+    \item[-] 6/18 stations do not have calibration histograms
+      from August 1st to 27th.
+    \item[-] 0 stations have bad calibration histograms.
+  \end{itemize}
+
+  *Station studied: 863 1222 1219 1211 1740 1743 1221 1217 1747 1741 1745 1818 1851 1729 1735 1746 1819 1791
+
+
+\end{frame}
+
+
+\begin{frame}
+  BACKUP
+\end{frame}
+
+\begin{frame} 
+  \frametitle{BACKUP  Station 863. PMT 2, failed reco. for 25 bins}
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{CC}
+      \begin{tabular}{l}
+        \includegraphics[width=0.45\textwidth]{../plots/uubChSt863Pmt2AprEvt62972307.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.45\textwidth]{../plots/uubChSt863Pmt2Apr35BinsEvt62972307.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+    \includegraphics[width=1.\textwidth]{/home/msd/Pictures/st1729Evt62143810.png}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+    \includegraphics[width=1.\textwidth]{/home/msd/Pictures/st1740Evt61924958.png}
+  \end{center}
+\end{frame}
+
+\begin{frame} 
+  \frametitle{Station 1222}
+ 
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{LCR}
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1222pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1222pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1222pmt3.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1222pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1222pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1222pmt3.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  Full August. 
+\end{frame}
+
+\begin{frame} 
+  \frametitle{Station 1219}
+ 
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{LCR}
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1219pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1219pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1219pmt3.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1219pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1219pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1219pmt3.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  Full August. 
+\end{frame}
+
+\begin{frame} 
+  \frametitle{Station 1211}
+ 
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{LCR}
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1211pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1211pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1211pmt3.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1211pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1211pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1211pmt3.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  Full August. 
+\end{frame}
+
+\begin{frame} 
+  \frametitle{Station 1743}
+ 
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{LCR}
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1743pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1743pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1743pmt3.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1743pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1743pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1743pmt3.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  Full August. 
+\end{frame}
+
+\begin{frame} 
+  \frametitle{Station 1217}
+ 
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{LCR}
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1217pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1217pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1217pmt3.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1217pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1217pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1217pmt3.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  Full August. 
+\end{frame}
+
+\begin{frame} 
+  \frametitle{Station 1747}
+ 
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{LCR}
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1747pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1747pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1747pmt3.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1747pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1747pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1747pmt3.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  Full August. 
+\end{frame}
+
+\begin{frame} 
+  \frametitle{Station 1741}
+ 
+  \begin{figure}
+    \centering
+    \begin{tabularx}{\textwidth}{LCR}
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1741pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1741pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromBlrSt1741pmt3.pdf}
+      \end{tabular}
+      \\
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1741pmt1.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1741pmt2.pdf}
+      \end{tabular}
+      &
+      \begin{tabular}{l}
+        \includegraphics[width=0.33\textwidth]{../plots/uubChargeFromOffSt1741pmt3.pdf}
+      \end{tabular}
+    \end{tabularx}
+  \end{figure}
+  Full August. 
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+\end{document}
+
+% How well the improvement is
+%\begin{frame} 
+%  \frametitle{How well the improvement is}
+%  {\bf 863 Station}
+%  \begin{figure}
+%    \centering
+%    \begin{tabularx}{\textwidth}{LCR}
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromDerSt863pmt1.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromDerSt863pmt2.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromDerSt863pmt3.pdf}
+%      \end{tabular}
+%      \\
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromBlrSt863pmt1.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromBlrSt863pmt2.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromBlrSt863pmt3.pdf}
+%      \end{tabular}
+%    \end{tabularx}
+%  \end{figure}
+%\end{frame}
+%
+%\begin{frame} 
+%  \frametitle{How well the improvement is}
+%  {\bf 1740 Station}
+%  \begin{figure}
+%    \centering
+%    \begin{tabularx}{\textwidth}{LCR}
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromDerSt1740pmt1.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromDerSt1740pmt2.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromDerSt1740pmt3.pdf}
+%      \end{tabular}
+%      \\
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromBlrSt1740pmt1.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromBlrSt1740pmt2.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromBlrSt1740pmt3.pdf}
+%      \end{tabular}
+%    \end{tabularx}
+%  \end{figure}
+%\end{frame}
+%
+%\begin{frame} 
+%  \frametitle{How well the improvement is}
+%  {\bf 1729 Station}
+%  \begin{figure}
+%    \centering
+%    \begin{tabularx}{\textwidth}{LCR}
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromDerSt1729pmt1.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromDerSt1729pmt2.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromDerSt1729pmt3.pdf}
+%      \end{tabular}
+%      \\
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromBlrSt1729pmt1.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromBlrSt1729pmt2.pdf}
+%      \end{tabular}
+%      &
+%      \begin{tabular}{l}
+%        \includegraphics[width=0.34\textwidth]{../plots/uubChargeFromBlrSt1729pmt3.pdf}
+%      \end{tabular}
+%    \end{tabularx}
+%  \end{figure}
+%\end{frame}

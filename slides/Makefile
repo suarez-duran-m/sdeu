@@ -1,4 +1,4 @@
-base=miniReport
+base=sdeuMeetSep072021
 #version=_v5
 name=${base}
 #name=${base}${version}
