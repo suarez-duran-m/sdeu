@@ -1,5 +1,4 @@
-TCanvas *canvasStyle(TString name)
-{
+TCanvas *canvasStyle(TString name) {
   TCanvas *canvas = new TCanvas(name, name, 1600, 900);
   canvas->SetBorderMode(0);
   canvas->SetBorderSize(2);
@@ -11,8 +10,7 @@ TCanvas *canvasStyle(TString name)
   return canvas;
 }
 
-void histoStyle(TH1F *hist)
-{
+void histoStyle(TH1F *hist) {
   hist->GetXaxis()->SetTitleOffset(1.3);
   hist->GetXaxis()->SetTitleSize(0.05);
   hist->GetXaxis()->SetLabelSize(0.05);
@@ -22,8 +20,7 @@ void histoStyle(TH1F *hist)
 }
 
 
-void histoStyle(TGraphErrors *hist)
-{
+void histoStyle(TGraphErrors *hist) {
   hist->GetXaxis()->SetTitleOffset(1.3);
   hist->GetXaxis()->SetTitleSize(0.05);
   hist->GetXaxis()->SetLabelSize(0.05);
@@ -40,8 +37,7 @@ double fitFunctionCh(double *x0, double *par) {
 }
 
 
-TH1F *getSmooth(TH1F &hist, double xb[])
-{
+TH1F *getSmooth(TH1F &hist, double xb[]) {
 	unsigned int nb = 600;
   double yi = 0.;
 
@@ -67,8 +63,7 @@ TH1F *getSmooth(TH1F &hist, double xb[])
 }
 
 
-TH1F *histDerivative(TH1F &hist, double xb[]) // Central differences
-{
+TH1F *histDerivative(TH1F &hist, double xb[]) { // Central differences
   int nbins = 600;
   int h = 0;
   TH1F *derihist = new TH1F("derihist", "", nbins, xb);
@@ -84,8 +79,7 @@ TH1F *histDerivative(TH1F &hist, double xb[]) // Central differences
 }
 
 
-double chargeMaxPk(TF1* f) 
-{
+double chargeMaxPk(TF1* f) {
 	TCanvas* c = new TCanvas("c","c",800,600);
   TGraph* der = (TGraph*)f->DrawDerivative("goff");
   double * x = der->GetX();
@@ -111,8 +105,7 @@ double chargeMaxPk(TF1* f)
 // ==================================
 // *** ***  *** MAIN CODE *** *** *** 
 
-void readFitChargeHisto()
-{
+void readFitChargeHisto() {
 
   TString dir = gSystem->UnixPathName(gInterpreter->GetCurrentMacroName());
   dir.ReplaceAll("readFitChargeHisto.C","");

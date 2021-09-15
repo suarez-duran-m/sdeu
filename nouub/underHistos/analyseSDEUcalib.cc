@@ -46,24 +46,26 @@ double getrms( vector<int> *arr, double meanarr, unsigned int nb, bool lok ){
 // ******** The MAIN ********
 // ==========================
 int main (int argc, char *argv[]) {
-   if ( argc < 4 ) {
-		 cout << endl
-         << "Usage: " << argv[0] << " <stationsFile>  <PMT>  <Month> <files>" << endl
-         << "  <stationsFile>: file with a list of stations" << endl
-         << "  <PMT>: ID for the PMT you want to analyse" << endl
-         << "  <Month>: Month in which you want to analyse" << endl
-         << "  <files>: IoSd or IoAuger files to be read" << endl
-				 << " " << endl
-				 << "In case you want the distribution of all events for a specific Station, " << endl
-				 << "just make sure the stationsFile conteins a single station." << endl
-				 << endl;
- 		 exit(0);
-	 }	
+  if ( argc < 5 ) {
+    cout << endl
+      << "Usage: " << argv[0] << " <stationsFile>  <PMT>  <Month> <files>" << endl
+      << "  <stationsFile>: file with a list of stations" << endl
+      << "  <PMT>: ID for the PMT you want to analyse" << endl
+      << "  <lrb>: N bins for fit (n towards left, n towards right)" << endl
+      << "  <Month>: Month in which you want to analyse" << endl
+      << "  <files>: IoSd or IoAuger files to be read" << endl
+			<< " " << endl
+			<< "In case you want the distribution of all events for a specific Station, " << endl
+			<< "just make sure the stationsFile conteins a single station." << endl
+			<< endl;
+    exit(0);
+  }	
 
   const char* stationsFileName = argv[1];
   const char* whichpmt = argv[2];
-  const char* whichmonth = argv[3];
-  AugerIoSd input(argc-4, argv+4);
+  const char* nlrb = argv[3];
+  const char* whichmonth = argv[4];
+  AugerIoSd input(argc-5, argv+5);
   const unsigned int totalNrEvents = input.NumberOfEvents();
 
   ifstream stationsFile(stationsFileName, ios::in);
@@ -86,6 +88,7 @@ int main (int argc, char *argv[]) {
   
   TString nameStati = to_string( stationsIds[0] );
   TString pmtname = whichpmt;
+  TString strNblr = nlrb;
   int pmtId= atoi( pmtname );
   if ( pmtId > 0 && pmtId < 4 ){
      pmtname = "PMT"+to_string( pmtId );
@@ -110,42 +113,49 @@ int main (int argc, char *argv[]) {
 		pmtname += "St"+to_string( stationsIds[0] );
  
   string doMonth = string(whichmonth);
-  pmtname +=  "Mth" + doMonth;
-  TFile hfile("ubAoP"+pmtname+".root","RECREATE","");
+  pmtname +=  "lrb" + strNblr + doMonth + "2020";
+  
+  TFile hfile("ubChPk"+pmtname+".root","RECREATE","");
+  //TFile hfile("kk.root", "RECREATE","");
 
 	TH1F *recePk = new TH1F (); // Receive Pk from IoSdStation::HPeak
 	TH1F *receCh = new TH1F (); // Receive Ch from IoSdStation::HCharge
 
   TGraphErrors *pkHistFit = new TGraphErrors();
+  TH1F *pkForFit = new TH1F();
   double pkChi2 = 0.;
-  double pkNdf = 0.;
+  int pkNdf = 0.;
   double pkProb = 0.;
   double peak = 0.;
+  double peakDeri = 0.;
   double pkLow = 0.;
   double pkHigh = 0.;
-  double pkPar0 = 0.;
-  double pkPar1 = 0.;
-  double pkPar2 = 0.;
+  double pkPar0 = 0.; 
+  double pkPar1 = 0.; 
+  double pkPar2 = 0.; 
 
   TGraphErrors *chHistFit = new TGraphErrors();
+  TH1F *chForFit = new TH1F();
   double chChi2 = 0.;
-  double chNdf = 0.;
+  int chNdf = 0.;
   double chProb = 0.;
   double charge = 0.;
+  double chargeDeri = 0.;
   double chLow = 0.;
   double chHigh = 0.;
   double chPar0 = 0.; 
   double chPar1 = 0.; 
-  double chPar2 = 0.; 
+  double chPar2 = 0.;
 
   unsigned int evtIdPk = 0; //Storing event Id
   unsigned int evtTimePk = 0; //Storing day-Unixtime
   unsigned int evtIdCh = 0; //Storing event Id
-  unsigned int evtTimeCh = 0; //Storing day-Unixtime
+  unsigned int evtTimeCh = 0; //Storing day-Unixtime             
   unsigned int previusEvent = 0; // Avoiding read the same event
   unsigned int nrEventsRead = 0;
   unsigned int nrEvents = 0;
   bool found = false;
+	double blCorrHbase = 0.;    
 
   TH1F *tmp = new TH1F();
   TString tmpName;
@@ -158,9 +168,11 @@ int main (int argc, char *argv[]) {
   TTree *treeCharge = new TTree("ChargeData","");
 
   treePeak->Branch("graph","TGraphErrors",&pkHistFit,32000,0);
+  treePeak->Branch("peakForFit","TH1F",&pkForFit,32000,0);
   treePeak->Branch("peakVal",&peak,"peak/D");
+  treePeak->Branch("peakValDer",&peakDeri,"peakDeri/D");
   treePeak->Branch("chi2",&pkChi2,"pkChi2/D");
-  treePeak->Branch("ndf",&pkNdf,"pkNdf/D");
+  treePeak->Branch("ndf",&pkNdf,"pkNdf/I");
   treePeak->Branch("prob",&pkProb,"pkProb/D");
   treePeak->Branch("low",&pkLow,"pkLow/D");
   treePeak->Branch("high",&pkHigh,"pkHigh/D");
@@ -170,13 +182,15 @@ int main (int argc, char *argv[]) {
   treePeak->Branch("eventId",&evtIdPk,"evtIdPk/I");
   treePeak->Branch("timeEvnt",&evtTimePk,"evtTimePk/I");
 
+  treeCharge->Branch("graph","TGraphErrors",&chHistFit,32000,0);
+  treeCharge->Branch("chargeForFit","TH1F",&chForFit,32000,0);
   treeCharge->Branch("chargeVal",&charge,"charge/D");
+  treeCharge->Branch("chargeValDer",&chargeDeri,"chargeDeri/D");
   treeCharge->Branch("chi2",&chChi2,"chChi2/D");
-  treeCharge->Branch("ndf",&chNdf,"chNdf/D");
+  treeCharge->Branch("ndf",&chNdf,"chNdf/I");
   treeCharge->Branch("prob",&chProb,"chProb/D");
   treeCharge->Branch("low",&chLow,"chLow/D");
-  treeCharge->Branch("hight",&chHigh,"chHigh/D");
-  treeCharge->Branch("eventId",&evtIdCh,"evtIdCh/I");
+  treeCharge->Branch("high",&chHigh,"chHigh/D");
   treeCharge->Branch("chPar0",&chPar0,"chPar0/D");
   treeCharge->Branch("chPar1",&chPar1,"chPar1/D");
   treeCharge->Branch("chPar2",&chPar2,"chPar2/D");
@@ -196,9 +210,6 @@ int main (int argc, char *argv[]) {
 
     TEcEvent event(pos);
     if ( event.Id == previusEvent )
-      continue;
-
-    if ( event.utctime() > 1603797703 && event.utctime() < 1605395135 )
       continue;
 
     previusEvent = event.Id;
@@ -227,6 +238,7 @@ int main (int argc, char *argv[]) {
       blCorrHbase = ( fabs(blCorrHbase - recePk->GetBinCenter(1) < 20 ) ? (recePk->GetBinCenter(1)):0 ); // From OffLine
       fitPk.getCrr(*recePk, blCorrHbase, tmpName+"Hbpk"); // Correcting for calib-baseline
       tmp = fitPk.getPkCorr(); // Receiving corrected histogram
+      pkForFit = fitPk.getPkCorr();      
       fitPk.getFitPk(*tmp); // Fitting
 
       pkHistFit = fitPk.getFitGraphPk();
@@ -240,42 +252,24 @@ int main (int argc, char *argv[]) {
       pkPar1 = fitPk.par1;
       pkPar2 = fitPk.par2;
 
-      /*
-      if ( pkChi2/pkNdf > 4 ) //&& pkChi2/pkNdf < 5 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
-      {
-      cout << "MSD " << " " << event.Id << " " << event.UTCTime << " " << pkChi2 << " " << pkNdf << " " << pkChi2/pkNdf << endl;
-      for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
-      cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
-      exit(0);
-      }
-      */
-      //exit(0);
-      //}
-    
       receCh = event.Stations[i].HCharge(pmtId-1);
-      fitCh.getChCrr(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6]/20., tmpName+"Hbch");
+      fitCh.setChCrr(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6], tmpName+"Hbch");
       tmp = fitCh.getChCrr();
-      fitCh.getFitCh(*tmp);
+      chForFit = fitCh.getChCrr();
+      fitCh.getFitCh(*tmp, atoi(argv[3]) );
       
       chHistFit = fitCh.getFitGraphCh();
       chChi2 = fitCh.chisCharge;
       chNdf = fitCh.ndfCharge;
       chProb = fitCh.probCharge;
       charge =  fitCh.vemPosCh;
+      chargeDeri = fitCh.vemPosDeri;
       chLow = fitCh.rangXmin;
       chHigh = fitCh.rangXmax;
       chPar0 = fitCh.par0;
       chPar1 = fitCh.par1;
       chPar2 = fitCh.par2;
-      /*
-      if ( chChi2/chNdf > 3 ) //5.0e+08 ) //( pkChi2/pkNdf > 1.3 && pkChi2/pkNdf < 1.7 )
-      {
-      cout << "MSD " << event.Id << " " << chChi2 << " " << chNdf << " " << chChi2/chNdf << endl;
-      for ( int kk=0; kk<tmp->GetXaxis()->GetNbins(); kk++ )
-      cout << kk << " " << tmp->GetBinCenter(kk) << " " << tmp->GetBinContent(kk) << endl;
-      exit(0);
-      }
-      */
+
       evtIdPk = event.Id;
       evtIdCh = event.Id;
       evtTimePk = event.utctime() - 315964782;
@@ -283,8 +277,7 @@ int main (int argc, char *argv[]) {
 
       treePeak->Fill();
       treeCharge->Fill();
-      //exit(0);
-      //}
+      
       break; // Apply if the is running for a single station.
     }
   }

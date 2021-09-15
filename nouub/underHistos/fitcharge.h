@@ -15,19 +15,20 @@ class fitcharge {
   public:
 		fitcharge();
     double vemPosCh;
+    double vemPosDeri;
     double chisCharge;
     double ndfCharge;
     double probCharge;
+		int rangXmin;
+		int rangXmax;
     double par0;
     double par1;
     double par2;
-		int rangXmin;
-		int rangXmax;
 		bool getGraph;
 		bool fitChOk;
 
-		void getChCrr(TH1F &hist, const int corr, TString name);
-		void getFitCh(TH1F &hist);
+		void setChCrr(TH1F &hist, const int corr, TString name);
+		void getFitCh(TH1F &hist, int nblr);
 
 		TGraphErrors *getFitGraphCh();
 		TH1F *getChCrr();
