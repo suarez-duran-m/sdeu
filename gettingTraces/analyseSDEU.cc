@@ -104,11 +104,10 @@ int main (int argc, char *argv[]) {
         IoSdEvent event(pos);
         if (event.RootClassName == "AugerEvent") 
         {
-          cout << "MSD" << endl;
           if (!adFile)
             adFile = new AugerFile(outputName, AugerFile::eWrite);
           adFile->Write(*(event.RawAugerEvent()), false);
-        }     
+        } 
         else { 
           if (!sdFile)
             sdFile = new IoSd(outputName, "w");
