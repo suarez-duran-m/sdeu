@@ -70,7 +70,6 @@ void getResiduals( TGraphErrors *grphErr, TF1 *func,
 
 vector < double > fillingCh( TString bname, TString st, int pmt, TString whichInfo)
 {
-  //TString monthUub[] = {"dec", "jan", "feb", "mar", "abr", "may", "jun", "jul"};
   TString monthUub[] = {"dec", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug"};
   TString pmtId;
   pmtId.Form("%d", pmt);
@@ -638,7 +637,7 @@ void readingChMonthsFitting(int st)
   chPmt3->GetXaxis()->SetTitle("Time [month/day]");
   chPmt3->GetXaxis()->SetTimeOffset(315964782,"gmt");
   chPmt3->GetYaxis()->SetTitle("VEM-Charge [FADC]");
-  chPmt3->GetYaxis()->SetRangeUser(0, 2200); //2200 for 1729; 1800 others
+  chPmt3->GetYaxis()->SetRangeUser(0, 2900); //2200 for 1729; 1800 others
   chPmt3->SetMarkerStyle(25);
   chPmt3->SetMarkerSize(2);
   chPmt3->SetMarkerColor(kAzure+10);
@@ -656,7 +655,7 @@ void readingChMonthsFitting(int st)
 
   avePkStr.Form("%.2f", meanPmt3);
   rmsPkStr.Form("%.2f", rmsPmt3);
-  leg = new TLegend(0.15,0.31,0.52,0.5);
+  leg = new TLegend(0.15,0.2,0.52,0.45);
   leg->SetHeader("PMT3");
   leg->AddEntry(chPmt3, "From Fit (Ave.: "+avePkStr+", RMS: "+rmsPkStr+")","p");
   avePkStr.Form("%.2f", meanDerPmt3);
@@ -665,9 +664,10 @@ void readingChMonthsFitting(int st)
   strTotEvt.Form("%d", (int)chargePmt3.size());
   leg->AddEntry(chDerPmt3, "From Der. (Ave.: "+avePkStr+", RMS: "+rmsPkStr+")","p");
   leg->AddEntry(chPmt3, "Fails: "+strFails+"/"+strTotEvt,"");
-  leg->SetTextSize(0.06);
+  leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->Draw();
+
   //c3->Print("../plots/uubChargeFromDerSt"+statId+"pmt3.pdf");
   c3->Print("../plots/uubChargeFromBlrSt"+statId+"pmt3.pdf");
 
@@ -704,4 +704,5 @@ void readingChMonthsFitting(int st)
   histoStyle(chDayPmt1);
   chDayPmt1->Draw("AP"); 
   */
+  exit(0);
 }

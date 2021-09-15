@@ -80,6 +80,8 @@ vector < double > fillingCh( TString bname, TString st, int pmt, TString whichIn
   double tmpVals = 0.;
   vector < double > returnVals;
   int evtId = 0;
+  int evttime = 0;
+  int prevEvtime = 0;
   TString ngr;
   TString vem;
   TString pmtStr;
@@ -95,11 +97,17 @@ vector < double > fillingCh( TString bname, TString st, int pmt, TString whichIn
     tmpVals = 0.;
     chargeInfo->SetBranchAddress(whichInfo, &tmpVals); 
     chargeInfo->SetBranchAddress("evtId", &evtId);
+    chargeInfo->SetBranchAddress("GpsTime", &evttime);
 
+    prevEvtime = 0;
     for( int etry=0; etry<chargeInfo->GetEntries(); etry++)
     {
       chargeInfo->GetEntry(etry);
-      returnVals.push_back( tmpVals );
+      if ( prevEvtime != evttime )
+      {
+        returnVals.push_back( tmpVals );
+        prevEvtime = evttime;
+      }
     }
   }
   chargeInfo->Delete();
@@ -117,6 +125,8 @@ vector < int > fillingCh( TString bname, TString st, int pmt, bool whichInfo)
   TTree *chargeInfo;
   
   int tmpVals = 0;
+  int evttime = 0;
+  int prevEvtime = 0;
   vector < int > returnVals;
   int nMonths = 8;
 
@@ -135,11 +145,27 @@ vector < int > fillingCh( TString bname, TString st, int pmt, bool whichInfo)
 
     tmpVals = 0.;
     chargeInfo->SetBranchAddress(getinfo, &tmpVals);
+    if ( !whichInfo )
+      chargeInfo->SetBranchAddress("GpsTime", &evttime);
 
+    prevEvtime = 0;
     for( int etry=0; etry<chargeInfo->GetEntries(); etry++)
     {
       chargeInfo->GetEntry(etry);
-      returnVals.push_back( tmpVals );
+      if ( !whichInfo )
+      {
+        if ( prevEvtime != evttime )
+        {
+          returnVals.push_back( tmpVals );
+          prevEvtime = evttime;
+        }
+      }
+      else
+        if ( prevEvtime != tmpVals )
+        {
+          returnVals.push_back( tmpVals );
+          prevEvtime = tmpVals;
+        }
     }
   }
   chargeInfo->Delete();
@@ -162,6 +188,7 @@ vector < double > failingCh( TString bname, int st, int pmt, TString whichInfo)
   vector < double > returnVals;
   int evtId = 0;
   int evttime = 0;
+  int prevEvtime = 0;
   TString ngr;
   TString vem;
   TString pmtStr;
@@ -178,20 +205,23 @@ vector < double > failingCh( TString bname, int st, int pmt, TString whichInfo)
     chargeInfo->SetBranchAddress(whichInfo, &tmpVals); 
     chargeInfo->SetBranchAddress("evtId", &evtId);
     chargeInfo->SetBranchAddress("GpsTime", &evttime);
-
+    
+    prevEvtime = 0;
     for( int etry=0; etry<chargeInfo->GetEntries(); etry++)
     {
       chargeInfo->GetEntry(etry);
-      if ( st!=1729 )
-      {
-        if ( evttime < 1308441618 || evttime > 1314057618 )
-          if ( tmpVals < 1e3 || tmpVals > 2e3 )
-            returnVals.push_back( tmpVals );
-      }
-      else
+      //if ( evttime < 1308441618 || evttime > 1314057618 )
+      //  if ( tmpVals < 1e3 || tmpVals > 2e3 )
+      //    returnVals.push_back( tmpVals );
+      if ( prevEvtime != evttime )
       {
         if ( tmpVals < 1e3 || tmpVals > 2e3 )
+        {
           returnVals.push_back( tmpVals );
+          if ( pmt==3 )
+            cout << evtId << endl;
+        }
+        prevEvtime = evttime; 
       }
     }
   }
@@ -397,7 +427,7 @@ void readingChMonthsFittingOff(int st)
   chPmt3->GetXaxis()->SetTitle("Time [month/day]");
   chPmt3->GetXaxis()->SetTimeOffset(315964782,"gmt");
   chPmt3->GetYaxis()->SetTitle("VEM-Charge [FADC]");
-  chPmt3->GetYaxis()->SetRangeUser(0, 2200);
+  chPmt3->GetYaxis()->SetRangeUser(0, 2900);
   chPmt3->SetMarkerStyle(25);
   chPmt3->SetMarkerSize(2);
   chPmt3->SetMarkerColor(kAzure+10);
@@ -410,11 +440,11 @@ void readingChMonthsFittingOff(int st)
   rmsChStr.Form("%.2f", rmsPmt3);
   strFails.Form("%d", pmt3fails);
   strTotEvt.Form("%d", (int)chargePmt3.size());
-  leg = new TLegend(0.15,0.31,0.52,0.5);
+  leg = new TLegend(0.15,0.2,0.52,0.45);
   leg->SetHeader("PMT3");
   leg->AddEntry(chPmt3, "From OffLine (Ave.: "+aveChStr+", RMS: "+rmsChStr+")","p");
   leg->AddEntry(chPmt3, "Fails: "+strFails+"/"+strTotEvt,"");
-  leg->SetTextSize(0.06);
+  leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->Draw();
   c3->Print("../plots/uubChargeFromOffSt"+statId+"pmt3.pdf");

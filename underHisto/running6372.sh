@@ -17,7 +17,7 @@
 
 listfile=$1
 
-for st in $(seq 1 9);
+for st in $(seq 1 10);
 do
   head -${st} ../listStations${listfile}.txt | tail -1 > list${listfile}${st}.txt
   for pmt in $(seq 1 3);

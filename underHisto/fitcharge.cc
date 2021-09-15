@@ -35,26 +35,7 @@ TH1F *histDerivativeCh(TH1F &hist, double xb[]) // Central differences
   return derihist;
 }
 
-fitcharge::fitcharge() 
-{
-	vemPosCh = 0.;
-  vemPosDeri = 0.;
-	getGraph = false;
-	fitChOk = false;
-
-  chisCharge = 0.;
-  par0 = 0.;
-  par1 = 0.;
-  par2 = 0.;
-	rangXmin = 0;
-	rangXmax = 0;
-	nXbins = 0;
-	critGoodFit = 0.;
-}
-
-
-TH1F *getSmoothCh(TH1F &hist, double xb[])
-{
+TH1F *getSmoothCh(TH1F &hist, double xb[]) {
 	unsigned int nb = 600;
   double yi = 0.;
 
@@ -63,10 +44,8 @@ TH1F *getSmoothCh(TH1F &hist, double xb[])
 
 	TH1F *hstSmooth = new TH1F(tmpname, "", nb, xb);
 
-	for ( unsigned b=0; b<nb; b++ )
-  {
-    if ( b>6 && b<nb-7 )
-    {
+	for ( unsigned b=0; b<nb; b++ ) {
+    if ( b>6 && b<nb-7 ) {
       yi = hist.GetBinContent(b+1 - 7) 
         + hist.GetBinContent(b+1 - 6) 
         + hist.GetBinContent(b+1 - 5) 
@@ -92,9 +71,8 @@ TH1F *getSmoothCh(TH1F &hist, double xb[])
   return hstSmooth;
 }
 
+vector < double > getFitRangeCh( TH1F &h, int rightleftBins ) {
 
-vector < double > getFitRangeCh( TH1F &h, int rightleftBins )
-{
   vector < double > minmax;
   int minRng = 0; // Min for fitting
 	int maxRng = 0; // Max for fitting
@@ -105,9 +83,8 @@ vector < double > getFitRangeCh( TH1F &h, int rightleftBins )
   double rawbinMax = 0.;
   double rawbinMin = 0.;
 
-  for ( int kk=275; kk>125; kk-- ) // from ~2000 FADC backward
-    if ( h.GetBinContent(kk) > 0 )
-    {
+  for ( int kk=275; kk>125; kk-- ) {// from ~2000 FADC backward
+    if ( h.GetBinContent(kk) > 0 ) {
       if ( h.GetBinCenter(kk) < fabs(h.GetBinCenter(kk-1)) )
       {
         binMax = h.GetBinCenter(kk); // tmp FADC for VEM
@@ -120,6 +97,7 @@ vector < double > getFitRangeCh( TH1F &h, int rightleftBins )
       }
       break;
     }
+  }
   
   minRng = h.GetBinCenter(rawbinMax-rightleftBins);
   maxRng = h.GetBinCenter(rawbinMax+rightleftBins);
@@ -133,6 +111,23 @@ vector < double > getFitRangeCh( TH1F &h, int rightleftBins )
   return minmax;
 }
 
+
+fitcharge::fitcharge() 
+{
+	vemPosCh = 0.;
+  vemPosDeri = 0.;
+	getGraph = false;
+	fitChOk = false;
+
+  chisCharge = 0.;
+  par0 = 0.;
+  par1 = 0.;
+  par2 = 0.;
+	rangXmin = 0;
+	rangXmax = 0;
+	nXbins = 0;
+	critGoodFit = 0.;
+}
 
 void fitcharge::setChCrr(TH1F &hist, const int corr, TString name) 
 {

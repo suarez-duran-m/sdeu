@@ -1,5 +1,4 @@
-TCanvas *canvasStyle(TString name)
-{
+TCanvas *canvasStyle(TString name) {
   TCanvas *canvas = new TCanvas(name, name, 1600, 900);
   canvas->SetBorderMode(0);
   canvas->SetBorderSize(2);
@@ -11,8 +10,7 @@ TCanvas *canvasStyle(TString name)
   return canvas;
 }
 
-void histoStyle(TH1F *hist)
-{
+void histoStyle(TH1F *hist) {
   hist->GetXaxis()->SetTitleOffset(1.3);
   hist->GetXaxis()->SetTitleSize(0.05);
   hist->GetXaxis()->SetLabelSize(0.05);
@@ -22,8 +20,7 @@ void histoStyle(TH1F *hist)
 }
 
 
-void histoStyle(TGraphErrors *hist)
-{
+void histoStyle(TGraphErrors *hist) {
   hist->GetXaxis()->SetTitleOffset(1.3);
   hist->GetXaxis()->SetTitleSize(0.05);
   hist->GetXaxis()->SetLabelSize(0.05);
@@ -32,8 +29,7 @@ void histoStyle(TGraphErrors *hist)
   hist->GetYaxis()->SetTitleSize(0.05);
 }
 
-double fitFunctionCh(double *x0, double *par) 
-{
+double fitFunctionCh(double *x0, double *par) {
 	const double x = 1./x0[0];
   const double lognormal = exp(par[0])*x*exp( -0.5*pow( ((log(x)+log(par[1]))*par[2]),2 ) );
   const double expo = exp( par[3] - par[4]*x );
@@ -41,8 +37,7 @@ double fitFunctionCh(double *x0, double *par)
 }
 
 
-TH1F *getSmooth(TH1F &hist, double xb[])
-{
+TH1F *getSmooth(TH1F &hist, double xb[]) {
 	unsigned int nb = 600;
   double yi = 0.;
 
@@ -81,8 +76,7 @@ TH1F *getSmooth(TH1F &hist, double xb[])
 }
 
 
-TH1F *histDerivative(TH1F &hist, double xb[]) // Central differences
-{
+TH1F *histDerivative(TH1F &hist, double xb[]) { // Central differences
   int nbins = 600;
   int h = 0;
   TString tmpname;
@@ -100,8 +94,7 @@ TH1F *histDerivative(TH1F &hist, double xb[]) // Central differences
 }
 
 
-vector < double > getFitRange( TH1F &h )
-{
+vector < double > getFitRange( TH1F &h ) {
   vector < double > minmax;
   int minRng = 0; // Min for fitting
 	int maxRng = 0; // Max for fitting
@@ -159,8 +152,7 @@ vector < double > getFitRange( TH1F &h )
 }
 
 
-double chargeMaxPk(TF1* f) 
-{
+double chargeMaxPk(TF1* f) {
 	TCanvas* c = new TCanvas("c","c",800,600);
   TGraph* der = (TGraph*)f->DrawDerivative("goff");
   double * x = der->GetX();
@@ -185,8 +177,7 @@ double chargeMaxPk(TF1* f)
 
 void getResiduals( TH1F *hist, TF1 *func,
     double rangMin, double rangMax,
-    vector < double > &x, vector < double > &y, vector < double > &err )
-{
+    vector < double > &x, vector < double > &y, vector < double > &err ) {
   int nbins = hist->GetXaxis()->GetNbins();
   double tmp = 0.;
   for ( int kbin=1; kbin<nbins; kbin++ )
