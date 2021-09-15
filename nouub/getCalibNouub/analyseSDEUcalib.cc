@@ -22,18 +22,18 @@ using namespace std;
 // ******** The MAIN ********
 // ==========================
 int main (int argc, char *argv[]) {
-   if ( argc < 4 ) {
-		 cout << endl
-         << "Usage: " << argv[0] << " <stationsFile>  <PMT>  <files>" << endl
-         << "  <stationsFile>: file with a list of stations" << endl
-         << "  <PMT>: ID for the PMT you want to analyse" << endl
-         << "  <files>: IoSd or IoAuger files to be read" << endl
-				 << " " << endl
-				 << "In case you want the distribution of all events for a specific Station, " << endl
-				 << "just make sure the stationsFile conteins a single station." << endl
-				 << endl;
- 		 exit(0);
-	 }
+  if ( argc < 4 ) {
+    cout << endl
+      << "Usage: " << argv[0] << " <stationsFile>  <PMT>  <files>" << endl
+      << "  <stationsFile>: file with a list of stations" << endl
+      << "  <PMT>: ID for the PMT you want to analyse" << endl
+      << "  <files>: IoSd or IoAuger files to be read" << endl
+			<< " " << endl
+			<< "In case you want the distribution of all events for a specific Station, " << endl
+			<< "just make sure the stationsFile conteins a single station." << endl
+			<< endl;
+    exit(0);
+  }
 	
 	stats getmrms;
 	readHistos rdHist;
@@ -64,7 +64,7 @@ int main (int argc, char *argv[]) {
   TString nameStati = to_string( stationsIds[0] );
   TString pmtname = whichpmt;
   int pmtId= atoi( pmtname );
-  if ( pmtId > 0 && pmtId < 4 ){
+  if ( pmtId > 0 && pmtId < 4 ) {
      pmtname = "PMT"+to_string( pmtId );
   }
   else if ( pmtId == 4 )
