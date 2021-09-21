@@ -1,0 +1,2431 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{UUB Monitoring}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+\begin{frame} 
+  \frametitle{Station 56}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt56Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt56Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt56Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt56Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt56Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt56Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 59}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt59Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt59Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt59Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt59Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt59Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt59Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 545}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt545Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt545Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt545Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt545Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt545Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt545Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 804}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt804Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt804Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt804Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt804Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt804Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt804Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 806}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt806Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt806Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt806Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt806Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt806Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt806Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 827}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt827Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt827Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt827Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt827Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt827Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt827Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 830}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt830Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt830Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt830Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt830Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt830Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt830Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 832}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt832Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt832Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt832Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt832Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt832Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt832Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 833}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt833Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt833Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt833Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt833Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt833Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt833Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 836}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt836Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt836Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt836Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt836Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt836Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt836Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 840}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt840Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt840Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt840Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt840Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt840Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt840Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 843}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt843Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt843Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt843Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt843Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt843Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt843Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 846}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt846Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt846Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt846Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt846Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt846Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt846Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 849}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt849Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt849Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt849Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt849Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt849Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt849Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 850}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt850Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt850Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt850Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt850Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt850Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt850Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 851}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt851Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt851Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt851Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt851Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt851Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt851Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 853}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt853Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt853Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt853Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt853Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt853Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt853Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 856}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt856Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt856Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt856Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt856Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt856Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt856Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 859}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt859Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt859Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt859Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt859Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt859Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt859Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 860}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt860Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt860Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt860Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt860Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt860Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt860Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 862}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt862Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt862Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt862Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt862Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt862Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt862Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 863}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt863Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt863Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt863Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt863Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt863Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt863Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 864}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt864Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt864Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt864Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt864Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt864Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt864Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 866}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt866Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt866Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt866Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt866Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt866Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt866Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 868}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt868Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt868Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt868Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt868Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt868Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt868Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 871}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt871Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt871Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt871Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt871Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt871Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt871Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1185}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1185Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1185Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1185Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1185Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1185Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1185Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1190}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1190Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1190Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1190Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1190Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1190Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1190Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1191}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1191Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1191Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1191Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1191Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1191Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1191Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1198}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1198Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1198Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1198Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1198Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1198Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1198Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1205}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1205Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1205Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1205Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1205Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1205Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1205Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1207}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1207Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1207Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1207Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1207Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1207Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1207Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1208}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1208Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1208Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1208Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1208Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1208Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1208Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1209}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1209Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1209Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1209Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1209Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1209Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1209Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1210}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1210Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1210Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1210Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1210Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1210Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1210Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1211}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1211Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1211Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1211Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1211Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1211Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1211Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1213}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1213Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1213Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1213Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1213Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1213Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1213Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1214}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1214Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1214Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1214Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1214Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1214Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1214Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1216}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1216Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1216Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1216Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1216Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1216Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1216Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1217}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1217Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1217Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1217Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1217Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1217Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1217Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1218}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1218Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1218Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1218Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1218Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1218Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1218Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1219}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1219Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1219Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1219Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1219Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1219Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1219Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1220}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1220Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1220Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1220Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1220Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1220Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1220Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1221}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1221Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1221Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1221Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1221Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1221Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1221Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1222}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1222Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1222Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1222Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1222Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1222Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1222Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1223}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1223Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1223Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1223Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1223Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1223Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1223Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1224}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1224Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1224Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1224Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1224Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1224Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1224Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1225}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1225Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1225Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1225Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1225Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1225Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1225Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1227}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1227Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1227Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1227Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1227Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1227Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1227Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1729}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1729Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1729Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1729Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1729Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1729Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1729Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1733}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1733Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1733Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1733Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1733Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1733Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1733Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1735}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1735Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1735Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1735Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1735Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1735Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1735Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1736}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1736Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1736Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1736Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1736Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1736Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1736Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1737}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1737Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1737Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1737Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1737Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1737Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1737Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1738}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1738Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1738Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1738Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1738Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1738Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1738Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1739}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1739Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1739Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1739Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1739Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1739Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1739Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1740}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1740Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1740Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1740Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1740Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1740Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1740Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1741}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1741Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1741Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1741Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1741Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1741Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1741Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1742}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1742Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1742Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1742Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1742Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1742Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1742Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1743}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1743Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1743Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1743Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1743Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1743Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1743Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1744}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1744Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1744Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1744Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1744Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1744Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1744Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1745}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1745Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1745Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1745Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1745Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1745Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1745Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1746}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1746Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1746Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1746Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1746Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1746Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1746Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1747}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1747Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1747Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1747Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1747Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1747Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1747Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1779}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1779Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1779Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1779Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1779Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1779Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1779Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1791}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1791Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1791Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1791Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1791Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1791Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1791Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1798}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1798Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1798Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1798Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1798Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1798Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1798Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1817}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1817Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1817Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1817Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1817Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1817Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1817Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1818}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1818Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1818Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1818Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1818Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1818Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1818Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1819}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1819Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1819Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1819Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1819Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1819Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1819Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1851}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1851Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1851Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1851Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1851Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1851Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1851Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1854}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1854Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1854Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1854Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1854Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1854Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1854Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1878}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1878Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1878Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1878Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1878Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1878Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1878Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\begin{frame} 
+  \frametitle{Station 1880}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1880Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1880Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsCdasStSt1880Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+
+  \begin{center}
+    \begin{columns}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1880Pmt1.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1880Pmt2.pdf}
+      \end{column}
+      \begin{column}{0.33\textwidth}
+        \includegraphics[width=1.15\textwidth]{../plots/qpkRmsOffStSt1880Pmt3.pdf}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+\end{document}
