@@ -45,10 +45,8 @@ double getrms( vector<int> *arr, double meanarr, unsigned int nb, bool lok ){
 // ========================== 
 // ******** The MAIN ********
 // ==========================
-int main (int argc, char *argv[]) 
-{
-  if ( argc < 5 ) 
-  {
+int main (int argc, char *argv[]) {
+  if ( argc < 5 ) {
     cout << endl
       << "Usage: " << argv[0] << " <stationsFile>  <PMT>  <Month> <files>" << endl
       << "  <stationsFile>: file with a list of stations" << endl
@@ -71,23 +69,20 @@ int main (int argc, char *argv[])
   const unsigned int totalNrEvents = input.NumberOfEvents();
   ifstream stationsFile(stationsFileName, ios::in);
 
-  if (!stationsFile.is_open())
-  {
+  if (!stationsFile.is_open()) {
     cout << "Could not open file: " << stationsFileName << endl;
     exit(0);
   }
 
   vector<unsigned int> stationsIds;
-  while (stationsFile.good()) 
-  {
+  while (stationsFile.good()) {
     unsigned int st = 0;
     stationsFile >> st;
     if (st)
       stationsIds.push_back(st);
   }
   
-  if (stationsIds.empty())
-  {
+  if (stationsIds.empty()) {
     cout << "Please specify the stations ids in the file " << endl;
     exit(0);
   }
@@ -102,8 +97,7 @@ int main (int argc, char *argv[])
     pmtname = "SPMT";
   else if ( pmtId == 5 )
     pmtname = "PMTSSD";
-  else
-  {
+  else {
     cout << "==================================================" << endl;
     cout << "Wrong Id for PMT, please introduce a valid PMT Id:" << endl;
     cout << "1 For PMT1; " << "2 For PMT2; " << "3 For PMT3; " 
@@ -119,7 +113,7 @@ int main (int argc, char *argv[])
 		pmtname += "St"+to_string( stationsIds[0] );
  
   string doMonth = string(whichmonth);
-  pmtname +=  "lrb" + strNblr + doMonth;
+  pmtname +=  "lrb" + strNblr + doMonth + "2021";
 
   TFile hfile("uubChPk"+pmtname+".root","RECREATE","");
   //TFile hfile("kk.root", "RECREATE","");
@@ -205,11 +199,9 @@ int main (int argc, char *argv[])
 
   EventPos pos;
 
-  for (pos=input.FirstEvent(); pos<input.LastEvent(); pos=input.NextEvent()) 
-  {
+  for (pos=input.FirstEvent(); pos<input.LastEvent(); pos=input.NextEvent()) {
     nrEventsRead++;
-    if (nrEventsRead%1000 == 0) 
-    {
+    if (nrEventsRead%1000 == 0) {
       cout << "====> Read " << nrEventsRead << " out of " << totalNrEvents << endl;
       cout << "      Wrote: " << nrEvents << " events" << endl;
     }
@@ -220,8 +212,7 @@ int main (int argc, char *argv[])
 
     previusEvent = event.Id;
 
-    for (unsigned int i = 0 ; i < event.Stations.size(); ++i)
-    {
+    for (unsigned int i = 0 ; i < event.Stations.size(); ++i) {
       found = false;
       for (  vector<unsigned int>::const_iterator iter= stationsIds.begin();
           iter!= stationsIds.end(); ++iter)
@@ -230,13 +221,14 @@ int main (int argc, char *argv[])
       if ( !found )
         continue;
       
-      if ( event.Stations[i].IsUUB )
-      {
+      if ( event.Stations[i].IsUUB ) {
         cout << "# Event " << event.Id << " Station " << event.Stations[i].Id
           << " " << nrEventsRead-1
           << endl;
-        if (event.Stations[i].Error==256)
-        {
+
+        //cout << "MSD: " << event.Stations[i].calib()->VemCharge[pmtId-1] << endl;
+
+        if (event.Stations[i].Error==256) {
           tmpName.Form("%d%d", event.UTCTime, nrEventsRead-1);
           blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean(); // Extracting calib-baseline
           
