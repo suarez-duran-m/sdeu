@@ -16,8 +16,8 @@
 // *** Local Functions ***
 // =======================
 
-TH1F *histDerivativeCh(TH1F &hist, double xb[]) // Central differences
-{
+TH1F *histDerivativeCh(TH1F &hist, double xb[]) {// Central differences
+
   int nbins = 600;
   int h = 0;
   TString tmpname;

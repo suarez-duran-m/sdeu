@@ -113,7 +113,7 @@ int main (int argc, char *argv[]) {
 		pmtname += "St"+to_string( stationsIds[0] );
  
   string doMonth = string(whichmonth);
-  pmtname +=  "lrb" + strNblr + doMonth + "2020";
+  pmtname +=  "lrb" + strNblr + doMonth + "2019";
   
   TFile hfile("ubChPk"+pmtname+".root","RECREATE","");
   //TFile hfile("kk.root", "RECREATE","");
@@ -199,23 +199,22 @@ int main (int argc, char *argv[]) {
 
   EventPos pos;
 
-  for (pos=input.FirstEvent(); pos<input.LastEvent(); pos=input.NextEvent()) 
-  {
+  for (pos=input.FirstEvent(); pos<input.LastEvent(); pos=input.NextEvent()) {
     nrEventsRead++;
-    if (nrEventsRead%1000 == 0) 
-    {
+    if (nrEventsRead%1000 == 0) {
       cout << "====> Read " << nrEventsRead << " out of " << totalNrEvents << endl;
       cout << "      Wrote: " << nrEvents << " events" << endl;
     }
 
+    bool found = false;
     TEcEvent event(pos);
+
     if ( event.Id == previusEvent )
       continue;
 
     previusEvent = event.Id;
 
-    for (unsigned int i = 0 ; i < event.Stations.size(); ++i)
-    {
+    for (unsigned int i = 0 ; i < event.Stations.size(); ++i) {
       found = false;
       for (  vector<unsigned int>::const_iterator iter= stationsIds.begin();
           iter!= stationsIds.end(); ++iter)
@@ -223,13 +222,15 @@ int main (int argc, char *argv[]) {
           found = true;
       if ( !found )
         continue;
-      
-      if ( event.Stations[i].Error )
-        continue;
  
       cout << "# Event " << event.Id << " Station " << event.Stations[i].Id
         << " " << nrEventsRead-1
         << endl;
+
+      if(event.fCalibStations[i].Error)
+        continue;
+      if(event.fCalibStations[i].fSigInVEM < 0)
+        continue;
 
       tmpName.Form("%d%d", event.UTCTime, nrEventsRead-1);
       blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean(); // Extracting calib-baseline
