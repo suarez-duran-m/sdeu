@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- Configuration of Module EventFileReader -->
+
+<EventFileReader
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation='/home/msd/software/offlinePrevious/trunk-install/share/auger-offline/config/EventFileReader.xsd'>
+
+  <ReportFilenames/>
+
+  <!-- file types: Offline
+                   FDAS
+                   CDAS
+                   CORSIKA
+                   AIRES
+	           IoAuger -->
+
+  <IoAuger >
+
+  <InputFilenames>
+    `find /home/msd/2021/sdeu/gettingTraces/adAug2021TracesFullStations.root`
+    <!-- `find /home/msd/2021/sdeu/gettingTraces/adAug2021Traces.root` -->
+    <!-- `find /home/msd/Documents/augerData/2021/08/ -name ad_*.root` -->
+    <!-- /home/msd/Documents/augerData/2020/12/ad_2020_12_16_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_18_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_10_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_04_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_17_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_01_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_27_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_29_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_11_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_22_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_13_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_30_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_28_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_21_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_20_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_19_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_05_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_03_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_23_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_31_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_12_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_06_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_08_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_02_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_07_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_14_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_24_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_09_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_26_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_25_12h00.root /home/msd/Documents/augerData/2020/12/ad_2020_12_15_12h00.root -->
+    <!-- /home/msd/Documents/augerData/2021/07/ad_2021_07_02_12h00.root -->
+  </InputFilenames>
+  
+  </IoAuger >
+</EventFileReader>

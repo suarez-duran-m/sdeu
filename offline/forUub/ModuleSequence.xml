@@ -1,0 +1,35 @@
+<!-- A sequence for an SD only reconstruction -->
+
+<!-- For homogeneity in the StandardApplications, standard sequences for
+simulation, MC reconstruction, and data reconstruction have been added to
+Framework/CentralConfig/standard**Sequences.dtd. Please refer to these
+files if you have questions regarding &NAME (i.e. &SdPreSelection) -->
+
+<!DOCTYPE sequenceFile [
+  <!ENTITY % sd SYSTEM "/home/msd/software/offlinePrevious/trunk-install/share/auger-offline/config/standardSdSequences.dtd">
+  %sd;
+] >
+
+<sequenceFile>
+
+  <enableTiming/>
+
+  <moduleControl>
+
+    <loop numTimes="unbounded" pushEventToStack="yes">
+      <module> EventFileReaderOG </module>
+      <module> EventCheckerOG </module>
+      <module> SelectingStation </module> 
+      <module> SdCalibratorOG </module>
+      <module> ReadSdfiles </module>
+
+      &SdPreSelection;
+      &SdReconstruction;
+
+      <module> RecDataWriterNG </module>
+      <module> EventFileExporterOG </module>
+    </loop>
+
+  </moduleControl>
+
+</sequenceFile>

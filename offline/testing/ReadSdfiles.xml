@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- Configuration of Module ReadSdfiles -->
+
+<ReadSdfiles>
+
+  <!-- Year of you are running over -->
+  <OutNameRootYear> 2021 </OutNameRootYear>
+  <!-- Month you are running over Month-1 (Aug: 8-1=7) -->
+  <OutNameRootMonth> 7 </OutNameRootMonth>
+  <!-- The Id of the station you are running over -->
+  <OutNameRootStId> 56 </OutNameRootStId>
+  <!-- PMT Id you are running over -->
+  <OutNameRootPmt> 110 </OutNameRootPmt>
+
+</ReadSdfiles>
