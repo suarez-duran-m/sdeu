@@ -115,8 +115,8 @@ int main (int argc, char *argv[]) {
   string doMonth = string(whichmonth);
   pmtname +=  "lrb" + strNblr + doMonth + "2021";
 
-  TFile hfile("uubChPk"+pmtname+".root","RECREATE","");
-  //TFile hfile("kk.root", "RECREATE","");
+  //TFile hfile("uubChPk"+pmtname+".root","RECREATE","");
+  TFile hfile("kk.root", "RECREATE","");
 
 	TH1F *recePk = new TH1F (); // Receive Pk from IoSdStation::HPeak
 	TH1F *receCh = new TH1F (); // Receive Ch from IoSdStation::HCharge
@@ -226,7 +226,12 @@ int main (int argc, char *argv[]) {
           << " " << nrEventsRead-1
           << endl;
 
-        //cout << "MSD: " << event.Stations[i].calib()->VemCharge[pmtId-1] << endl;
+        const UShort_t *TubeOk = event.Stations[i].calib()->tubeok();
+        for ( int i=0; i<3; i++ )
+          cout << "tubeok " << TubeOk[i]
+           << " PmtId " << i+1 
+            << " event.Id " << event.Id
+            << endl;
 
         if (event.Stations[i].Error==256) {
           tmpName.Form("%d%d", event.UTCTime, nrEventsRead-1);
@@ -269,6 +274,10 @@ int main (int argc, char *argv[]) {
           chPar0 = fitCh.par0;
           chPar1 = fitCh.par1; 
           chPar2 = fitCh.par2;
+
+          cout << "event.Id " << event.Id
+            << " charge " << charge
+            << endl;
           
           evtIdPk = event.Id;
           evtIdCh = event.Id;
