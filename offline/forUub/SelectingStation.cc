@@ -21,9 +21,8 @@ VModule::ResultFlag SelectingStation::Init() {
     INFO("SelectingStation::Init()");
 
     Branch topB = 
-      CentralConfig::GetInstance()->GetTopBranch("ReadSdfiles");
-    topB.GetChild("OutNameRootStId").GetData(fChoseStId);
-
+      CentralConfig::GetInstance()->GetTopBranch("GetFitOutputs");
+    topB.GetChild("SelectStId").GetData(fChoseStId);
 
     return eSuccess;
 }
@@ -34,17 +33,11 @@ VModule::ResultFlag SelectingStation::Run(evt::Event& event) {
 
   const sevt::SEvent& sEvent = event.GetSEvent();
 
-  stOk = false;
   for (sevt::SEvent::ConstStationIterator sIt = sEvent.StationsBegin(); sIt != sEvent.StationsEnd(); ++sIt)
-    if ( fChoseStId == sIt->GetId() ) {
-      stOk = true;
-      break;
-    }
+    if ( fChoseStId == sIt->GetId() )
+      return eSuccess;
 
-  if ( !stOk )
-    return eContinueLoop;
-
-  return eSuccess;  
+  return eContinueLoop;  
 }
 
 

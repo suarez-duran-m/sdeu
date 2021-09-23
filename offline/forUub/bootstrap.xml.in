@@ -38,9 +38,9 @@
       xlink:href = "./SdCalibrator.xml"/>
 
     <configLink
-      id         = "ReadSdfiles"
+      id         = "GetFitOutputs"
       type       = "XML"
-      xlink:href = "./ReadSdfiles.xml"/>
+      xlink:href = "./GetFitOutputs.xml"/>
 
   </centralConfig>
 
@@ -52,12 +52,13 @@
       </SdCalibrator>
     </configLink>
   
-    <configLink id="ReadSdfiles">
-    <ReadSdfiles>
-      <OutNameRootStId> 1221 </OutNameRootStId>
-      <OutNameRootPmt> 1 </OutNameRootPmt>
-    </ReadSdfiles>
-  </configLink>
+    <configLink id="GetFitOutputs">
+      <GetFitOutputs>
+        <OutPutFileName> offlineUubAug2021St863Pmt1Testing.root </OutPutFileName>
+        <SelectStId> 1221 </SelectStId>
+        <SelectPmt> 1 </SelectPmt>
+      </GetFitOutputs>
+    </configLink>
 
 </parameterOverrides>
 
