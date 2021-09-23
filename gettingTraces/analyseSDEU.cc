@@ -85,6 +85,7 @@ int main (int argc, char *argv[]) {
     bool found = false;
     
     IoSdEvent event(pos);
+
     for (unsigned int i = 0 ; i < event.Stations.size(); ++i){
       found = false;
       for (  vector<unsigned int>::const_iterator iter= stationsIds.begin();

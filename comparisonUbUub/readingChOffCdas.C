@@ -40,27 +40,6 @@ void histoStyle(TGraph *hist) {
 }
 
 
-void getResiduals( TGraphErrors *grphErr, TF1 *func, double rangMin, double rangMax,
-    vector < double > &x, vector < double > &y, vector < double > &err ) {
-  Double_t *xpnts = grphErr->GetX();
-  Double_t *ypnts = grphErr->GetY();
-
-  int nbins = grphErr->GetXaxis()->GetNbins();
-  double tmp = 0.;
-  for ( int kbin=1; kbin<nbins; kbin++ )
-    if ( xpnts[kbin] >= rangMin && xpnts[kbin] <= rangMax ) {
-      x.push_back( xpnts[kbin] );
-      tmp = func->Eval( xpnts[kbin] ) - ypnts[kbin];
-      y.push_back( tmp / sqrt( ypnts[kbin] ) );
-      err.push_back( 
-          sqrt( pow(sqrt( ypnts[kbin] ),2)
-            + pow(sqrt( sqrt(func->Eval( xpnts[kbin] ) ) ),2)
-            ) / sqrt( ypnts[kbin] )
-          );
-    }
-}
-
-
 vector < double > getFitVals( TString bname, TString st, int pmt, int year, TString whichInfo, bool ifoff ) {
   //TString monthUub[] = {"dec", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug"};
   TString monthUub[] = {"Aug"};
@@ -84,6 +63,7 @@ vector < double > getFitVals( TString bname, TString st, int pmt, int year, TStr
 
   int evttime = 0;
   int prevTime = 0;
+  int EvtId = 0;
 
   for ( int month=nMonths; month<nMonths+1; month++ ) {
     if ( !ifoff )
@@ -96,20 +76,27 @@ vector < double > getFitVals( TString bname, TString st, int pmt, int year, TStr
 
     tmpVals = 0.;
     chargeInfo->SetBranchAddress(whichInfo, &tmpVals);
-    if ( ifoff && year==2021 )
+    // To avoid read the same event twice from Offline
+    if ( ifoff ) {
       chargeInfo->SetBranchAddress("GpsTime", &evttime);
+      chargeInfo->SetBranchAddress("evtId", &EvtId);
+    }
+    else
+      chargeInfo->SetBranchAddress("eventId", &EvtId);
 
     prevTime = 0;
     for( int etry=0; etry<chargeInfo->GetEntries(); etry++) {  
       chargeInfo->GetEntry(etry);
-      
-      if ( ifoff && year==2021 ) {
+      //if ( year==2021 && EvtId==64693194)
+        //cout << "ifoff " << ifoff << " EvtId " << EvtId << " tmpVals " << tmpVals << endl;
+      // To avoid read the same event twice from Offline
+      if ( ifoff ) {
         if ( prevTime != evttime ) {
           returnVals.push_back( tmpVals );
           prevTime = evttime;
         }
       }
-      else 
+      else
         returnVals.push_back( tmpVals );
     }
   }
@@ -162,8 +149,8 @@ vector < int > getFitVals( TString bname, TString st, int pmt, int year, bool if
     prevTime = 0;    
     for( int etry=0; etry<chargeInfo->GetEntries(); etry++) {
       chargeInfo->GetEntry(etry);
-    
-      if ( ifoff && year==2021 ) {
+      // To avoid read the same event twice from Offline
+      if ( ifoff ) {
         if ( prevTime != tmpVals ) {
           returnVals.push_back( tmpVals );
           prevTime = tmpVals;
@@ -338,9 +325,10 @@ vector < double > getRmsQpkPerWeek( vector < int >time, vector < double >qpkVals
     if ( tmpDay < 31 )
       tmpQpk[ tmpDay ].push_back( qpkVals[i] );
   }
+
   for ( int wk=0; wk<totweeks; wk++ ) 
     if ( tmpQpk[wk].size() > 0 )
-      rmsQpkPerWeek[wk+1] = getrms( tmpQpk[0], getmean(tmpQpk[0]) );
+      rmsQpkPerWeek[wk+1] = getrms( tmpQpk[wk], getmean(tmpQpk[wk]) );
 
   tmpQpk.clear();
   return rmsQpkPerWeek;
@@ -355,7 +343,7 @@ void readingChOffCdas(int st, int pmt) {
   statId.Form("St%d", st);
   TString bnCdas = "~/2021/sdeu/nouub/underHistos/ubChPkPMT";
   TString bnOffl = "~/2021/sdeu/offline/forUb/Aug/offlineUb";
-  TString bnUubOffl = "~/2021/sdeu/offline/forUub/offlineUub";
+  TString bnUubOffl = "~/2021/sdeu/offline/forUub/AugResults/offlineUub";
   TString bnUubCdas = "~/2021/sdeu/underHisto/uubChPkPMT";
 
   TPaveStats *ptstats;
@@ -454,7 +442,6 @@ void readingChOffCdas(int st, int pmt) {
   vector <double> augQpk2019off = getQpkPerDay(time2019off, qpk2019off, augDays, 2019);
   vector <double> augQpk2020off = getQpkPerDay(time2020off, qpk2020off, augDays, 2020);
   vector <double> augQpk2021off = getQpkPerDay(time2021off, qpk2021off, augDays, 2021);
-  cout << "ok" << endl;
   vector <double> augQpk2019cdas = getQpkPerDay(time2019cdas, qpk2019cdas, augDays, 2019);
   vector <double> augQpk2020cdas = getQpkPerDay(time2020cdas, qpk2020cdas, augDays, 2020);
   vector <double> augQpk2021cdas = getQpkPerDay(time2021cdas, qpk2021cdas, augDays, 2021);
@@ -488,7 +475,6 @@ void readingChOffCdas(int st, int pmt) {
   TGraph *grp2020RmsCdas = new TGraph(nWeeks, &xAugDaysRms[0], &augRmsQpk2020cdas[0]);
   TGraph *grp2021RmsCdas = new TGraph(nWeeks, &xAugDaysRms[0], &augRmsQpk2021cdas[0]); 
 
-
   vector <double> tmpMax;
   double yrangeFactor = 1.4;
 
@@ -496,28 +482,40 @@ void readingChOffCdas(int st, int pmt) {
   tmpMax.push_back( *max_element(augQpk2020off.begin(), augQpk2020off.end()) );
   tmpMax.push_back( *max_element(augQpk2021off.begin(), augQpk2021off.end()) );
   double yUpperLimOff = *max_element(tmpMax.begin(), tmpMax.end());
-  yUpperLimOff *= yrangeFactor;
+  if ( yUpperLimOff > 0 )
+    yUpperLimOff *= yrangeFactor;
+  else 
+    yUpperLimOff = 200.;
   tmpMax.clear();
 
   tmpMax.push_back( *max_element(augQpk2019cdas.begin(), augQpk2019cdas.end()) );
   tmpMax.push_back( *max_element(augQpk2020cdas.begin(), augQpk2020cdas.end()) );
   tmpMax.push_back( *max_element(augQpk2021cdas.begin(), augQpk2021cdas.end()) );
   double yUpperLimCdas = *max_element(tmpMax.begin(), tmpMax.end());
-  yUpperLimCdas *= yrangeFactor;
+  if ( yUpperLimCdas > 0 )
+    yUpperLimCdas *= yrangeFactor;
+  else 
+    yUpperLimCdas = 200.;
   tmpMax.clear();
 
   tmpMax.push_back( *max_element(augRmsQpk2019off.begin(), augRmsQpk2019off.end()) );
   tmpMax.push_back( *max_element(augRmsQpk2020off.begin(), augRmsQpk2020off.end()) );
   tmpMax.push_back( *max_element(augRmsQpk2021off.begin(), augRmsQpk2021off.end()) );
   double yUpperLimRmsOff = *max_element(tmpMax.begin(), tmpMax.end());
-  yUpperLimRmsOff *= yrangeFactor;
+   if ( yUpperLimOff > 0 )         
+     yUpperLimRmsOff *= yrangeFactor; 
+   else                            
+     yUpperLimRmsOff = 200.;          
   tmpMax.clear();
 
   tmpMax.push_back( *max_element(augRmsQpk2019cdas.begin(), augRmsQpk2019cdas.end()) );
   tmpMax.push_back( *max_element(augRmsQpk2020cdas.begin(), augRmsQpk2020cdas.end()) );
   tmpMax.push_back( *max_element(augRmsQpk2021cdas.begin(), augRmsQpk2021cdas.end()) );
   double yUpperLimRmsCdas = *max_element(tmpMax.begin(), tmpMax.end());
-  yUpperLimRmsCdas *= 1.4;
+  if ( yUpperLimRmsCdas > 0 )
+    yUpperLimRmsCdas *= yrangeFactor;
+  else
+    yUpperLimRmsCdas = 200.;          
 
   // Doing plots
   TCanvas *c1 = canvasStyle("c1");
