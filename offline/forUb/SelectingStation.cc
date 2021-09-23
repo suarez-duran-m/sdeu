@@ -21,9 +21,8 @@ VModule::ResultFlag SelectingStation::Init() {
     INFO("SelectingStation::Init()");
 
     Branch topB = 
-      CentralConfig::GetInstance()->GetTopBranch("SelectingStation");
-    topB.GetChild("GETstId").GetData(fGETstId);
-
+      CentralConfig::GetInstance()->GetTopBranch("GetFitOutputs");
+    topB.GetChild("SelectStId").GetData(fGetStId);
 
     return eSuccess;
 }
@@ -35,15 +34,9 @@ VModule::ResultFlag SelectingStation::Run(evt::Event& event) {
 
   const sevt::SEvent& sEvent = event.GetSEvent();
 
-  stOk = false;
   for (sevt::SEvent::ConstStationIterator sIt = sEvent.StationsBegin(); sIt != sEvent.StationsEnd(); ++sIt)
-    if ( sIt->GetId() == fGETstId ) {
-      stOk = true;
-      cout << "MSD: " << fGETstId << endl;
-    }
-  
-  if ( !stOk )
-    return eContinueLoop;
+    if ( sIt->GetId() == fGetStId )
+      return eContinueLoop;
 
   return eSuccess;  
 }

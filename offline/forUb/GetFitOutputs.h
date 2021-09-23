@@ -27,10 +27,10 @@
 
 using namespace std;
 
-class SelectingStation : public fwk::VModule {
+class GetFitOutputs : public fwk::VModule {
   public:
-    SelectingStation() { }
-    virtual ~SelectingStation() { }
+    GetFitOutputs() { }
+    virtual ~GetFitOutputs() { }
 
     fwk::VModule::ResultFlag Init();
     fwk::VModule::ResultFlag Run(evt::Event& event);
@@ -39,8 +39,36 @@ class SelectingStation : public fwk::VModule {
     //Functions
 
     private:
-    REGISTER_MODULE("SelectingStation",SelectingStation);
+    REGISTER_MODULE("GetFitOutputs",GetFitOutputs);
 
-    // XML config
-    int fGetStId = 0;
+    TFile *hfile; 
+    TTree *peak;
+    TTree *charge;
+    
+    unsigned int pkEvtId;
+    unsigned int pkGpstime;
+    double pk;
+    double pkChi2;
+    unsigned int pkNdof;
+    double pkLow;
+    double pkHigh;
+    double pkP0;
+    double pkP1;
+    double pkP2;
+
+    unsigned int chEvtId;
+    unsigned int chGpstime;
+    double ch;
+    double chChi2;
+    unsigned int chNdof;
+    double chLow;
+    double chHigh;
+    double chP0;
+    double chP1;
+    double chP2;
 };
+
+
+
+
+

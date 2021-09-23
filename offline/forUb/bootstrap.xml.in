@@ -28,11 +28,6 @@
       xlink:href = "./EventFileReader.xml"/>
 
     <configLink
-      id         = "SelectingStation"
-      type       = "XML"
-      xlink:href = "./SelectingStation.xml"/>
-
-    <configLink
       id         = "EventFileExporter"
       type       = "XML"
       xlink:href = "./EventFileExporter.xml"/>
@@ -42,6 +37,11 @@
       type       = "XML"
       xlink:href = "./SdCalibrator.xml"/>
 
+    <configLink
+      id         = "GetFitOutputs"
+      type       = "XML"
+      xlink:href = "./GetFitOutputs.xml"/>
+
   </centralConfig>
 
   <parameterOverrides>
@@ -49,9 +49,17 @@
     <configLink id="SdCalibrator">
       <SdCalibrator>
         <chargeFitChi2Accept> 5.5 </chargeFitChi2Accept>
-    </SdCalibrator>
+      </SdCalibrator>
+    </configLink>
+  
+    <configLink id="GetFitOutputs">
+    <GetFitOutputs>
+      <SelectStId> 1221 </SelectStId>
+      <SelectPmt> 1 </SelectPmt>
+    </GetFitOutputs>
   </configLink>
-    </parameterOverrides>
+
+</parameterOverrides>
 
 <!-- For full parameters copy SdCalibrator.xml.in not SdCalibrator.xsd.in -->
 
