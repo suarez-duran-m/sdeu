@@ -21,8 +21,8 @@ VModule::ResultFlag SelectingStation::Init() {
     INFO("SelectingStation::Init()");
 
     Branch topB =
-      CentralConfig::GetInstance()->GetTopBranch("ReadSdfiles");
-    topB.GetChild("OutNameRootStId").GetData(fChoseStId);
+      CentralConfig::GetInstance()->GetTopBranch("GetFitOutputs");
+    topB.GetChild("SelectStId").GetData(fChoseStId);
 
     return eSuccess;
 }

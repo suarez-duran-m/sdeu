@@ -21,7 +21,7 @@ files if you have questions regarding &NAME (i.e. &SdPreSelection) -->
       <module> EventCheckerOG </module>
       <module> SelectingStation </module> 
       <module> SdCalibratorOG </module>
-      <module> ReadSdfiles </module>
+      <module> GetFitOutputs </module>
 
       &SdPreSelection;
       &SdReconstruction;
