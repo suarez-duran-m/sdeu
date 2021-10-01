@@ -72,7 +72,6 @@ TH1F *getSmoothCh(TH1F &hist, double xb[]) {
 }
 
 vector < double > getFitRangeCh( TH1F &h, int rightleftBins ) {
-
   vector < double > minmax;
   int minRng = 0; // Min for fitting
 	int maxRng = 0; // Max for fitting
@@ -83,24 +82,27 @@ vector < double > getFitRangeCh( TH1F &h, int rightleftBins ) {
   double rawbinMax = 0.;
   double rawbinMin = 0.;
 
-  for ( int kk=275; kk>125; kk-- ) {// from ~2000 FADC backward
+  for ( int kk=275; kk>100; kk-- ) {// from ~2000 FADC backward
     if ( h.GetBinContent(kk) > 0 ) {
-      if ( h.GetBinCenter(kk) < fabs(h.GetBinCenter(kk-1)) )
-      {
+      if ( h.GetBinCenter(kk) < fabs(h.GetBinCenter(kk-1)) ) {
         binMax = h.GetBinCenter(kk); // tmp FADC for VEM
         rawbinMax = kk; // Bin for tmp VEM
       }
-      else 
-      {
+      else {
         binMax = h.GetBinCenter(kk-1);
         rawbinMax = kk; // Bin for tmp VEM
       }
       break;
     }
   }
+
+  cout << "kk " << rawbinMax << " binMax " << binMax << endl;
+  cout << "rightleftBins " << rightleftBins << endl;
   
   minRng = h.GetBinCenter(rawbinMax-rightleftBins);
   maxRng = h.GetBinCenter(rawbinMax+rightleftBins);
+
+  cout << "minRng " << minRng << " maxRng " << maxRng << endl;
 
   minmax.push_back( minRng );
   minmax.push_back( maxRng );
@@ -112,8 +114,7 @@ vector < double > getFitRangeCh( TH1F &h, int rightleftBins ) {
 }
 
 
-fitcharge::fitcharge() 
-{
+fitcharge::fitcharge() {
 	vemPosCh = 0.;
   vemPosDeri = 0.;
 	getGraph = false;
@@ -151,8 +152,7 @@ void fitcharge::setChCrr(TH1F &hist, const int corr, TString name)
 }
 
 
-void fitcharge::getFitCh(TH1F &hist, int nblr) 
-{
+void fitcharge::getFitCh(TH1F &hist, int nblr) {
   TString tmpname;
   tmpname.Form("%d",rand());
 

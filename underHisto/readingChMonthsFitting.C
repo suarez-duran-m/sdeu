@@ -70,7 +70,7 @@ void getResiduals( TGraphErrors *grphErr, TF1 *func,
 
 vector < double > fillingCh( TString bname, TString st, int pmt, TString whichInfo)
 {
-  TString monthUub[] = {"dec", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug"};
+  TString monthUub[] = {"dec", "jan", "feb", "mar", "apr", "may", "jun", "jul", "Aug"};
   TString pmtId;
   pmtId.Form("%d", pmt);
   //TString fname = bname + pmtId+st+"Mth";
@@ -89,7 +89,7 @@ vector < double > fillingCh( TString bname, TString st, int pmt, TString whichIn
   TString pmtStr;
   int nMonths = 8;
 
-  for ( int month=nMonths; month<nMonths+1; month++ )
+  for ( int month=0; month<nMonths+1; month++ )
   {
     f = TFile::Open(fname+monthUub[month]+".root");
     chargeInfo = (TTree*)f->Get("ChargeData");
@@ -172,7 +172,7 @@ vector < double > fillingCh( TString bname, TString st, int pmt, TString whichIn
 vector < int > fillingCh( TString bname, TString st, int pmt, bool whichInfo)
 {
   //TString monthUub[] = {"dec", "jan", "feb", "mar", "abr", "may", "jun", "jul"};
-  TString monthUub[] = {"dec", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug"};
+  TString monthUub[] = {"dec", "jan", "feb", "mar", "apr", "may", "jun", "jul", "Aug"};
   TString pmtId;
   pmtId.Form("%d", pmt);
   //TString fname = bname + pmtId+st+"Mth";
@@ -191,7 +191,7 @@ vector < int > fillingCh( TString bname, TString st, int pmt, bool whichInfo)
   else
     getinfo = "eventId";
 
-  for ( int month=nMonths; month<nMonths+1; month++ )
+  for ( int month=0; month<nMonths+1; month++ )
   {
     f = TFile::Open(fname+monthUub[month]+".root");
     chargeInfo = (TTree*)f->Get("ChargeData");
@@ -218,7 +218,7 @@ vector < int > fillingCh( TString bname, TString st, int pmt, bool whichInfo)
 
 vector < double > failingCh( TString bname, int st, int pmt, TString whichInfo)
 {
-  TString monthUub[] = {"dec", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug"};
+  TString monthUub[] = {"dec", "jan", "feb", "mar", "apr", "may", "jun", "jul", "Aug"};
   TString pmtId;
   TString strSt;
   strSt.Form("St%d", st);
@@ -236,7 +236,7 @@ vector < double > failingCh( TString bname, int st, int pmt, TString whichInfo)
   TString pmtStr;
   int nMonths = 8;
 
-  for ( int month=nMonths; month<nMonths+1; month++ )
+  for ( int month=0; month<nMonths+1; month++ )
   {
     f = TFile::Open(fname+monthUub[month]+".root");
     chargeInfo = (TTree*)f->Get("ChargeData");
@@ -281,7 +281,7 @@ vector < double > failingCh( TString bname, int st, int pmt, TString whichInfo)
 vector < double > fillingDayCh( TString bname, TString st, int pmt, TString whichInfo)
 {
   //TString monthUub[] = {"dec", "jan", "feb", "mar", "abr", "may", "jun", "jul"};
-  TString monthUub[] = {"dec", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug"};
+  TString monthUub[] = {"dec", "jan", "feb", "mar", "apr", "may", "jun", "jul", "Aug"};
   TString pmtId;
   pmtId.Form("%d", pmt);
   //TString fname = bname + pmtId+st+"Mth";
@@ -350,7 +350,7 @@ vector < double > fillingDayCh( TString bname, TString st, int pmt, TString whic
 vector < int > fillingDayCh( TString bname, TString st, int pmt)
 {
   //TString monthUub[] = {"dec", "jan", "feb", "mar", "abr", "may", "jun", "jul"};
-  TString monthUub[] = {"dec", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug"};
+  TString monthUub[] = {"dec", "jan", "feb", "mar", "apr", "may", "jun", "jul", "Aug"};
   TString pmtId;
   pmtId.Form("%d", pmt);
   //TString fname = bname + pmtId+st+"Mth";
@@ -440,7 +440,8 @@ void readingChMonthsFitting(int st)
   TString statId;
   statId.Form("St%d", st);
   //TString basename = "uubAoPPMT";
-  TString basename = "uubChPkPMT";
+  //TString basename = "uubChPkPMT";
+  TString basename = "leftRightBins/uubChPkPMT";
 
   TPaveStats *ptstats;
   TLegend *leg;
@@ -580,7 +581,7 @@ void readingChMonthsFitting(int st)
   leg->SetBorderSize(0);
   leg->Draw();
   //c1->Print("../plots/uubChargeFromDerSt"+statId+"pmt1.pdf");
-  c1->Print("../plots/uubChargeFromBlrSt"+statId+"pmt1.pdf");
+  //c1->Print("../plots/uubChargeFromBlrSt"+statId+"pmt1.pdf");
 
 
   TCanvas *c2 = canvasStyle("c2");
@@ -624,7 +625,7 @@ void readingChMonthsFitting(int st)
   leg->SetBorderSize(0);
   leg->Draw();
   //c2->Print("../plots/uubChargeFromDerSt"+statId+"pmt2.pdf");
-  c2->Print("../plots/uubChargeFromBlrSt"+statId+"pmt2.pdf");
+  //c2->Print("../plots/uubChargeFromBlrSt"+statId+"pmt2.pdf");
 
 
   TCanvas *c3 = canvasStyle("c3");
@@ -669,7 +670,7 @@ void readingChMonthsFitting(int st)
   leg->Draw();
 
   //c3->Print("../plots/uubChargeFromDerSt"+statId+"pmt3.pdf");
-  c3->Print("../plots/uubChargeFromBlrSt"+statId+"pmt3.pdf");
+  //c3->Print("../plots/uubChargeFromBlrSt"+statId+"pmt3.pdf");
 
 /*
   TCanvas *c4 = canvasStyle("c4");
@@ -704,5 +705,6 @@ void readingChMonthsFitting(int st)
   histoStyle(chDayPmt1);
   chDayPmt1->Draw("AP"); 
   */
-  exit(0);
+  
+  //exit(0);
 }

@@ -115,13 +115,13 @@ int main (int argc, char *argv[]) {
   string doMonth = string(whichmonth);
   pmtname +=  "lrb" + strNblr + doMonth + "2021";
 
-  //TFile hfile("uubChPk"+pmtname+".root","RECREATE","");
-  TFile hfile("kk.root", "RECREATE","");
+  TFile hfile("uubChPk"+pmtname+".root","RECREATE","");
+  //TFile hfile("kk.root", "RECREATE","");
 
 	TH1F *recePk = new TH1F (); // Receive Pk from IoSdStation::HPeak
 	TH1F *receCh = new TH1F (); // Receive Ch from IoSdStation::HCharge
 
-  TGraphErrors *pkHistFit = new TGraphErrors();
+  //TGraphErrors *pkHistFit = new TGraphErrors();
   TH1F *pkForFit = new TH1F();
   double pkChi2 = 0.;
   int pkNdf = 0.;
@@ -164,10 +164,10 @@ int main (int argc, char *argv[]) {
 
   // ======================================
   // *** *** *** Creating Trees *** *** *** 
-  TTree *treePeak = new TTree("PeakData","");
+  //TTree *treePeak = new TTree("PeakData","");
   TTree *treeCharge = new TTree("ChargeData","");
-
-  treePeak->Branch("graph","TGraphErrors",&pkHistFit,32000,0);
+/*
+  //treePeak->Branch("graph","TGraphErrors",&pkHistFit,32000,0);
   treePeak->Branch("peakForFit","TH1F",&pkForFit,32000,0);
   treePeak->Branch("peakVal",&peak,"peak/D");
   treePeak->Branch("peakValDer",&peakDeri,"peakDeri/D");
@@ -181,6 +181,7 @@ int main (int argc, char *argv[]) {
   treePeak->Branch("pkPar2",&pkPar2,"pkPar2/D");
   treePeak->Branch("eventId",&evtIdPk,"evtIdPk/I");
   treePeak->Branch("timeEvnt",&evtTimePk,"evtTimePk/I");
+  */
 
   treeCharge->Branch("graph","TGraphErrors",&chHistFit,32000,0);
   treeCharge->Branch("chargeForFit","TH1F",&chForFit,32000,0);
@@ -210,6 +211,9 @@ int main (int argc, char *argv[]) {
     if ( event.Id == previusEvent )
       continue;
 
+    if ( event.Id != 64428767 )
+      continue;
+
     previusEvent = event.Id;
 
     for (unsigned int i = 0 ; i < event.Stations.size(); ++i) {
@@ -225,27 +229,28 @@ int main (int argc, char *argv[]) {
         cout << "# Event " << event.Id << " Station " << event.Stations[i].Id
           << " " << nrEventsRead-1
           << endl;
-
-        const UShort_t *TubeOk = event.Stations[i].calib()->tubeok();
+/*
+         const UShort_t *TubeOk = event.Stations[i].calib()->tubeok();
         for ( int i=0; i<3; i++ )
           cout << "tubeok " << TubeOk[i]
            << " PmtId " << i+1 
             << " event.Id " << event.Id
             << endl;
+            */
 
         if (event.Stations[i].Error==256) {
           tmpName.Form("%d%d", event.UTCTime, nrEventsRead-1);
           blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean(); // Extracting calib-baseline
-          
-          recePk = event.Stations[i].HPeak(pmtId-1); // Receiving Peak histogram
-          
+          /*
+          recePk = event.Stations[i].HPeak(pmtId-1); // Receiving Peak histogram 
           blCorrHbase = ( fabs(blCorrHbase - recePk->GetBinCenter(1) < 20 ) ? (recePk->GetBinCenter(1)):0 ); // From OffLine
           fitPk.getCrr(*recePk, blCorrHbase, tmpName+"Hbpk"); // Correcting for calib-baseline
           tmp = fitPk.getPkCorr(); // Receiving corrected histogram
           pkForFit = fitPk.getPkCorr();
           fitPk.getFitPk(*tmp); // Fitting
+          
 
-          pkHistFit = fitPk.getFitGraphPk();
+          //pkHistFit = fitPk.getFitGraphPk();
           pkChi2 = fitPk.chisPeak;
           pkNdf = fitPk.ndfPeak;
           pkProb = fitPk.probPeak;
@@ -256,6 +261,7 @@ int main (int argc, char *argv[]) {
           pkPar0 = fitPk.par0;
           pkPar1 = fitPk.par1;
           pkPar2 = fitPk.par2;
+          */
             
           receCh = event.Stations[i].HCharge(pmtId-1);
           fitCh.setChCrr(*receCh, event.Stations[i].Histo->Offset[pmtId-1+6], tmpName+"Hbch");
@@ -274,21 +280,17 @@ int main (int argc, char *argv[]) {
           chPar0 = fitCh.par0;
           chPar1 = fitCh.par1; 
           chPar2 = fitCh.par2;
-
-          cout << "event.Id " << event.Id
-            << " charge " << charge
-            << endl;
           
-          evtIdPk = event.Id;
+          //evtIdPk = event.Id;
           evtIdCh = event.Id;
-          evtTimePk = event.UTCTime - 315964782;
+          
+          //evtTimePk = event.UTCTime - 315964782;
           evtTimeCh = event.UTCTime - 315964782;
 
-          treePeak->Fill();
+          //treePeak->Fill();
           treeCharge->Fill();
-
           
-          break; // Apply if the is running for a single station.
+           break; // Apply if the is running for a single station.
         }
       }
     }
