@@ -7,6 +7,6 @@ do
   stId=$(head -${st} $HOME/2021/sdeu/fullUubStationsListVert.txt | tail -1)
   for pmt in $(seq 1 3);
   do
-    root -l "readingChOffCdas.C(${stId}, ${pmt})"
+    root -l "GetQpkRmsVsTime.C(${stId}, ${pmt})"
   done
 done

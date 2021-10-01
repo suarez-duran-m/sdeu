@@ -260,6 +260,7 @@ double getrms( vector<double> arr, double meanarr ) {
       rms += (elem - meanarr)*(elem - meanarr);
       ngoodb++;
     }
+  //cout << sqrt(rms/ngoodb) << endl;
   return sqrt(rms/ngoodb)/meanarr;
 }
 
@@ -310,8 +311,10 @@ vector < double > getRmsQpkPerWeek( vector < int >time, vector < double >qpkVals
   else
     aug1st = 1311811218;
 
-  vector < vector < double > > tmpQpk (totweeks);
-  int tmpDay = 0;
+  vector < vector < double > > qpk5days (totweeks);
+  int crrnt5days = 0;
+
+  vector < double > allQpk;
 
   for ( int i=0; i<=totweeks; i++ )
     rmsQpkPerWeek.push_back(-10.);
@@ -321,16 +324,32 @@ vector < double > getRmsQpkPerWeek( vector < int >time, vector < double >qpkVals
       continue;
 
     // 432000 for Average per 5 days.
-    tmpDay = int((time[i]-aug1st)/432000);
-    if ( tmpDay < 31 )
-      tmpQpk[ tmpDay ].push_back( qpkVals[i] );
+    crrnt5days = int((time[i]-aug1st)/432000);
+    if ( crrnt5days < 31 )
+      qpk5days[ crrnt5days ].push_back( qpkVals[i] );
   }
 
   for ( int wk=0; wk<totweeks; wk++ ) 
-    if ( tmpQpk[wk].size() > 0 )
-      rmsQpkPerWeek[wk+1] = getrms( tmpQpk[wk], getmean(tmpQpk[wk]) );
+    if ( qpk5days[wk].size() > 0 ) {
+      rmsQpkPerWeek[wk+1] = getrms( qpk5days[wk], getmean(qpk5days[wk]) );
+      /*if ( year==2021 ) {
+        cout << "5Week " << wk << " Nelem " << qpk5days[wk].size() << " getmean " << getmean(qpk5days[wk]) << " getrms " << getrms( qpk5days[wk], getmean(qpk5days[wk]) ) << endl;
+        //for ( auto & elem : qpk5days[wk] )
+          //allQpk.push_back(elem);
+      }
+      */
+    }
+  /*
+  double ave = 0.;
+  if ( year==2021 ) {
+    ave = getmean(allQpk);
+    cout << "ave " << ave << endl;
+    ave = getrms(allQpk, ave);
+    cout << "rms " << ave << endl;
+  }
+  */
 
-  tmpQpk.clear();
+  qpk5days.clear();
   return rmsQpkPerWeek;
 }
 
@@ -341,10 +360,11 @@ void readingChOffCdas(int st, int pmt) {
 
   TString statId;
   statId.Form("St%d", st);
-  TString bnCdas = "~/2021/sdeu/nouub/underHistos/ubChPkPMT";
+
   TString bnOffl = "~/2021/sdeu/offline/forUb/Aug/offlineUb";
   TString bnUubOffl = "~/2021/sdeu/offline/forUub/AugResults/offlineUub";
-  TString bnUubCdas = "~/2021/sdeu/underHisto/uubChPkPMT";
+  TString bnCdas = "~/2021/sdeu/nouub/underHistos/AugResults/ubChPkPMT";
+  TString bnUubCdas = "~/2021/sdeu/underHisto/AugResults/uubChPkPMT";
 
   TPaveStats *ptstats;
   TLegend *leg;
@@ -425,8 +445,7 @@ void readingChOffCdas(int st, int pmt) {
   double meanQpk2020cdas = getmean( qpk2020cdas );
   double rmsQpk2020cdas = getrms( qpk2020cdas, meanQpk2020cdas );
   double meanQpk2021cdas = getmean( qpk2021cdas ); 
-  double rmsQpk2021cdas = getrms( qpk2021cdas, meanQpk2021cdas );
- 
+  double rmsQpk2021cdas = getrms( qpk2021cdas, meanQpk2021cdas ); 
  
   int nPointsOff = time2019off.size()+time2020off.size()+time2021off.size();
   cout << "nPointsOff : " << nPointsOff << " 2019: " << time2019off.size() << " 2020: " << time2020off.size() << " 2021: " << time2021off.size() << endl;
@@ -456,9 +475,19 @@ void readingChOffCdas(int st, int pmt) {
   vector <double> augRmsQpk2019off = getRmsQpkPerWeek(time2019off, qpk2019off, nWeeks, 2019); 
   vector <double> augRmsQpk2020off = getRmsQpkPerWeek(time2020off, qpk2020off, nWeeks, 2020);
   vector <double> augRmsQpk2021off = getRmsQpkPerWeek(time2021off, qpk2021off, nWeeks, 2021);
+  cout << "For CDAS: " << endl;
   vector <double> augRmsQpk2019cdas = getRmsQpkPerWeek(time2019cdas, qpk2019cdas, nWeeks, 2019);
   vector <double> augRmsQpk2020cdas = getRmsQpkPerWeek(time2020cdas, qpk2020cdas, nWeeks, 2020);
   vector <double> augRmsQpk2021cdas = getRmsQpkPerWeek(time2021cdas, qpk2021cdas, nWeeks, 2021);
+
+  /*
+  double tmp = 0.;
+  for ( auto & elem : augRmsQpk2021cdas ) {
+    tmp += elem;
+    cout << elem << endl;
+  }
+  cout << "ave: " << (tmp+10)/(augRmsQpk2021cdas.size()-1) << endl;
+  */
  
   // Doing TGraphs
   TGraph *grp2019off = new TGraph(augDays, &xAugDays[0], &augQpk2019off[0]);
@@ -602,8 +631,8 @@ void readingChOffCdas(int st, int pmt) {
 
   TCanvas *c2 = canvasStyle("c2");
   c2->Divide(1,2,0,0);
+  c2->cd(1); 
 
-  c2->cd(1);
   grp2019cdas->SetTitle("");
   grp2019cdas->GetYaxis()->SetRangeUser(100,yUpperLimCdas);
   grp2019cdas->SetMarkerStyle(72);
@@ -677,7 +706,8 @@ void readingChOffCdas(int st, int pmt) {
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw();
-
+  c2->Modified();
+  c2->SetSelected(c2);
   c2->Print("../plots/qpkRmsCdasSt"+statId+"Pmt"+strPmt+".pdf");
   exit(0);
 }
