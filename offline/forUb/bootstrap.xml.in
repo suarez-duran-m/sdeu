@@ -53,9 +53,10 @@
     </configLink>
   
     <configLink id="GetFitOutputs">
-    <GetFitOutputs>
-      <SelectStId> 1221 </SelectStId>
-      <SelectPmt> 1 </SelectPmt>
+      <GetFitOutputs>
+        <OutPutFileName> offlineUbAug2021St863Pmt1Testing.root </OutPutFileName>
+        <SelectStId> 1221 </SelectStId>
+        <SelectPmt> 1 </SelectPmt>
     </GetFitOutputs>
   </configLink>
 

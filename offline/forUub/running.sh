@@ -9,7 +9,7 @@ do
   stId=$(head -${st} $HOME/2021/sdeu/listStations${list}.txt | tail -1)
   for pmt in $(seq 1 3);
   do
-    cp bootstrap.xml bootstrap${list}${st}.xml
+    cp bootstrap_base.xml bootstrap${list}${st}.xml
     sed -i "s/XXX/${stId}/g" bootstrap${list}${st}.xml 
     sed -i "s/CCC/${pmt}/g" bootstrap${list}${st}.xml
     echo ""

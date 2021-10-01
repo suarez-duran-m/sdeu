@@ -10,8 +10,7 @@ TCanvas *canvasStyle(TString name) {
   return canvas;
 }
 
-void readAscii()
-{
+void readAscii() {
   //diffHighUb.dat  diffHighUub.dat  diffLowUb.dat  diffLowUub.dat
   TH1F *diffLowUb = new TH1F("diffLowUb", "chargeRaw - chargeLow", 3000, 0., 3000.);
   TH1F *diffLowUub = new TH1F("diffLowUub", "chargeRaw - chargeLow", 3000, 0., 3000.);

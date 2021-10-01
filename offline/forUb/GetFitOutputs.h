@@ -66,9 +66,9 @@ class GetFitOutputs : public fwk::VModule {
     double chP0;
     double chP1;
     double chP2;
+
+    // XML config
+    string fOutPutFileName;
+    int fSelectPmt;
+    int fSelectStId;
 };
-
-
-
-
-

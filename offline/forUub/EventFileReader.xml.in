@@ -19,10 +19,6 @@
 
   <InputFilenames>
     `find /home/msd/2021/sdeu/gettingTraces/adAug2021TracesFullStations.root`
-    <!-- `find /home/msd/2021/sdeu/gettingTraces/adAug2021Traces.root` -->
-    <!-- `find /home/msd/Documents/augerData/2021/08/ -name ad_*.root` -->
-    <!-- @INPUTDATA@ -->
-    <!-- /home/msd/Documents/augerData/2021/07/ad_2021_07_02_12h00.root -->
   </InputFilenames>
   
   </@INPUTTYPE@>

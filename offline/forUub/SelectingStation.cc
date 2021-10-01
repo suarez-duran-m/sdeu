@@ -36,7 +36,7 @@ VModule::ResultFlag SelectingStation::Run(evt::Event& event) {
   for (sevt::SEvent::ConstStationIterator sIt = sEvent.StationsBegin(); sIt != sEvent.StationsEnd(); ++sIt)
     if ( fChoseStId == sIt->GetId() )
       return eSuccess;
-
+  
   return eContinueLoop;  
 }
 

@@ -1,5 +1,7 @@
 #include "GetFitOutputs.h"
 
+#include <fwk/CentralConfig.h>
+
 #include <det/Detector.h>
 
 #include <sdet/SDetector.h>
@@ -17,8 +19,15 @@ using namespace fwk;
 
 VModule::ResultFlag GetFitOutputs::Init() {
     INFO("GetFitOutputs::Init()");
+ 
+    Branch topB = 
+      CentralConfig::GetInstance()->GetTopBranch("GetFitOutputs");
 
-    hfile = new TFile("offlineUubAug2021St59Pmt3.root", "RECREATE","");
+    topB.GetChild("OutPutFileName").GetData(fOutPutFileName);
+    topB.GetChild("SelectStId").GetData(fSelectStId);
+    topB.GetChild("SelectPmt").GetData(fSelectPmt);
+    
+    hfile = new TFile(fOutPutFileName.c_str(), "RECREATE","");
 
     pkEvtId = 0;
     pkGpstime = 0;
@@ -82,9 +91,12 @@ VModule::ResultFlag GetFitOutputs::Run(evt::Event& event) {
     const sdet::Station& dStation = det::Detector::GetInstance().GetSDetector().GetStation(*sIt);
     if ( !dStation.IsUUB() )
       continue;
-     
-    if ( sIt->GetId() == 59 ) {  
-      sevt::PMT& pmt = event.GetSEvent().GetStation(sIt->GetId()).GetPMT(1);
+
+    cout << "Getting " << sIt->GetId() << " " << sEvent.GetHeader().GetId() << endl;
+ 
+    if ( sIt->GetId() == fSelectStId ) {
+      cout << "Reading for Qpk, Station " << sIt->GetId() << endl;
+      sevt::PMT& pmt = event.GetSEvent().GetStation(sIt->GetId()).GetPMT( fSelectPmt );
       if ( !pmt.HasRecData() )
         pmt.MakeRecData();
       
@@ -123,7 +135,7 @@ VModule::ResultFlag GetFitOutputs::Run(evt::Event& event) {
         chChi2 = recpmtDat.GetVEMChargeChi2();
         chNdof = recpmtDat.GetVEMChargeNdof();
         chLow = recpmtDat.GetVEMChargeLow();
-        chHigh= recpmtDat.GetVEMChargeHigh();
+        chHigh = recpmtDat.GetVEMChargeHigh();
         chP0 = recpmtDat.GetVEMChargeP0();
         chP1 = recpmtDat.GetVEMChargeP1();
         chP2 = recpmtDat.GetVEMChargeP2();
@@ -142,6 +154,7 @@ VModule::ResultFlag GetFitOutputs::Run(evt::Event& event) {
       charge->Fill();
     } 
   }
+  
   return eSuccess;  
 }
 
