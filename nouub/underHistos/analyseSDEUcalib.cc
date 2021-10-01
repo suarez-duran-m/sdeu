@@ -113,7 +113,7 @@ int main (int argc, char *argv[]) {
 		pmtname += "St"+to_string( stationsIds[0] );
  
   string doMonth = string(whichmonth);
-  pmtname +=  "lrb" + strNblr + doMonth + "2019";
+  pmtname +=  "lrb" + strNblr + doMonth + "2020";
   
   TFile hfile("ubChPk"+pmtname+".root","RECREATE","");
   //TFile hfile("kk.root", "RECREATE","");
@@ -227,10 +227,14 @@ int main (int argc, char *argv[]) {
         << " " << nrEventsRead-1
         << endl;
 
+      cout << "MSD0 " << event.Id << " " << event.Stations[i].Id << endl;
       if(event.fCalibStations[i].Error)
         continue;
+      cout << "MSD1 " << event.Id << " " << event.Stations[i].Id << endl;
       if(event.fCalibStations[i].fSigInVEM < 0)
         continue;
+
+      cout << "MSD2 " << event.Id << " " << event.Stations[i].Id << endl;
 
       tmpName.Form("%d%d", event.UTCTime, nrEventsRead-1);
       blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean(); // Extracting calib-baseline
