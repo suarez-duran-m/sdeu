@@ -1,4 +1,4 @@
-base=sdeuMonitoring
+base=miniReport#sdeuMonitoring
 #version=_v5
 name=${base}
 #name=${base}${version}
