@@ -76,11 +76,8 @@ vector < double > getFitRangeCh( TH1F &h, int rightleftBins ) {
   int minRng = 0; // Min for fitting
 	int maxRng = 0; // Max for fitting
 
-  double vemDer = 0.;
-  double binMin = 0.;
   double binMax = 0.;
   double rawbinMax = 0.;
-  double rawbinMin = 0.;
 
   for ( int kk=275; kk>100; kk-- ) {// from ~2000 FADC backward
     if ( h.GetBinContent(kk) > 0 ) {
@@ -95,24 +92,16 @@ vector < double > getFitRangeCh( TH1F &h, int rightleftBins ) {
       break;
     }
   }
-
-  cout << "kk " << rawbinMax << " binMax " << binMax << endl;
-  cout << "rightleftBins " << rightleftBins << endl;
-  
+ 
   minRng = h.GetBinCenter(rawbinMax-rightleftBins);
   maxRng = h.GetBinCenter(rawbinMax+rightleftBins);
-
-  cout << "minRng " << minRng << " maxRng " << maxRng << endl;
 
   minmax.push_back( minRng );
   minmax.push_back( maxRng );
   minmax.push_back( binMax ); 
-  //minmax.push_back( rawbinMax-rightleftBins );
-  //minmax.push_back( rawbinMax );
 
   return minmax;
 }
-
 
 fitcharge::fitcharge() {
 	vemPosCh = 0.;
@@ -130,8 +119,7 @@ fitcharge::fitcharge() {
 	critGoodFit = 0.;
 }
 
-void fitcharge::setChCrr(TH1F &hist, const int corr, TString name) 
-{
+void fitcharge::setChCrr(TH1F &hist, const int corr, TString name) {
 	unsigned int nb = 601;
 	double xb [nb];
 
@@ -194,12 +182,6 @@ void fitcharge::getFitCh(TH1F &hist, int nblr) {
   vector < double > xResid;
   vector < double > yResid;
   vector < double > errResid;
-  double tmp = 0.;
-  int bigRsd = 0;
-  double reduceFactor = 0.05;
-  double chi2Ndf = 500.; 
-  double bestXmin = 0.;
-  double bestXmax = 0.;
   
   poly2 = new TF1("poly2","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
   chToFit->Fit("poly2","QR");

@@ -118,10 +118,11 @@ int main (int argc, char *argv[]) {
   TFile hfile("uubChPk"+pmtname+".root","RECREATE","");
   //TFile hfile("kk.root", "RECREATE","");
 
-	TH1F *recePk = new TH1F (); // Receive Pk from IoSdStation::HPeak
+	//TH1F *recePk = new TH1F (); // Receive Pk from IoSdStation::HPeak
 	TH1F *receCh = new TH1F (); // Receive Ch from IoSdStation::HCharge
 
   //TGraphErrors *pkHistFit = new TGraphErrors();
+  /*
   TH1F *pkForFit = new TH1F();
   double pkChi2 = 0.;
   int pkNdf = 0.;
@@ -133,6 +134,7 @@ int main (int argc, char *argv[]) {
   double pkPar0 = 0.; 
   double pkPar1 = 0.; 
   double pkPar2 = 0.; 
+  */
 
   TGraphErrors *chHistFit = new TGraphErrors();
   TH1F *chForFit = new TH1F();
@@ -147,15 +149,15 @@ int main (int argc, char *argv[]) {
   double chPar1 = 0.; 
   double chPar2 = 0.; 
 
-  unsigned int evtIdPk = 0; //Storing event Id
-  unsigned int evtTimePk = 0; //Storing day-Unixtime
+  //unsigned int evtIdPk = 0; //Storing event Id
+  //unsigned int evtTimePk = 0; //Storing day-Unixtime
   unsigned int evtIdCh = 0; //Storing event Id
   unsigned int evtTimeCh = 0; //Storing day-Unixtime
   unsigned int previusEvent = 0; // Avoiding read the same event
   unsigned int nrEventsRead = 0;
   unsigned int nrEvents = 0;
   bool found = false;
-	double blCorrHbase = 0.;
+	//double blCorrHbase = 0.;
 
   TH1F *tmp = new TH1F();
   TString tmpName;
@@ -209,10 +211,7 @@ int main (int argc, char *argv[]) {
 
     IoSdEvent event(pos);
     if ( event.Id == previusEvent )
-      continue;
-
-    if ( event.Id != 64428767 )
-      continue;
+      continue; 
 
     previusEvent = event.Id;
 
@@ -239,8 +238,8 @@ int main (int argc, char *argv[]) {
             */
 
         if (event.Stations[i].Error==256) {
-          tmpName.Form("%d%d", event.UTCTime, nrEventsRead-1);
-          blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean(); // Extracting calib-baseline
+          tmpName.Form("%ld%d", event.UTCTime, nrEventsRead-1);
+          //blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean(); // Extracting calib-baseline
           /*
           recePk = event.Stations[i].HPeak(pmtId-1); // Receiving Peak histogram 
           blCorrHbase = ( fabs(blCorrHbase - recePk->GetBinCenter(1) < 20 ) ? (recePk->GetBinCenter(1)):0 ); // From OffLine
