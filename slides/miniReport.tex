@@ -40,9 +40,7 @@
 }
 
 
-\title{Comparison of $\mathrm{Q}^{\mathrm{pk}}_{\mathrm{VEM}}$
-values getting from SdCalibrator and a local fit method, for
-UB and UUB}
+\title{Accuracy of $\mathrm{Q}^{\mathrm{pk}}_{\mathrm{VEM}}$ fit for UB and UUB}
 \author{
   Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
 }
@@ -62,225 +60,29 @@ UB and UUB}
   \titlepage
 \end{frame}
 
-\begin{frame}
-  \frametitle{The current algorithm (OffLine SdCalibrator Module)}
-  UUB Charge histogram
-  \begin{center}
-    \includegraphics<1>[width=.65\textwidth]{../plots/offlineChCompaSt863Pmt1.pdf}
-  \end{center}
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      \includegraphics<2->[width=1.\textwidth]{../plots/uubChargeFromOffSt863pmt1.pdf}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \includegraphics<3->[width=1.\textwidth]{../plots/offlineFailedChargeSt863PMT1Evt61435819.pdf}
-    \end{column}
-  \end{columns}
-    Find "head-and-shoulder": from the right side of the histogram,
-    search for local maximum (head), surrounded by drops (shoulders)
-    with shoulder/head value ratio less than
-    fChargeWindowShoulderHeadRatio (as default 0.75)
-\end{frame}
-
-% Presentation of BXL-Method
-\begin{frame}
-  \frametitle{Obtaining initial parameters through derivatives} %: Peak histogram Station863}
-  UUB Charge histogram
-  \begin{columns}
-    \begin{column}{0.55\textwidth}
-      \includegraphics<1->[width=1.\textwidth]{../plots/chargeHisto863.pdf}
-    \end{column}
-    \begin{column}{0.55\textwidth}
-      \includegraphics<2->[width=1.\textwidth]{../plots/chargeDerHisto863.pdf}
-    \end{column}
-  \end{columns}
-
-  \begin{enumerate}
-    \item<1-> Smoothing the histogram by 15-bin sliding
-      window, $H_S$\\
-    \item<2-> Obtain first derivative of the $H_S$
-      ($\frac{f(x+1)-f(x-1)}{2h}$), $H_{DS}$ (black line)\\
-    \item<3-> Smoothing $H_{DS}$, obtaining $H_{SDS}$ (red line) \\ 
-    \item<4-> Searching for the VEM hump, i.e. first bin for
-      $H_{SDS}$ equal to zero; from right to left. \\
-    \item <5-> Fixing the fitting range using n-bin leftward
-      and n-bin rightward from VEM hump.
-  \end{enumerate}
-\end{frame}
-
 % An example for BXL-Method
-\begin{frame} 
-  \frametitle{Describing the muon hump with a second polynomial}
-  UUB Charge histogram
+\begin{frame}
   \begin{columns}
-    \begin{column}{0.55\textwidth}
-      \includegraphics[width=1.\textwidth]{../plots/chargeFitPoly2863.pdf}
-    \end{column}
-    \begin{column}{0.55\textwidth}
-      \includegraphics[width=1.\textwidth]{../plots/chargeFitResidualsPoly2863.pdf}
+    \begin{column}{1.\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots/accuracyQpksFitsCdasPmt1.pdf}
     \end{column}
   \end{columns}
 \end{frame}
 
-% Improving BXL-Method
-\begin{frame} 
-  \frametitle{Choosing the number of bins}
-  \begin{enumerate}
-    \item Using the hump value from the derivative as initial parameter
-    \item Fixing the number of bins to the left and right
-      with an extra condition of not reaching the valley
-    \item Checking the spread of the VEM values versus number
-      of used n-bin
-  \end{enumerate}
-  \begin{center}
-    \begin{columns}
-      \begin{column}{0.55\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/uubChRmsFitBinsLrSt863.pdf}
-      \end{column}
-      \begin{column}{0.55\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/uubChRmsFitBinsLrSt863zoom.pdf}
-      \end{column}
-    \end{columns}
-  \end{center}
-     \hfill $\Rightarrow$ A number of about 35 bins is sufficient 
-\end{frame}
-
-% Fail for 25 bins BXL-Method
-%Comparison with OffLine
-\begin{frame} 
-  \frametitle{863 Station, UUB}
-
-  \begin{center}
-    \begin{columns}
-      \begin{column}{0.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/uubChargeFromBlrSt863pmt2.pdf}
-      \end{column}
-    \end{columns}
-
-    \begin{columns}
-      \begin{column}{0.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/uubChargeFromOffSt863pmt2.pdf}
-      \end{column}
-    \end{columns}
-  \end{center}
-  From December 2020, this method fit properly all histograms,
-  including the ones for which OffLine-SdCalibrator algorithm
-  fails.
-\end{frame}
-
-
 \begin{frame}
-  \frametitle{$\mathrm{Q}^{\mathrm{pk}}_{\mathrm{VEM}}$
-  Distribution for all UUB Stations (August, 2019, 2020, 2021)}
-  \begin{center}
-    \begin{columns}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/QpkDistributionUbPmt1.pdf}
-      \end{column}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/QpkDistributionUbPmt2.pdf}
-      \end{column}
-    \end{columns}
-    \begin{columns}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/QpkDistributionUubPmt1.pdf}
-      \end{column}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/QpkDistributionUubPmt2.pdf}
-      \end{column}
-    \end{columns}
-  \end{center}
+  \begin{columns}
+    \begin{column}{1.\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots/accuracyQpksFitsCdasPmt2.pdf}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}
-  \frametitle{$\mathrm{Q}^{\mathrm{pk}}_{\mathrm{VEM}}$
-  Distribution for all UUB Stations (August, 2019, 2020, 2021)}
-  \begin{center}
-    \begin{columns}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/QpkDistributionUbPmt3.pdf}
-      \end{column}
-      \begin{column}{.5\textwidth}
-      \end{column}
-    \end{columns}
-    \begin{columns}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/QpkDistributionUubPmt3.pdf}
-      \end{column}
-      \begin{column}{.5\textwidth}
-      \end{column}
-    \end{columns}
-  \end{center}
+  \begin{columns}
+    \begin{column}{1.\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots/accuracyQpksFitsCdasPmt3.pdf}
+    \end{column}
+  \end{columns}
 \end{frame}
-
-\begin{frame}
-  \frametitle{Relative difference for
-  $\mathrm{Q}^{\mathrm{pk}}_{\mathrm{VEM}}$, UUB}
-  \begin{center}
-    \begin{columns}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/ubQpkCdasVsQpkOffAllStPMT1.pdf}
-      \end{column}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/uubQpkCdasVsQpkOffAllStPMT1.png}
-      \end{column}
-    \end{columns}
-    \begin{columns}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/ubRelDiffQpkUbMatchAllStPmt1.pdf}
-      \end{column}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/uubRelDiffQpkUbMatchAllStPmt1.pdf}
-      \end{column}
-    \end{columns}
-  \end{center}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Relative difference for
-  $\mathrm{Q}^{\mathrm{pk}}_{\mathrm{VEM}}$, UUB}
-  \begin{center}
-    \begin{columns}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/ubQpkCdasVsQpkOffAllStPMT2.pdf}
-      \end{column}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/uubQpkCdasVsQpkOffAllStPMT2.png}
-      \end{column}
-    \end{columns}
-    \begin{columns}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/ubRelDiffQpkUbMatchAllStPmt2.pdf}
-      \end{column}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/uubRelDiffQpkUbMatchAllStPmt2.pdf}
-      \end{column}
-    \end{columns}
-  \end{center}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Relative difference for
-  $\mathrm{Q}^{\mathrm{pk}}_{\mathrm{VEM}}$, UUB}
-  \begin{center}
-    \begin{columns}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/ubQpkCdasVsQpkOffAllStPMT3.pdf}
-      \end{column}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/uubQpkCdasVsQpkOffAllStPMT3.png}
-      \end{column}
-    \end{columns}
-    \begin{columns}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/ubRelDiffQpkUbMatchAllStPmt3.pdf}
-      \end{column}
-      \begin{column}{.5\textwidth}
-        \includegraphics[width=1.\textwidth]{../plots/uubRelDiffQpkUbMatchAllStPmt3.pdf}
-      \end{column}
-    \end{columns}
-  \end{center}
-\end{frame}
-
 
 \end{document}
