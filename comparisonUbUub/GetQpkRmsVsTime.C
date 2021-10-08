@@ -75,7 +75,7 @@ double getRelRms( vector<double> arr, double meanarr ) {
 }
 
 vector < vector < double > > getFitQpkTime( TString bname, TString st, int pmt, int year, bool ifoff ) {
-  TString monthUub[] = {"Aug"};
+  TString monthUub[] = {"Aug", "Sep"};
   TString pmtId;
   TString strYear;
   TString fname;
@@ -86,7 +86,7 @@ vector < vector < double > > getFitQpkTime( TString bname, TString st, int pmt, 
   TFile *f;
   TTree *chargeInfo;
   double fetchQpk = 0.;
-  vector < vector < double > > retQpkTime(31); // Number of days for August
+  vector < vector < double > > retQpkTime(61); // Number of days for August+Sept.
   int nMonths = 0;
 
   int evttime = 0;
@@ -132,7 +132,7 @@ vector < vector < double > > getFitQpkTime( TString bname, TString st, int pmt, 
       
       // To avoid read the same event twice from Offline
       crrDay = int((evttime-aug1st)/86400);
-      if ( crrDay < 31 ) {
+      if ( crrDay < 61 ) {
         if ( ifoff ) {
           if ( prevTime != evttime ) {
             retQpkTime[crrDay].push_back( fetchQpk/uub2ub );
@@ -331,10 +331,10 @@ void GetQpkRmsVsTime(int st, int pmt) {
   TString statId;
   statId.Form("St%d", st);
 
-  TString bnOffl = "~/2021/sdeu/offline/forUb/Aug/offlineUb";
+  TString bnOffl = "~/2021/sdeu/offline/forUb/results/offlineUb";
   TString bnUubOffl = "~/2021/sdeu/offline/forUub/AugResults/offlineUub";
-  TString bnCdas = "~/2021/sdeu/nouub/underHistos/AugResults/ubChPkPMT";
-  TString bnUubCdas = "~/2021/sdeu/underHisto/AugResults/uubChPkPMT";
+  TString bnCdas = "~/2021/sdeu/nouub/underHistos/results/ubChPkPMT";
+  TString bnUubCdas = "~/2021/sdeu/underHisto/results/uubChPkPMT";
 
   TPaveStats *ptstats;
   TLegend *leg;
@@ -395,7 +395,7 @@ void GetQpkRmsVsTime(int st, int pmt) {
   grpQpkDayOffUb2019->SetTitle("");
   grpQpkDayOffUb2019->GetYaxis()->SetTitle("<Q^{pk}_{VEM}/1.01>_{day} [FADC]");
   grpQpkDayOffUb2019->GetYaxis()->SetRangeUser(106, yUpLimQpk);
-  grpQpkDayOffUb2019->GetXaxis()->SetRangeUser(0, 32);
+  //grpQpkDayOffUb2019->GetXaxis()->SetRangeUser(0, 32);
   grpQpkDayOffUb2019->GetXaxis()->SetTitle("August [days]");
   grpQpkDayOffUb2019->SetMarkerStyle(72);
   grpQpkDayOffUb2019->SetMarkerSize(1.5);
@@ -438,7 +438,7 @@ void GetQpkRmsVsTime(int st, int pmt) {
   grpRms5DayOffUb2019->GetYaxis()->SetTitle("RMS/#mu_{5-days} [au]");
   grpRms5DayOffUb2019->GetYaxis()->SetRangeUser(0., yUpLimRms);
   grpRms5DayOffUb2019->GetXaxis()->SetTitle("August [days]");
-  grpRms5DayOffUb2019->GetXaxis()->SetRangeUser(0, 32);
+  //grpRms5DayOffUb2019->GetXaxis()->SetRangeUser(0, 32);
   grpRms5DayOffUb2019->SetMarkerStyle(72);
   grpRms5DayOffUb2019->SetMarkerSize(1.5);
   grpRms5DayOffUb2019->SetMarkerColor(kGray);
@@ -461,7 +461,7 @@ void GetQpkRmsVsTime(int st, int pmt) {
 
   gPad->SetTopMargin(0.05);
   gPad->SetRightMargin(0.01);
-  c1->Print("../plots/qpkRmsOffSt"+statId+"Pmt"+strPmt+".pdf");
+  //c1->Print("../plots/qpkRmsOffSt"+statId+"Pmt"+strPmt+".pdf");
 
 
   TCanvas *c2 = canvasStyle("c2");
@@ -536,7 +536,7 @@ void GetQpkRmsVsTime(int st, int pmt) {
 
   gPad->SetTopMargin(0.05);
   gPad->SetRightMargin(0.01);
-  c2->Print("../plots/qpkRmsCdasSt"+statId+"Pmt"+strPmt+".pdf");
+  //c2->Print("../plots/qpkRmsCdasSt"+statId+"Pmt"+strPmt+".pdf");
 
-  exit(0);
+  //exit(0);
 }

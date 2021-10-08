@@ -260,7 +260,6 @@ double getrms( vector<double> arr, double meanarr ) {
       rms += (elem - meanarr)*(elem - meanarr);
       ngoodb++;
     }
-  //cout << sqrt(rms/ngoodb) << endl;
   return sqrt(rms/ngoodb)/meanarr;
 }
 
