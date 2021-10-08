@@ -33,10 +33,18 @@ VModule::ResultFlag SelectingStation::Run(evt::Event& event) {
 
   const sevt::SEvent& sEvent = event.GetSEvent();
 
-  for (sevt::SEvent::ConstStationIterator sIt = sEvent.StationsBegin(); sIt != sEvent.StationsEnd(); ++sIt)
+  for (sevt::SEvent::ConstStationIterator sIt = sEvent.StationsBegin(); sIt != sEvent.StationsEnd(); ++sIt) {
+    const sevt::StationTriggerData& trig = sIt->GetTriggerData();
+    if (trig.GetErrorCode() & 0xff) // From SdCalibrator 
+      continue;
+    if (!sIt->HasCalibData()) // From SdCalibrator
+      continue;
+    if ( !sIt->HasTriggerData() ) // From SdCalibrator
+      continue;
+
     if ( fChoseStId == sIt->GetId() )
       return eSuccess;
-  
+  } 
   return eContinueLoop;  
 }
 

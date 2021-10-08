@@ -42,5 +42,5 @@ class SelectingStation : public fwk::VModule {
     REGISTER_MODULE("SelectingStation",SelectingStation);
 
     // XML config
-    int fGetStId = 0;
+    int fChoseStId = 0;
 };

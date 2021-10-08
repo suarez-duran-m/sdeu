@@ -13,6 +13,7 @@
 #include <sevt/Station.h>
 #include <sevt/StationGPSData.h>
 #include <sevt/SortCriteria.h>
+#include <sevt/StationTriggerData.h>
 
 using namespace std;
 using namespace utl;
@@ -23,7 +24,7 @@ VModule::ResultFlag SelectingStation::Init() {
 
     Branch topB = 
       CentralConfig::GetInstance()->GetTopBranch("GetFitOutputs");
-    topB.GetChild("SelectStId").GetData(fGetStId);
+    topB.GetChild("SelectStId").GetData(fChoseStId);
 
     return eSuccess;
 }
@@ -34,18 +35,20 @@ VModule::ResultFlag SelectingStation::Run(evt::Event& event) {
   INFO("SelectingStation::Run()");
 
   const sevt::SEvent& sEvent = event.GetSEvent();
-  //sEvent.SortStations(sevt::ByIncreasingTime());
-  cout << "Selecting Number of stations " << sEvent.GetNumberOfStations() << endl;
-  cout << "Starting event " << sEvent.GetHeader().GetId() << endl;
-  for (sevt::SEvent::ConstStationIterator sIt = sEvent.StationsBegin(); sIt != sEvent.StationsEnd(); ++sIt) {
-    if ( sIt->HasTriggerData() )
-      cout << sIt->GetId() << endl;
-    if ( sIt->GetId() == fGetStId ) {
-      cout << "Selected " << sIt->GetId() << " " << fGetStId << " EvtId " << sEvent.GetHeader().GetId() << endl;
-      return eSuccess;
-    }
-  }
 
+  for (sevt::SEvent::ConstStationIterator sIt = sEvent.StationsBegin(); sIt != sEvent.StationsEnd(); ++sIt) {
+    
+    const sevt::StationTriggerData& trig = sIt->GetTriggerData();
+    if (trig.GetErrorCode() & 0xff) // From SdCalibrator 
+      continue;
+    if (!sIt->HasCalibData()) // From SdCalibrator
+      continue;
+    if ( !sIt->HasTriggerData() ) // From SdCalibrator
+      continue;
+    
+    if ( sIt->GetId() == fChoseStId )
+      return eSuccess;
+  }
   return eContinueLoop;
 }
 

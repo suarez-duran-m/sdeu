@@ -18,7 +18,8 @@
   <@INPUTTYPE@>
 
   <InputFilenames>
-    `find /home/msd/2021/sdeu/gettingUbTraces/ubAd*aug*2020*.root`
+    `find /home/msd/2021/sdeu/gettingUbTraces/ubAd*sep*2020*.root`
+    <!-- `find /home/msd/2021/sdeu/gettingUbTraces/ubAd*aug*2020*.root`-->
   </InputFilenames>
   
   </@INPUTTYPE@>

@@ -89,17 +89,15 @@ VModule::ResultFlag GetFitOutputs::Run(evt::Event& event) {
 
   for (sevt::SEvent::ConstStationIterator sIt = sEvent.StationsBegin(); sIt != sEvent.StationsEnd(); ++sIt) {
     const sdet::Station& dStation = det::Detector::GetInstance().GetSDetector().GetStation(*sIt);
-    if ( !dStation.IsUUB() )
+    if ( dStation.IsUUB() )
       continue;
 
-    cout << "Getting " << sIt->GetId() << " " << sEvent.GetHeader().GetId() << endl;
  
     if ( sIt->GetId() == fSelectStId ) {
-      cout << "Reading for Qpk, Station " << sIt->GetId() << endl;
       sevt::PMT& pmt = event.GetSEvent().GetStation(sIt->GetId()).GetPMT( fSelectPmt );
       if ( !pmt.HasRecData() )
         pmt.MakeRecData();
-      
+
       const sevt::PMTRecData& recpmtDat = pmt.GetRecData();
       const sevt::StationGPSData& gpstime = event.GetSEvent().GetStation(sIt->GetId()).GetGPSData();
 

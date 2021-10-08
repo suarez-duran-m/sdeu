@@ -18,7 +18,7 @@ files if you have questions regarding &NAME (i.e. &SdPreSelection) -->
 
     <loop numTimes="unbounded" pushEventToStack="yes">
       <module> EventFileReaderOG </module>
-      <module> EventCheckerOG </module>
+      <!-- module> EventCheckerOG </module -->
       <module> SelectingStation </module> 
       <module> SdCalibratorOG </module>
       <module> GetFitOutputs </module>
