@@ -72,11 +72,8 @@ vector < double > getFitRangeCh( TH1F &h, int rightleftBins ) {
   int minRng = 0; // Min for fitting
 	int maxRng = 0; // Max for fitting
 
-  double vemDer = 0.;
-  double binMin = 0.;
   double binMax = 0.;
   double rawbinMax = 0.;
-  double rawbinMin = 0.;
 
   for ( int kk=300; kk>80; kk-- ) {// from 300 FADC backward
     if ( h.GetBinContent(kk) > 0 ) {
@@ -183,12 +180,6 @@ void fitcharge::getFitCh(TH1F &hist, int nblr)
   vector < double > xResid;
   vector < double > yResid;
   vector < double > errResid;
-  double tmp = 0.;
-  int bigRsd = 0;
-  double reduceFactor = 0.05;
-  double chi2Ndf = 500.; 
-  double bestXmin = 0.;
-  double bestXmax = 0.;
   
   poly2 = new TF1("poly2","[0]*x*x+[1]*x+[2]",rangXmin,rangXmax);
   chToFit->Fit("poly2","QR");

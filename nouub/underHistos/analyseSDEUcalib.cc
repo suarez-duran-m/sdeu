@@ -206,7 +206,7 @@ int main (int argc, char *argv[]) {
       cout << "      Wrote: " << nrEvents << " events" << endl;
     }
 
-    bool found = false;
+    found = false;
     TEcEvent event(pos);
 
     if ( event.Id == previusEvent )
@@ -227,16 +227,13 @@ int main (int argc, char *argv[]) {
         << " " << nrEventsRead-1
         << endl;
 
-      cout << "MSD0 " << event.Id << " " << event.Stations[i].Id << endl;
       if(event.fCalibStations[i].Error)
         continue;
-      cout << "MSD1 " << event.Id << " " << event.Stations[i].Id << endl;
       if(event.fCalibStations[i].fSigInVEM < 0)
         continue;
 
-      cout << "MSD2 " << event.Id << " " << event.Stations[i].Id << endl;
 
-      tmpName.Form("%d%d", event.UTCTime, nrEventsRead-1);
+      tmpName.Form("%ld%d", event.UTCTime, nrEventsRead-1);
       blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean(); // Extracting calib-baseline
 
       recePk = event.Stations[i].HPeak(pmtId-1); // Receiving Peak histogram

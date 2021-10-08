@@ -74,7 +74,6 @@ vector < double > minRangMax( TH1F &h )
 
   double tmpBinMin = 0.;
   double tmpBinMax = 0.;
-  double rawbinMin = 0.;
   double rawbinMax = 0.;
 
   for ( int kk=75; kk>27; kk-- ) // from 75 FADC backward
@@ -104,10 +103,8 @@ vector < double > minRangMax( TH1F &h )
       tmpMin = h.GetBinCenter(kk-1); // Change of concavity
     }
     if ( h.GetBinContent( kk ) < 0 && nroot==0 && binavocero>3 )
-    {
       nroot = 1;
-      rawbinMin = h.GetBinCenter(kk); // Bin for local minimum
-    }
+    
     if ( h.GetBinContent( kk ) > 0 )
       binavocero++;
     else if ( h.GetBinContent( kk ) > 0 && nroot==1 )
