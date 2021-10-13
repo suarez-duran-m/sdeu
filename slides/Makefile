@@ -1,4 +1,4 @@
-base=auger_bxl#miniReport#sdeuMonitoring
+base=sdeuMeetOct122021#auger_bxl#miniReport#auger_bxl#miniReport#sdeuMonitoring
 #version=_v5
 name=${base}
 #name=${base}${version}
