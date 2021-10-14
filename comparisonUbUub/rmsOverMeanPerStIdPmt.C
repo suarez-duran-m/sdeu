@@ -96,7 +96,7 @@ TH1D * getQpksDist( TString bname, int StId, int pmt, bool ifIsUub ) {
         if ( fetchQpkVals == 0 || fetchQpkVals < 0 )
           continue;
         qpkDist->Fill( fetchQpkVals );
-        if ( pmt==2 )
+        if ( pmt==3 )
           cout << "year " << strYear[year] 
             << " month " << monthUub[month_i] 
             << " time " << fetchTime
@@ -118,11 +118,9 @@ void rmsOverMeanPerStIdPmt(int st, double rmsQpk, bool ifIsUub=true) {
 
   TPaveStats *ptstats;
   TLegend *leg;
-  TString strEntr;
-  TString strMean;
-  TString strRms;
   TString strSt;
   strSt.Form("%d", st);
+  TString struub;
 
   TH1D *distQpkStPmt1;
   TH1D *distQpkStPmt2;
@@ -138,55 +136,48 @@ void rmsOverMeanPerStIdPmt(int st, double rmsQpk, bool ifIsUub=true) {
   distQpkStPmt1->SetStats(kFALSE);
   distQpkStPmt1->SetTitle("");
   distQpkStPmt1->GetYaxis()->SetTitle("Counts [au]");
-  distQpkStPmt1->GetXaxis()->SetTitle("Q^{pk}_{VEM}");
+  distQpkStPmt1->GetXaxis()->SetTitle("Q^{pk}_{VEM} [FADC]");
   distQpkStPmt1->GetXaxis()->SetTitleOffset(1.5);
-  //distQpkStPmt1->SetMarkerStyle(8);
-  //distQpkStPmt1->SetMarkerColor(kRed);
-  //distQpkStPmt1->SetMarkerSize(1.5);
   distQpkStPmt1->SetLineColor(kRed);
   distQpkStPmt1->Draw();
 
-  //distQpkStPmt2->SetMarkerColor(kBlack);
-  //distQpkStPmt2->SetMarkerStyle(22);
-  //distQpkStPmt2->SetMarkerSize(1.5);
   distQpkStPmt2->SetLineColor(kBlack);
   distQpkStPmt2->Draw("same");
 
-  //distQpkStPmt3->SetMarkerColor(kGreen+2);
-  //distQpkStPmt3->SetMarkerStyle(22);
-  //distQpkStPmt3->SetMarkerSize(1.5);
   distQpkStPmt3->SetLineColor(kGreen+2);
   distQpkStPmt3->Draw("same");
 
   leg = new TLegend(0.6,0.5,0.9,0.95);
   TString strAve;
   strAve.Form("%.1f", rmsQpk);
-  leg->SetHeader("UUB Station "+strSt+"; #LT RMS/#LT Q^{pk}_{VEM} #GT #GT: "+strAve);
+  struub = (ifIsUub) ? "UUB" : "UB";
+  leg->SetHeader(struub+" Station "+strSt+"; #LT RMS/#LT Q^{pk}_{VEM} #GT #GT: "+strAve+" [%]");
   leg->AddEntry(distQpkStPmt1, "PMT1", "l");
   
   strAve.Form("%.3f", distQpkStPmt1->GetMean());
-  leg->AddEntry(distQpkStPmt1, "MEAN: "+strAve, "");
+  leg->AddEntry(distQpkStPmt1, "MEAN: "+strAve+" [FADC]", "");
   strAve.Form("%.3f", distQpkStPmt1->GetRMS());
-  leg->AddEntry(distQpkStPmt1, "RMS: "+strAve, "");
+  leg->AddEntry(distQpkStPmt1, "RMS: "+strAve+" [FADC]", "");
 
   leg->AddEntry(distQpkStPmt2, "PMT2", "l");
   strAve.Form("%.3f", distQpkStPmt2->GetMean());
-  leg->AddEntry(distQpkStPmt2, "MEAN: "+strAve, "");
+  leg->AddEntry(distQpkStPmt2, "MEAN: "+strAve+" [FADC]", "");
   strAve.Form("%.3f", distQpkStPmt2->GetRMS());
-  leg->AddEntry(distQpkStPmt2, "RMS: "+strAve, "");
+  leg->AddEntry(distQpkStPmt2, "RMS: "+strAve+" [FADC]", "");
 
   leg->AddEntry(distQpkStPmt3, "PMT3", "l");
   strAve.Form("%.3f", distQpkStPmt3->GetMean());
-  leg->AddEntry(distQpkStPmt3, "MEAN: "+strAve, "");
+  leg->AddEntry(distQpkStPmt3, "MEAN: "+strAve+" [FADC]", "");
   strAve.Form("%.3f", distQpkStPmt3->GetRMS());
-  leg->AddEntry(distQpkStPmt3, "RMS: "+strAve, "");
+  leg->AddEntry(distQpkStPmt3, "RMS: "+strAve+" [FADC]", "");
 
   leg->SetTextSize(0.03);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw();
-  
-  c1->Print("../plots/qpksFitsCdasUubSt"+strSt+".pdf");
+
+  struub = (ifIsUub) ? "Uub" : "Ub";  
+  c1->Print("../plots/qpksFitsCdas"+struub+"St"+strSt+".pdf");
 
   exit(0);
 } 

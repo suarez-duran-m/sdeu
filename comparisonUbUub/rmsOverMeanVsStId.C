@@ -50,138 +50,56 @@ double getrms( vector<double> arr, double meanarr ) {
       goodVals++;
     }
 
-  return sqrt(rms/goodVals)/meanarr;
+  return sqrt(rms/goodVals);
 }
 
-TH1D *doRelRmsDist( TString bname, 
-    vector<double> listSt, bool ifIsUub ) {
+vector < double > getQpkValues( TString bname, double StId, int pmt, 
+    bool ifIsUub ) {
 
   TString monthUub[2] = {"Aug", "Sep"};
   TString pmtId;
+  pmtId.Form("%d", pmt);
   TString strStId;
+  strStId.Form("St%d", (int)StId);
   TString strYear[3] = {"2019", "2020", "2021"};
   TString fname;
   int stYear = (ifIsUub) ? 2 : 0;
   int lstYear = (ifIsUub) ? 2 : 1;
+  TString strTHname = (ifIsUub) ? "uub" : "ub";
 
   TString strChargeData = "ChargeData";
   TFile *f;
   TTree *chargeInfo;
   double fetchQpkVals = 0.;
-  int nBins = (ifIsUub) ? 2500 : 250;
-  int firstBin = (ifIsUub) ? 500 : 50;
-  int lastBin = (ifIsUub) ? 3000 : 300;
-
-  TString strTHname = (ifIsUub) ? "uub" : "ub";
-
-  TH1D *qpkDist = new TH1D("qpkDist"+strTHname, "", nBins, firstBin, lastBin);
-  TH1D *retRmsQpkDist = new TH1D("retQpkDist"+strTHname, "", 30, 0., 30.); // 0% to 20%
-  vector < double > cumuRelRmsQpk;
-  for (int i=0; i<3; i++ ) 
-    cumuRelRmsQpk.push_back(0.);
-  int nPmtWithQpk = 0;
-
-  for ( int stId_i=0; stId_i<listSt.size(); stId_i++ ) {
-    for ( int pmt=1; pmt<4; pmt++ ) {
-      for ( int year=stYear; year<=lstYear; year++ ) {
-        for ( int month_i=0; month_i<sizeof(monthUub)/sizeof(*monthUub); month_i++ ) {
-          pmtId.Form("%d", pmt);
-          strStId.Form("St%d", (int)listSt[stId_i]);
-          fname = bname + pmtId + strStId + "lrb35" + monthUub[month_i] + strYear[year];
-  
-          f = TFile::Open(fname+".root");
-          chargeInfo = (TTree*)f->Get(strChargeData);
-          chargeInfo->SetBranchAddress("chargeVal", &fetchQpkVals);
-
-          fetchQpkVals = 0.;
-          for( int etry=0; etry<chargeInfo->GetEntries(); etry++) {
-            chargeInfo->GetEntry(etry);
-            if ( fetchQpkVals == 0 || fetchQpkVals < 0 )
-              continue;
-            qpkDist->Fill( fetchQpkVals );
-          }
-        }
-        f->Clear();
-        f->Close();
-      }
-      if ( qpkDist->GetMean() > 0 ) { 
-        cumuRelRmsQpk[pmt-1] += 100.*qpkDist->GetRMS()/qpkDist->GetMean();
-        nPmtWithQpk++;   
-      }
-      qpkDist->Reset();
-    }
-    double tmp = 0.;
-    for ( int i=0; i<3; i++ ) {
-      tmp += cumuRelRmsQpk[i];
-      cumuRelRmsQpk[i] = 0.;
-    }
-    retRmsQpkDist->Fill( tmp/nPmtWithQpk );
-    cout << ifIsUub << " " << listSt[stId_i] << " " << tmp << " " << tmp/nPmtWithQpk 
-      << endl;
-    cumuRelRmsQpk.clear();
-    nPmtWithQpk = 0;
-  }
-  chargeInfo->Delete();
-  delete f;
-  return retRmsQpkDist;
-}
-
-TH1D *getQpksDist( TString bname, int StId, bool ifIsUub ) {
-
-  TString monthUub[2] = {"Aug", "Sep"};
-  TString pmtId;
-  TString strStId;
-  TString strYear[3] = {"2019", "2020", "2021"};
-  TString fname;
-  int stYear = (ifIsUub) ? 2 : 0;
-  int lstYear = (ifIsUub) ? 2 : 1;
-
-  TString strChargeData = "ChargeData";
-  TFile *f;
-  TTree *chargeInfo;
-  double fetchQpkVals = 0.;
-  int nBins = (ifIsUub) ? 2500 : 250;
-  int firstBin = (ifIsUub) ? 500 : 50;
-  int lastBin = (ifIsUub) ? 3000 : 300;
-
-  TString strTHname = (ifIsUub) ? "uub" : "ub";
-
-  TH1D *qpkDist = new TH1D("qpkDist"+strTHname, "", nBins, firstBin, lastBin);
+  vector < double > retQpkDist;
 
   for ( int year=stYear; year<=lstYear; year++ ) {
     for ( int month_i=0; month_i<sizeof(monthUub)/sizeof(*monthUub); month_i++ ) {
-      for ( int pmt=1; pmt<4; pmt++ ) {
-        pmtId.Form("%d", pmt);
-        strStId.Form("St%d", StId);
-        fname = bname + pmtId + strStId + "lrb35" + monthUub[month_i] + strYear[year];
-
-        f = TFile::Open(fname+".root");
-        chargeInfo = (TTree*)f->Get(strChargeData);
-        chargeInfo->SetBranchAddress("chargeVal", &fetchQpkVals);
-        
-        fetchQpkVals = 0.;
-        for( int etry=0; etry<chargeInfo->GetEntries(); etry++) {
-          chargeInfo->GetEntry(etry);
-          if ( fetchQpkVals == 0 || fetchQpkVals < 0 )
-            continue;
-          qpkDist->Fill( fetchQpkVals );
-        }
+      fname = bname + pmtId + strStId + "lrb35" + monthUub[month_i] + strYear[year];
+      f = TFile::Open(fname+".root");
+      chargeInfo = (TTree*)f->Get(strChargeData);
+      chargeInfo->SetBranchAddress("chargeVal", &fetchQpkVals);
+      
+      fetchQpkVals = 0.;
+      for( int etry=0; etry<chargeInfo->GetEntries(); etry++) {
+        chargeInfo->GetEntry(etry);
+        if ( fetchQpkVals == 0 || fetchQpkVals < 0 )
+          continue;
+        retQpkDist.push_back( fetchQpkVals );
       }
+      f->Clear();
+      f->Close();
     }
-    f->Clear(); 
-    f->Close();
   }
   chargeInfo->Delete();
   delete f;
-  return qpkDist;
+  return retQpkDist;
 }
 
 void rmsOverMeanVsStId() {
 
   //string stListPath = "/home/msd/2021/sdeu/listStationsShort.txt";
   string stListPath = "/home/msd/2021/sdeu/fullUubStationsListVert.txt";
-  TString bnOffl = "~/2021/sdeu/offline/forUb/results/offlineUb";
-  TString bnUubOffl = "~/2021/sdeu/offline/forUub/results/offlineUub";
   TString bnCdas = "~/2021/sdeu/nouub/underHistos/results/ubChPkPMT";
   TString bnUubCdas = "~/2021/sdeu/underHisto/results/uubChPkPMT";
 
@@ -195,57 +113,117 @@ void rmsOverMeanVsStId() {
   ifstream fileStList;
   double St_i;
   vector < double > stListId;
-  vector< double > stList;
   fileStList.open(stListPath);
-  int cnt = 1;
   while( fileStList.good() ) {
     fileStList >> St_i;
     stListId.push_back(St_i);
-    stList.push_back(cnt);
-    cnt++;
   }
   stListId.pop_back();
-  stList.pop_back();
   fileStList.close();
 
-  int nStations = stList.size();
-  TH1D *distQpkStUb;
-  TH1D *distQpkStUub;
+  vector < vector < double > > distQpkUb;
+  vector < vector < double > > distQpkUub;
+  distQpkUb.resize(3);
+  distQpkUub.resize(3);
+  vector < double > aveQpkUb;
+  vector < double > aveQpkUub;
+  vector < double > rmsQpkUub;
+  TH1D *distQpk_AveQpk3PmtUb = new TH1D("distQpkOverAveQpkUb", "", 20, 0., 2.);
+  TH1D *distQpk_AveQpk3PmtUub = new TH1D("distQpkOverAveQpkUub", "", 2000, 0., 2.);
+  TH1D *distRelRMSqpkUb = new TH1D("distRelRMSqpkUb", "", 20, 0., 20.); 
+  TH1D *distRelRMSqpkUub = new TH1D("distRelRMSqpkUub", "", 20, 0., 20.);
+  double fecthMean = 0.;
+  TCanvas *c0 = canvasStyle("c0");
+  c0->cd();
+  TString strStId;
 
-  ifIsUub = false;
-  distQpkStUb = doRelRmsDist(bnCdas, stListId, ifIsUub);
+  for ( auto & st_i : stListId ) {
+    aveQpkUb.resize(3);
+    aveQpkUub.resize(3);
+    rmsQpkUub.resize(3);
 
-  ifIsUub = true;
-  distQpkStUub = doRelRmsDist(bnUubCdas, stListId, ifIsUub);
+    for ( int pmt=1; pmt<4; pmt++ ) {
+      distQpkUb[pmt-1] = getQpkValues(bnCdas, st_i, pmt, false);
+      distQpkUub[pmt-1] = getQpkValues(bnUubCdas, st_i, pmt, true);
+      fecthMean = getmean(distQpkUb[pmt-1]);
+      aveQpkUb[pmt-1] = ( fecthMean > 100 && fecthMean < 200 ) ? fecthMean : 0.;
+      fecthMean = getmean(distQpkUub[pmt-1]);  
+      aveQpkUub[pmt-1] = ( fecthMean > 1000 && fecthMean < 2000 ) ? fecthMean : 0.;
+    }
+    for ( int pmt=0; pmt<3; pmt++ ) {
+      if ( aveQpkUb[pmt] > 0 )
+        for ( auto & qpk_i : distQpkUb[pmt] )
+          if ( qpk_i > 100 && qpk_i < 200 )
+            distQpk_AveQpk3PmtUb->Fill( qpk_i/aveQpkUb[pmt] );
+      if ( aveQpkUub[pmt] > 0 )
+        for ( auto & qpk_i : distQpkUub[pmt] )
+          if ( qpk_i > 1000 && qpk_i < 2000 )
+            distQpk_AveQpk3PmtUub->Fill( qpk_i/aveQpkUub[pmt]);
+      distQpkUub[pmt].clear();
+      aveQpkUub.clear();
+    }
+    double tmpRel = 0.;
+    tmpRel = 100.*distQpk_AveQpk3PmtUb->GetRMS()/distQpk_AveQpk3PmtUb->GetMean(); 
+    distRelRMSqpkUb->Fill( tmpRel );
 
+    strStId.Form("%d",(int)st_i);
+    distQpk_AveQpk3PmtUb->GetYaxis()->SetTitle("Counts [au]");
+    distQpk_AveQpk3PmtUb->GetXaxis()->SetTitle("Q^{pk}_{VEM}/#LT Q^{pk}_{VEM} #GT_{pmt}");
+    distQpk_AveQpk3PmtUb->GetXaxis()->SetTitleOffset(1.3);
+    distQpk_AveQpk3PmtUb->Draw();
+    c0->Print("distQpk_AveQpk3PmtUb"+strStId+".pdf");
+    c0->Clear();
+    distQpk_AveQpk3PmtUub->GetYaxis()->SetTitle("Counts [au]");
+    distQpk_AveQpk3PmtUub->GetXaxis()->SetTitle("Q^{pk}_{VEM}/#LT Q^{pk}_{VEM} #GT_{pmt}");
+    distQpk_AveQpk3PmtUub->GetXaxis()->SetTitleOffset(1.3);
+    distQpk_AveQpk3PmtUub->Draw();
+    c0->Print("distQpk_AveQpk3PmtUub"+strStId+".pdf");
+  
+    //if ( tmpRel > 6 )
+      cout << "UB " << st_i << " " 
+        << 100.*distQpk_AveQpk3PmtUb->GetRMS()/distQpk_AveQpk3PmtUb->GetMean()
+        << endl;
+    
+    tmpRel = 100.*distQpk_AveQpk3PmtUub->GetRMS()/distQpk_AveQpk3PmtUub->GetMean();
+    distRelRMSqpkUub->Fill( tmpRel );
+
+    //if ( tmpRel > 4 && tmpRel < 6 )
+      cout << "UUB " << st_i << " " 
+        << 100.*distQpk_AveQpk3PmtUub->GetRMS()/distQpk_AveQpk3PmtUub->GetMean()
+        << endl;
+    distQpk_AveQpk3PmtUb->Reset();
+    distQpk_AveQpk3PmtUub->Reset();
+  }
+ 
   TCanvas *c1 = canvasStyle("c1");
   c1->cd();
-  distQpkStUub->SetStats(kFALSE);
-  distQpkStUub->SetLineColor(kRed);
-  distQpkStUub->SetLineWidth(2);
-  distQpkStUub->GetYaxis()->SetTitle("Counts [au]");
-  distQpkStUub->GetXaxis()->SetTitle("#LT RMS/#LT Q^{pk}_{VEM} #GT #GT [%]");
-  distQpkStUub->Draw();
-  distQpkStUb->SetLineColor(kBlack);
-  distQpkStUb->SetLineWidth(2);
-  distQpkStUb->Draw("same");
+  distRelRMSqpkUub->SetStats(kFALSE);
+  distRelRMSqpkUub->SetLineColor(kRed);
+  distRelRMSqpkUub->SetLineWidth(2);
+  distRelRMSqpkUub->GetYaxis()->SetTitle("Counts [au]");
+  distRelRMSqpkUub->GetXaxis()->SetTitle("#LT RMS/#LT Q^{pk}_{VEM} #GT #GT [%]");
+  distRelRMSqpkUub->Draw();
+
+  distRelRMSqpkUb->SetLineColor(kBlack);
+  distRelRMSqpkUb->SetLineWidth(2);
+  distRelRMSqpkUb->Draw("same");  
 
   leg = new TLegend(0.7,0.65,0.9,0.95);
-  strMean.Form("%.3f", distQpkStUb->GetMean());
-  strRms.Form("%.3f", distQpkStUb->GetRMS());
-  leg->AddEntry(distQpkStUb, "UB", "l" );
-  leg->AddEntry(distQpkStUb, "MEAN: "+strMean, "");
-  leg->AddEntry(distQpkStUb, "RMS: "+strRms, "");
-  strMean.Form("%.3f", distQpkStUub->GetMean());
-  strRms.Form("%.3f", distQpkStUub->GetRMS());
-  leg->AddEntry(distQpkStUub, "UUB", "l" );
-  leg->AddEntry(distQpkStUub, "MEAN: "+strMean, "");
-  leg->AddEntry(distQpkStUub, "RMS: "+strRms, "");
+  strMean.Form("%.3f", distRelRMSqpkUb->GetMean());
+  strRms.Form("%.3f", distRelRMSqpkUb->GetRMS());
+  leg->AddEntry(distRelRMSqpkUb, "UB", "l" );
+  leg->AddEntry(distRelRMSqpkUb, "MEAN: "+strMean, "");
+  leg->AddEntry(distRelRMSqpkUb, "RMS: "+strRms, "");
+  strMean.Form("%.3f", distRelRMSqpkUub->GetMean());
+  strRms.Form("%.3f", distRelRMSqpkUub->GetRMS());
+  leg->AddEntry(distRelRMSqpkUub, "UUB", "l" );
+  leg->AddEntry(distRelRMSqpkUub, "MEAN: "+strMean, "");
+  leg->AddEntry(distRelRMSqpkUub, "RMS: "+strRms, "");
   leg->SetTextSize(0.03);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw();
   c1->Print("../plots/accuracyQpksFitsUbUubAllStAllPmt.pdf");
-
+  
   exit(0);
 } 
