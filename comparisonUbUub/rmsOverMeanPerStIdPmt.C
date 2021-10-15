@@ -81,7 +81,9 @@ TH1D * getQpksDist( TString bname, int StId, int pmt, bool ifIsUub ) {
 
   for ( int year=stYear; year<=lstYear; year++ )
     for ( int month_i=0; month_i<sizeof(monthUub)/sizeof(*monthUub); month_i++ ) {
+      for ( int pmt_i=1; pmt_i<4; pmt_i++ ) {
       strStId.Form("St%d", StId);
+      pmtId.Form("%d", pmt_i);
       fname = bname + pmtId + strStId + "lrb35" + monthUub[month_i] + strYear[year];
      
       f = TFile::Open(fname+".root");
@@ -96,14 +98,8 @@ TH1D * getQpksDist( TString bname, int StId, int pmt, bool ifIsUub ) {
         if ( fetchQpkVals == 0 || fetchQpkVals < 0 )
           continue;
         qpkDist->Fill( fetchQpkVals );
-        if ( pmt==3 )
-          cout << "year " << strYear[year] 
-            << " month " << monthUub[month_i] 
-            << " time " << fetchTime
-            << " fetchEvId " << fetchEvId 
-            << " fetchQpkVals " << fetchQpkVals
-            << endl; 
       }
+    }
     }
   chargeInfo->Delete();
   f->Delete();
@@ -127,8 +123,8 @@ void rmsOverMeanPerStIdPmt(int st, double rmsQpk, bool ifIsUub=true) {
   TH1D *distQpkStPmt3;
 
   distQpkStPmt1 = getQpksDist(bnCdas, st, 1, ifIsUub);
-  distQpkStPmt2 = getQpksDist(bnCdas, st, 2, ifIsUub);
-  distQpkStPmt3 = getQpksDist(bnCdas, st, 3, ifIsUub);
+  //distQpkStPmt2 = getQpksDist(bnCdas, st, 2, ifIsUub);
+  //distQpkStPmt3 = getQpksDist(bnCdas, st, 3, ifIsUub);
 
   TCanvas *c1 = canvasStyle("c1");
   c1->cd();
@@ -138,27 +134,27 @@ void rmsOverMeanPerStIdPmt(int st, double rmsQpk, bool ifIsUub=true) {
   distQpkStPmt1->GetYaxis()->SetTitle("Counts [au]");
   distQpkStPmt1->GetXaxis()->SetTitle("Q^{pk}_{VEM} [FADC]");
   distQpkStPmt1->GetXaxis()->SetTitleOffset(1.5);
-  distQpkStPmt1->SetLineColor(kRed);
+  distQpkStPmt1->SetLineColor(kGreen+2);//kRed);
   distQpkStPmt1->Draw();
 
-  distQpkStPmt2->SetLineColor(kBlack);
-  distQpkStPmt2->Draw("same");
+  //distQpkStPmt2->SetLineColor(kBlack);
+  //distQpkStPmt2->Draw("same");
 
-  distQpkStPmt3->SetLineColor(kGreen+2);
-  distQpkStPmt3->Draw("same");
+  //distQpkStPmt3->SetLineColor(kGreen+2);
+  //distQpkStPmt3->Draw("same");
 
   leg = new TLegend(0.6,0.5,0.9,0.95);
   TString strAve;
   strAve.Form("%.1f", rmsQpk);
   struub = (ifIsUub) ? "UUB" : "UB";
   leg->SetHeader(struub+" Station "+strSt+"; #LT RMS/#LT Q^{pk}_{VEM} #GT #GT: "+strAve+" [%]");
-  leg->AddEntry(distQpkStPmt1, "PMT1", "l");
+  //leg->AddEntry(distQpkStPmt1, "PMT1", "l");
   
   strAve.Form("%.3f", distQpkStPmt1->GetMean());
   leg->AddEntry(distQpkStPmt1, "MEAN: "+strAve+" [FADC]", "");
   strAve.Form("%.3f", distQpkStPmt1->GetRMS());
   leg->AddEntry(distQpkStPmt1, "RMS: "+strAve+" [FADC]", "");
-
+/*
   leg->AddEntry(distQpkStPmt2, "PMT2", "l");
   strAve.Form("%.3f", distQpkStPmt2->GetMean());
   leg->AddEntry(distQpkStPmt2, "MEAN: "+strAve+" [FADC]", "");
@@ -170,14 +166,14 @@ void rmsOverMeanPerStIdPmt(int st, double rmsQpk, bool ifIsUub=true) {
   leg->AddEntry(distQpkStPmt3, "MEAN: "+strAve+" [FADC]", "");
   strAve.Form("%.3f", distQpkStPmt3->GetRMS());
   leg->AddEntry(distQpkStPmt3, "RMS: "+strAve+" [FADC]", "");
-
+*/
   leg->SetTextSize(0.03);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw();
 
   struub = (ifIsUub) ? "Uub" : "Ub";  
-  c1->Print("../plots/qpksFitsCdas"+struub+"St"+strSt+".pdf");
+  //c1->Print("../plots/qpksFitsCdas"+struub+"St"+strSt+".pdf");
 
-  exit(0);
+  //exit(0);
 } 
