@@ -113,7 +113,7 @@ int main (int argc, char *argv[]) {
 		pmtname += "St"+to_string( stationsIds[0] );
  
   string doMonth = string(whichmonth);
-  pmtname +=  "lrb" + strNblr + doMonth + "2020";
+  pmtname +=  "lrb" + strNblr + doMonth + "2018";
   
   TFile hfile("ubChPk"+pmtname+".root","RECREATE","");
   //TFile hfile("kk.root", "RECREATE","");
