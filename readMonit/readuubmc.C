@@ -7,8 +7,7 @@ using namespace std;
 
 
 int
-main(int argc, char* argv[])
-{
+main(int argc, char* argv[]) {
   TChain chain("SDMonCal");
   chain.SetBranchStatus("fRawMonitoring.fListOfMembers", 0);
   chain.SetBranchStatus("fCalibration.fListOfMembers", 0);
