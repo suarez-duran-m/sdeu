@@ -1,0 +1,514 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{Accuracy of $\mathrm{Q}^{\mathrm{pk}}_{\mathrm{VEM}}$ fit for UB and UUB}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{How does the accuracy was calculated?}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<1->[width=1.\textwidth]{../plots/filteredPMTsSt20.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<2->[width=1.\textwidth]{../plots/filteredSt20.pdf}
+    \end{column}
+  \end{columns}
+  \begin{itemize}
+    \item[]<1-> For each PMT, we get the
+      $Q^{\mathrm{pk}}_{\mathrm{VEM}}$ distribution, then
+    \item[]<2->$Q^{\mathrm{pk}}_{i} / \left< Q^{\mathrm{pk}}_{\mathrm{VEM}}
+      \right>_{\mathrm{PMT}}$ was calculated.
+    \item[]<3-> From the latest distribution (right plot, magenta
+      line) the RMS is divided by the respective mean.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Before, some particular distributions for UUB}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<1->[width=1.\textwidth]{../plots/filteredPMTsSt843.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<2->[width=1.\textwidth]{../plots/filteredSt843.pdf}
+    \end{column}
+  \end{columns}
+  \begin{itemize}
+    \item[]<1-> Multiple peaks for
+      $Q^{\mathrm{pk}}_{\mathrm{VEM}}$ fitted.
+    \item[]<2-> So, each peak (for each PMT) was fitted by a Gaus
+      function, then the respective $Q^{\mathrm{pk}}_{i} /
+      \left<Q^{\mathrm{pk}}_{\mathrm{VEM}}
+      \right>_{\mathrm{PMT}}$ was calculated for
+      $Q^{\mathrm{pk}}_{i}\pm\sigma$, and using as
+      $\left<Q^{\mathrm{pk}}_{\mathrm{VEM}}
+      \right>_{\mathrm{PMT}}$ the respective $\mu$.
+    \item[]<3-> *See tables at the end for stations with this
+      behavior, and their respective $\mu$ and $\sigma$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Result $RMS/Q^{pk}_{VEM}$ distribution all UUB station}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{.8\textwidth}
+      \begin{tikzpicture}
+        \node(a){\includegraphics[width=1.\textwidth]{../plots/accuracyQpksFitsUbUubAllStAllPmt_v2.pdf}};
+        \node(b){\includegraphics[width=1.\textwidth]{../plots/accuracyQpksFitsUbUubAllStAllPmt_v2.pdf}};
+        \node<2-> at(a.center)[draw, blue, line width=1pt,
+        ellipse, rotate=0, minimum width=90pt,
+        minimum height=38pt, yshift=-55pt, xshift=48pt]
+        {};
+        %\node<3-> at(b.center)[draw, blue,line width=1pt, ellipse, rotate=90,
+        %minimum width=70pt, minimum height=60pt,
+        %yshift=-50pt, xshift=-25pt]{Set 2.};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{UUB Outliers stations: 827, 1746}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots/filteredPMTsSt827.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots/filteredSt827.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots/filteredPMTsSt1746.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots/filteredSt1746.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+%\begin{frame}
+%  \frametitle{Sample for Set 1}
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../plots/qpksFitsCdasUubSt1191.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../plots/qpksFitsCdasUbSt1191.pdf}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{Sample for Set 2}
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots/qpksFitsCdasUubSt1223.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots/qpksFitsCdasUbSt1223.pdf}
+%    \end{column} 
+%  \end{columns}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots/distQpk_AveQpk3PmtUub1223.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots/distQpk_AveQpk3PmtUb1223.pdf}
+%    \end{column}
+%  \end{columns} 
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{Sample for Set 2}
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots/qpksFitsCdasUubSt861.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots/qpksFitsCdasUbSt861.pdf}
+%    \end{column}
+%  \end{columns}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots/distQpk_AveQpk3PmtUub861.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots/distQpk_AveQpk3PmtUb861.pdf}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+
+
+% ==============
+% *** Tables ***
+% ==============
+
+\begin{frame}
+  \footnotesize
+  \begin{tabular}{c|c|c|c} \hline
+    \multirow{2}{*}{Station ID.} & \multicolumn{3}{c}{PMT1} \\
+    \cline{2-4}
+     & $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_1$ & 
+     $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_2$ &  \\
+     \cline{1-4}
+     22   & $1538.4\pm16.63$ & $1564.5\pm19.53$ &
+     \\ \hline
+     59   & $1384.9\pm28.35$ & $1448.8\pm16.40$ & 
+     \\ \hline
+     545  & $1388.9\pm23.63$ & $1457.2\pm18.34$ & 
+     \\ \hline
+     804  & $1376.7\pm34.83$ & $1429.9\pm13.44$ &
+     $1481.7\pm14.87$ 
+     \\ \hline
+     806  & $1395.2\pm13.36$ & $1443.5\pm23.21$ &
+     $1499.7\pm19.42$ 
+     \\ \hline
+     827  & $1141.6\pm39.29$ & & 
+     \\ \hline
+     832  & $1356.7\pm23.06$ & $1392.7\pm17.03$ & 
+     $1457.7\pm12.99$
+     \\ \hline
+     833  & $1262.2\pm33.15$ & $1343.3\pm28.89$ & 
+     $1436.6\pm20.69$ 
+     \\ \hline
+     840  & Too wide & & 
+     \\ \hline
+     843  & Too wide & & 
+     \\ \hline
+     846  & Too wide & &
+     \\ \hline
+     849  & Too wide & &
+     \\ \hline
+     850  & $1347.9\pm29.99$ & $1463.0\pm19.27$ &
+     \\ \hline
+     853  & $1402.4\pm21.46$ & $1460.7\pm16.02$ &
+     \\ \hline
+     856  & $1239.7\pm58.57$ & $1319.0\pm26.18$ &
+     \\ \hline
+     861  & $1515.6\pm14.95$ & $1562.2\pm14.91$ &
+     \\ \hline
+     1216 & $1355.9\pm39.13$ & $1432.0\pm16.66$ & 
+     \\ \hline
+     1217 & $1510.3\pm84.27$ & $1700.1\pm43.02$ & 
+     \\ \hline
+     1219 & $1583.2\pm25.06$ & $1622.7\pm26.08$ &
+     \\ \hline
+  \end{tabular}
+\end{frame}
+
+\begin{frame}
+  \footnotesize
+  \begin{tabular}{c|c|c|c} \hline
+    \multirow{2}{*}{Station ID.} & \multicolumn{3}{c}{PMT1} \\
+    \cline{2-4}
+    & $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_1$ &
+    $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_2$ &  \\
+    \cline{1-4}
+     1220 & $1561.4\pm40.91$ & $1724.3\pm74.87$ &
+     \\ \hline
+     1221 & $1537.0\pm25.53$ & $1601.3\pm25.74$ & 
+     \\ \hline
+     1222 & $1473.1\pm24.12$ & $1538.6\pm27.05$ &
+     \\ \hline
+     1746 & $1358.4\pm24.64$ & $1522.5\pm38.78$ &
+     \\ \hline
+     1779 & $1362.9\pm51.11$ & $1448.4\pm20.86$ &
+     \\ \hline
+     1791 & $1409.6\pm44.61$ & $1511.6\pm23.72$ &
+     \\ \hline
+     1819 & $1559.5\pm23.59$ & $1634.4\pm26.80$ &
+     \\ \hline
+     1854 & $1524.0\pm83.75$ & $1699.7\pm28.70$ &
+     \\ \hline
+  \end{tabular}
+\end{frame}
+
+\begin{frame}
+  \footnotesize
+  \begin{tabular}{c|c|c|c} \hline
+    \multirow{2}{*}{Station ID.} & \multicolumn{3}{c}{PMT2} \\
+    \cline{2-4}
+     & $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_1$ & 
+     $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_2$ &  \\
+     \cline{1-4}
+     545  & $1224.0\pm18.66$ & $1301.3\pm36.61$ 
+     & $1374.3\pm18.69$ 
+     \\ \hline
+     827  & $1139.7\pm34.51$ & &  
+     \\ \hline
+     832  & $1394.5\pm17.41$ & $1443.9\pm18.96$ &
+     $1498.8\pm12.33$
+     \\ \hline
+     833  & $1233.2\pm35.92$ & $1327.0\pm24.84$ &
+     \\ \hline
+     840  & $1574.8\pm10.83$ & $1610.4\pm18.79$ &
+     \\ \hline
+     843  & $1508.1\pm34.49$ & $1611.2\pm27.41$ &
+     \\ \hline
+     846  & $1501.1\pm32.44$ & $1555.4\pm26.92$ &
+     \\ \hline
+     849  & Too wide & & 
+     \\ \hline
+     850  & Too wide & & 
+     \\ \hline
+     853  & Extreme wide & & 
+     \\ \hline
+     860  & Too wide & & 
+     \\ \hline
+     862  & $1286.7\pm21.20$ & $1399.3\pm35.43$ &
+     \\ \hline
+     1185 & $1481.3\pm56.12$ & $1655.2\pm70.78$ &
+     \\ \hline
+     1198 & $1435.4\pm16.99$ & $1496.5\pm54.36$ &
+     \\ \hline
+     1209 & $1769.9\pm31.10$ & $1842.1\pm21.64$ & 
+     \\ \hline
+     1218 & Too wide & & 
+     \\ \hline
+     1220 & $1362.5\pm34.20$ & $1713.2\pm29.28$ & 
+     \\ \hline
+     1224 & $1574.0\pm23.46$ & $1630.4\pm18.84$ & 
+     \\ \hline
+     1225 & $1646.7\pm28.46$ & $1701.1\pm29.44$ &
+     \\ \hline
+  \end{tabular}
+\end{frame}
+
+\begin{frame}
+  \footnotesize
+  \begin{tabular}{c|c|c|c} \hline
+    \multirow{2}{*}{Station ID.} & \multicolumn{3}{c}{PMT2} \\
+    \cline{2-4}
+    & $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_1$ &
+    $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_2$ &  \\
+    \cline{1-4}
+    1737 & $1102.6\pm20.85$ & $1384.4\pm36.89$ &
+    \\ \hline
+    1738 & $1359.6\pm41.70$ & $1452.7\pm22.72$ &
+    \\ \hline
+    1746 & $1276.2\pm36.99$ & $1365.5\pm30.44$ &
+    \\ \hline
+
+  \end{tabular}
+\end{frame}
+
+\begin{frame}
+  \footnotesize
+  \begin{tabular}{c|c|c|c} \hline
+    \multirow{2}{*}{Station ID.} & \multicolumn{3}{c}{PMT3} \\
+    \cline{2-4}
+     & $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_1$ & 
+     $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_2$ &  \\
+     \cline{1-4}
+     804  & $1382.1\pm27.80$ & $1413.1\pm15.37$ & 
+     \\ \hline
+     827  & $1280.9\pm77.66$ & & 
+     \\ \hline
+     836 & Too wide & & 
+     \\ \hline
+     840  & $1492.1\pm25.35$ & $1522.3\pm13.97$ &
+     $1566.7\pm12.73$\,\,$1615.3\pm14.11$
+     \\ \hline
+     843  & $1187.5\pm46.11$ & $1366.5\pm30.39$ &
+     \\ \hline
+     846  & $1385.1\pm29.16$ & $1433.0\pm19.41$ &
+     \\ \hline
+     849  & $1392.9\pm50.81$ & $1502.0\pm32.14$ & 
+     \\ \hline 
+     850  & Too wide & & 
+     \\ \hline
+     853  & $1266.0\pm18.60$ & $1326.7\pm18.04$ &
+     $1400.9\pm15.94$
+     \\ \hline
+     860  & $1497.9\pm24.31$ & $1600.2\pm39.01$ &
+     \\ \hline
+     861  & $1478.8\pm88.22$ & $2095.8\pm16.51$ &
+     \\ \hline
+     868  & $1176.3\pm73.62$ & $1413.5\pm18.31$ &
+     \\ \hline
+     1190 & $1623.3\pm18.98$ & $1672.9\pm22.20$ &
+     \\ \hline
+     1207 & $1457.1\pm48.97$ & $1603.4\pm25.25$ & 
+     \\ \hline
+     1214 & $1528.2\pm39.96$ & $1614.1\pm23.33$ &
+     \\ \hline
+     1216 & $1255.5\pm45.59$ & $1328.7\pm17.44$ &
+     \\ \hline
+     1218 & $1566.5\pm65.43$ & $1634.9\pm48.59$ &
+     \\ \hline
+     1220 & $1586.0\pm18.76$ & $1699.0\pm17.64$ & 
+     \\ \hline
+     1221 & $1481.6\pm37.73$ & $1539.3\pm22.92$ &
+     \\ \hline
+  \end{tabular}
+\end{frame}
+
+\begin{frame}
+  \footnotesize
+  \begin{tabular}{c|c|c|c} \hline
+    \multirow{2}{*}{Station ID.} & \multicolumn{3}{c}{PMT3} \\
+    \cline{2-4}
+     & $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_1$ & 
+     $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_2$ &  \\
+     \cline{1-4}
+     1222 & $1234.5\pm25.37$ & $1344.4\pm26.11$ &
+     \\ \hline
+     1223 & Too wide & & 
+     \\ \hline
+     1729 & $1518.5\pm33.06$ & $1620.5\pm19.40$ &
+     \\ \hline
+     1737 & $1431.4\pm80.14$ & $1583.5\pm89.71$ &
+     \\ \hline
+     1738 & $1480.7\pm28.10$ & $1551.5\pm32.52$ &
+     \\ \hline
+     1746 & $1437.7\pm23.19$ & &
+     \\ \hline
+     1854 & $1334.0\pm62.91$ & $1489.6\pm103.39$ &
+     \\ \hline
+     1880 & $1245.8\pm48.18$ & $1365.4\pm48.03$ & 
+     \\ \hline
+  \end{tabular}
+\end{frame}
+
+\begin{frame}
+  \frametitle{UB}
+  \footnotesize
+  \begin{tabular}{c|c|c|c} \hline
+    \multirow{2}{*}{Station ID.} & \multicolumn{3}{c}{PMT1} \\
+    \cline{2-4}
+    & $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_1$ &
+    $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_2$ &  \\
+    \cline{1-4}
+    827 & $188.7\pm3.69$ & &
+    \\ \hline
+    907 & $172.7\pm3.90$ & &
+    \\ \hline
+    1851 & $158.9\pm1.10$ & &
+    \\ \hline
+    1185 & $117.2\pm2.28$ & $165.4\pm5.03$ &
+    \\ \hline
+    864 & $118.4\pm2.13$ & $130.2\pm1.69$ &
+    \\ \hline
+    836 & $138.3\pm1.29$ & $195.9\pm2.13$ &
+    \\ \hline
+    849 & $133.2\pm1.68$ & $160.9\pm2.83$ &
+    \\ \hline
+  \end{tabular}
+\end{frame}
+
+\begin{frame}
+  \frametitle{UB}
+  \footnotesize
+  \begin{tabular}{c|c|c|c} \hline
+    \multirow{2}{*}{Station ID.} & \multicolumn{3}{c}{PMT2} \\
+    \cline{2-4}
+    & $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_1$ &
+    $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_2$ &  \\
+    \cline{1-4}
+    827 & $155.9\pm9.33$ & &
+    \\ \hline
+    907 & $189.0\pm5.77$ & &
+    \\ \hline
+    1851 & $165.1\pm5.91$ & &
+    \\ \hline
+    1185 & $149.5\pm7.12$ & $184.7\pm7.56$ & 
+    \\ \hline
+    864 & $114.0\pm2.42$ & $123.2\pm3.18$ & 
+    \\ \hline 
+    836 & $138.1\pm1.31$ & $150.9\pm2.29$ &
+    \\ \hline
+    849 & $121.9\pm3.75$ & &
+    \\ \hline
+  \end{tabular}
+\end{frame}
+
+\begin{frame}
+  \frametitle{UB}
+  \footnotesize
+  \begin{tabular}{c|c|c|c} \hline
+    \multirow{2}{*}{Station ID.} & \multicolumn{3}{c}{PMT3} \\
+    \cline{2-4}
+    & $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_1$ &
+    $\langle Q^{Pk}_{\mathrm{VEM}} \rangle_2$ &  \\
+    \cline{1-4}
+    827 & $127.9\pm3.13$ & &
+    \\ \hline
+    907 & $144.7\pm9.29$ & &
+    \\ \hline
+    864 & $119.7\pm2.58$ & $132.9\pm2.85$ & 
+    \\ \hline
+    863 & $177.0\pm7.10$ & &
+    \\ \hline
+    849 & $135.7\pm2.93$ & $184.2\pm5.16$ &
+    \\ \hline
+  \end{tabular}
+\end{frame}
+
+
+\end{document}
