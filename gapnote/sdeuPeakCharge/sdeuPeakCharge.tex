@@ -1,0 +1,777 @@
+\documentclass[twoside, final, 10pt]{articleMine}
+\usepackage[english]{babel}
+\usepackage[sc]{mathpazo}
+\usepackage{a4wide}
+\usepackage{subfigure}
+
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+\usepackage[right]{lineno}
+\usepackage{xspace}
+\usepackage{accents}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{color}
+\usepackage{units}
+\usepackage{enumitem}
+\usepackage{todonotes}
+\usepackage[capitalize]{cleveref}
+\usepackage{nameref}
+\usepackage{csquotes}
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=XML,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\usepackage[thinc]{esdiff}
+
+
+\usepackage{booktabs}
+\usepackage{mcite}
+
+
+\graphicspath{{plots/}}
+\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+  \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+  \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+  \renewenvironment{#1}%
+     {\linenomath\csname old#1\endcsname}%
+     {\csname oldend#1\endcsname\endlinenomath}}%
+\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+  \patchAmsMathEnvironmentForLineno{#1}%
+  \patchAmsMathEnvironmentForLineno{#1*}}%
+\AtBeginDocument{%
+\patchBothAmsMathEnvironmentsForLineno{equation}%
+\patchBothAmsMathEnvironmentsForLineno{align}%
+\patchBothAmsMathEnvironmentsForLineno{flalign}%
+\patchBothAmsMathEnvironmentsForLineno{alignat}%
+\patchBothAmsMathEnvironmentsForLineno{gather}%
+\patchBothAmsMathEnvironmentsForLineno{multline}%
+}
+
+\newcommand{\putat}[3]{\begin{picture}(0,0)(0,0)\put(#1,#2){#3}\end{picture}} % just a shorthand
+
+
+\parskip 4.2pt           % sets spacing between paragraphs
+%\parindend 0pt           % sets spacing between paragraphs
+\def\Offline{\mbox{$\overline{\rm
+Off}$\hspace{.05em}\raisebox{.4ex}{$\underline{\rm line}$}}\xspace}
+\def\OfflineB{\mbox{$\bf\overline{\rm\bf
+Off}$\hspace{.05em}\raisebox{.4ex}{$\bf\underline{\rm\bf line}$}}\xspace}
+
+\include{myabbr}
+
+
+
+\begin{document}
+\setpagewiselinenumbers
+\modulolinenumbers[2]
+
+\linenumbers
+
+\renewcommand\linenumberfont{\small\rmfamily}
+\begin{flushright}
+GAP-2021-xx
+\end{flushright}
+
+\begin{flushright}
+  \rule{\linewidth}{0.5mm}
+  \\[17mm]
+  \vspace*{-3ex}{\Large Base Line studies for SDEU}
+  \large
+  \parbox[b]{15cm}
+  {
+    \begin{flushright}
+      Mauricio Su\'arez-Dur\'an and  Ioana~C.~Mari\c{s}
+      \\[6mm]
+      {\small Universit{\'e} Libre de Bruxelles, Belgium}
+    \end{flushright}
+  }
+  \\[5mm]
+  \rule{\linewidth}{0.5mm}
+\end{flushright}
+%
+%\vspace*{-5ex}
+%
+\thispagestyle{empty}
+\noindent
+\begin{abstract}
+  \noindent
+	Second batch of SDEU	
+
+\end{abstract}
+
+%
+%\newpage
+%
+\thispagestyle{empty}
+$\;$
+%\listoftodos
+%\newpage
+\noindent
+
+\section{Introduction}
+  At the end
+	\begin{figure}[!tbh]
+		\centering
+		\subfigure{\includegraphics[width=0.55\textwidth]{figs/mapStations.pdf}}
+		\caption{Stations for first pre-production batch including
+    UUB, small PMT and SSD.}
+		\label{figMapSt}
+	\end{figure}
+\clearpage
+
+\section{BXL: Fit method implemented in CDAS}
+In order to get a fit method user independent, we use the first
+derivative of the histogram (peak and/or charge) to find out the
+respective VEM value; we called this method BXL-method.\\\\The
+BXL-method consist of 3 steps:
+\begin{enumerate}
+  \item Smoothing the histogram,
+  \item Deriving the smoothed-histogram,
+  \item Smoothing the smoothed-derivative-histogram, i.e. the
+    histogram getting in previous step.
+  \item Searching for the maximum, i.e. VEM-value.
+\end{enumerate}
+Here, we use the moving average method to smooth the respective
+histogram, and central differences to derive them. The needed of
+two smoothing is illustrated in figures \ref{figBxlMethodPeak}
+and \ref{figBxlMethodCharge}. There, it is possible to see how
+the first derivative of the histogram, without smoothing, is
+noisy, making difficult to search the respective VEM value. The
+same problem is seen for the derivative of the
+smoothed-histogram, of course less noisy than the former one, for
+this reason we apply another smooth, the third step.\\\\To
+evaluate the BXL-method, we compared the VEM value obtained by
+this method with the one obtained by fitting a second order
+polynomial to the histogram (without smoot). The figures
+\ref{figPkFitPoly2comparDer} and \ref{figChFitPoly2comparDer}
+show this difference for peak and charge histograms. For the peak
+case, the difference is $\sim0.63$\,\% for a VEM value of
+$153.03$\,FADC/$8.33$\,ns for fitting (with a $\chi^2$ reduced of
+$0.77$), and $154$\,FADC/$8.33$\,ns for BXL-method. Meanwhile for
+charge case $\sim0.41$\,\% of difference, with VEM values of
+$1249.13$\,FADC for fitting (with a $\chi^2$ reduced of
+$1.01$), and $1244.00$\,FADC for BXL-method.\\After verified
+for a single histogram (peak and charge, respectively), we
+applied the method to all 863-station's peak and charge
+histograms, from 1st December 2020, to 31st July, 2021.\\\\For
+peak cases, figures \ref{figPkVemCompFitDerTimePmt1} (left and
+right), and \ref{figPkVemCompFitDerTimePmt3} show the VEM values
+obtained by BXL-method and by fitting a second order polynomial,
+for each one of the three PMTs. As it can be seen, the VEM values
+getting by BXL-method agree with the ones from the fit method,
+differing in average less than $\sim0.6$\,\%. These plots show
+that sometimes the BXL-method got a VEM value but fit method does
+not. Figures from \ref{figPkSampleFailFitGoodDerpmt12} to
+\ref{figPkSampleFailFitDerpmt3} show the histograms for which the
+fitting method and/or BXL-method fail. From these results, it is
+possible to see that the BXL-method is more effective to find the
+VEM value. Nevertheless, figure \ref{figPkSampleFailFitDerpmt3}
+show that sometimes the peak histogram has not a peak for the VEM
+value, so the BXL-method fails just because there is not a local
+maximum.\\\\Figures \ref{figChVemCompFitDerTimePmt1} (left and
+right), and \ref{figChVemCompFitDerTimePmt3} show the VEM values
+for charge histograms. There, as for peak cases, it can be seen
+the agreement between the VEM values getting by BXL-method with
+the ones from the fit method; with an average difference of the
+order of $\sim0.7$\,\%. In these plots, it is possible to see
+some outliers for the fitting method. Figures
+\ref{figChSampleFailFitGoodDerpmt12} and
+\ref{figChSampleFailFitGoodDerpmt3} present some samples of these
+outliers, showing that the fitting method fails due to it does
+not set correctly the fitting range. The BXL-method shows to be
+more effective than the fitting method to find the VEM value in
+charge histograms.
+\clearpage
+
+% ==================
+% *** The method ***
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/peakHisto863.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/peakDerHisto863.pdf}
+  }
+  \caption{Fit BXL-method applied to a peak and charge histogram
+  (UUB). Left, peak histogram in blue, and the same
+  histogram smoothed in red. Right, derivative for peak histogram
+  (gray); derivative for smoothed-histogram (red), and smooth of
+  smoothed-derivative-histogram (green). It is possible to see
+  how the green line allows to identify, very clear, the VEM
+  position (dashed line).}
+  \label{figBxlMethodPeak}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/chargeHisto863.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/chargeDerHisto863.pdf}
+  }
+  \caption{Fit BXL-method applied to a charge histogram (UUB).
+  Left, charge histogram in blue, and the same histogram smoothed
+  in red. Right, derivative for charge histogram (gray);
+  derivative for smoothed-histogram (red), and smooth of
+  smoothed-derivative-histogram (green). It is possible to see
+  how the green line allows to identify, very clear, the VEM
+  position (dashed line).}
+  \label{figBxlMethodCharge}
+\end{figure}
+\clearpage
+
+% ===================================
+% *** Peak: Comparison with Poly2 ***
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/peakFitPoly2863.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/peakFitResidualsPoly2863.pdf}
+  }
+  \caption{Comparison between the VEM value obtained for a peak
+  histogram by fitting a second order polynomial (red line), and
+  the same one by BXL-method. The red vertical dashed line
+  correspond to VEM value from the polynomial fit
+  ($153.03$\,FADC/$8.33$\,ns), and the green one from BXL-method
+  ($154.00$\,FADC/$8.33$\,ns).}
+  \label{figPkFitPoly2comparDer}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/chargeFittedHisto863.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/chargeFitResiduals863.pdf}
+  }
+  \caption{Comparison between the VEM value obtained for a charge
+  histogram by fitting a second order polynomial (red line), and
+  the same one by BXL-method. The red vertical dashed line
+  correspond to VEM value from the polynomial fit
+  ($1249.13$\,FADC), and the green one from BXL-method
+  ($1244.00$\,FADC).}
+  \label{figChFitPoly2comparDer}
+\end{figure}
+\clearpage
+
+% ===========================================
+% *** Peak: Comparison with Poly2 in time *** 
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromDerSt863pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromDerSt863pmt2.pdf}
+  }
+  \caption{VEM values for 863-station's peak histograms (VEM
+  Peak), from 1st December, 2020 to 31st July, 2021. The blue
+  squares corresponds for values obtained by fitting a second
+  order polynomial, and red triangles to the values from
+  BXL-method. Right, VEM values for PMT1; left, VEM values for
+  PMT2. It is possible to see that sometimes BXL-method gets a
+  VEM value whereas that fitting method does not, and vice
+  versa; see details about this in the text.}
+  \label{figPkVemCompFitDerTimePmt1}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromDerSt863pmt3.pdf}
+  }
+  \caption{VEM values for PMT3 863-station's peak histograms (VEM
+  Peak), from 1st December, 2020 to 31st July, 2021. The blue
+  squares corresponds for values obtained by fitting a second
+  order polynomial, and red triangles to the values from
+  BXL-method. It is possible to see that sometimes BXL-method
+  gets a VEM value whereas that fitting method does not, and
+  vice versa; see details about this in the text.}
+  \label{figPkVemCompFitDerTimePmt3}
+\end{figure}
+\clearpage
+
+% ==================
+% *** Fails Peak ***
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/samplePkHistoDerVem249Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/samplePkHistoDerVem406Pmt2.pdf}
+  }
+  \caption{Peak histogram. Failed VEM value for PMT1 (left) and
+  PMT2 (right) from fitting a second order polynomial, but a
+  succesfull BXL-method, green dashed line.}
+  \label{figPkSampleFailFitGoodDerpmt12}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/samplePkHistoDerVem160Pmt3.pdf}
+  }
+  \caption{Peak histogram. Failed VEM value for PMT3 from fitting
+  a second order polynomial, but a succesfull BXL-method, green
+  dashed line.}
+  \label{figPkSampleFailFitGoodDerpmt3}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/samplePkHistoDerVem163Pmt3.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/peakDerHisto863Evt62175266.pdf}
+  }
+  \caption{Peak histogram. Failed VEM value for PMT3 from fitting
+  a second order polynomial, but a succesfull BXL-method, green
+  dashed line.}
+  \label{figPkSampleFailFitDerpmt3}
+\end{figure}
+\clearpage
+
+% =====================================
+% *** Charge: Comparison with Poly2 ***
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromDerSt863pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromDerSt863pmt2.pdf}
+  }
+  \caption{VEM values for 863-station's charge histograms (VEM
+  Charge), from 1st December, 2020 to 31st July, 2021. The blue
+  squares corresponds for values obtained by fitting a second
+  order polynomial, and red triangles to the values from
+  BXL-method. Right, VEM values for PMT1; left, VEM values for
+  PMT2. It can be seen some outliers, both PMTs, for the fitting
+  method. See details in the text.}
+  \label{figChVemCompFitDerTimePmt1}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromDerSt863pmt3.pdf}
+  }
+  \caption{VEM values for 863-station's charge histograms (VEM
+  Charge), PMT3 from 1st December, 2020 to 31st July, 2021. The
+  blue squares corresponds for values obtained by fitting a
+  second order polynomial, and red triangles to the values from
+  BXL-method. It can be seen some outliers for fitting method.
+  See details in the text.} 
+  \label{figChVemCompFitDerTimePmt3}
+\end{figure}
+\clearpage
+
+% ==================
+% *** Fails Peak ***
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/sampleChHistoDerVem365Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/sampleChHistoDerVem251Pmt2.pdf}
+  }
+  \caption{Charge histogram. Failed VEM value for PMT1 (left) and
+  PMT2 (right) from fitting a second order polynomial, but a
+  succesful BXL-method, green dashed line. For both PMTs, the
+  fitting method fails in finding the proper interval.}
+  \label{figChSampleFailFitGoodDerpmt12}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/sampleChHistoDerVem237Pmt3.pdf}
+  }
+  \caption{Charge histogram. Failed VEM value for PMT3 from
+  fitting a second order polynomial, but a succesfull BXL-method,
+  green dashed line. The fitting method fails in finding the
+  proper interval.}
+  \label{figChSampleFailFitGoodDerpmt3}
+\end{figure}
+\clearpage
+
+
+\section{OffLine Fit Method}
+The OffLine fitting algorithm fits a second order polynomial to
+set the VEM value (for peak and charge histograms); this
+algorithm  is implemented in the SdCalibrator module, using the
+{\it ad} files. This algorithm will be applied to certain
+histogram if its maximum of counts is bigger than 500 (a number
+setting by default in SdCarlibrator class), furthermore the last
+5 bins are ignore.\\As second step, the fitting range is setting
+from the shoulderLow to the shoulderHigh, where the shoulderLow
+is established as the first bin with the maximum number of
+counts, starting from the start bin, i.e. the bin with more than
+40 counts (a number setting by default). From this bin, the
+algorithm looking for a bin with a number of counts such that the
+next three bins have a number of counts lower than the $75$\,\%
+of counts of this first bin; this last percentage it is setting
+by the user.\\\\A comparison between OffLine and BXL fitting
+method, for a peak histogram, is presented in
+\ref{figPkCompaOffFitDer}. As can be seen OffLine method fit
+inappropriately (open upwards) but BXL method fit correctly.
+\clearpage
+
+
+%\begin{figure}[!tbh]
+%  \centering
+%  \subfigure
+%  {
+%    \includegraphics[width=0.55\textwidth]{../plots/offlinePkCompaSt863Pmt1.pdf}
+%    \includegraphics[width=0.55\textwidth]{../plots/offlineResidPkSt863Pmt1.pdf}
+%  }
+%  \caption{Peak histogram. Right, Comparison for VEM value using
+%  OffLine (blue line), second order polynomial fitting (red
+%  line), and BXL-method (green dashed line). Left, residuals for
+%  OffLine (blue points) and second order polynomial fit (red
+%  points). As it can be seen, the polynomial and BXL-method set
+%  properly the VEM value, but OffLine fit is not correct.}
+%  \label{figPkCompaOffFitDer}
+%\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlinePkCompaSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/offlineVEMpkSt863Pmt1.pdf}
+  }
+  \caption{Comparison for VEM peak values obtained by OffLine and
+  BXL-method, from 1st of December, 2020 to 31st of July, 2021.
+  Here, the OffLine algorithm fails to fit some histograms (blue
+  dots at zero counts) but BXL-method is successful for all
+  histograms.}
+  \label{figPkCompVemOffBxl}
+\end{figure}
+\clearpage
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineChi2pkSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasChi2pkSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figPkNdfserie}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineNDFpkSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasNDFpkSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figPkNdfserie}
+\end{figure}
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineChi2NdfPkSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasChi2NdfPkSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figPkChi2Ndfserie}
+\end{figure}
+\clearpage
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineLowHihgpkSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasLowHighpkSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figPkLowHigh}
+\end{figure}
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineFailedPeakSt863PMT1Evt61411290.pdf}
+  }
+  \caption{Failed fit Peak histogram for OffLine; event Id. 61411290, Dec 25, 2020.}
+  \label{figPkFailsfit}
+\end{figure}
+\clearpage
+
+\section*{Charge Histograms}
+Comparison between OffLine SdCalibrator (ad files) and our method
+for CDAS files. For charge, chi2/Ndof $<5.5$.
+\clearpage
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineChCompaSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/offlineResidChSt863Pmt1.pdf}
+  }
+  \caption{Charge histogram. Right, Comparison for VEM value
+  using OffLine (blue line), second order polynomial fitting (red
+  line), and BXL-method (green dashed line). Left, residuals for
+  OffLine (blue points) and second order polynomial fit (red
+  points). As it can be seen, the polynomial and BXL-method set
+  properly the VEM value, but OffLine fit is not correct.}
+  \label{figChCompaOffFitDer}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineVEMchSt863Pmt1.pdf}
+  }
+  \caption{Comparison for VEM charge values obtained by OffLine
+  and BXL-method, from 1st of December, 2020 to 31st of July,
+  2021. Here, the OffLine algorithm fails to fit some histograms
+  (blue dots at zero counts) but BXL-method is successful for all
+  histograms.}
+  \label{figChCompVemOffBxl}
+\end{figure}
+\clearpage
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineChi2chSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasChi2chSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChChi2serie}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineNDFchSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasNDFchSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChNdfserie}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineChi2NdfChSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasChi2NdfChSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChChi2Ndfserie}
+\end{figure}
+\clearpage
+
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineLowHihgchSt863Pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/cdasLowHighchSt863Pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/offlineFailedChargeSt863PMT1Evt61269719.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/offlineFailedChResidSt863PMT1Evt61269719.pdf}
+  }
+  \caption{OffLine failed fit for Charge histogram, 863 station, event 61269719, pmt1.
+  In red, the fit obtenined in CDAS.}
+  \label{figChLowHigh}
+\end{figure}
+\clearpage
+
+\section*{Comparison for 863 and 1740 stations}
+
+{\bf 863 Station Peak}
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromDerSt863pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromOffSt863pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromDerSt863pmt2.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromOffSt863pmt2.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromDerSt863pmt3.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromOffSt863pmt3.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+\clearpage
+
+{\bf 863 Station Charge}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromDerSt863pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromOffSt863pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromDerSt863pmt2.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromOffSt863pmt2.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromDerSt863pmt3.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromOffSt863pmt3.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+\clearpage
+
+{\bf 1740 Station Peak}
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromDerSt1740pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromOffSt1740pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB,
+  small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromDerSt1740pmt2.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromOffSt1740pmt2.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromDerSt1740pmt3.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubPeakFromOffSt1740pmt3.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+\clearpage
+
+
+{\bf 1740 Station Charge}
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromDerSt1740pmt1.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromOffSt1740pmt1.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromDerSt1740pmt2.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromOffSt1740pmt2.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+
+\begin{figure}[!tbh]
+  \centering
+  \subfigure
+  {
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromDerSt1740pmt3.pdf}
+    \includegraphics[width=0.55\textwidth]{../plots/uubChargeFromOffSt1740pmt3.pdf}
+  }
+  \caption{Stations for first pre-production batch including UUB, small PMT and SSD.}
+  \label{figChLowHigh}
+\end{figure}
+\clearpage
+
+\end{document}

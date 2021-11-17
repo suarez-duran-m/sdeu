@@ -1,0 +1,261 @@
+\documentclass[twoside, final, 10pt]{articleMine}
+\usepackage[english]{babel}
+\usepackage[sc]{mathpazo}
+\usepackage{a4wide}
+\usepackage{subfigure}
+
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+\usepackage[right]{lineno}
+\usepackage{xspace}
+\usepackage{accents}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{color}
+\usepackage{units}
+\usepackage{enumitem}
+\usepackage{todonotes}
+\usepackage[capitalize]{cleveref}
+\usepackage{nameref}
+\usepackage{csquotes}
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=XML,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\usepackage[thinc]{esdiff}
+
+
+\usepackage{booktabs}
+\usepackage{mcite}
+
+
+\graphicspath{{plots/}}
+\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+  \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+  \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+  \renewenvironment{#1}%
+     {\linenomath\csname old#1\endcsname}%
+     {\csname oldend#1\endcsname\endlinenomath}}%
+\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+  \patchAmsMathEnvironmentForLineno{#1}%
+  \patchAmsMathEnvironmentForLineno{#1*}}%
+\AtBeginDocument{%
+\patchBothAmsMathEnvironmentsForLineno{equation}%
+\patchBothAmsMathEnvironmentsForLineno{align}%
+\patchBothAmsMathEnvironmentsForLineno{flalign}%
+\patchBothAmsMathEnvironmentsForLineno{alignat}%
+\patchBothAmsMathEnvironmentsForLineno{gather}%
+\patchBothAmsMathEnvironmentsForLineno{multline}%
+}
+
+\newcommand{\putat}[3]{\begin{picture}(0,0)(0,0)\put(#1,#2){#3}\end{picture}} % just a shorthand
+\parskip 4.2pt           % sets spacing between paragraphs
+%\parindend 0pt           % sets spacing between paragraphs
+\def\Offline{\mbox{$\overline{\rm
+Off}$\hspace{.05em}\raisebox{.4ex}{$\underline{\rm line}$}}\xspace}
+\def\OfflineB{\mbox{$\bf\overline{\rm\bf
+Off}$\hspace{.05em}\raisebox{.4ex}{$\bf\underline{\rm\bf line}$}}\xspace}
+
+\newcommand{\qpkDist}{$Q^\mathrm{Pk}_\mathrm{Dist}$\,}
+\newcommand{\qpkNormDist}{$Q^\mathrm{Pk}_\mathrm{NormDist}$\,}
+
+\include{myabbr}
+
+
+\begin{document}
+\setpagewiselinenumbers
+\modulolinenumbers[2]
+
+\linenumbers
+
+\renewcommand\linenumberfont{\small\rmfamily}
+\begin{flushright}
+%GAP-2021-xx
+\end{flushright}
+
+\begin{flushright}
+  \rule{\linewidth}{0.5mm}
+  \\[17mm]
+  \vspace*{-3ex}{\Large Accuracy of $Q^\mathrm{Peak}_\mathrm{VEM}$ fit for UB and UUB}
+  \large
+  \parbox[b]{15cm}
+  {
+    \begin{flushright}
+      Mauricio Su\'arez-Dur\'an and  Ioana~C.~Mari\c{s}
+      \\[6mm]
+      {\small Universit{\'e} Libre de Bruxelles, Belgium}
+    \end{flushright}
+  }
+  \\[5mm]
+  \rule{\linewidth}{0.5mm}
+\end{flushright}
+%
+%\vspace*{-5ex}
+%
+\thispagestyle{empty}
+\noindent
+
+\begin{abstract}
+  \noindent
+  From the installation of the Upgraded Unified Board (UUB) is
+  expected to have a better accuracy for the estimation of the
+  \qpkvem values respect of the previous Unified Board (UB).
+  Here, the process to calculate the accuracy of the \qpkvem
+  values for the UUB and UB is presented, and the results of its
+  application on $80$ UUB stations, and their respective UB
+  version, are showed.
+\end{abstract}
+
+%
+%\newpage
+%
+\thispagestyle{empty}
+$\;$
+%\listoftodos
+%\newpage
+\noindent
+\clearpage
+
+\section*{Accuracy calculation}
+
+For the calculation of the \qpkvem accuracy, the charge
+histograms measured from August 1st, to October 19th of 2021, by
+80 UUB stations (and for each PMT) were fitting to obtain the
+respective \qpkvem. On the other hand, with the aim of compare
+the accuracy both version, UUB and UB, the same fitting was
+performed to the same stations but before to become in UUB, i.e.
+from August 1st, to October 19th of 2020, 2019, and 2018. Figure
+\ref{fig1747QpkValues}, top row, shows an example for the
+distribution of \qpkvem values (\qpkDist) for station 1747, UUB
+and UB version.\\\\For each station, every \qpkvem was normalized
+respect the average of the respective PMT-\qpkDist, and a single
+distribution is built by summing the respective three
+distributions. In this way, we obtain a preliminary distribution
+that represents the \qpkvem normalized for each station. The last
+one is preliminary because some times, a certain PMT (anomalous
+PMT)could have a wide \qpkDist respect the other PMTs (see right
+side in figure \ref{figMultipleQpksSt843}). So, to discard these
+anomalous PMTs, the RMS of the preliminary distribution (Pre-RMS)
+is used in the next way: if the RMS of some PMT-\qpkDist is
+bigger than $1.3$ times the Pre-RMS, so it is discarded, from UB
+and UUB. As an example, figure \ref{fig1747QpkValues}, lower row,
+shows the this \qpkNormDist for the station 1747. A Gauss
+function was fitted to this last distribution in order to the get
+the first two moments of the distribution.
+\vspace{.5cm}
+
+\begin{figure}[!t]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/filteredPMTsSt1747.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/filteredUbPMTsSt1747.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/filteredSt1747.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/filteredUbSt1747.pdf}
+  }
+  \caption{Upper row, distribution of the fitted \qpkvem values
+  (\qpkDist, in the plot) for station 1747, for each PMT (red
+  PMT1, blue PMT2, and green PMT3), UUB (left) and UB (right)
+  version. Lower row, For same station, results for \qpkvem
+  normalized respect the average of the respective PMTs. The
+  magenta line represents the \qpkNormDist, i.e. the sum of
+  \qpkDist with a RMS lower or equal to $1.3$ times the $\sigma$
+  of the preliminary distribution (see text for details). In red,
+  a Gauss function fitted to \qpkNormDist.}
+  \label{fig1747QpkValues}
+\end{figure}
+\clearpage
+
+\noindent For some PMTs, the \qpkDist hasmore than one peak, as
+the left side of figure \ref{figMultipleQpksSt843} shows. In
+theses cases, each peak was fitted using a Gauss function, and
+the \qpkNormDist was calculate respect each mean one; for this,
+the \qpkvem values into $\pm\sigma$, of the respective Gauss
+function, have been normalized. For instance, the right side of
+figure \ref{figMultipleQpksSt843} presents the results of the
+last procedure for station 843.\\\\The accuracy of \qpkvem for
+one station is calculate then as the ratio $\sigma/\mu$, from a
+Gauss function fitted to the respective \qpkNormDist. The upper
+row of figure \ref{figAccuracyResults} shows the results for the
+accuracy of the fitted \qpkvem for the $80$ stations, UUB and UB.
+In the left side, the accuracy is presented as function of
+station ID, and in right side the distribution for UUB and UB
+accuracy are presented, with a mean for $\sigma/\mu$ of
+$2.015\pm0.715$\,\% for UB and $1.705\pm0.636$\,\% for UUB. In
+the bottom row of the same figure, the difference between these
+two accuracy, i.e. $\left(\sigma/\mu\right)_{\mathrm{UB}}
+-\left(\sigma/\mu\right)_{\mathrm{UUB}}$ is presented, as
+function of the station ID (left side), and the respective
+distribution of these differences (right side). As it can be
+seen, mean of the latest distribution is $0.288\pm0.977$\,\%
+which is according with the expected results, the accuracy for
+UUB is better than the one for UB.
+
+\begin{figure}[!t]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/filteredPMTsSt843.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/filteredSt843.pdf}
+  }
+  \caption{On left side, for station 843, \qpkDist with more than
+  one peak: PMTs 2 and 3, blue and green lines, respectively. The
+  PMT1, red line, presents a wide distribution as can be seen on
+  the right figure (black line). On the right, it is possible to
+  see how the \qpkDist for PMT1 is discarded to build the
+  \qpkNormDist (magenta line). The red line corresponds to
+  the Gauss function fitted to the latest distribution.}
+  \label{figMultipleQpksSt843}
+\end{figure}
+\clearpage
+
+
+\begin{figure}[!t]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.5\textwidth]{../../plots/relSigmaQpkVsStationsId.pdf}
+    \includegraphics[width=0.5\textwidth]{../../plots/accuracyQpksFitsUbUubAllStAllPmt_v2.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.5\textwidth]{../../plots/diffRelSigmaQpkVsStationsId.pdf}
+    \includegraphics[width=0.5\textwidth]{../../plots/distDiffSigmaQpk.pdf}
+  }
+  \caption{Results for the accuracy of the \qpkvem fitting for
+  $80$ stations, UUB and UB. Upper row: in left side, the
+  accuracy ($\sigma/\mu$) is presented for each station. The
+  horizontal lines represents the averages ($\left< \sigma/\mu
+  \right>$) for UUB (red line) and UB (blue line). In the right
+  side, the distribution of the $\sigma/\mu$ values is presented
+  for both version, UUB (red) and UB (blue). Bottom row:
+  difference between the accuracy of UB and UUB,
+  $\left(\sigma/\mu\right)_{\mathrm{UB}})-\left(\sigma/\mu\right)_{\mathrm{UUB}}$,
+  left side as function of the station ID, right side the
+  distribution of these values. Here, it is possible to see that
+  the accuracy for UUB is better than the one for UB.}
+  \label{figAccuracyResults}
+\end{figure}
+\textcolor{white}{hi}
+\clearpage
+
+\end{document}
