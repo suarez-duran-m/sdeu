@@ -131,8 +131,8 @@ void doMatch(vector<int> evtIdOff, vector<int> evtIdCdas,
 
 void MakeQpkCdasVsQpkOff(int st, int pmt) {
 
-  TString bnOffl = "~/2021/sdeu/offline/forUb/Aug/offlineUb";
-  TString bnUubOffl = "~/2021/sdeu/offline/forUub/AugResults/offlineUub";
+  TString bnOffl = "~/2021/sdeu/offline/forUb/results/"; //Aug/offlineUb";
+  TString bnUubOffl = "~/2021/sdeu/offline/forUub/results"; //AugResults/offlineUub";
   TString bnCdas = "~/2021/sdeu/nouub/underHistos/AugResults/ubChPkPMT";
   TString bnUubCdas = "~/2021/sdeu/underHisto/AugResults/uubChPkPMT";
 

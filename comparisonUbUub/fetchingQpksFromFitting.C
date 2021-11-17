@@ -19,7 +19,7 @@ TH1D *getQpkValues( TString bname, double StId, int pmt, bool ifIsUub,
   TFile *f;
   TTree *chargeInfo;
   double fetchQpkVals = 0.;
-  int fetchTime = 0;
+  //int fetchTime = 0;
   TH1D *retQpkDist = new TH1D("retQpkDist"+strStId+"Pmt"+pmtId,"", 
       nbins, frstBin, lstBin);
 
@@ -29,7 +29,7 @@ TH1D *getQpkValues( TString bname, double StId, int pmt, bool ifIsUub,
       f = TFile::Open(fname+".root");
       chargeInfo = (TTree*)f->Get(strChargeData);
       chargeInfo->SetBranchAddress("chargeVal", &fetchQpkVals);
-      chargeInfo->SetBranchAddress("timeEvnt", &fetchTime);
+      //chargeInfo->SetBranchAddress("timeEvnt", &fetchTime);
       
       fetchQpkVals = 0.;
       for( int etry=0; etry<chargeInfo->GetEntries(); etry++) {
@@ -44,11 +44,10 @@ TH1D *getQpkValues( TString bname, double StId, int pmt, bool ifIsUub,
   }
   chargeInfo->Delete();
   delete f;
-  return retQpkDist;
+    return retQpkDist;
 }
 
 void fetchingQpksFromFitting(bool ifUub) {
-
   //string stListPath = "/home/msd/2021/sdeu/listStationsShort.txt";
   string stListPath = "/home/msd/2021/sdeu/fullUubStationsListVert.txt";
   TString bnCdas = (ifUub) ?
