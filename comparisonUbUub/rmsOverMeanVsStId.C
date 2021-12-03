@@ -29,10 +29,12 @@ void histoStyle(TGraphErrors *hist) {
 }
 
 TH1D *getRelQpk( TH1D *qpkVals, vector<double> &relQpkAllPmts, int pmt,//) {
-    bool isCtionSt, vector<double> ctionSt ) {
+     bool isCtionSt, vector<double> ctionSt, double r1Random ) {
   double mean = qpkVals->GetMean();
   TString strMean;
+  TString strRandom;
   strMean.Form("%.4f", mean);
+  strRandom.Form("%.6f", r1Random);
   int nbins = 200;
   double frtBin = 0.;
   double lstBin = 2.;
@@ -42,7 +44,8 @@ TH1D *getRelQpk( TH1D *qpkVals, vector<double> &relQpkAllPmts, int pmt,//) {
   int bin = 0;
   int nCnts = 0;
   bool doCnts = false;
-  TH1D *retRelQpk = new TH1D ("retRelQpk"+strMean, "", nbins, frtBin, lstBin);
+  TH1D *retRelQpk = new TH1D ("retRelQpk"+strRandom, "", nbins, frtBin, lstBin);
+
   for ( int qpk_i=1; qpk_i<qpkVals->GetNbinsX(); qpk_i++ ) {
     if ( qpkVals->GetBinContent(qpk_i) <= 0 )
       continue;
@@ -235,7 +238,6 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
   TH1D *fetchQpkValsPmt1 = new TH1D();
   TH1D *fetchQpkValsPmt2 = new TH1D();
   TH1D *fetchQpkValsPmt3 = new TH1D();
-
   int stid = 0;
   
   stIds->SetBranchAddress("qpkValuesPmt1", &fetchQpkValsPmt1);
@@ -273,12 +275,13 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
   double rmsRelQpkAllPmt = 0.;
   double farFromSigma = 1.3;
   int cutForMeanByPmt = 0;
+  TRandom *r1Random =new TRandom();
   //TH1D *diffMuRMS = new TH1D ("diffMuRMS","", 2000, -1, 1);
 
   for ( int etry=0; etry<stIds->GetEntries(); etry++ ) {
     
     stIds->GetEntry( etry );
-    //if ( stid != 843 )
+    //if ( stid != 1208 )
       //continue;
             
     for ( int i=0; i<nbins; i++ )
@@ -287,88 +290,43 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
     IfCtionAndLnForSt tmp = ifCationSt( cautionStPmt1, stid );
     isCtionSt = tmp.IfCtion;
     lnCationSt = tmp.lnForSt;
-
-    distRelQpkPmt1 = getRelQpk( fetchQpkValsPmt1, relQpkPmts, 1, 
-        isCtionSt, cautionStPmt1[lnCationSt]);
+    distRelQpkPmt1 = getRelQpk( fetchQpkValsPmt1, relQpkPmts, 1,
+        isCtionSt, cautionStPmt1[lnCationSt], r1Random->Rndm());
     
     tmp = ifCationSt( cautionStPmt2, stid );
     isCtionSt = tmp.IfCtion;
     lnCationSt = tmp.lnForSt;
     distRelQpkPmt2 = getRelQpk( fetchQpkValsPmt2, relQpkPmts, 2, 
-        isCtionSt, cautionStPmt2[lnCationSt]);
+        isCtionSt, cautionStPmt2[lnCationSt], r1Random->Rndm());
 
     tmp = ifCationSt( cautionStPmt3, stid );
     isCtionSt = tmp.IfCtion;
     lnCationSt = tmp.lnForSt;
     distRelQpkPmt3 = getRelQpk( fetchQpkValsPmt3, relQpkPmts, 3, 
-        isCtionSt, cautionStPmt3[lnCationSt]);
+        isCtionSt, cautionStPmt3[lnCationSt], r1Random->Rndm());
 
     for ( int bin=1; bin<relQpkPmts.size(); bin++ )
       if ( relQpkPmts[bin] > 0 )
         distRelQpkPmts->SetBinContent( bin-1, relQpkPmts[bin] );
 
-    rmsRelQpkAllPmt = farFromSigma*distRelQpkPmts->GetRMS();
-
-    TH1* cumuDistRelQpkPmts = distRelQpkPmts->GetCumulative();
-    int bin80 = 0;
-    Double_t* inteDistRelQpkPmts = distRelQpkPmts->GetIntegral();
-    Double_t* inteDistRelQpkPmt1 = distRelQpkPmt1->GetIntegral();
-    Double_t* inteDistRelQpkPmt2 = distRelQpkPmt2->GetIntegral();
-    Double_t* inteDistRelQpkPmt3 = distRelQpkPmt3->GetIntegral();
-    double compar = 0.9;
-    for (Int_t i = 1; i <= cumuDistRelQpkPmts->GetNbinsX(); ++i) {
-      if ( inteDistRelQpkPmts[i] > compar ) {
-        bin80 = i;
-        break;
-      }
-    }
-    //cout << "bin80 " << bin80 << endl;
-    
+    rmsRelQpkAllPmt = farFromSigma*distRelQpkPmts->GetRMS();    
     cutForMeanByPmt = (ifUub) ? 500 : 50;
-
-    bool discartPmt = false;
-    if ( !ifUub && discartedPMTs[stid][0] == 1 ) 
-      discartPmt = true;
-    
-    if ( !discartPmt && distRelQpkPmt1->GetRMS() < rmsRelQpkAllPmt
-    //if ( !discartPmt && inteDistRelQpkPmt1[bin80] >= compar
+  
+    if ( distRelQpkPmt1->GetRMS() < rmsRelQpkAllPmt
         && fetchQpkValsPmt1->GetMean() > cutForMeanByPmt )
       fillRelQpkOk(distRelQpkPmt1, distRelQpkOk);
-    else if ( ifUub ) {
-      discartedPMTs[stid][0] = 1;
-      cout << endl;
-      cout << "MSD stid " 
-        << stid << " " 
-        << bin80 << " " 
-        << inteDistRelQpkPmt1[bin80] << " " 
-        << distRelQpkPmt1->GetRMS() << " "
-        << rmsRelQpkAllPmt << endl << endl;
-    }
 
-    discartPmt = false;
-    if ( !ifUub && discartedPMTs[stid][1] == 1 ) 
-      discartPmt = true;
-
-    if ( !discartPmt && distRelQpkPmt2->GetRMS() < rmsRelQpkAllPmt 
-    //if ( !discartPmt && inteDistRelQpkPmt2[bin80] >= compar
+    if ( distRelQpkPmt2->GetRMS() < rmsRelQpkAllPmt 
         && fetchQpkValsPmt2->GetMean() > cutForMeanByPmt )
       fillRelQpkOk(distRelQpkPmt2, distRelQpkOk);
-    else if ( ifUub )
-      discartedPMTs[stid][1] = 1;
     
-    
-    discartPmt = false;
-    if ( !ifUub && discartedPMTs[stid][2] == 1 )
-      discartPmt = true;
-
-    if ( !discartPmt && distRelQpkPmt3->GetRMS() < rmsRelQpkAllPmt 
-    //if ( !discartPmt && inteDistRelQpkPmt3[bin80] >= compar
+    if ( distRelQpkPmt3->GetRMS() < rmsRelQpkAllPmt 
         && fetchQpkValsPmt3->GetMean() > cutForMeanByPmt )
       fillRelQpkOk(distRelQpkPmt3, distRelQpkOk);
-    else if ( ifUub )
-      discartedPMTs[stid][2] = 1;
-
-    Int_t status = distRelQpkOk->Fit("gaus","Q","",0,2);
+    
+    Int_t status = distRelQpkOk->Fit("gaus","0Q","",0,2);
+    
+   
     /*
     TCanvas *c000 = canvasStyle("c000");
     c000->cd();
@@ -394,7 +352,8 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
     if ( rmsRelQpkAllPmt > 0 ) {
       retDistRelRMSqpk->Fill( rmsRelQpkAllPmt );
       relQpkVect.push_back( rmsRelQpkAllPmt );
-      
+     
+     
       errSgmMu = 0.;
       tmpMuDelSgm = (1./mu)*distRelQpkOk->GetRMSError(1);
       tmpSgmDelMu = (sgm/(mu*mu))*distRelQpkOk->GetMeanError(1);       
@@ -406,9 +365,9 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
       relQpkVect.push_back( 0. );
       relSgmVect.push_back( 0. );
       stidVect.push_back( stid );
-   }
+    }
 
-    if ( !ifUub && rmsRelQpkAllPmt > 4. )
+    if ( ifUub && rmsRelQpkAllPmt > 1.9 )
       cout << endl << endl
         << "=============================" << endl
         << "MSD stid " << stid 
@@ -425,7 +384,7 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
       TString strTitle;
       strTitle.Form("Station %d UUB",stid);
       //strTitle.Form("Station %d UB",stid);
-             
+          
       TCanvas *c0 = canvasStyle("c0");
       c0->cd();
                     
@@ -433,17 +392,18 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
         //diffMuRMS->Fill( distRelQpkOk->GetFunction("gaus")->GetParameter(2) - distRelQpkOk->GetRMS() );
 
       distRelQpkOk->SetStats(kFALSE);
-      distRelQpkOk->GetXaxis()->SetRangeUser(0.8, 1.2);
+      distRelQpkOk->GetXaxis()->SetRangeUser(0.92, 1.07);
       //distRelQpkOk->GetXaxis()->SetRangeUser(0.78, 1.26);
       //distRelQpkOk->GetXaxis()->SetRangeUser(0.9, 1.1); 
       distRelQpkOk->GetXaxis()->SetTitle("Q^{pk}_{i}/#LT Q^{pk}_{VEM}#GT_{PMT}");
       distRelQpkOk->GetYaxis()->SetTitle("Counts [au]");
       distRelQpkOk->SetLineColor(kMagenta-3);
+      distRelQpkOk->SetLineWidth(2);
       distRelQpkOk->SetTitle(strTitle);
       histoStyle(distRelQpkOk);
       distRelQpkOk->Draw();
       
-      distRelQpkPmt1->SetLineColor(kBlack);
+      distRelQpkPmt1->SetLineColor(kRed);
       distRelQpkPmt1->Draw("same");
       
       distRelQpkPmt2->SetLineColor(kBlue);
@@ -456,7 +416,7 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
       leg->AddEntry(distRelQpkPmt1, "PMT1", "l");
       leg->AddEntry(distRelQpkPmt2, "PMT2", "l");
       leg->AddEntry(distRelQpkPmt3, "PMT3", "l");
-      leg->SetTextSize(0.03);
+      leg->SetTextSize(0.04);
       leg->SetBorderSize(0);
       leg->SetFillStyle(0);
       leg->Draw();
@@ -465,7 +425,7 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
       c0->Print("../plots/"+strTitle+".pdf");
       gPad->WaitPrimitive();
       
-      
+
       TCanvas *c00 = canvasStyle("c00");
       c00->cd();
       strTitle.Form("Station %d UUB",stid);
@@ -475,10 +435,10 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
       fetchQpkValsPmt1->SetLineColor(kRed);
       fetchQpkValsPmt1->GetXaxis()->SetTitle("Q^{pk}_{VEM}");
       fetchQpkValsPmt1->GetYaxis()->SetTitle("Counts [au]");
-      fetchQpkValsPmt1->GetXaxis()->SetRangeUser(1e3, 1900);
+      fetchQpkValsPmt1->GetXaxis()->SetRangeUser(1.3e3, 1.9e3);
       //fetchQpkValsPmt1->GetXaxis()->SetRangeUser(1450, 1850);
-      //fetchQpkValsPmt1->GetXaxis()->SetRangeUser(145, 195);
-      //fetchQpkValsPmt1->GetYaxis()->SetRangeUser(0, 45);
+      //fetchQpkValsPmt1->GetXaxis()->SetRangeUser(140, 225);
+      fetchQpkValsPmt1->GetYaxis()->SetRangeUser(0,17);
       histoStyle(fetchQpkValsPmt1);
       fetchQpkValsPmt1->Draw();
       fetchQpkValsPmt2->SetLineColor(kBlue);
@@ -487,6 +447,15 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
       fetchQpkValsPmt3->Draw("same");
       strTitle.Form("filteredPMTsSt%d",stid);
       //strTitle.Form("filteredUbPMTsSt%d",stid);
+
+      leg = new TLegend(0.8,0.5,0.9,0.9);
+      leg->AddEntry(fetchQpkValsPmt1, "PMT1", "l");
+      leg->AddEntry(fetchQpkValsPmt2, "PMT2", "l");
+      leg->AddEntry(fetchQpkValsPmt3, "PMT3", "l");
+      leg->SetTextSize(0.04);
+      leg->SetBorderSize(0);
+      leg->SetFillStyle(0);
+      leg->Draw();
       c00->Print("../plots/"+strTitle+".pdf");
       gPad->WaitPrimitive();
       
@@ -555,9 +524,9 @@ void rmsOverMeanVsStId() {
   distRelRMSqpkUub->SetLineColor(kRed);
   distRelRMSqpkUub->SetLineWidth(2);
   distRelRMSqpkUub->GetYaxis()->SetTitle("Counts [au]");
-  distRelRMSqpkUub->GetXaxis()->SetTitle("#sigma/#mu [%]");
-  distRelRMSqpkUub->GetXaxis()->SetRangeUser(0, 5);
-  distRelRMSqpkUub->GetYaxis()->SetRangeUser(0, 15);
+  distRelRMSqpkUub->GetXaxis()->SetTitle("Relative uncertainty [%]"); //#sigma/#mu [%]");
+  distRelRMSqpkUub->GetXaxis()->SetRangeUser(0, 3);
+  distRelRMSqpkUub->GetYaxis()->SetRangeUser(0, 10);
   distRelRMSqpkUub->SetFillStyle(3345);
   distRelRMSqpkUub->SetFillColor(kRed);
   histoStyle(distRelRMSqpkUub);
@@ -569,37 +538,40 @@ void rmsOverMeanVsStId() {
   distRelRMSqpkUb->SetFillColor(kBlue);
   distRelRMSqpkUb->Draw("same");  
 
-  leg = new TLegend(0.7,0.5,0.9,0.95);  
-  strMean.Form("%.3f", getmean(distRelRMSqpkUb));
-  strRms.Form("%.3f", getrms(distRelRMSqpkUb, getmean(distRelRMSqpkUb)));
+  leg = new TLegend(0.6,0.5,0.9,0.95);
+  strMean.Form("%.2f", getmean(distRelRMSqpkUb));
+  strRms.Form("%.2f", getrms(distRelRMSqpkUb, getmean(distRelRMSqpkUb)));
+  TString strMeanErr;
+  strMeanErr.Form("%.2f", distRelRMSqpkUb->GetMeanError());
   leg->AddEntry(distRelRMSqpkUb, "UB", "l" );
-  leg->AddEntry(distRelRMSqpkUb, "MEAN: "+strMean, "");
-  leg->AddEntry(distRelRMSqpkUb, "RMS: "+strRms, "");
+  leg->AddEntry(distRelRMSqpkUb, "Mean: "+strMean+" % #pm "+strMeanErr+" %", "");
+  //leg->AddEntry(distRelRMSqpkUb, "RMS: "+strRms, "");
   
-  strMean.Form("%.3f", getmean(distRelRMSqpkUub));
-  strRms.Form("%.3f", getrms(distRelRMSqpkUub, getmean(distRelRMSqpkUub)));
+  strMean.Form("%.2f", getmean(distRelRMSqpkUub));
+  strRms.Form("%.2f", getrms(distRelRMSqpkUub, getmean(distRelRMSqpkUub)));
   leg->AddEntry(distRelRMSqpkUub, "UUB", "l" );
-  leg->AddEntry(distRelRMSqpkUub, "MEAN: "+strMean, "");
-  leg->AddEntry(distRelRMSqpkUub, "RMS: "+strRms, "");
+  strMeanErr.Form("%.2f", distRelRMSqpkUub->GetMeanError());
+  leg->AddEntry(distRelRMSqpkUub, "Mean: "+strMean+" % #pm "+strMeanErr+" %", "");
+  //leg->AddEntry(distRelRMSqpkUub, "RMS: "+strRms, "");
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw();
   //c1->Print("kk.pdf");
-  c1->Print("../plots/accuracyQpksFitsUbUubAllStAllPmt_v2.pdf");
+  //c1->Print("../plots/accuracyQpksFitsUbUubAllStAllPmt_v2.pdf");
 
-  TH1D *RelQpkUub = new TH1D("RelQpkUub", "", 80, 0, 80);
-  TH1D *RelQpkUb = new TH1D("RelQpkUb", "", 80, 0, 80);
-  TH1D *RelDiffQpk = new TH1D("RelDiffQpk", "", 80, 0, 80);
+  int nStations = 23;
+  TH1D *RelQpkUub = new TH1D("RelQpkUub", "", nStations, 0, nStations);
+  TH1D *RelQpkUb = new TH1D("RelQpkUb", "", nStations, 0, nStations);
+  TH1D *RelDiffQpk = new TH1D("RelDiffQpk", "", nStations, 0, nStations);
   TH1D *DistRelDiffQpk = new TH1D("DistRelDiffQpk", "", 100, -5.0, 5.0);
 
   double aveUub = 0.;
   double aveUb = 0.;
   double tmpRelQpkUub = 0.;
   double tmpRelQpkUb = 0.;
-  
   TString strStName;
-  for ( int bin_i=1; bin_i<80; bin_i++ ) {
+  for ( int bin_i=1; bin_i<nStations+1; bin_i++ ) {
     tmpRelQpkUub = relQpkVectUub[bin_i-1];
     tmpRelQpkUb = relQpkVectUb[bin_i-1];
     strStName.Form("%d", (int)stidVectUub[bin_i-1]);
@@ -636,7 +608,7 @@ void rmsOverMeanVsStId() {
   RelQpkUub->SetStats(kFALSE);
   RelQpkUub->GetXaxis()->SetTitle("Station ID.");
   RelQpkUub->GetXaxis()->SetTitleOffset(1.5);
-  RelQpkUub->GetYaxis()->SetRangeUser(0., 4.5);
+  RelQpkUub->GetYaxis()->SetRangeUser(0.2, 2.4);
   RelQpkUub->GetYaxis()->SetTitle("#sigma/#mu [%]");
   RelQpkUub->SetMarkerStyle(71);
   RelQpkUub->SetMarkerColor(kRed);
@@ -645,7 +617,7 @@ void rmsOverMeanVsStId() {
   histoStyle(RelQpkUub);
   RelQpkUub->Draw("E1");
 
-  TLine *lineUub = new TLine(0,aveUub,80,aveUub);
+  TLine *lineUub = new TLine(0.5,aveUub,22.5,aveUub);
   lineUub->SetLineWidth(2);
   lineUub->SetLineColor(kRed);
   lineUub->Draw();
@@ -656,7 +628,7 @@ void rmsOverMeanVsStId() {
   RelQpkUb->SetMarkerSize(1.2);
   RelQpkUb->Draw("E1 same");
 
-  TLine *lineUb = new TLine(0,aveUb,80,aveUb);
+  TLine *lineUb = new TLine(0.5,aveUb,22.5,aveUb);
   lineUb->SetLineWidth(2);
   lineUb->SetLineColor(kBlue);
   lineUb->Draw();
@@ -668,9 +640,8 @@ void rmsOverMeanVsStId() {
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
-  leg->Draw();
-  
-  c2->Print("../plots/relSigmaQpkVsStationsId.pdf");
+  leg->Draw(); 
+  //c2->Print("../plots/relSigmaQpkVsStationsId.pdf");
 
   TCanvas *c3 = canvasStyle("c3");
   c3->cd();
@@ -679,7 +650,7 @@ void rmsOverMeanVsStId() {
   RelDiffQpk->SetStats(kFALSE);                       
   RelDiffQpk->GetXaxis()->SetTitle("Station ID.");
   RelDiffQpk->GetXaxis()->SetTitleOffset(1.5);
-  RelDiffQpk->GetYaxis()->SetRangeUser(-2.5, 3.);
+  RelDiffQpk->GetYaxis()->SetRangeUser(-0.9, 0.9);
   RelDiffQpk->GetYaxis()->SetTitle("#left(#sigma/#mu#right)_{UB} - #left(#sigma/#mu#right)_{UUB} [%]");
   RelDiffQpk->SetMarkerStyle(71);
   RelDiffQpk->SetMarkerColor(kGreen+3);
@@ -688,12 +659,12 @@ void rmsOverMeanVsStId() {
   histoStyle(RelDiffQpk);
   RelDiffQpk->Draw("P");
 
-  lineUb = new TLine(3.,0.,80.,0.);
-  lineUb->SetLineWidth(1);
+  lineUb = new TLine(0.5,0.,22.5,0.);
+  lineUb->SetLineWidth(2);
   lineUb->SetLineColor(kGray);
   lineUb->SetLineStyle(2);
   lineUb->Draw();
-  c3->Print("../plots/diffRelSigmaQpkVsStationsId.pdf");
+  //c3->Print("../plots/diffRelSigmaQpkVsStationsId.pdf");
 
   TCanvas *c4 = canvasStyle("c4");
   c4->cd();
@@ -701,7 +672,7 @@ void rmsOverMeanVsStId() {
   DistRelDiffQpk->SetTitle("");
   DistRelDiffQpk->SetStats(kFALSE); 
   DistRelDiffQpk->GetXaxis()->SetTitle("#left(#sigma/#mu#right)_{UB} - #left(#sigma/#mu#right)_{UUB} [%]");
-  DistRelDiffQpk->GetXaxis()->SetRangeUser(-3.5, 3.5);
+  DistRelDiffQpk->GetXaxis()->SetRangeUser(-1., 1.);
   //DistRelDiffQpk->GetXaxis()->SetTitleOffset(1.5);
   //DistRelDiffQpk->GetYaxis()->SetRangeUser(0.9, 1.07);
   DistRelDiffQpk->GetYaxis()->SetTitle("Counts [au]"); 
@@ -718,8 +689,14 @@ void rmsOverMeanVsStId() {
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw();
-  
-  c4->Print("../plots/distDiffSigmaQpk.pdf");
 
-  exit(0);
+  lineUb = new TLine(0.,0.2,0.,4.2);
+  lineUb->SetLineWidth(2);
+  lineUb->SetLineColor(kGray);
+  lineUb->SetLineStyle(2);
+  lineUb->Draw();
+  
+  //c4->Print("../plots/distDiffSigmaQpk.pdf");
+
+  //exit(0);
 } 
