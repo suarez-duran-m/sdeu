@@ -115,8 +115,8 @@ int main (int argc, char *argv[]) {
   string doMonth = string(whichmonth);
   pmtname +=  "lrb" + strNblr + doMonth + "2021";
 
-  TFile hfile("uubChPk"+pmtname+".root","RECREATE","");
-  //TFile hfile("kk.root", "RECREATE","");
+  //TFile hfile("uubChPk"+pmtname+".root","RECREATE","");
+  TFile hfile("kk.root", "RECREATE","");
 
 	//TH1F *recePk = new TH1F (); // Receive Pk from IoSdStation::HPeak
 	TH1F *receCh = new TH1F (); // Receive Ch from IoSdStation::HCharge
@@ -273,13 +273,13 @@ int main (int argc, char *argv[]) {
           chNdf = fitCh.ndfCharge;
           chProb = fitCh.probCharge;
           charge =  fitCh.vemPosCh;
-          chargeDeri =  fitCh.vemPosDeri;
+          chargeDeri = fitCh.vemPosDeri;
           chLow = fitCh.rangXmin;
           chHigh = fitCh.rangXmax;
           chPar0 = fitCh.par0;
           chPar1 = fitCh.par1; 
           chPar2 = fitCh.par2;
-          
+
           //evtIdPk = event.Id;
           evtIdCh = event.Id;
           
