@@ -232,7 +232,6 @@ int main (int argc, char *argv[]) {
       if(event.fCalibStations[i].fSigInVEM < 0)
         continue;
 
-
       tmpName.Form("%ld%d", event.UTCTime, nrEventsRead-1);
       blCorrHbase = event.Stations[i].HBase(pmtId-1)->GetMean(); // Extracting calib-baseline
 
@@ -261,6 +260,7 @@ int main (int argc, char *argv[]) {
       fitCh.getFitCh(*tmp, atoi(argv[3]) );
       
       chHistFit = fitCh.getFitGraphCh();
+      event.Stations[i].
       chChi2 = fitCh.chisCharge;
       chNdf = fitCh.ndfCharge;
       chProb = fitCh.probCharge;

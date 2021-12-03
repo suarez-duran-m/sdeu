@@ -104,8 +104,7 @@ vector < double > getFitRangeCh( TH1F &h, int rightleftBins ) {
 }
 
 
-fitcharge::fitcharge() 
-{
+fitcharge::fitcharge() {
 	vemPosCh = 0.;
   vemPosDeri = 0.;
 	getGraph = false;
@@ -137,8 +136,7 @@ void fitcharge::setChCrr(TH1F &hist, const int corr, TString name) {
 }
 
 
-void fitcharge::getFitCh(TH1F &hist, int nblr) 
-{
+void fitcharge::getFitCh(TH1F &hist, int nblr) {
   TString tmpname;
   tmpname.Form("%d",rand());
 
