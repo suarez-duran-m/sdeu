@@ -137,43 +137,136 @@ $\;$
 \noindent
 \clearpage
 
-\section*{Accuracy calculation}
-
-For the calculation of the \qpkvem accuracy, the charge
-histograms measured from August 1st, to October 19th of 2021, by
-80 UUB stations (and for each PMT) were fitting to obtain the
-respective \qpkvem. On the other hand, with the aim of compare
-the accuracy both version, UUB and UB, the same fitting was
-performed to the same stations but before to become in UUB, i.e.
-from August 1st, to October 19th of 2020, 2019, and 2018. Figure
-\ref{fig1747QpkValues}, top row, shows an example for the
-distribution of \qpkvem values (\qpkDist) for station 1747, UUB
-and UB version.\\\\For each station, every \qpkvem was normalized
-respect the average of the respective PMT-\qpkDist, and a single
-distribution is built by summing the respective three
-distributions. In this way, we obtain a preliminary distribution
-that represents the \qpkvem normalized for each station. The last
-one is preliminary because some times, a certain PMT (anomalous
-PMT)could have a wide \qpkDist respect the other PMTs (see right
-side in figure \ref{figMultipleQpksSt843}). So, to discard these
-anomalous PMTs, the RMS of the preliminary distribution (Pre-RMS)
-is used in the next way: if the RMS of some PMT-\qpkDist is
-bigger than $1.3$ times the Pre-RMS, so it is discarded, from UB
-and UUB. As an example, figure \ref{fig1747QpkValues}, lower row,
-shows the this \qpkNormDist for the station 1747. A Gauss
-function was fitted to this last distribution in order to the get
-the first two moments of the distribution.
-\vspace{.5cm}
+\section{Fitting histograms}
+\label{secFitting}
 
 \begin{figure}[!t]
   \centering
   \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/filteredPMTsSt1747.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/filteredUbPMTsSt1747.pdf}
+    \includegraphics[width=.5\textwidth]{../../plots/chargeHisto863.pdf}
+    \includegraphics[width=.5\textwidth]{../../plots/chargeDerHisto863.pdf}
+  }
+  \caption{Algorithm's steps applied to get the \qpkvem from the
+  calibration histograms. Left: typical charge calibration
+  histogram, where the black line represents the smoothing
+  histogram ($H_S$) after applying 15-bin sliding window. Right:
+  first derivative histogram ($H_{DS}$) in black, and smoothing
+  of this last one in red ($H_{SDS}$); here, the green vertical
+  line shows the maximum or the first approach of \qpkvem.}
+  \label{figChargeDerivative}
+\end{figure}
+
+The \qpkvem value is obtained from the charge calibration
+histogram, an algorithm based on the first derivative has been
+implemented and applied. The goal of this procedure is to
+estimate the \qpkvem as the maximum of a second order polynomial,
+fitting the respective hump muon. In this sense, the first
+derivative of the histogram works as first approach to locate
+this hump, and from there to estimate the fit range. This
+algorithm is described below, and showed in figure
+\ref{figChargeDerivative}:
+
+\begin{enumerate}
+  \item Smoothing the histogram using a 15-bin sliding window,
+    $H_S$.
+  \item Obtaining the first derivative of the $H_S$, by
+    \begin{equation}
+      \frac{f(x+1)-f(x-1)}{2h} \, ,
+    \end{equation}
+    which is called $H_{DS}$.
+  \item Smoothing $H_{DS}$, by 15-bin sliding window, and
+    obtaining $H_{SDS}$.
+  \item Searching for the estimated \qpkvem, i.e. first bin for
+    $H_{SDS}$ equal to zero, from right to left.
+  \item Fixing the fitting range using n-bin leftward and n-bin
+    rightward from the estimated \qpkvem.
+\end{enumerate}
+The last algorithm' step requires an extra procedure in order to
+fixed the number of n-bin. Using a set of histograms, the
+stability of the fit (in terms of RMS/$\left<
+Q^\mathrm{Peak}_\mathrm{VEM} \right>$) was plotted as a function
+of the n-bin. For this, the estimated \qpkvem from the derivative
+(step 4.) was used as initial parameter, and from this point, a
+number of n-bin was fixed with an extra condition of not reaching
+the valley of the histogram. Finally, the
+RMS/$\left<Q^\mathrm{Peak}_\mathrm{VEM}\right>$ vs n-bin was
+plotted, and it is presented in the first row of figure
+\ref{figApplyingAlgorithm}. There, the stability of the fit
+is seen at and after 30-bin, and this last one is chosen as the
+number of n-bin for the algorithm' step 5. In the bottom row of
+figure \ref{figApplyingAlgorithm}, an example of applying this
+procedure is presented. Section \ref{secQpkVsTime} contains the
+\qpkvem values obtained by this method from 75 UUB stations
+and for the same stations but in UB version (using the same
+algorithm).
+
+\clearpage
+
+\begin{figure}[!t]
+  \centering
+  \subfigure {
+    \includegraphics[width=.5\textwidth]{../../plots/uubChRmsFitBinsLrSt863.pdf}
+    \includegraphics[width=.5\textwidth]{../../plots/uubChRmsFitBinsLrSt863zoom.pdf}
+  }
+  \subfigure{
+    \includegraphics[width=.5\textwidth]{../../plots/chargeFitPoly2863.pdf}
+    \includegraphics[width=.5\textwidth]{../../plots/chargeFitResidualsPoly2863.pdf}
+  }
+  \caption{Top row, results for the stability of fitting the hump
+  muon (RMS/$\left<Q^\mathrm{Peak}_\mathrm{VEM}\right>$) as
+  function of the n-bin. After 30 bins the stability is reached.
+  Bottom row, an example of applying the algorithm; here the
+  vertical green line shows the hump VEM obtained from the first
+  derivative (step 4.), and the vertical blue line shows the
+  \qpkvem obtained as the maximum of the fitted second order
+  polynomial.}
+  \label{figApplyingAlgorithm}
+\end{figure}
+
+\section{Accuracy calculation}
+
+For the calculation of the \qpkvem accuracy, each of one of these
+values was normalized respect the average of the respective
+PMT-\qpkDist, and a single distribution is built by summing the
+respective three distributions. In this way, we obtain a
+distribution that represents the \qpkvem normalized for each
+station. A Gauss function is fitted to this last distribution in
+order to the get the first two moments of the distribution, which
+are used to determine the accuracy, $\mu/\sigma$.\\\\With the aim
+of compare the accuracy both version, UUB and UB, the former
+procedure was applied to same stations before to become in UUB,
+i.e. from August 1st, to October 19th of 2018, UB, and from
+August 1st, to October 19th of 2021, UUB. Figure
+\ref{fig1747QpkValues}, top row, shows an example for the
+distribution of \qpkvem values (\qpkDist) for station 1208, UUB
+and UB version, meanwhile bottom row shows the distribution for
+the \qpkvem normalized.\\\\For some PMTs, the \qpkDist has more
+than one peak, this imply a wide distribution for the normalized
+values, as it can be seen in figure \ref{figMultipleQpksSt843}.
+To avoid this kind of distribution, a selection over the
+stations, and PMTs, was applied. This selection consisted of
+choosing a time window in which the \qpkvem was constant, i.e.
+fitting a constant function and checking the for the quality of
+the fit ($\chi^2<(0.5$ndf)). Those PMT-\qpkDist, for the
+respective station, that not agree with this criteria, were not
+taken in to the account, for instance, if certain UB-PMT
+disagree, so the respective UUB-PMT was ignore too, and vice
+versa. In section \ref{secQpkVsTime} the \qpkvem as function of
+time, for all UUB stations, is presented. There, the stations
+with PMT-\qpkDist selected are indicated. In total, 23 stations
+were chosen with 52 PMT-\qpkDist, respectively.
+%\vspace{.5cm}
+\clearpage
+
+\begin{figure}[!t]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/filteredPMTsSt1208.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/filteredUbPMTsSt1208.pdf}
   }
   \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/filteredSt1747.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/filteredUbSt1747.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/filteredSt1208.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/filteredUbSt1208.pdf}
   }
   \caption{Upper row, distribution of the fitted \qpkvem values
   (\qpkDist, in the plot) for station 1747, for each PMT (red
@@ -186,32 +279,22 @@ the first two moments of the distribution.
   a Gauss function fitted to \qpkNormDist.}
   \label{fig1747QpkValues}
 \end{figure}
-\clearpage
 
-\noindent For some PMTs, the \qpkDist hasmore than one peak, as
-the left side of figure \ref{figMultipleQpksSt843} shows. In
-theses cases, each peak was fitted using a Gauss function, and
-the \qpkNormDist was calculate respect each mean one; for this,
-the \qpkvem values into $\pm\sigma$, of the respective Gauss
-function, have been normalized. For instance, the right side of
-figure \ref{figMultipleQpksSt843} presents the results of the
-last procedure for station 843.\\\\The accuracy of \qpkvem for
-one station is calculate then as the ratio $\sigma/\mu$, from a
-Gauss function fitted to the respective \qpkNormDist. The upper
-row of figure \ref{figAccuracyResults} shows the results for the
-accuracy of the fitted \qpkvem for the $80$ stations, UUB and UB.
-In the left side, the accuracy is presented as function of
-station ID, and in right side the distribution for UUB and UB
-accuracy are presented, with a mean for $\sigma/\mu$ of
-$2.015\pm0.715$\,\% for UB and $1.705\pm0.636$\,\% for UUB. In
-the bottom row of the same figure, the difference between these
-two accuracy, i.e. $\left(\sigma/\mu\right)_{\mathrm{UB}}
+\noindent The upper row of figure \ref{figAccuracyResults} shows
+the results for the accuracy of the fitted \qpkvem for the 23
+chosen stations. In the left side, the accuracy is presented as
+function of station ID, and in right side the distribution for
+UUB and UB accuracy are presented. There, it can been seen that
+the mean for the accuracy ($\left<\sigma/\mu \right>$) for UB is
+$1.08\pm0.06$\,\%, meanwhile for UUB this value is
+$1.20\pm0.06$\,\%. In the bottom row of the same figure, the
+difference between two accuracy, i.e.
+$\left(\sigma/\mu\right)_{\mathrm{UB}}
 -\left(\sigma/\mu\right)_{\mathrm{UUB}}$ is presented, as
 function of the station ID (left side), and the respective
 distribution of these differences (right side). As it can be
-seen, mean of the latest distribution is $0.288\pm0.977$\,\%
-which is according with the expected results, the accuracy for
-UUB is better than the one for UB.
+seen, the mean of the this distribution is $-0.115\pm0.401$\,\%.
+\clearpage
 
 \begin{figure}[!t]
   \centering
@@ -228,6 +311,8 @@ UUB is better than the one for UB.
   the Gauss function fitted to the latest distribution.}
   \label{figMultipleQpksSt843}
 \end{figure}
+
+Hi.
 \clearpage
 
 
@@ -242,7 +327,7 @@ UUB is better than the one for UB.
     \includegraphics[width=0.5\textwidth]{../../plots/distDiffSigmaQpk.pdf}
   }
   \caption{Results for the accuracy of the \qpkvem fitting for
-  $80$ stations, UUB and UB. Upper row: in left side, the
+  $75$ stations, UUB and UB. Upper row: in left side, the
   accuracy ($\sigma/\mu$) is presented for each station. The
   horizontal lines represents the averages ($\left< \sigma/\mu
   \right>$) for UUB (red line) and UB (blue line). In the right
@@ -257,5 +342,573 @@ UUB is better than the one for UB.
 \end{figure}
 \textcolor{white}{hi}
 \clearpage
+
+\section{\qpkvem as function of time}
+\label{secQpkVsTime}
+
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt545UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt545UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/chi2NdfQpksVsTimeSt545UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/chi2NdfQpksVsTimeSt545UUB.pdf}
+  }   
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt804UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt804UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt806UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt806UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. The first row shows the
+  average of the \qpkvem per day plotting as function of time,
+  for the station  545, left UB, and right UUB version. In the
+  second raw, the quality of the respective fit (the average of
+  $\chi^2/$ndf per day), same station, is plotting as function of
+  time. The third and fourth row present the same results as row
+  1, for stations 804 and 806. if the label ``Selected'' is seen,
+  it means that some, or all, PMTs were chosen to calculate the
+  accuracy of \qpkvem.}
+  %\label{figQpksTime}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt827UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt827UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt830UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt830UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt832UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt832UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt833UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt833UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt836UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt836UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt840UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt840UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt843UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt843UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt846UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt846UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt849UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt849UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt850UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt850UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt851UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt851UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt853UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt853UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt849UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt849UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt850UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt850UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt851UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt851UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt853UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt853UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt856UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt856UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt859UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt859UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt860UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt860UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt861UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt861UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt862UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt862UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt863UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt863UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt864UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt864UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt866UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt866UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt868UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt868UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt871UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt871UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt907UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt907UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1185UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1185UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1190UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1190UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1191UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1191UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1198UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1198UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1205UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1205UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1207UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1207UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1208UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1208UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1209UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1209UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1210UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1210UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1211UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1211UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1213UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1213UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1214UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1214UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1216UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1216UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1217UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1217UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1218UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1218UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1219UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1219UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1220UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1220UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage1
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1221UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1221UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1222UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1222UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1223UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1223UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1224UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1224UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1225UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1225UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1227UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1227UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1729UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1729UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1733UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1733UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1735UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1735UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1736UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1736UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1737UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1737UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1738UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1738UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1739UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1739UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1740UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1740UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1741UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1741UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1742UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1742UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1743UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1743UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1744UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1744UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1745UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1745UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1746UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1746UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1747UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1747UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1779UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1779UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1791UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1791UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1798UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1798UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1817UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1817UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1818UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1818UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1819UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1819UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1851UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1851UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
+hi
+\begin{figure}[!b]
+  \centering
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1854UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1854UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1878UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1878UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1880UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1880UUB.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1881UB.pdf}
+    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1881UUB.pdf}
+  }
+  \caption{\qpkvem values obtained applying the algorithm
+  presented in section \ref{secFitting}. Each row shows the 
+  average of the \qpkvem per day plotting as function of time,
+  left UB, and right UUB version. If the label ``Selected'' is
+  seen, it means that some, or all, PMTs were chosen to calculate
+  the accuracy of \qpkvem.}
+\end{figure}
+\clearpage
+
 
 \end{document}
