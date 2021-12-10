@@ -1,7 +1,7 @@
 TH1D *getQpkValues( TString bname, int StId, int pmt, bool ifIsUub,
    int nbins, double frstBin, double lstBin, int minTime, int maxTime ) { 
 
-  TString monthUub[3] = {"Aug", "Sep", "Oct"};
+  TString monthUub[4] = {"Aug", "Sep", "Oct", "Nov"};
   int nMonths = (ifIsUub) ? 
     sizeof(monthUub)/sizeof(*monthUub) : 
     sizeof(monthUub)/sizeof(*monthUub)-1;
@@ -36,7 +36,7 @@ TH1D *getQpkValues( TString bname, int StId, int pmt, bool ifIsUub,
         chargeInfo->GetEntry(etry);
         if ( fetchQpkVals <= 0 )
           continue;
-        //if ( fetchTime > minTime && fetchTime < maxTime )
+        if ( fetchTime > minTime && fetchTime < maxTime )
             retQpkDist->Fill( fetchQpkVals );
       }
       f->Clear();
@@ -106,10 +106,12 @@ void fetchingQpksFromFitting(bool ifUub) {
   int minTime = 0;
   int maxTime = 0;
 
-  for ( auto & st_i : stListId ) {
-  //for ( int st_i=0; st_i<stSelecTimeRangePmts[0].size(); st_i+=3 ) {
-    //stid = stSelecTimeRangePmts[0][st_i];
-    stid = (int)st_i;
+  // Read stations in fullUubStationsListVert.txt
+  //for ( auto & st_i : stListId ) {
+  // Read stations in listStatOkUub/Ub
+  for ( int st_i=0; st_i<stSelecTimeRangePmts[0].size(); st_i+=3 ) {
+    stid = stSelecTimeRangePmts[0][st_i];
+    //stid = (int)st_i;
 
     minTime = stSelecTimeRangePmts[0][st_i+1];
     maxTime = stSelecTimeRangePmts[0][st_i+2];

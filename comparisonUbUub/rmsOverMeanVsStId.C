@@ -281,27 +281,29 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
   for ( int etry=0; etry<stIds->GetEntries(); etry++ ) {
     
     stIds->GetEntry( etry );
-    //if ( stid != 1208 )
+    //if ( stid != 545 )
       //continue;
             
     for ( int i=0; i<nbins; i++ )
       relQpkPmts.push_back(0.);
 
-    IfCtionAndLnForSt tmp = ifCationSt( cautionStPmt1, stid );
-    isCtionSt = tmp.IfCtion;
-    lnCationSt = tmp.lnForSt;
+    //IfCtionAndLnForSt tmp = ifCationSt( cautionStPmt1, stid );
+    //isCtionSt = tmp.IfCtion;
+    //lnCationSt = tmp.lnForSt;
     distRelQpkPmt1 = getRelQpk( fetchQpkValsPmt1, relQpkPmts, 1,
         isCtionSt, cautionStPmt1[lnCationSt], r1Random->Rndm());
     
-    tmp = ifCationSt( cautionStPmt2, stid );
-    isCtionSt = tmp.IfCtion;
-    lnCationSt = tmp.lnForSt;
+    //tmp = ifCationSt( cautionStPmt2, stid );
+    //isCtionSt = tmp.IfCtion;
+    //lnCationSt = tmp.lnForSt;
     distRelQpkPmt2 = getRelQpk( fetchQpkValsPmt2, relQpkPmts, 2, 
         isCtionSt, cautionStPmt2[lnCationSt], r1Random->Rndm());
 
-    tmp = ifCationSt( cautionStPmt3, stid );
-    isCtionSt = tmp.IfCtion;
-    lnCationSt = tmp.lnForSt;
+    //isCtionSt = false;
+    //lnCationSt = 0;
+    //tmp = ifCationSt( cautionStPmt3, stid );
+    //isCtionSt = tmp.IfCtion;
+    //lnCationSt = tmp.lnForSt;
     distRelQpkPmt3 = getRelQpk( fetchQpkValsPmt3, relQpkPmts, 3, 
         isCtionSt, cautionStPmt3[lnCationSt], r1Random->Rndm());
 
@@ -351,8 +353,7 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
 
     if ( rmsRelQpkAllPmt > 0 ) {
       retDistRelRMSqpk->Fill( rmsRelQpkAllPmt );
-      relQpkVect.push_back( rmsRelQpkAllPmt );
-     
+      relQpkVect.push_back( rmsRelQpkAllPmt ); 
      
       errSgmMu = 0.;
       tmpMuDelSgm = (1./mu)*distRelQpkOk->GetRMSError(1);
@@ -367,14 +368,15 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
       stidVect.push_back( stid );
     }
 
-    if ( ifUub && rmsRelQpkAllPmt > 1.9 )
+    if ( ifUub && rmsRelQpkAllPmt > 4. )
       cout << endl << endl
         << "=============================" << endl
         << "MSD stid " << stid 
         << " ifUub " << ifUub
         << " etry " << etry 
         << " " << distRelQpkOk->GetRMS()
-        << " " << distRelQpkOk->GetMean() << endl << endl;
+        << " " << distRelQpkOk->GetMean() 
+        << " " << rmsRelQpkAllPmt << endl << endl;
     
     rmsRelQpkAllPmt = 0.;
 
@@ -422,7 +424,7 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
       leg->Draw();
       strTitle.Form("filteredSt%d",stid);
       //strTitle.Form("filteredUbSt%d",stid);
-      c0->Print("../plots/"+strTitle+".pdf");
+      //c0->Print("../plots2/"+strTitle+".pdf");
       gPad->WaitPrimitive();
       
 
@@ -456,7 +458,7 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
       leg->SetBorderSize(0);
       leg->SetFillStyle(0);
       leg->Draw();
-      c00->Print("../plots/"+strTitle+".pdf");
+      //c00->Print("../plots2/"+strTitle+".pdf");
       gPad->WaitPrimitive();
       
     }
@@ -477,7 +479,7 @@ TH1D *getDistRelRMSqpk(bool ifUub, vector<double> &relQpkVect, vector<double> &r
     //diffMuRMS->GetXaxis()->SetRangeUser(-0.03, 0.04);
     diffMuRMS->Draw();
     gPad->WaitPrimitive();
-    //c0->Print("../plots/diffMuRMS.pdf");
+    //c0->Print("../plots2/diffMuRMS.pdf");
   }
   */
   return retDistRelRMSqpk; 
@@ -525,8 +527,8 @@ void rmsOverMeanVsStId() {
   distRelRMSqpkUub->SetLineWidth(2);
   distRelRMSqpkUub->GetYaxis()->SetTitle("Counts [au]");
   distRelRMSqpkUub->GetXaxis()->SetTitle("Relative uncertainty [%]"); //#sigma/#mu [%]");
-  distRelRMSqpkUub->GetXaxis()->SetRangeUser(0, 3);
-  distRelRMSqpkUub->GetYaxis()->SetRangeUser(0, 10);
+  distRelRMSqpkUub->GetXaxis()->SetRangeUser(0.4, 2.0);
+  distRelRMSqpkUub->GetYaxis()->SetRangeUser(0, 12.);
   distRelRMSqpkUub->SetFillStyle(3345);
   distRelRMSqpkUub->SetFillColor(kRed);
   histoStyle(distRelRMSqpkUub);
@@ -538,27 +540,25 @@ void rmsOverMeanVsStId() {
   distRelRMSqpkUb->SetFillColor(kBlue);
   distRelRMSqpkUb->Draw("same");  
 
-  leg = new TLegend(0.6,0.5,0.9,0.95);
+  leg = new TLegend(0.6,0.6,0.9,0.95);
   strMean.Form("%.2f", getmean(distRelRMSqpkUb));
   strRms.Form("%.2f", getrms(distRelRMSqpkUb, getmean(distRelRMSqpkUb)));
   TString strMeanErr;
   strMeanErr.Form("%.2f", distRelRMSqpkUb->GetMeanError());
   leg->AddEntry(distRelRMSqpkUb, "UB", "l" );
   leg->AddEntry(distRelRMSqpkUb, "Mean: "+strMean+" % #pm "+strMeanErr+" %", "");
-  //leg->AddEntry(distRelRMSqpkUb, "RMS: "+strRms, "");
   
   strMean.Form("%.2f", getmean(distRelRMSqpkUub));
   strRms.Form("%.2f", getrms(distRelRMSqpkUub, getmean(distRelRMSqpkUub)));
   leg->AddEntry(distRelRMSqpkUub, "UUB", "l" );
   strMeanErr.Form("%.2f", distRelRMSqpkUub->GetMeanError());
   leg->AddEntry(distRelRMSqpkUub, "Mean: "+strMean+" % #pm "+strMeanErr+" %", "");
-  //leg->AddEntry(distRelRMSqpkUub, "RMS: "+strRms, "");
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw();
   //c1->Print("kk.pdf");
-  //c1->Print("../plots/accuracyQpksFitsUbUubAllStAllPmt_v2.pdf");
+  c1->Print("../plots2/accuracyQpksFitsUbUubAllStAllPmt_v2.pdf");
 
   int nStations = 23;
   TH1D *RelQpkUub = new TH1D("RelQpkUub", "", nStations, 0, nStations);
@@ -586,16 +586,18 @@ void rmsOverMeanVsStId() {
     RelQpkUb->GetXaxis()->SetBinLabel(bin_i, strStName); 
     aveUb += tmpRelQpkUb;
 
-    if ( tmpRelQpkUb > 0 && tmpRelQpkUb < 4. && tmpRelQpkUub < 4. ) {
+    //if ( tmpRelQpkUb > 0 && tmpRelQpkUb < 4. && tmpRelQpkUub < 4. ) {
       RelDiffQpk->SetBinContent(bin_i, (tmpRelQpkUb - tmpRelQpkUub));
       RelDiffQpk->SetBinError(bin_i, sqrt( pow(relSgmVectUb[bin_i-1], 2) + pow(relSgmVectUub[bin_i-1],2 )) );
       DistRelDiffQpk->Fill( tmpRelQpkUb - tmpRelQpkUub );
-    }
+    //}
+    /*
     else {
       RelDiffQpk->SetBinContent(bin_i, -100.);
       DistRelDiffQpk->Fill(-100.);
       cout << strStName << endl;
     }
+    */
     RelDiffQpk->GetXaxis()->SetBinLabel(bin_i, strStName);
   }
   aveUub /= relQpkVectUub.size();
@@ -608,7 +610,7 @@ void rmsOverMeanVsStId() {
   RelQpkUub->SetStats(kFALSE);
   RelQpkUub->GetXaxis()->SetTitle("Station ID.");
   RelQpkUub->GetXaxis()->SetTitleOffset(1.5);
-  RelQpkUub->GetYaxis()->SetRangeUser(0.2, 2.4);
+  //RelQpkUub->GetYaxis()->SetRangeUser(0.2, 2.4);
   RelQpkUub->GetYaxis()->SetTitle("#sigma/#mu [%]");
   RelQpkUub->SetMarkerStyle(71);
   RelQpkUub->SetMarkerColor(kRed);
@@ -641,7 +643,7 @@ void rmsOverMeanVsStId() {
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw(); 
-  //c2->Print("../plots/relSigmaQpkVsStationsId.pdf");
+  c2->Print("../plots2/relSigmaQpkVsStationsId.pdf");
 
   TCanvas *c3 = canvasStyle("c3");
   c3->cd();
@@ -650,7 +652,7 @@ void rmsOverMeanVsStId() {
   RelDiffQpk->SetStats(kFALSE);                       
   RelDiffQpk->GetXaxis()->SetTitle("Station ID.");
   RelDiffQpk->GetXaxis()->SetTitleOffset(1.5);
-  RelDiffQpk->GetYaxis()->SetRangeUser(-0.9, 0.9);
+  //RelDiffQpk->GetYaxis()->SetRangeUser(-0.9, 0.9);
   RelDiffQpk->GetYaxis()->SetTitle("#left(#sigma/#mu#right)_{UB} - #left(#sigma/#mu#right)_{UUB} [%]");
   RelDiffQpk->SetMarkerStyle(71);
   RelDiffQpk->SetMarkerColor(kGreen+3);
@@ -664,7 +666,7 @@ void rmsOverMeanVsStId() {
   lineUb->SetLineColor(kGray);
   lineUb->SetLineStyle(2);
   lineUb->Draw();
-  //c3->Print("../plots/diffRelSigmaQpkVsStationsId.pdf");
+  c3->Print("../plots2/diffRelSigmaQpkVsStationsId.pdf");
 
   TCanvas *c4 = canvasStyle("c4");
   c4->cd();
@@ -696,7 +698,7 @@ void rmsOverMeanVsStId() {
   lineUb->SetLineStyle(2);
   lineUb->Draw();
   
-  //c4->Print("../plots/distDiffSigmaQpk.pdf");
+  c4->Print("../plots2/distDiffSigmaQpk.pdf");
 
   //exit(0);
 } 

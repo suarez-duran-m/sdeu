@@ -23,7 +23,7 @@ void fillQpkTimeVals(bool ifIsUub, int pmt, int st_id,
   pmtId.Form("%d", pmt);
   strStId.Form("St%d", (int)st_id);
 
-  TString monthUub[3] = {"Aug", "Sep", "Oct"};
+  TString monthUub[4] = {"Aug", "Sep", "Oct", "Nov"};
   int nMonths = (ifIsUub) ?
     sizeof(monthUub)/sizeof(*monthUub) : 
     sizeof(monthUub)/sizeof(*monthUub)-1;
@@ -74,6 +74,7 @@ void doAvePerHour(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
   int oneDay = 86400;
   double aveDay = 0.;
   double qpk2 = 0.;
+  double rms = 0.;
   int qpkInDay = 0;
   int timeDiff = 0;
  
@@ -84,7 +85,9 @@ void doAvePerHour(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
         aveDay /= qpkInDay;
         if ( qpkInDay > 1 ) {
           retAveQpk.push_back( aveDay );
-          retRmsQpk.push_back( sqrt(qpk2/qpkInDay - aveDay*aveDay) );
+          rms = sqrt(qpk2/qpkInDay - aveDay*aveDay);
+          // Using the error of the mean
+          retRmsQpk.push_back( rms/sqrt(qpkInDay) ); //sqrt(qpk2/qpkInDay - aveDay*aveDay) );
         }
         else {
           retAveQpk.push_back( aveDay );
@@ -109,7 +112,7 @@ void doAvePerHour(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
 
 void doAvePerHour(bool ifIsUub, vector<double> chi2Vect, vector<int> ndfVect,
     vector<double> timeVect, vector<double> &retAveChi2Ndf, 
-    vector<double> &retRmsChi2Ndf) {
+    vector<double> &retRmsChi2Ndf) { // Return the average Chi2Ndf as function of time
 
   int currentDay = (ifIsUub) ? 1311811218 : 1217116818;//1248652818; //1217116818; // August 1st
   int oneDay = 86400;
@@ -117,6 +120,7 @@ void doAvePerHour(bool ifIsUub, vector<double> chi2Vect, vector<int> ndfVect,
   double aveDay2 = 0.;
   int chi2InDay = 0;
   int timeDiff = 0;
+  double rms = 0.;
  
   for ( int chi2_i=0; chi2_i < chi2Vect.size(); chi2_i++ ) {
     timeDiff = timeVect[chi2_i] - currentDay;
@@ -124,7 +128,9 @@ void doAvePerHour(bool ifIsUub, vector<double> chi2Vect, vector<int> ndfVect,
       if ( aveDay > 0 ) {
         aveDay /= chi2InDay;
         retAveChi2Ndf.push_back( aveDay );
-        retRmsChi2Ndf.push_back( sqrt(aveDay2/chi2InDay - aveDay*aveDay) );
+        rms = sqrt(aveDay2/chi2InDay - aveDay*aveDay);
+        // Using the error of the mean
+        retRmsChi2Ndf.push_back( rms/sqrt(chi2InDay) ); //sqrt(aveDay2/chi2InDay - aveDay*aveDay) );
       }
       aveDay = 0.;
       aveDay2 = 0.;
@@ -229,14 +235,14 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
   int binMaxFit = 0;
   
   if ( ifFit ) {
-    binMinFit = 1217695698;
-    binMaxFit = 1218563499;
+    binMinFit = 1313318034;
+    binMaxFit = 1314116370;
     grpPmt1->Fit("pol0","", "", binMinFit,binMaxFit);
-    binMinFit = 1217277867;
-    binMaxFit = 1219334879;
+    binMinFit = 1314658962;
+    binMaxFit = 1315028754;
     grpPmt2->Fit("pol0","", "", binMinFit,binMaxFit);
-    binMinFit = 1117727838;
-    binMaxFit = 1118499218;
+    binMinFit = 1013318034;
+    binMaxFit = 1113318034;
     grpPmt3->Fit("pol0","", "", binMinFit,binMaxFit);
   } 
   
@@ -244,7 +250,7 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
     //<< " Chi2/ndf: " << grpPmt1->GetFunction("pol0")->GetChisquare() / grpPmt1->GetFunction("pol0")->GetNDF()
     //<< endl;
  
- 
+  /*
   TCanvas *c0 = canvasStyle("c0");
   c0->cd();
 
@@ -280,7 +286,8 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
   leg->SetBorderSize(0); 
   leg->SetFillStyle(0);
   leg->Draw();
-  c0->Print("../plots/chi2NdfQpksVsTimeSt"+strStId+strIfUub+".pdf");
+  //c0->Print("../plots/chi2NdfQpksVsTimeSt"+strStId+strIfUub+".pdf");
+  */
 
 
   TCanvas *c1 = canvasStyle("c1");
@@ -313,8 +320,8 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
   grpPmt3->SetMarkerColor(kGreen+3);
   grpPmt3->SetLineColor(kGreen+3);
   grpPmt3->SetMarkerSize(1);
-  if ( ifFit )
-    grpPmt3->GetFunction("pol0")->SetLineColor(kGreen+3);
+  //if ( ifFit )
+    //grpPmt3->GetFunction("pol0")->SetLineColor(kGreen+3);
   grpPmt3->Draw("P");
 
   leg = new TLegend(0.75,0.7,0.95,0.95);
@@ -330,10 +337,10 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
     leg->AddEntry(grpPmt2, "PMT2", "p");
     leg->AddEntry(grpPmt2, "Chi2/ndf: "+strChi2+"/"+strNdf, "");
 
-    strChi2.Form("%.2f",grpPmt3->GetFunction("pol0")->GetChisquare());
-    strNdf.Form("%d",grpPmt3->GetFunction("pol0")->GetNDF());
+    //strChi2.Form("%.2f",grpPmt3->GetFunction("pol0")->GetChisquare());
+    //strNdf.Form("%d",grpPmt3->GetFunction("pol0")->GetNDF());
     leg->AddEntry(grpPmt3, "PMT3", "p");
-    leg->AddEntry(grpPmt3, "Chi2/ndf: "+strChi2+"/"+strNdf, "");
+    //leg->AddEntry(grpPmt3, "Chi2/ndf: "+strChi2+"/"+strNdf, "");
   }
 
   leg->SetTextSize(0.03);
@@ -341,6 +348,6 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
   leg->SetFillStyle(0);
   leg->Draw();
 
-  c1->Print("../plots/qpksVsTimeSt"+strStId+strIfUub+".pdf"); 
+  //c1->Print("../plots/qpksVsTimeSt"+strStId+strIfUub+".pdf"); 
   //exit(0);
 } 
