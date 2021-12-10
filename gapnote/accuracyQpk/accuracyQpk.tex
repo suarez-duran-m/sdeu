@@ -246,15 +246,15 @@ values, as it can be seen in figure \ref{figMultipleQpksSt843}.
 To avoid this kind of distribution, a selection over the
 stations, and PMTs, was applied. This selection consisted of
 choosing a time window in which the \qpkvem was constant, i.e.
-fitting a constant function and checking the for the quality of
-the fit ($\chi^2<(0.5$ndf)). Those PMT-\qpkDist, for the
-respective station, that not agree with this criteria, were not
-taken in to the account, for instance, if certain UB-PMT
-disagree, so the respective UUB-PMT was ignore too, and vice
-versa. In section \ref{secQpkVsTime} the \qpkvem as function of
-time, for all UUB stations, is presented. There, the stations
-with PMT-\qpkDist selected are indicated. In total, 23 stations
-were chosen with 52 PMT-\qpkDist, respectively.
+fitting a constant function and checking for a fit quality of
+$\chi^2/\mathrm{ndf}<1.0$. Those PMT-\qpkDist, for the respective
+station, that not agree with this criteria, were not taken in to
+the account, for instance, if certain UB-PMT disagree, so the
+respective UUB-PMT was ignore too, and vice versa. In section
+\ref{secQpkVsTime} the \qpkvem as function of time, for all UUB
+stations, is presented. There, the stations with PMT-\qpkDist
+selected are indicated. In total, 23 stations were chosen with 52
+PMT-\qpkDist, respectively.
 %\vspace{.5cm}
 \clearpage
 
@@ -319,12 +319,12 @@ Hi.
 \begin{figure}[!t]
   \centering
   \subfigure {
-    \includegraphics[width=0.5\textwidth]{../../plots/relSigmaQpkVsStationsId.pdf}
-    \includegraphics[width=0.5\textwidth]{../../plots/accuracyQpksFitsUbUubAllStAllPmt_v2.pdf}
+    \includegraphics[width=0.5\textwidth]{../../plots2/relSigmaQpkVsStationsId.pdf}
+    \includegraphics[width=0.5\textwidth]{../../plots2/accuracyQpksFitsUbUubAllStAllPmt_v2.pdf}
   }
   \subfigure {
-    \includegraphics[width=0.5\textwidth]{../../plots/diffRelSigmaQpkVsStationsId.pdf}
-    \includegraphics[width=0.5\textwidth]{../../plots/distDiffSigmaQpk.pdf}
+    \includegraphics[width=0.5\textwidth]{../../plots2/diffRelSigmaQpkVsStationsId.pdf}
+    \includegraphics[width=0.5\textwidth]{../../plots2/distDiffSigmaQpk.pdf}
   }
   \caption{Results for the accuracy of the \qpkvem fitting for
   $75$ stations, UUB and UB. Upper row: in left side, the
