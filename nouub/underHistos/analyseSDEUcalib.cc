@@ -260,7 +260,6 @@ int main (int argc, char *argv[]) {
       fitCh.getFitCh(*tmp, atoi(argv[3]) );
       
       chHistFit = fitCh.getFitGraphCh();
-      event.Stations[i].
       chChi2 = fitCh.chisCharge;
       chNdf = fitCh.ndfCharge;
       chProb = fitCh.probCharge;

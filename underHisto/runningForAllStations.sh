@@ -1,7 +1,7 @@
 #!/bin/bash
 
 listfile=$1
-nl=$(wc -l ../listStations${listfile}.txt | awk '{print $1}')
+nl=$(wc -l ../listStations${listfile}a.txt | awk '{print $1}')
 
 for st in $(seq 1 ${nl});
 do

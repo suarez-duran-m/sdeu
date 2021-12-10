@@ -9,6 +9,6 @@ do
   head -${st} ../../listStations${listfile}.txt | tail -1 > list${listfile}${st}.txt
   for pmt in $(seq 1 3);
   do
-    time ./analyseSDEUcalib list${listfile}${st}.txt ${pmt} 35 Aug ../../gettingUbTraces/ubSd*aug*2018*.root > kk${listfile}${st}
+    time ./analyseSDEUcalib list${listfile}${st}.txt ${pmt} 35 Nov ../../gettingUbTraces/ubSd*nov*2018*.root > kk${listfile}${st}
   done
 done
