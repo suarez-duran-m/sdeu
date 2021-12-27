@@ -24,9 +24,7 @@ void fillQpkTimeVals(bool ifIsUub, int pmt, int st_id,
   strStId.Form("St%d", (int)st_id);
 
   TString monthUub[4] = {"Aug", "Sep", "Oct", "Nov"};
-  int nMonths = (ifIsUub) ?
-    sizeof(monthUub)/sizeof(*monthUub) : 
-    sizeof(monthUub)/sizeof(*monthUub)-1;
+  int nMonths = sizeof(monthUub)/sizeof(*monthUub);
   
   int nYears = 5;
   TString strYear[5] = {"2016", "2018", "2019", "2020", "2021"};
@@ -60,6 +58,8 @@ void fillQpkTimeVals(bool ifIsUub, int pmt, int st_id,
         retTimeVect.push_back( fetchTime );
         retChi2.push_back( fetchChi2 );
         retNdf.push_back( fetchNdf );
+        if ( pmt == 1 )
+          cout << fetchTime << " " << fetchQpkVals << endl;
       }
       f->Clear();
       f->Close();
@@ -80,6 +80,7 @@ void doAvePerHour(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
  
   for ( int qpk_i=0; qpk_i < qpkVect.size(); qpk_i++ ) {
     timeDiff = timeVect[qpk_i] - currentDay;
+    //cout << (int)timeVect[qpk_i] << " " << qpkVect[qpk_i] << endl;
     if ( timeDiff > oneDay ) {
       if ( aveDay > 0 ) {
         aveDay /= qpkInDay;
@@ -87,7 +88,7 @@ void doAvePerHour(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
           retAveQpk.push_back( aveDay );
           rms = sqrt(qpk2/qpkInDay - aveDay*aveDay);
           // Using the error of the mean
-          retRmsQpk.push_back( rms/sqrt(qpkInDay) ); //sqrt(qpk2/qpkInDay - aveDay*aveDay) );
+          retRmsQpk.push_back( rms/sqrt(qpkInDay) );//rms/sqrt(qpkInDay) ); //sqrt(qpk2/qpkInDay - aveDay*aveDay) );
         }
         else {
           retAveQpk.push_back( aveDay );
@@ -98,12 +99,12 @@ void doAvePerHour(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
       aveDay = 0.;
       qpk2 = 0.;
       qpkInDay = 0;      
-      currentDay += oneDay;
+      currentDay += oneDay;      
     }
     if ( qpkVect[qpk_i] > 0. ) {
       aveDay += qpkVect[qpk_i];
       qpk2 += qpkVect[qpk_i]*qpkVect[qpk_i];
-      qpkInDay++;
+      qpkInDay++; 
     }
     if ( timeDiff > 2*oneDay )
       currentDay += oneDay*(timeDiff/oneDay)-oneDay;
@@ -189,6 +190,7 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
   
   fillQpkTimeVals(ifIsUub, 1, st_id, qpkValsPmt1, evtTimePmt1, chi2Pmt1, ndfPmt1);
   doAvePerHour(ifIsUub, qpkValsPmt1, evtTimePmt1, aveDayPmt1, rmsDayPmt1, timeAvePmt1);
+  cout << endl << "MSD" << endl;
   doAvePerHour(ifIsUub, chi2Pmt1, ndfPmt1, evtTimePmt1, aveChi2NdfPmt1, rmsChi2NdfPmt1);
 
   fillQpkTimeVals(ifIsUub, 2, st_id, qpkValsPmt2, evtTimePmt2, chi2Pmt2, ndfPmt2);
@@ -214,7 +216,7 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
 
 
   int xMinTime = (ifIsUub) ? 1311724818 : 1217030418; //1248566418; //1217030418;  
-  int xMaxTime = (ifIsUub) ? 1319673618 : 1224979218; //1256515218; //1224979218;
+  int xMaxTime = (ifIsUub) ? 1322352018 : 1227657618; //1256515218; //1224979218;
 
   double yMin = 0.;
   double yMax = 0.;
@@ -235,14 +237,14 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
   int binMaxFit = 0;
   
   if ( ifFit ) {
-    binMinFit = 1313318034;
-    binMaxFit = 1314116370;
+    binMinFit = 1316333394;
+    binMaxFit = 1317022866;
     grpPmt1->Fit("pol0","", "", binMinFit,binMaxFit);
-    binMinFit = 1314658962;
-    binMaxFit = 1315028754;
+    binMinFit = 1320273234;
+    binMaxFit = 1321356690;
     grpPmt2->Fit("pol0","", "", binMinFit,binMaxFit);
-    binMinFit = 1013318034;
-    binMaxFit = 1113318034;
+    binMinFit = 1112519698;
+    binMaxFit = 1114116370;
     grpPmt3->Fit("pol0","", "", binMinFit,binMaxFit);
   } 
   
@@ -297,7 +299,8 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
   grpPmt1->GetXaxis()->SetTitle("Time [Year/Day/Month]");
   grpPmt1->GetXaxis()->SetTimeFormat("%y/%m/%d");
   grpPmt1->GetXaxis()->SetTimeOffset(315964782,"gmt");
-  //grpPmt1->GetXaxis()->SetRangeUser(xMinTime, xMaxTime);
+  grpPmt1->GetXaxis()->SetRangeUser(xMinTime, xMaxTime);
+  //grpPmt1->GetYaxis()->SetRangeUser(1200, 1700);
   grpPmt1->GetYaxis()->SetRangeUser(yMin, yMax);
   grpPmt1->GetYaxis()->SetTitle("Q^{Pk}_{VEM} [FADC]");
   grpPmt1->SetMarkerStyle(72);
@@ -305,7 +308,7 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
   grpPmt1->SetLineColor(kRed);
   grpPmt1->SetMarkerSize(1);
   if ( ifFit )
-    grpPmt1->GetFunction("pol0")->SetLineColor(kRed);
+    grpPmt1->GetFunction("pol0")->SetLineColor(kBlack);
   grpPmt1->Draw("AP");
   
   grpPmt2->SetMarkerStyle(73);
@@ -313,7 +316,7 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
   grpPmt2->SetLineColor(kBlue);
   grpPmt2->SetMarkerSize(1);
   if ( ifFit )
-    grpPmt2->GetFunction("pol0")->SetLineColor(kBlue);
+    grpPmt2->GetFunction("pol0")->SetLineColor(kBlack);
   grpPmt2->Draw("P");
   
   grpPmt3->SetMarkerStyle(74);
@@ -321,7 +324,7 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
   grpPmt3->SetLineColor(kGreen+3);
   grpPmt3->SetMarkerSize(1);
   //if ( ifFit )
-    //grpPmt3->GetFunction("pol0")->SetLineColor(kGreen+3);
+    //grpPmt3->GetFunction("pol0")->SetLineColor(kBlack);
   grpPmt3->Draw("P");
 
   leg = new TLegend(0.75,0.7,0.95,0.95);
@@ -348,6 +351,6 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
   leg->SetFillStyle(0);
   leg->Draw();
 
-  //c1->Print("../plots/qpksVsTimeSt"+strStId+strIfUub+".pdf"); 
+  //c1->Print("../plots/qpksVsTimeHandSt"+strStId+strIfUub+".pdf"); 
   //exit(0);
 } 

@@ -528,7 +528,7 @@ void rmsOverMeanVsStId() {
   distRelRMSqpkUub->GetYaxis()->SetTitle("Counts [au]");
   distRelRMSqpkUub->GetXaxis()->SetTitle("Relative uncertainty [%]"); //#sigma/#mu [%]");
   distRelRMSqpkUub->GetXaxis()->SetRangeUser(0.4, 2.0);
-  distRelRMSqpkUub->GetYaxis()->SetRangeUser(0, 12.);
+  distRelRMSqpkUub->GetYaxis()->SetRangeUser(0, 14.);
   distRelRMSqpkUub->SetFillStyle(3345);
   distRelRMSqpkUub->SetFillColor(kRed);
   histoStyle(distRelRMSqpkUub);
@@ -558,7 +558,7 @@ void rmsOverMeanVsStId() {
   leg->SetFillStyle(0);
   leg->Draw();
   //c1->Print("kk.pdf");
-  c1->Print("../plots2/accuracyQpksFitsUbUubAllStAllPmt_v2.pdf");
+  c1->Print("../plots2/accQpkFitUbUubAllStAllPmt_hand.pdf");
 
   int nStations = 23;
   TH1D *RelQpkUub = new TH1D("RelQpkUub", "", nStations, 0, nStations);
@@ -643,7 +643,7 @@ void rmsOverMeanVsStId() {
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw(); 
-  c2->Print("../plots2/relSigmaQpkVsStationsId.pdf");
+  c2->Print("../plots2/relSigmaQpkVsStationsId_hand.pdf");
 
   TCanvas *c3 = canvasStyle("c3");
   c3->cd();
@@ -666,7 +666,7 @@ void rmsOverMeanVsStId() {
   lineUb->SetLineColor(kGray);
   lineUb->SetLineStyle(2);
   lineUb->Draw();
-  c3->Print("../plots2/diffRelSigmaQpkVsStationsId.pdf");
+  c3->Print("../plots2/diffRelSigmaQpkVsStationsId_hand.pdf");
 
   TCanvas *c4 = canvasStyle("c4");
   c4->cd();
@@ -698,7 +698,7 @@ void rmsOverMeanVsStId() {
   lineUb->SetLineStyle(2);
   lineUb->Draw();
   
-  c4->Print("../plots2/distDiffSigmaQpk.pdf");
+  c4->Print("../plots2/distDiffSigmaQpk_hand.pdf");
 
   //exit(0);
 } 

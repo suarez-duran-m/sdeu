@@ -70,7 +70,8 @@ void fetchingQpksFromFitting(bool ifUub) {
   stSelecTimeRangePmts.resize(3);
 
   ifstream stationSelected;
-  TString strFileSelecSt = (ifUub) ? "listStatOkUub" : "listStatOkUb";
+  TString strFileSelecSt = (ifUub) ? "listStatHandUub" : "listStatHandUb";
+  //TString strFileSelecSt = (ifUub) ? "listStatOkUub" : "listStatOkUb";
   TString strPmt;
   int readVal = 0;
   for (int pmt_i=1; pmt_i<4; pmt_i++ ) {
