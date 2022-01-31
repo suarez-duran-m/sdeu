@@ -115,8 +115,8 @@ int main (int argc, char *argv[]) {
   string doMonth = string(whichmonth);
   pmtname +=  "lrb" + strNblr + doMonth + "2021";
 
-  TFile hfile("uubChPk"+pmtname+".root","RECREATE","");
-  //TFile hfile("kk.root", "RECREATE","");
+  //TFile hfile("uubChPk"+pmtname+".root","RECREATE","");
+  TFile hfile("coincident.root", "RECREATE","");
 
 	//TH1F *recePk = new TH1F (); // Receive Pk from IoSdStation::HPeak
 	TH1F *receCh = new TH1F (); // Receive Ch from IoSdStation::HCharge

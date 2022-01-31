@@ -1,4 +1,9 @@
-base=sdeuMeetOct122021#auger_bxl#miniReport#auger_bxl#miniReport#sdeuMonitoring
+base=auger_bxl_28jan2022
+#bxl_26jan2022
+#sdeuMeetOct122021
+#auger_bxl
+#miniReport
+#sdeuMonitoring
 #version=_v5
 name=${base}
 #name=${base}${version}
