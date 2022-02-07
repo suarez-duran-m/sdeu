@@ -18,8 +18,7 @@ Double_t ChiSquareDistr(Double_t *x, Double_t *par) {
     return 0.0;
 }
 
-void chi2Dist(Int_t nrFree)
-{
+void chi2Dist(Int_t nrFree) {
   TCanvas *c1 = new TCanvas("c1","");
   c1->cd();
 
@@ -49,5 +48,5 @@ void chi2Dist(Int_t nrFree)
   c1->Modified();
   c1->Print("../plots2/chi2Distribution.pdf");
   
-  exit(0);
+  //exit(0);
 }
