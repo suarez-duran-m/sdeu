@@ -14,8 +14,8 @@ void fillQpkTimeVals(bool ifIsUub, int pmt, int st_id,
     vector<double> &retQpkVect, vector<double> &retTimeVect, 
     vector<double> &retChi2, vector<int> &retNdf) {
   TString bnCdas = (ifIsUub) ?
-    "~/2021/sdeu/underHisto/results/uubChPkPMT" :
-    "~/2021/sdeu/nouub/underHistos/results/ubChPkPMT"; 
+    "~/postdoc/sdeu/underHisto/results/uubChPkPMT" :
+    "~/postdoc/sdeu/nouub/underHistos/results/ubChPkPMT"; 
 
   TString pmtId;
   TString strStId;
@@ -58,8 +58,8 @@ void fillQpkTimeVals(bool ifIsUub, int pmt, int st_id,
         retTimeVect.push_back( fetchTime );
         retChi2.push_back( fetchChi2 );
         retNdf.push_back( fetchNdf );
-        if ( pmt == 1 )
-          cout << fetchTime << " " << fetchQpkVals << endl;
+        //if ( pmt == 1 )
+          //cout << fetchTime << " " << fetchQpkVals << endl;
       }
       f->Clear();
       f->Close();
@@ -80,6 +80,8 @@ void doAvePerHour(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
  
   for ( int qpk_i=0; qpk_i < qpkVect.size(); qpk_i++ ) {
     timeDiff = timeVect[qpk_i] - currentDay;
+    if ( int(timeVect[qpk_i]) > 1311839895 && int(timeVect[qpk_i]) < 1312422592 )
+      cout << "MSD " << int(timeVect[qpk_i]) << " " << qpkVect[qpk_i] << endl;
     //cout << (int)timeVect[qpk_i] << " " << qpkVect[qpk_i] << endl;
     if ( timeDiff > oneDay ) {
       if ( aveDay > 0 ) {
@@ -104,7 +106,7 @@ void doAvePerHour(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
     if ( qpkVect[qpk_i] > 0. ) {
       aveDay += qpkVect[qpk_i];
       qpk2 += qpkVect[qpk_i]*qpkVect[qpk_i];
-      qpkInDay++; 
+      qpkInDay++;
     }
     if ( timeDiff > 2*oneDay )
       currentDay += oneDay*(timeDiff/oneDay)-oneDay;
@@ -190,7 +192,7 @@ void fetchingQpksPerStationVsTime(bool ifIsUub, int st_id, bool ifFit) {
   
   fillQpkTimeVals(ifIsUub, 1, st_id, qpkValsPmt1, evtTimePmt1, chi2Pmt1, ndfPmt1);
   doAvePerHour(ifIsUub, qpkValsPmt1, evtTimePmt1, aveDayPmt1, rmsDayPmt1, timeAvePmt1);
-  cout << endl << "MSD" << endl;
+  //cout << endl << "MSD" << endl;
   doAvePerHour(ifIsUub, chi2Pmt1, ndfPmt1, evtTimePmt1, aveChi2NdfPmt1, rmsChi2NdfPmt1);
 
   fillQpkTimeVals(ifIsUub, 2, st_id, qpkValsPmt2, evtTimePmt2, chi2Pmt2, ndfPmt2);
