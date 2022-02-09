@@ -2,8 +2,8 @@ TCanvas *canvasStyle(TString name) {
   TCanvas *canvas = new TCanvas(name, name, 102, 76, 1600, 900);
   canvas->SetBorderMode(0);
   canvas->SetBorderSize(2);
-  canvas->SetLeftMargin(0.12); 
-  canvas->SetRightMargin(0.14);
+  canvas->SetLeftMargin(0.12);
+  canvas->SetRightMargin(0.04);
   canvas->SetTopMargin(0.015); 
   canvas->SetFrameBorderMode(0);
   return canvas;
@@ -21,7 +21,7 @@ void plottingAndSaving(TString canvasName, TString outputName, TH2D *histo) {
   histo->GetXaxis()->SetTitleSize(0.04);
   histo->GetZaxis()->SetTitle("Counts [au]");
   histo->Draw("COLZ");
-  canvas->Print("../plots2/"+outputName+".pdf");
+  //canvas->Print("../plots2/"+outputName+".pdf");
   canvas->Close();
 }
 
@@ -34,12 +34,14 @@ void plottingAndSaving(bool isLog, TString canvasName, TString outputName,
     histo->GetXaxis()->SetTitle("P-Value [au]");
     histo->GetYaxis()->SetRangeUser(0, 1e3);
   }
-  else
+  else {
     histo->GetXaxis()->SetTitle("Log10(Pval) [au]");
+    histo->GetXaxis()->SetRangeUser(-50, 1);
+  }
   histo->GetYaxis()->SetTitleSize(0.04);
   histo->GetXaxis()->SetTitleSize(0.04);
   histo->Draw();
-  canvas->Print("../plots2/"+outputName+".pdf");
+  //canvas->Print("../plots2/"+outputName+".pdf");
 }
 
 
@@ -133,7 +135,7 @@ void plottingProj(TString canvasName, TString outputName, TH2D *histo, bool ifXi
     leg->SetFillStyle(0);
     leg->Draw();
   }
-  canvas->Print("../plots2/"+outputName+".pdf");
+  //canvas->Print("../plots2/"+outputName+".pdf");
   canvas->Close();
 }
 
@@ -226,6 +228,9 @@ void plottingCrossCheck(TString stStr, TString ifUubStr, TGraphErrors *qpk,
   chi2->SetMarkerStyle(70);
   chi2->SetMarkerSize(.5);
   chi2->SetMarkerColor(kBlue);
+  //if ( ifUubStr == "UB" ) // Only for St. 1225
+    //chi2->GetYaxis()->SetRangeUser(-3e2, 1.3e3);
+  //else
   chi2->GetYaxis()->SetRangeUser(-10, 98);
   chi2->GetYaxis()->SetTitleSize(.08);
   chi2->GetYaxis()->SetTitleOffset(.4);
@@ -241,8 +246,24 @@ void plottingCrossCheck(TString stStr, TString ifUubStr, TGraphErrors *qpk,
   canvCross->Modified();
   canvCross->cd();
   canvCross->SetSelected(canvCross);
-  canvCross->Print("../plots2/crossCheck"+stStr+ifUubStr+".pdf");
+  //canvCross->Print("../plots2/crossCheck"+stStr+ifUubStr+".pdf");
 }
+
+
+void resetQpksDays(vector<double> &qpksDay0, vector<double> &qpksDay1, 
+    vector<double> &qpksDay2, vector<double> &qpksDay3, vector<double> &qpksDay4, 
+    vector<double> &qpksDay5, vector<double> &qpksDay6 ) {
+  for (int j=0; j<2; j++ ) {
+    qpksDay0[j] = 0.;
+    qpksDay1[j] = 0.;
+    qpksDay2[j] = 0.;
+    qpksDay3[j] = 0.;
+    qpksDay4[j] = 0.;
+    qpksDay5[j] = 0.;
+    qpksDay6[j] = 0.;
+  }
+}
+
 
 int fillingQpksFullDays(vector<double> inVals, 
     vector<vector<double>> &retVals) {
@@ -255,7 +276,7 @@ int fillingQpksFullDays(vector<double> inVals,
     return 0;
 }
 
-void doMovingWindow(vector<double> qpksDay0, vector<double> qpksDay1,
+bool doMovingWindow(vector<double> qpksDay0, vector<double> qpksDay1,
     vector<double> qpksDay2, vector<double> qpksDay3, vector<double> qpksDay4, 
     vector<double> qpksDay5, vector<double> qpksDay6, vector<double> &retChi2, 
     vector<double> &retPval, vector<double> &retSlope, vector<double> &retSlopErr) {
@@ -273,7 +294,7 @@ void doMovingWindow(vector<double> qpksDay0, vector<double> qpksDay1,
   daysOk += fillingQpksFullDays(qpksDay5, qpksFullDays);
   daysOk += fillingQpksFullDays(qpksDay6, qpksFullDays);
   if ( daysOk < 7 )
-    return;
+    return false;
 
   // TGraph to apply fit and get Slope and Chi2
   vector < double > xAxis{1., 2., 3., 4., 5., 6., 7.};
@@ -281,7 +302,7 @@ void doMovingWindow(vector<double> qpksDay0, vector<double> qpksDay1,
       qpksFullDays[0].size(), &xAxis[0], &qpksFullDays[0][0], 0, &qpksFullDays[1][0]);
 
   // Applying linear fit to <Qpk>-per-day during the time-window
-  distQpks->Fit("pol1","0Q");
+  distQpks->Fit("pol1","Q"); 
   if ( distQpks->GetFunction("pol1")->GetNDF() != 5 )
     cout << "Wrong NDF" << endl;
  
@@ -300,6 +321,7 @@ void doMovingWindow(vector<double> qpksDay0, vector<double> qpksDay1,
   retSlope.push_back( slp / meanTimeWidow );
   retSlopErr.push_back( distQpks->GetFunction("pol1")->GetParError(1) / meanTimeWidow );
   qpksFullDays.clear();
+  return true;
 }
 
 
@@ -385,6 +407,7 @@ void doAvePerTime(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
   // Number of days for the time-window
   const int daysForMw = 7;
   int crrDayForMw = 0;
+  bool fitWasOk = false;
   // vectors to storage the average and error-of-mean of Qpk per day.
   vector < double > qpksDay0(2);
   vector < double > qpksDay1(2);
@@ -394,11 +417,11 @@ void doAvePerTime(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
   vector < double > qpksDay5(2);
   vector < double > qpksDay6(2);
 
+
   // Doing Qpk average per day
   for ( int qpk_i=0; qpk_i < qpkVect.size(); qpk_i++ ) {
     // Time difference to identify if current day has gone
     timeDiff = timeVect[qpk_i] - currentDay;
-
     // Checking for time discontinuity in Qpk series.
     if ( timeDiff > 2*oneDay ) {
       currentDay += oneDay*(timeDiff/oneDay)-oneDay;
@@ -406,19 +429,13 @@ void doAvePerTime(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
       qpk2 = 0.;
       qpkInDay = 0;
       crrDayForMw = 0;
-      for (int j=0; j<2; j++ ) {
-        qpksDay0[j] = 0.;
-        qpksDay1[j] = 0.;
-        qpksDay2[j] = 0.;
-        qpksDay3[j] = 0.;
-        qpksDay4[j] = 0.;
-        qpksDay5[j] = 0.;
-      }
+      resetQpksDays(qpksDay0, qpksDay1, qpksDay2, qpksDay3, qpksDay4,
+              qpksDay5, qpksDay6);
       continue;
     }
     // Checking if current day has gone
     if ( timeDiff > oneDay ) {
-      if ( aveDay > 0 ) {
+      if ( aveDay > 0. ) {
         aveDay /= qpkInDay;
         if ( qpkInDay > 1 ) {
           rms = sqrt(qpk2/qpkInDay - aveDay*aveDay);
@@ -456,34 +473,44 @@ void doAvePerTime(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
               qpksDay6[1] = rms/sqrt(qpkInDay);
               break;
           }
+          crrDayForMw++;
         }
+        // Checking if the number of days has gone = time-window
+        if ( crrDayForMw == daysForMw ) {
+          // Doing MW and returning Chi2 and Slope
+          fitWasOk = doMovingWindow(qpksDay0, qpksDay1, qpksDay2, qpksDay3, qpksDay4,
+              qpksDay5, qpksDay6, retChi2, retPval, retSlope, retSlopErr);
+          if ( fitWasOk ) {
+            crrDayForMw = daysForMw - 1;
+            qpksDay0 = qpksDay1;
+            qpksDay1 = qpksDay2;
+            qpksDay2 = qpksDay3;
+            qpksDay3 = qpksDay4;
+            qpksDay4 = qpksDay5;
+            qpksDay5 = qpksDay6;
+          }
+          else
+            crrDayForMw = 0;
+          retTime.push_back(currentDay);
+        }
+      }
+      else {
+        resetQpksDays(qpksDay0, qpksDay1, qpksDay2, qpksDay3, qpksDay4,
+            qpksDay5, qpksDay6);
+        crrDayForMw = 0;
       }
       aveDay = 0.;
       qpk2 = 0.;
       qpkInDay = 0;
       currentDay += oneDay;
-      crrDayForMw++;
-      // Checking if the number of days has gone = time-window
-      if ( crrDayForMw == daysForMw ) {
-        crrDayForMw = daysForMw - 1;
-        // Doing MW and returning Chi2 and Slope
-        doMovingWindow(qpksDay0, qpksDay1, qpksDay2, qpksDay3, qpksDay4, qpksDay5,
-            qpksDay6, retChi2, retPval, retSlope, retSlopErr);
-        qpksDay0 = qpksDay1;
-        qpksDay1 = qpksDay2;
-        qpksDay2 = qpksDay3;
-        qpksDay3 = qpksDay4;
-        qpksDay4 = qpksDay5;
-        qpksDay5 = qpksDay6;
-        retTime.push_back(currentDay);
-      }
     }
+    // Check if current qpk is zero or -nan
+    if ( !(qpkVect[qpk_i] > 0.) )
+      continue;
     // Doing day average
-    if ( qpkVect[qpk_i] > 0. ) {
-      aveDay += qpkVect[qpk_i];
-      qpk2 += qpkVect[qpk_i]*qpkVect[qpk_i];
-      qpkInDay++;
-    }
+    aveDay += qpkVect[qpk_i];
+    qpk2 += qpkVect[qpk_i]*qpkVect[qpk_i];
+    qpkInDay++;
   }
 }
 
@@ -599,9 +626,9 @@ void makeStatsFitMovingWindow() {
 
   // Applying moving-window
   for ( auto & st_i : stId ) {
-    //int chosenSt = 864;
-    //if ( st_i != chosenSt )
-      //continue;
+    int chosenSt = 864;
+    if ( st_i != chosenSt )
+      continue;
     cout << "Doing for station " << st_i << endl;
     // Fetching Qpk and time values from fitting-root-files
     for ( int pmt_i=1; pmt_i<4; pmt_i++ ) {
@@ -616,6 +643,7 @@ void makeStatsFitMovingWindow() {
           distChi2Ub[pmt_i-1], distPvalUb[pmt_i-1], distSlopUb[pmt_i-1], 
           distSlopErrUb[pmt_i-1], timeChi2SlopeUb[pmt_i-1], qpkDayUb[pmt_i-1], 
           qpkErrDayUb[pmt_i-1], qpkTimeUb[pmt_i-1]);
+          
       doAvePerTime(true, qpkUub[pmt_i-1], timeUub[pmt_i-1],
           distChi2Uub[pmt_i-1], distPvalUub[pmt_i-1], distSlopUub[pmt_i-1], 
           distSlopErrUub[pmt_i-1], timeChi2SlopeUub[pmt_i-1], qpkDayUub[pmt_i-1], 
@@ -648,7 +676,7 @@ void makeStatsFitMovingWindow() {
     fillingPval( distPvalUub[2], distPvalPmt3Uub, distLogPvalPmt3Uub );
 
     // TH1 to plot Slope and Chi2 as function of time
-    /*
+    
     TGraphErrors *qpkVstimeUb = new TGraphErrors(qpkTimeUb[0].size(),
         &qpkTimeUb[0][0], &qpkDayUb[0][0], 0, &qpkErrDayUb[0][0]);
     TGraphErrors *slopVstimePmt1Ub = new TGraphErrors(timeChi2SlopeUb[0].size(), 
@@ -663,10 +691,9 @@ void makeStatsFitMovingWindow() {
     TGraph *chi2VstimePmt1Uub = new TGraph(timeChi2SlopeUub[0].size(), 
         &timeChi2SlopeUub[0][0], &distChi2Uub[0][0]);
     
-    plottingCrossCheck("846", "UB", qpkVstimeUb, slopVstimePmt1Ub, chi2VstimePmt1Ub);
-    plottingCrossCheck("846", "UUB", qpkVstimeUub, slopVstimePmt1Uub, 
+    plottingCrossCheck("864", "UB", qpkVstimeUb, slopVstimePmt1Ub, chi2VstimePmt1Ub);
+    plottingCrossCheck("864", "UUB", qpkVstimeUub, slopVstimePmt1Uub, 
         chi2VstimePmt1Uub);
-    */
   }
 
   // Plotting and saving
