@@ -1,0 +1,244 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\usepackage{ulem}
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{Accuracy of $\mathrm{Q}^{\mathrm{pk}}_{\mathrm{VEM}}$ fit for UB and UUB}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{How does the accuracy was calculated?}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<1->[width=1.\textwidth]{../plots/filteredPMTsSt843.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<3->[width=1.\textwidth]{../plots/filteredSt843.pdf}
+    \end{column}
+  \end{columns}
+  \begin{itemize}
+    \item[]<1-> For each PMT, we get the
+      $Q^{\mathrm{pk}}_{\mathrm{VEM}}$ distribution, then
+    \item[]<2->$Q^{\mathrm{pk}}_{i} / \left< Q^{\mathrm{pk}}_{\mathrm{VEM}}
+      \right>_{\mathrm{PMT}}$ was calculated.
+    \item[]<3-> From the latest distribution (right plot, magenta
+      line) the RMS is divided by the respective mean.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How does the accuracy was calculated?}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<1->[width=1.\textwidth]{../plots/filteredPMTsSt843.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<1->[width=1.\textwidth]{../plots/filteredSt843.pdf}
+    \end{column}
+  \end{columns}
+  \begin{itemize}
+    \item[]<1-> Multiple peaks for
+      $Q^{\mathrm{pk}}_{\mathrm{VEM}}$ fitted.
+    \item[]<2-> So, each peak (for each PMT) was fitted by a Gaus
+      function, then the respective $Q^{\mathrm{pk}}_{i} /
+      \left<Q^{\mathrm{pk}}_{\mathrm{VEM}}
+      \right>_{\mathrm{PMT}}$ was calculated for
+      $Q^{\mathrm{pk}}_{i}\pm\sigma$, and using as
+      $\left<Q^{\mathrm{pk}}_{\mathrm{VEM}}
+      \right>_{\mathrm{PMT}}$ the respective $\mu$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Result $RMS/Q^{pk}_{VEM}$ distribution all UUB station}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{.8\textwidth}
+      \begin{tikzpicture}
+        \node(a){\includegraphics[width=1.\textwidth]{../plots/accuracyQpksFitsUbUubAllStAllPmt_v2.pdf}};
+        \node(b){\includegraphics[width=1.\textwidth]{../plots/accuracyQpksFitsUbUubAllStAllPmt_v2.pdf}};
+        \node<2-> at(a.center)[draw, blue, line width=1pt,
+        ellipse, rotate=0, minimum width=90pt,
+        minimum height=38pt, yshift=-55pt, xshift=48pt]
+        {};
+        %\node<3-> at(b.center)[draw, blue,line width=1pt, ellipse, rotate=90,
+        %minimum width=70pt, minimum height=60pt,
+        %yshift=-50pt, xshift=-25pt]{Set 2.};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{UUB Outliers stations: 827, 1746}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots/filteredPMTsSt827.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots/filteredSt827.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots/filteredPMTsSt1746.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots/filteredSt1746.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Two approaches to calculate the accuracy without
+  this subjective $\sigma$ cut}
+  \begin{enumerate}
+    \item Choosing a time interval by hand.
+    \item Moving window algorithm.
+  \end{enumerate}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Choosing a time interval by hand}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<1->[width=1.\textwidth]{../plots/qpksVsTimeHandSt830UB.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<1->[width=1.\textwidth]{../plots/qpksVsTimeHandSt830UUB.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{1.\textwidth}
+      \includegraphics<2->[width=0.5\textwidth]{../plots2/accQpkFitUbUubAllStAllPmt_hand.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Moving window algorithm}
+  \begin{enumerate}
+    \item<1-> Starting with the first day of August, an average of
+      $Q^\mathrm{Peak}_\mathrm{VEM}$ is calculate per day for six
+      days, getting a first six-day-series.
+    \item<2-> A linear fit is applied to previous six-day-series, and
+      the respective slope and $\chi^2$ are stored.
+    \item<3-> After the first [six-day-series]$_0$, a new
+      [six-day-series]$_1$ is building replacing the sixth day in
+      [six-day-series]$_0$ by the next day in the respective
+      month.
+    \item<4-> A check in the [six-day-series]$_i$ continuity is
+      applied, i.e. checking the six days are consecutive, if not
+      a new series is build starting for the first day after the
+      discontinuity.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Moving window algorithm results}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<1->[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Ub.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<1->[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Uub.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<2->[width=.9\textwidth]{../plots2/chi2VsSlopPmt1UbProjSlop.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<2->[width=.9\textwidth]{../plots2/chi2VsSlopPmt1UubProjSlop.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Moving window algorithm results}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<1->[width=.9\textwidth]{../plots2/chi2VsSlopPmt1UbProjChi2.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics<1->[width=.9\textwidth]{../plots2/chi2VsSlopPmt1UubProjChi2.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{itemize}
+    \item A set of $Q^\mathrm{Peak}_\mathrm{VEM}$ values, per
+      PMT, were used.
+    \item This set corresponds to the [six-day-series] with the
+      minimum $\chi^2$ among the ones with slope between $-0.5$
+      and $0.5$, both UB and UUB (1 sigma of slope
+      distributions).
+    \item This imply that some PMTs, from some stations, were
+      discarded because there was not a [six-day-series] with a
+      slope into the former range. 
+    \item For instance, if the PMT$_i$ from the UB station A was discarded,
+  so the same PMT$_i$ for UUB version was discarded too.
+\end{frame}
+
+\end{document}

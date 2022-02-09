@@ -1,0 +1,191 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\usepackage{ulem}
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{Accuracy of $\mathrm{Q}^{\mathrm{pk}}_{\mathrm{VEM}}$ fit for UB and UUB}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Check: $Q^{pk}_{VEM}$,
+  slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ function of time}
+  PMT1
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck846UB.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck846UUB.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Check: $Q^{pk}_{VEM}$,
+  slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ function of time}
+  PMT1
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck853UB.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck853UUB.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Check: $Q^{pk}_{VEM}$,
+  slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ function of time}
+  PMT1
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1190UB.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1190UUB.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Check: $Q^{pk}_{VEM}$,
+  slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ function of time}
+  PMT1
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1213UB.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1213UUB.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Check: $Q^{pk}_{VEM}$,
+  slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ function of time}
+  PMT1
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1225UB.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1225UUB.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Moving window algorithm results}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Ub.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Uub.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1UbProjSlop.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1UubProjSlop.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Moving window algorithm results}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Ub.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Uub.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1UbProjChi2.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1UubProjChi2.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{$\chi^2$ distribution}
+  \vspace{0.5cm}  
+  \begin{center}
+    \includegraphics[width=.7\textwidth]{../plots2/chi2Distribution.pdf}
+  \end{center}
+\end{frame}
+
+
+\end{document}

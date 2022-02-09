@@ -1,0 +1,305 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\usepackage{ulem}
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{Accuracy of $\mathrm{Q}^{\mathrm{pk}}_{\mathrm{VEM}}$ fit for UB and UUB}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Check: $Q^{pk}_{VEM}$,
+  slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ as function of time}
+  PMT1
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck864UB.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{tikzpicture}
+        \node(a) {
+          \includegraphics[width=1.\textwidth]{../plots2/crossCheck864UUB.pdf}
+        };
+        \node at(a.center)[draw, red, line width=1pt, ellipse,
+        rotate=0, minimum width=15pt, minimum height=10pt,
+        xshift=35pt, yshift=34pt]{};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+  The moving window is over 7-days in a row. For UUB, red circle enclose
+  the only 8-days in a row available for fir, i.e. only two fits.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Check: $Q^{pk}_{VEM}$,
+  slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ as function of time}
+  PMT1
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck846UB.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck846UUB.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Check: $Q^{pk}_{VEM}$,
+  slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ as function of time}
+  PMT1
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck853UB.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck853UUB.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Check: $Q^{pk}_{VEM}$,
+  slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ as function of time}
+  PMT1
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1190UB.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1190UUB.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Check: $Q^{pk}_{VEM}$,
+  slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ as function of time}
+  PMT1
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1213UB.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1213UUB.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cross Check: $Q^{pk}_{VEM}$,
+  slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ as function of time}
+  PMT1
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1225UB.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1225UUB.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Moving window algorithm results}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Ub.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Uub.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1UbProjSlop.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1UubProjSlop.pdf}
+    \end{column}
+  \end{columns}
+  {\footnotesize 
+    Fits with slope between $\mu\pm\sigma$ were considered.
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Moving window algorithm results}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Ub.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Uub.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/logPvalDistPmt1Ub.pdf}
+        %../plots2/chi2VsSlopPmt1UbProjChi2.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/logPvalDistPmt1Uub.pdf}
+        %../plots2/chi2VsSlopPmt1UubProjChi2.pdf}
+    \end{column}
+  \end{columns}
+  {\footnotesize 
+    Fits with $\log10(Pval)$ > $-10$ were considered.
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Accuracy results}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accQpkFitUbUubPerSt_Stats.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accQpkFitUbUubDiffPerSt_Stats.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accQpkFitUbUubAllStAllPmt_Stats.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accQpkFitUbUubDistDiff_Stats.pdf}
+    \end{column}
+  \end{columns}
+  {\scriptsize
+  For accuracy distribution, only $\sigma/\mu$ < 5.0 considered.
+  For difference, $(\sigma/\mu)_{\mathrm{UB}} - (\sigma/\mu)_{\mathrm{UUB}}$
+  > $-2.0$.
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outliers, $(\sigma/\mu)_{\mathrm{UB}} -
+  (\sigma/\mu)_{\mathrm{UUB}}$ > $-2.0$\,\% }
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accDistSt827ub.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accDistSt827uub.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accDistSt853ub.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accDistSt853uub.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outliers, $(\sigma/\mu)_{\mathrm{UB}} -
+  (\sigma/\mu)_{\mathrm{UUB}}$ > $-2.0$\,\% }
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1218ub.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1218uub.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1223ub.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1223uub.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outliers, $(\sigma/\mu)_{\mathrm{UB}} -
+  (\sigma/\mu)_{\mathrm{UUB}}$ > $-2.0$\,\% }
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1745ub.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1745uub.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1798ub.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1798uub.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\end{document}
