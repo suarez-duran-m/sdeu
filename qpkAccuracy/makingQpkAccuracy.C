@@ -2,9 +2,11 @@ TCanvas *canvasStyle(TString name) {
   TCanvas *canvas = new TCanvas(name, name, 102, 76, 1600, 900);
   canvas->SetBorderMode(0);
   canvas->SetBorderSize(2);
-  canvas->SetLeftMargin(0.09);
-  canvas->SetRightMargin(0.05);
-  canvas->SetTopMargin(0.04); 
+  canvas->SetRightMargin(0.04);
+  canvas->SetLeftMargin(0.13);
+  canvas->SetTopMargin(0.014);
+  canvas->SetBottomMargin(0.15);
+  canvas->SetFrameBorderMode(0);
   canvas->SetFrameBorderMode(0);
   return canvas;
 }
@@ -13,7 +15,6 @@ double getMean(vector<double> vecValues) {
   double mean = 0;
   for( auto & val_i : vecValues )
     mean += val_i;
-
   return mean/vecValues.size();
 }
 
@@ -58,7 +59,7 @@ int fillingQpksFullDays(vector<double> inVals,
 bool doMovingWindow(vector<double> qpksDay0, vector<double> qpksDay1,
     vector<double> qpksDay2, vector<double> qpksDay3, vector<double> qpksDay4, 
     vector<double> qpksDay5, vector<double> qpksDay6, int pmt, bool ifUUB, 
-    double retSlope) {
+    double &retSlope, TString weekN) {
   // Vector to store <Qpk>-day time series
   vector < vector < double > > qpksFullDays;
   qpksFullDays.resize(2);
@@ -84,20 +85,68 @@ bool doMovingWindow(vector<double> qpksDay0, vector<double> qpksDay1,
   // TGraph to apply fit and get Slope and Chi2
   vector < double > xAxis{1., 2., 3., 4., 5., 6., 7.};
   TGraphErrors *distQpks = new TGraphErrors(
-      qpksFullDays[0].size(), &xAxis[0], &qpksFullDays[0][0], 0, &qpksFullDays[1][0]);
+      qpksFullDays[0].size(), &xAxis[0], &qpksFullDays[0][0], 0, &qpksFullDays[1][0]);  
 
   // Applying linear fit to <Qpk>-per-day during the time-window
   // and checking if the fit was successful
   bool ifFitOk = distQpks->Fit("pol1","Q");
+  double slp = 0.; //distQpks->GetFunction("pol1")->GetParameter(1);
+  double chi2 = 0.; //distQpks->GetFunction("pol1")->GetChisquare();
+  double meanTimeWidow = 0.;
+  //retSlope = slp;
+  /*
+  TCanvas *tmpCanvas = canvasStyle("tmpCanvas");
+  TLegend *leg = new TLegend(0.,0.2,0.6,0.5);
+  TString strNumber;
+  for ( int i=0; i<qpksFullDays.size(); i++ )
+    meanTimeWidow += qpksFullDays[0][i];
+  tmpCanvas->cd();
+  tmpCanvas->SetTopMargin(0.06);
+  tmpCanvas->SetGridy();
+  if ( ifUUB ) {
+    distQpks->SetTitle("UUB Station 545");
+    distQpks->GetYaxis()->SetTitle("#LTQ^{Pk}_{VEM}#GT_{7days} [FADC]");
+    distQpks->GetYaxis()->SetRangeUser(1300, 1500);
+    distQpks->GetYaxis()->SetTitleSize(0.06);
+    distQpks->GetYaxis()->SetLabelSize(0.05);
+    distQpks->GetYaxis()->SetTitleOffset(1.);
+    distQpks->GetXaxis()->SetTitle("Day");
+    distQpks->GetXaxis()->SetTitleSize(0.06);
+    distQpks->GetXaxis()->SetLabelSize(0.05);
+    distQpks->SetLineWidth(3);
+    distQpks->SetMarkerSize(3);
+    distQpks->SetMarkerStyle(92);
+    distQpks->SetMarkerColor(kBlue);
+    distQpks->Draw("AP");
+    strNumber = (ifUUB) ? "UUB" : "UB";
+    strNumber += " Week "+weekN;
+    leg->AddEntry(distQpks, strNumber, "");
+    strNumber.Form("%.2e", slp);
+    leg->AddEntry(distQpks, "Slp: "+strNumber, "");
+    strNumber.Form("%.2e", slp/meanTimeWidow);
+    leg->AddEntry(distQpks, "RelSlp: "+strNumber, "");
+    strNumber.Form("%.2e", chi2);
+    leg->AddEntry(distQpks, "Chi2: "+strNumber, "");
+    strNumber.Form("%.2e", log10(TMath::Prob(chi2, 5)));
+    leg->AddEntry(distQpks, "Log(Pval): "+strNumber, "");
+    leg->SetTextSize(0.05);
+    leg->SetBorderSize(0);
+    leg->SetFillStyle(0);
+    leg->Draw();
+    tmpCanvas->Print("week"+weekN+".png");
+  }
+  */
   if ( distQpks->GetFunction("pol1")->GetNDF() != 5 )
     cout << "Wrong NDF" << endl;
   if ( ifFitOk==0 ) {
-    double slp = distQpks->GetFunction("pol1")->GetParameter(1);
-    double chi2 = distQpks->GetFunction("pol1")->GetChisquare();
+    chi2 = distQpks->GetFunction("pol1")->GetChisquare();
+    if ( chi2 > 10. )
+      return false;
+    slp = distQpks->GetFunction("pol1")->GetParameter(1);
     chi2 = log10(TMath::Prob(chi2, 5));
 
     // Normalizing Slope by <qpk> during time-window
-    double meanTimeWidow = 0.;
+    meanTimeWidow = 0.;
     for ( int i=0; i<qpksFullDays.size(); i++ )
       meanTimeWidow += qpksFullDays[0][i];
     meanTimeWidow /= qpksFullDays.size();
@@ -108,65 +157,73 @@ bool doMovingWindow(vector<double> qpksDay0, vector<double> qpksDay1,
     if ( ifUUB ) {
       switch ( pmt ) {
         case 1:
-          cutSlpMn = -7.97e-04 - 2.36e-03;
-          cutSlpMx = -7.97e-04 + 2.36e-03;
+          cutSlpMn = -7.97e-04 - 2.36e-03/2.;
+          cutSlpMx = -7.97e-04 + 2.36e-03/2.;
           if ( slp > cutSlpMn && slp < cutSlpMx && chi2 > cutPval ) {
-            criterium = true;
             retSlope = slp;
+            criterium =true;
           }
+          else
+            criterium =false;
           break;
         case 2:
-          cutSlpMn = -8.43e-04 - 2.76e-03;
-          cutSlpMx = -8.434e-04 + 2.76e-03;
+          cutSlpMn = -8.43e-04 - 2.76e-03/2.;
+          cutSlpMx = -8.434e-04 + 2.76e-03/2.;
           if ( slp > cutSlpMn && slp < cutSlpMx && chi2 > cutPval ) {
-            criterium = true;
             retSlope = slp;
+            criterium =true;
           }
+          else
+            criterium =false;
           break;
         case 3:
-          cutSlpMn = -6.91e-04 - 2.69e-03;
-          cutSlpMx = -6.91e-04 + 2.69e-03;
+          cutSlpMn = -6.91e-04 - 2.69e-03/2.;
+          cutSlpMx = -6.91e-04 + 2.69e-03/2.;
           if ( slp > cutSlpMn && slp < cutSlpMx && chi2 > cutPval ) {
-            criterium = true;
             retSlope = slp;
-          }        
+            criterium =true;
+          }
+          else
+            criterium =false;
           break;
       }
     }
     if ( !ifUUB ) {
       switch ( pmt ) {
         case 1:
-          cutSlpMn = -6.07e-04 - 1.75e-03;
-          cutSlpMx = -6.07e-04 + 1.75e-03;
+          cutSlpMn = -6.07e-04 - 1.75e-03/2.;
+          cutSlpMx = -6.07e-04 + 1.75e-03/2.;
           if ( slp > cutSlpMn && slp < cutSlpMx && chi2 > cutPval ) {
-            criterium = true;
             retSlope = slp;
+            criterium =true;
           }
+          else
+            criterium =false;
           break;
         case 2:
-          cutSlpMn = -7.07e-04 - 2.15e-03;
-          cutSlpMx = -7.07e-04 + 2.15e-03;
+          cutSlpMn = -7.07e-04 - 2.15e-03/2.;
+          cutSlpMx = -7.07e-04 + 2.15e-03/2.;
           if ( slp > cutSlpMn && slp < cutSlpMx && chi2 > cutPval ) {
-            criterium = true;
             retSlope = slp;
+            criterium =true;
           }
+          else
+            criterium =false;
           break;
         case 3:
-          cutSlpMn = -7.17e-04 - 2.34e-03;
-          cutSlpMx = -7.17e-04 + 2.34e-03;
+          cutSlpMn = -7.17e-04 - 2.34e-03/2.;
+          cutSlpMx = -7.17e-04 + 2.34e-03/2.;
           if ( slp > cutSlpMn && slp < cutSlpMx && chi2 > cutPval ) {
-            criterium = true;
             retSlope = slp;
+            criterium =true;
           }
+          else
+            criterium =false;
           break;
       }
     }
   }
-  // Returning if the 7-day is ok. 
-  if ( criterium )
-    return criterium;
-  else
-    return false;
+  return criterium;
 }
 
 
@@ -252,17 +309,20 @@ bool doAvePerTime(bool ifIsUub, vector<double> qpkVect,
   vector < double > qpksDay3(2);
   vector < double > qpksDay4(2);
   vector < double > qpksDay5(2);
-  vector < double > qpksDay6(2);
+  vector < double > qpksDay6(2); 
   // Vector to store the selected Qpk distribution
   vector < double > distQpkSelect;
   vector < vector < double > > distQpkTemp;
   distQpkTemp.resize(daysForMw);
 
-  double currSlope;
+  double currSlope = 0.;
   bool selectionOk = false;
   bool isDistOk = false;
+
+  TString weekPrinted;
+  int week_i = 0;
   // Arbitrary slope to find the smaller one.
-  double minSlp = 10.;
+  double minSlp = 100.;
   // Doing Qpk average per day and applying MW
   for ( int qpk_i=0; qpk_i < qpkVect.size(); qpk_i++ ) {
     // Time difference to identify if current day has gone
@@ -270,13 +330,13 @@ bool doAvePerTime(bool ifIsUub, vector<double> qpkVect,
     // Checking for time discontinuity in Qpk series.
     if ( timeDiff > 2*oneDay ) {
       currentDay += oneDay*(timeDiff/oneDay)-oneDay;
-      crrDayForMw = 0;
       aveDay = 0.;
       qpk2 = 0.;
       qpkInDay = 0;
+      crrDayForMw = 0;
       isDistOk = false;
       resetQpksDays(qpksDay0, qpksDay1, qpksDay2, qpksDay3, qpksDay4,
-              qpksDay5, qpksDay6);
+          qpksDay5, qpksDay6);
       for ( int day_i=0; day_i<daysForMw; day_i++ )
         distQpkTemp[day_i].clear();
       continue;
@@ -320,14 +380,16 @@ bool doAvePerTime(bool ifIsUub, vector<double> qpkVect,
               qpksDay6[1] = rms/sqrt(qpkInDay);
               break;
           }
-          crrDayForMw++;         
+          crrDayForMw++;
         }
         // Checking if the number of days has gone = time-window
         if ( crrDayForMw == daysForMw ) {
-          crrDayForMw = daysForMw - 1;
           // Asking if current 7-days is Ok
+          week_i++;
+          weekPrinted.Form("%d", week_i);
           isDistOk = doMovingWindow(qpksDay0, qpksDay1, qpksDay2, qpksDay3, 
-              qpksDay4, qpksDay5, qpksDay6, pmt, ifIsUub, currSlope);
+              qpksDay4, qpksDay5, qpksDay6, pmt, ifIsUub, currSlope, weekPrinted);
+        
           if ( isDistOk ) {
             if ( minSlp > fabs(currSlope) ) {
               minSlp = fabs(currSlope);
@@ -336,19 +398,17 @@ bool doAvePerTime(bool ifIsUub, vector<double> qpkVect,
                 for ( auto & qpks : distQpkTemp[day_i] )
                   distQpkSelect.push_back( qpks );
               selectionOk = true;
+              //cout << endl << "Week selected: " << week_i << endl << endl;
             }
-            qpksDay0 = qpksDay1;
-            qpksDay1 = qpksDay2;
-            qpksDay2 = qpksDay3;
-            qpksDay3 = qpksDay4;
-            qpksDay4 = qpksDay5;
-            qpksDay5 = qpksDay6;
-          }
-          else {
-            resetQpksDays(qpksDay0, qpksDay1, qpksDay2, qpksDay3, qpksDay4,
-                qpksDay5, qpksDay6);
-            crrDayForMw = 0;
-          }
+          }          
+          // Moving window to next day
+          crrDayForMw = daysForMw - 1;
+          qpksDay0 = qpksDay1;
+          qpksDay1 = qpksDay2;
+          qpksDay2 = qpksDay3;
+          qpksDay3 = qpksDay4;
+          qpksDay4 = qpksDay5;
+          qpksDay5 = qpksDay6;
           // Cleaning vector with current <Qpk>-day
           distQpkTemp[crrDayForMw].clear();
         }
@@ -362,9 +422,6 @@ bool doAvePerTime(bool ifIsUub, vector<double> qpkVect,
       qpk2 = 0.;
       qpkInDay = 0;
       currentDay += oneDay;
-      isDistOk = false;
-      // Checking if the number of days has gone = time-window
-
     }
     // Doing Qpk day average
     if ( !(qpkVect[qpk_i] > 0.) )
@@ -377,14 +434,12 @@ bool doAvePerTime(bool ifIsUub, vector<double> qpkVect,
   }
   // Returning the Qpk-7days distribution with
   // the smaller Slope
-  if ( selectionOk ) {
+  if ( selectionOk )
     for ( auto & qpks : distQpkSelect )
       retDistSelec.push_back( qpks );
-  }
   
   distQpkTemp.clear();
   distQpkSelect.clear();
-
   return selectionOk;
 }
 
@@ -452,15 +507,14 @@ void makingQpkAccuracy() {
   // flag to store station with proper Qpk distribution
   bool stOk = false;
   for ( auto & st_i : stId ) {
+    if ( st_i != 1745) //545
+      continue;
     cout << "Moving window for station " << st_i << endl;
-    //if ( st_i != 1798 )
-      //continue;
     
     // Fetching Qpk and time values
     for ( int pmt_i=1; pmt_i<4; pmt_i++ ) {
       isSelectionUBOk = false;
       isSelectionUUBOk = false;
-
       fillQpkTimeVals(false, pmt_i, st_i, qpkUb[pmt_i-1], 
           timeUb[pmt_i-1]);
       fillQpkTimeVals(true, pmt_i, st_i, qpkUub[pmt_i-1], 
@@ -477,6 +531,7 @@ void makingQpkAccuracy() {
           qpkSelUb[pmt_i-1][countStations].push_back( qpks );        
         for ( auto qpks : qpkSelUubTemp )
           qpkSelUub[pmt_i-1][countStations].push_back( qpks );
+       
         stationOk[pmt_i-1][countStations] = 1;
         stOk = true;
       }
@@ -497,9 +552,6 @@ void makingQpkAccuracy() {
     qpkUub.resize(3);
     timeUb.resize(3);
     timeUub.resize(3);
-
-    //if ( st_i == 830 )
-      //break;
   }
   // TH1D to fit Qpk distribution per station 
   int nbins = 200;
@@ -520,7 +572,7 @@ void makingQpkAccuracy() {
   }
 
   // TH1D to store dist. diff between sigma/mu ub and uub
-  TH1D *distDiffAcc = new TH1D("distDiffAcc","", 240, -40., 40.);
+  TH1D *distDiffAcc = new TH1D("distDiffAcc","", 400, -40., 40.);
 
   // TH1D to store sigma/mu per Station ID
   TH1D *accPerIDub = new TH1D("accPerIDub", "", countStations, 0, countStations);
@@ -559,78 +611,84 @@ void makingQpkAccuracy() {
       tmpAccUub = 0.;
       strStName.Form("%d", (int)stId[st_i]);
       status = uniqRelQpkDistUB->Fit("gaus","Q","",0,2);
-      /*
+       
       TCanvas *c0 = canvasStyle("c0");
       c0->cd();
-      uniqRelQpkDistUB->GetXaxis()->SetTitle("#sigma/#mu [%]");
       uniqRelQpkDistUB->GetYaxis()->SetTitle("Counts [au]");
+      uniqRelQpkDistUB->GetYaxis()->SetTitleSize(0.06);
+      uniqRelQpkDistUB->GetYaxis()->SetLabelSize(0.05);
+      uniqRelQpkDistUB->GetXaxis()->SetTitle("Q^{pk}_i/#LTQ^{pk}#GT_{PMT} [au]");
+      uniqRelQpkDistUB->GetXaxis()->SetTitleSize(0.05);
+      uniqRelQpkDistUB->GetXaxis()->SetLabelSize(0.05);
+      uniqRelQpkDistUB->GetXaxis()->SetTitleOffset(1.2);
       uniqRelQpkDistUB->Draw();
       TLegend *leg = new TLegend(0.,0.8,0.6,0.9);
-      leg->AddEntry(uniqRelQpkDistUB,"St. 1798 UB","");
+      leg->AddEntry(uniqRelQpkDistUB,"St. 1745 UB","");
       leg->SetTextSize(0.05);
       leg->SetBorderSize(0);
       leg->SetFillStyle(0);
       leg->Draw();
-      c0->Print("../plots2/accDistSt1798ub.pdf");
-      */
+      c0->Print("../plots2/accDistSt1745ub.pdf");
+       
       if ( status == 0 ) {
         mu = uniqRelQpkDistUB->GetFunction("gaus")->GetParameter(1);
         sgm = uniqRelQpkDistUB->GetFunction("gaus")->GetParameter(2);
         tmpAccUb = 100.*sgm/mu;
-        if ( tmpAccUb < 5.0 )
-          distAccUB->Fill( tmpAccUb );
-
-        accPerIDub->SetBinContent(st_i, tmpAccUb);
         if ( tmpAccUb < 5.0 ) {
+          distAccUB->Fill( tmpAccUb );
+          accPerIDub->SetBinContent(st_i, tmpAccUb);        
           aveAccUb[0] += tmpAccUb;
-          aveAccUb[1]++;
+          aveAccUb[1]++;        
+          accErrMuTerm = (1./mu)*uniqRelQpkDistUB->GetRMSError(1);
+          accErrSgTerm = (sgm/(mu*mu))*uniqRelQpkDistUB->GetMeanError(1);
+          accErrUb = 100.*( accErrSgTerm*accErrSgTerm + accErrMuTerm*accErrMuTerm );
+          accPerIDub->SetBinError(st_i, accErrUb);
+          accPerIDub->GetXaxis()->SetBinLabel(st_i, strStName);
         }
-        accErrMuTerm = (1./mu)*uniqRelQpkDistUB->GetRMSError(1);
-        accErrSgTerm = (sgm/(mu*mu))*uniqRelQpkDistUB->GetMeanError(1);
-        accErrUb = 100.*( accErrSgTerm*accErrSgTerm + accErrMuTerm*accErrMuTerm );
-        accPerIDub->SetBinError(st_i, accErrUb);
-        accPerIDub->GetXaxis()->SetBinLabel(st_i, strStName);
       } 
       status = uniqRelQpkDistUUB->Fit("gaus","Q","",0,2);
-      /*
-      uniqRelQpkDistUUB->GetXaxis()->SetTitle("#sigma/#mu [%]");
+      
+      uniqRelQpkDistUUB->GetXaxis()->SetTitle("Q^{pk}_i/#LTQ^{pk}#GT_{PMT} [au]");
+      uniqRelQpkDistUUB->GetXaxis()->SetTitleSize(0.05);
+      uniqRelQpkDistUUB->GetXaxis()->SetLabelSize(0.05);
+      uniqRelQpkDistUUB->GetXaxis()->SetTitleOffset(1.2);
       uniqRelQpkDistUUB->GetYaxis()->SetTitle("Counts [au]");
+      uniqRelQpkDistUUB->GetYaxis()->SetTitleSize(0.06);
+      uniqRelQpkDistUUB->GetYaxis()->SetLabelSize(0.05);
       uniqRelQpkDistUUB->Draw();
       leg = new TLegend(0.05,0.8,0.6,0.9);
-      leg->AddEntry(uniqRelQpkDistUB,"St. 1798 UUB","");
+      leg->AddEntry(uniqRelQpkDistUB,"St. 1745 UUB","");
       leg->SetTextSize(0.05);
       leg->SetBorderSize(0);
       leg->SetFillStyle(0);
       leg->Draw();
-      c0->Print("../plots2/accDistSt1798uub.pdf");
-      */
+      c0->Print("../plots2/accDistSt1745uub.pdf");
+        
       if ( status == 0 ) {
         mu = uniqRelQpkDistUUB->GetFunction("gaus")->GetParameter(1);
         sgm = uniqRelQpkDistUUB->GetFunction("gaus")->GetParameter(2);
         tmpAccUub = 100.*sgm/mu;
-        if ( tmpAccUub < 5.0 )
-          distAccUUB->Fill( tmpAccUub );
-
-        accPerIDuub->SetBinContent(st_i, tmpAccUub);
-         if ( tmpAccUub < 5.0 ) {
+        if ( tmpAccUub < 5.0 ) {
+          distAccUUB->Fill( tmpAccUub );        
+          accPerIDuub->SetBinContent(st_i, tmpAccUub);
           aveAccUub[0] += tmpAccUub;
           aveAccUub[1]++;
+          accErrMuTerm = (1./mu)*uniqRelQpkDistUUB->GetRMSError(1);
+          accErrSgTerm = (sgm/(mu*mu))*uniqRelQpkDistUUB->GetMeanError(1);
+          accErrUub = 100.*( accErrSgTerm*accErrSgTerm + accErrMuTerm*accErrMuTerm );
+          accPerIDuub->SetBinError(st_i, accErrUub);
+          accPerIDuub->GetXaxis()->SetBinLabel(st_i, strStName);
         }
-        accErrMuTerm = (1./mu)*uniqRelQpkDistUUB->GetRMSError(1);
-        accErrSgTerm = (sgm/(mu*mu))*uniqRelQpkDistUUB->GetMeanError(1);
-        accErrUub = 100.*( accErrSgTerm*accErrSgTerm + accErrMuTerm*accErrMuTerm );
-        accPerIDuub->SetBinError(st_i, accErrUub);
-        accPerIDuub->GetXaxis()->SetBinLabel(st_i, strStName);
       }
       if ( tmpAccUb > 0 && tmpAccUub > 0 ) {
-        if ( (tmpAccUb-tmpAccUub) > -2.0 ) { 
+        if ( fabs(tmpAccUb-tmpAccUub) < 2.0 ) { 
           diffAccPerID->SetBinContent(st_i, tmpAccUb-tmpAccUub);
           diffAccPerID->SetBinError(st_i, sqrt( pow(accErrUb,2) + pow(accErrUub,2)));
           diffAccPerID->GetXaxis()->SetBinLabel(st_i, strStName);
           distDiffAcc->Fill( tmpAccUb-tmpAccUub );
         }
         else
-          cout << strStName << " " 
+          cout << "Outlier " << strStName << " " 
             << tmpAccUb << " " 
             << tmpAccUub << " "
             << tmpAccUb-tmpAccUub << endl;
@@ -650,8 +708,12 @@ void makingQpkAccuracy() {
   distAccUB->SetStats(kFALSE);
   distAccUB->SetLineColor(kBlue);
   distAccUB->GetXaxis()->SetRangeUser(0., 5.);
-  distAccUB->GetXaxis()->SetTitle("#sigma/#mu [%]");
+  distAccUB->GetXaxis()->SetTitle("#sigma/#mu [%]");  
+  distAccUB->GetXaxis()->SetTitleSize(0.06);
+  distAccUB->GetXaxis()->SetLabelSize(0.05);
   distAccUB->GetYaxis()->SetTitle("Counts [au]");
+  distAccUB->GetYaxis()->SetTitleSize(0.06);
+  distAccUB->GetYaxis()->SetLabelSize(0.05);
   distAccUB->SetLineWidth(2);
   distAccUB->SetFillStyle(3345);
   distAccUB->SetFillColor(kBlue);
@@ -669,19 +731,23 @@ void makingQpkAccuracy() {
   strMeanErr.Form("%.2f", distAccUB->GetMeanError());
   leg->AddEntry(distAccUB, "UB", "l" );
   leg->AddEntry(distAccUB, "Mean: "+strMean+" % #pm "+strMeanErr+" %", "");
-  leg->AddEntry(distAccUB, "RMS: "+strRms,"");
+  strMean.Form("%.2f", distAccUB->GetRMS());
+  strRms.Form("%.2f", distAccUB->GetRMSError());
+  leg->AddEntry(distAccUB, "RMS: "+strMean+" %#pm "+strRms+" %","");
   
   strMean.Form("%.2f", distAccUUB->GetMean());
   strRms.Form("%.2f", distAccUUB->GetRMS());
   strMeanErr.Form("%.2f", distAccUUB->GetMeanError());
   leg->AddEntry(distAccUUB, "UUB", "l" );
   leg->AddEntry(distAccUUB, "Mean: "+strMean+" % #pm "+strMeanErr+" %", "");
-  leg->AddEntry(distAccUUB, "RMS: "+strRms,"");
+  strMean.Form("%.2f", distAccUUB->GetRMS());
+  strRms.Form("%.2f", distAccUUB->GetRMSError());
+  leg->AddEntry(distAccUUB, "RMS: "+strMean+" %#pm "+strRms+" %","");
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw();
-  c1->Print("../plots2/accQpkFitUbUubAllStAllPmt_Stats.pdf");
+  //c1->Print("../plots2/accQpkFitUbUubAllStAllPmt_Stats.pdf");
 
   cout << "For UB" << endl;
   cout << distAccUB->GetMean() << " " 
@@ -707,8 +773,13 @@ void makingQpkAccuracy() {
   accPerIDuub->SetStats(kFALSE);
   accPerIDuub->GetXaxis()->SetTitle("Station ID.");
   accPerIDuub->GetXaxis()->SetTitleOffset(1.5); 
-  //accPerIDuub->GetYaxis()->SetRangeUser(0.2, 2.4);
+  accPerIDuub->GetXaxis()->SetTitleSize(0.05);
+  accPerIDuub->GetXaxis()->SetLabelSize(0.04);
+  accPerIDuub->GetXaxis()->SetTitleOffset(1.1);
+  accPerIDuub->GetYaxis()->SetRangeUser(0., 5.);
   accPerIDuub->GetYaxis()->SetTitle("#sigma/#mu [%]");
+  accPerIDuub->GetYaxis()->SetTitleSize(0.06);
+  accPerIDuub->GetYaxis()->SetLabelSize(0.05);
   accPerIDuub->SetMarkerStyle(71);
   accPerIDuub->SetMarkerColor(kRed);
   accPerIDuub->SetLineColor(kRed);
@@ -733,14 +804,14 @@ void makingQpkAccuracy() {
 
   leg = new TLegend(0.6,0.7,0.95,0.95);
   strMean.Form("%.2f", aveAccUub[0]/aveAccUub[1]);
-  leg->AddEntry(accPerIDuub,"UUB Ave.: "+strMean+" %", "p");
+  leg->AddEntry(accPerIDuub,"UUB Ave.: "+strMean+" %", "l");
   strMean.Form("%.2f", aveAccUb[0]/aveAccUb[1]);
-  leg->AddEntry(accPerIDub,"UB Ave.: "+strMean+" %", "p");
+  leg->AddEntry(accPerIDub,"UB Ave.: "+strMean+" %", "l");
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw();
-  c2->Print("../plots2/accQpkFitUbUubPerSt_Stats.pdf");
+  //c2->Print("../plots2/accQpkFitUbUubPerSt_Stats.pdf");
 
   accPerIDub->Write();
   accPerIDuub->Write();
@@ -752,6 +823,13 @@ void makingQpkAccuracy() {
   diffAccPerID->SetStats(kFALSE);                       
   diffAccPerID->GetXaxis()->SetTitle("Station ID.");
   diffAccPerID->GetXaxis()->SetTitleOffset(1.5);
+  diffAccPerID->GetXaxis()->SetTitleSize(0.05);
+  diffAccPerID->GetXaxis()->SetLabelSize(0.04);
+  diffAccPerID->GetXaxis()->SetTitleOffset(1.1);
+  diffAccPerID->GetYaxis()->SetRangeUser(-2., 2.);
+  diffAccPerID->GetYaxis()->SetTitleSize(0.06);
+  diffAccPerID->GetYaxis()->SetLabelSize(0.05);
+  diffAccPerID->GetYaxis()->SetTitleOffset(1.0);
   diffAccPerID->GetYaxis()->SetTitle("#left(#sigma/#mu#right)_{UB} - #left(#sigma/#mu#right)_{UUB} [%]");
   diffAccPerID->SetMarkerStyle(71);
   diffAccPerID->SetMarkerColor(kGreen+3);
@@ -765,7 +843,7 @@ void makingQpkAccuracy() {
   lineAveAccUb->SetLineStyle(2);
   lineAveAccUb->Draw();
 
-  c3->Print("../plots2/accQpkFitUbUubDiffPerSt_Stats.pdf");
+  //c3->Print("../plots2/accQpkFitUbUubDiffPerSt_Stats.pdf");
 
   diffAccPerID->Write();
 
@@ -776,34 +854,40 @@ void makingQpkAccuracy() {
   distDiffAcc->SetStats(kFALSE);
   distDiffAcc->GetXaxis()->SetTitle("#left(#sigma/#mu#right)_{UB} - #left(#sigma/#mu#right)_{UUB} [%]");
   distDiffAcc->GetXaxis()->SetTitleOffset(1.3);
-  distDiffAcc->GetXaxis()->SetRangeUser(-6., 6.);
+  distDiffAcc->GetXaxis()->SetRangeUser(-4., 4.);
+  distDiffAcc->GetXaxis()->SetTitleSize(0.06);
+  distDiffAcc->GetXaxis()->SetLabelSize(0.05);
+  distDiffAcc->GetXaxis()->SetTitleOffset(1.);
   distDiffAcc->GetYaxis()->SetTitle("Counts [au]");
   distDiffAcc->GetYaxis()->SetRangeUser(-2., 2.);
+  distDiffAcc->GetYaxis()->SetTitleSize(0.06); 
+  distDiffAcc->GetYaxis()->SetLabelSize(0.05);
   strMean.Form("%.3f", distDiffAcc->GetMean());
   strRms.Form("%.3f", distDiffAcc->GetMeanError());
-  distDiffAcc->GetYaxis()->SetRangeUser(0., 26.);
+  distDiffAcc->GetYaxis()->SetRangeUser(0., 13.);
   distDiffAcc->SetLineColor(kGreen+3);
   distDiffAcc->Draw();
 
   leg = new TLegend(0.5,0.78,0.98,0.9);
   leg->AddEntry(distDiffAcc, "MEAN: "+strMean+" % #pm "+strRms+"%", "");
-  strRms.Form("%.3f", distDiffAcc->GetRMS());
-  leg->AddEntry(distDiffAcc, "RMS:     "+strRms+" %", "");
+  strMean.Form("%.3f", distDiffAcc->GetRMS());
+  strRms.Form("%.3f", distDiffAcc->GetRMSError());
+  leg->AddEntry(distDiffAcc, "RMS:     "+strMean+" % #pm "+strRms+"%", "");
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw();
 
-  lineAveAccUb = new TLine(0.,0.,0.,26.);
+  lineAveAccUb = new TLine(0.,0.,0.,13.);
   lineAveAccUb->SetLineWidth(2);
   lineAveAccUb->SetLineColor(kGray);
   lineAveAccUb->SetLineStyle(2);
   lineAveAccUb->Draw();
-  c4->Print("../plots2/accQpkFitUbUubDistDiff_Stats.pdf");
+  //c4->Print("../plots2/accQpkFitUbUubDistDiff_Stats.pdf");
   distDiffAcc->Write();
-
 
   outFile->Write();
   outFile->Close();
+
   //exit(0);
 }

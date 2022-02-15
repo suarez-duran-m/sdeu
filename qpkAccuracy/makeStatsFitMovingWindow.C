@@ -2,34 +2,78 @@ TCanvas *canvasStyle(TString name) {
   TCanvas *canvas = new TCanvas(name, name, 102, 76, 1600, 900);
   canvas->SetBorderMode(0);
   canvas->SetBorderSize(2);
-  canvas->SetLeftMargin(0.12);
   canvas->SetRightMargin(0.04);
-  canvas->SetTopMargin(0.015); 
+  canvas->SetLeftMargin(0.13);
+  canvas->SetTopMargin(0.014);
+  canvas->SetBottomMargin(0.15);
+  canvas->SetFrameBorderMode(0);
   canvas->SetFrameBorderMode(0);
   return canvas;
 }
 
 void plottingAndSaving(TString canvasName, TString outputName, TH2D *histo) {
   TCanvas *canvas = canvasStyle(canvasName); 
-  gStyle->SetStatX(0.85);
-  gStyle->SetStatY(0.95);
+  //gStyle->SetStatX(0.85);
+  //gStyle->SetStatY(0.95);
+  //gStyle->SetOptStat("neMR");
   gStyle->SetPalette(56);
-
+  /*  
+  TPaveStats *ptstats = new TPaveStats(0.65,0.55,0.95,0.98,"brNDC");
+  ptstats->SetName("stats");
+  ptstats->SetBorderSize(1);
+  ptstats->SetFillColor(0);
+  ptstats->SetTextAlign(12);
+  ptstats->SetTextFont(42);
+  TText *ptstats_LaTex = ptstats->AddText("chi2VsSlopPmt1Ub");
+  ptstats_LaTex->SetTextSize(0.06);
+  ptstats->SetOptFit(0);
+  ptstats->Draw();
+  histo->GetListOfFunctions()->Add(ptstats);
+  ptstats->SetParent(histo);
+  */
+  
   histo->GetYaxis()->SetTitle("#chi^{2}");
   histo->GetXaxis()->SetTitle("Slope [FADC/day/#LTFADC#GT_{7days}]");
-  histo->GetYaxis()->SetTitleSize(0.04);
-  histo->GetXaxis()->SetTitleSize(0.04);
+  histo->GetYaxis()->SetTitleSize(0.06);
+  histo->GetYaxis()->SetLabelSize(0.05);
+  histo->GetXaxis()->SetTitleSize(0.06);
+  histo->GetXaxis()->SetLabelSize(0.05);
   histo->GetZaxis()->SetTitle("Counts [au]");
   histo->Draw("COLZ");
+
+  TString strTmp;
+  TPaveText pt (0.65,0.7,0.9,0.85,"brNDC");
+  pt.AddText(histo->GetName());
+  strTmp.Form("%.f", histo->GetEntries());
+  pt.AddText("Entries: "+strTmp);
+  strTmp.Form("%.2e #pm %.2e", histo->ProjectionX()->GetMean(), 
+      histo->ProjectionX()->GetMeanError());
+  pt.Draw();
+
   //canvas->Print("../plots2/"+outputName+".pdf");
-  canvas->Close();
+  //canvas->Close();
 }
 
 
 void plottingAndSaving(bool isLog, TString canvasName, TString outputName, 
     TH1D *histo) {
-  TCanvas *canvas = canvasStyle(canvasName); 
+  TCanvas *canvas = canvasStyle(canvasName);
+
+  TPaveStats *ptstats = new TPaveStats(0.15,0.65,0.45,0.96,"brNDC");
+  ptstats->SetName("stats");
+  ptstats->SetBorderSize(1);
+  ptstats->SetFillColor(0);
+  ptstats->SetTextAlign(12);
+  ptstats->SetTextFont(42);
+  TText *ptstats_LaTex = ptstats->AddText("XXX");
+  ptstats_LaTex->SetTextSize(0.07);
+  ptstats->SetOptFit(0);
+  ptstats->Draw();
+  histo->GetListOfFunctions()->Add(ptstats);
+  ptstats->SetParent(histo);
+
   histo->GetYaxis()->SetTitle("Counts [au]");
+  histo->GetYaxis()->SetTitleOffset(1.1);
   if ( !isLog ) {
     histo->GetXaxis()->SetTitle("P-Value [au]");
     histo->GetYaxis()->SetRangeUser(0, 1e3);
@@ -38,24 +82,29 @@ void plottingAndSaving(bool isLog, TString canvasName, TString outputName,
     histo->GetXaxis()->SetTitle("Log10(Pval) [au]");
     histo->GetXaxis()->SetRangeUser(-50, 1);
   }
-  histo->GetYaxis()->SetTitleSize(0.04);
-  histo->GetXaxis()->SetTitleSize(0.04);
+  histo->GetYaxis()->SetTitleSize(0.06);
+  histo->GetYaxis()->SetLabelSize(0.05);
+  histo->GetXaxis()->SetTitleSize(0.06);
+  histo->GetXaxis()->SetLabelSize(0.05);
   histo->Draw();
   //canvas->Print("../plots2/"+outputName+".pdf");
+  //canvas->Close();
 }
 
 
 void plottingProj(TString canvasName, TString outputName, TH2D *histo, bool ifXi) {
   TCanvas *canvas = canvasStyle(canvasName);
 
-  canvas->SetBorderMode(0);
-  canvas->SetBorderSize(2);
-  canvas->SetRightMargin(0.04);
-  canvas->SetLeftMargin(0.1270213);
-  canvas->SetTopMargin(0.01541096);
-  canvas->SetBottomMargin(0.15);
-  canvas->SetFrameBorderMode(0);
-  canvas->SetFrameBorderMode(0);
+  TPaveStats *ptstats = new TPaveStats(0.65,0.65,0.95,0.96,"brNDC");
+  ptstats->SetName("stats");
+  ptstats->SetBorderSize(1);
+  ptstats->SetFillColor(0);
+  ptstats->SetTextAlign(12);
+  ptstats->SetTextFont(42);
+  TText *ptstats_LaTex = ptstats->AddText("XXX");
+  ptstats_LaTex->SetTextSize(0.07);
+  ptstats->SetOptFit(0);
+  ptstats->Draw();
 
   //TH1D *hc = new TH1D("hc", "", 200, 0., 100.);
   //int maxCounts = 0;
@@ -63,7 +112,9 @@ void plottingProj(TString canvasName, TString outputName, TH2D *histo, bool ifXi
 
   if ( ifXi ) {
     canvas->cd();
-    histo->ProjectionY()->GetYaxis()->SetTitle("Counts [au]");
+    histo->ProjectionY()->GetListOfFunctions()->Add(ptstats);
+    ptstats->SetParent(histo->ProjectionY());
+    histo->ProjectionY()->GetYaxis()->SetTitle("[au]");
     histo->ProjectionY()->GetYaxis()->SetTitleSize(0.06);
     histo->ProjectionY()->GetYaxis()->SetLabelSize(0.05);
     histo->ProjectionY()->GetYaxis()->SetTitleOffset(1.0);
@@ -111,6 +162,8 @@ void plottingProj(TString canvasName, TString outputName, TH2D *histo, bool ifXi
   }
   else {
     TH1D *proj_x = histo->ProjectionX();
+    proj_x->GetListOfFunctions()->Add(ptstats);
+    ptstats->SetParent(proj_x);
     proj_x->Fit("gaus","Q");
     proj_x->GetYaxis()->SetTitle("Counts [au]");
     proj_x->GetYaxis()->SetTitleSize(0.06);
@@ -124,7 +177,7 @@ void plottingProj(TString canvasName, TString outputName, TH2D *histo, bool ifXi
     proj_x->Draw();
     
     TString strVal;
-    TLegend *leg = new TLegend(0.641, 0.52, 0.85, 0.7);
+    TLegend *leg = new TLegend(0.65, 0.3, 0.85, 0.55);
     leg->AddEntry(proj_x->GetFunction("gaus"), "Gaus fitted parameters:", "l");
     strVal.Form("%.2e", proj_x->GetFunction("gaus")->GetParameter(1));
     leg->AddEntry(histo, "#mu = "+strVal,"");
@@ -135,8 +188,9 @@ void plottingProj(TString canvasName, TString outputName, TH2D *histo, bool ifXi
     leg->SetFillStyle(0);
     leg->Draw();
   }
+  //gPad->WaitPrimitive();
   //canvas->Print("../plots2/"+outputName+".pdf");
-  canvas->Close();
+  //canvas->Close();
 }
 
 void plottingCrossCheck(TString stStr, TString ifUubStr, TGraphErrors *qpk, 
@@ -417,6 +471,9 @@ void doAvePerTime(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
   vector < double > qpksDay5(2);
   vector < double > qpksDay6(2);
 
+  vector < double > qpkAveDay;
+  vector < double > qpkAveDayErr;
+  vector < double > qpkDayTime;
 
   // Doing Qpk average per day
   for ( int qpk_i=0; qpk_i < qpkVect.size(); qpk_i++ ) {
@@ -442,6 +499,9 @@ void doAvePerTime(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
           retQpkDays.push_back(aveDay);
           retQpkErrDays.push_back(rms/sqrt(qpkInDay));
           retTimeQpk.push_back(currentDay);
+          qpkAveDay.push_back( aveDay );
+          qpkAveDayErr.push_back( rms/sqrt(qpkInDay) );
+          qpkDayTime.push_back( currentDay );
           // Filling the vector corresponding with current Qpk-average-day
           switch ( crrDayForMw ) {
             case 0 :
@@ -480,17 +540,22 @@ void doAvePerTime(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
           // Doing MW and returning Chi2 and Slope
           fitWasOk = doMovingWindow(qpksDay0, qpksDay1, qpksDay2, qpksDay3, qpksDay4,
               qpksDay5, qpksDay6, retChi2, retPval, retSlope, retSlopErr);
-          if ( fitWasOk ) {
-            crrDayForMw = daysForMw - 1;
-            qpksDay0 = qpksDay1;
-            qpksDay1 = qpksDay2;
-            qpksDay2 = qpksDay3;
-            qpksDay3 = qpksDay4;
-            qpksDay4 = qpksDay5;
-            qpksDay5 = qpksDay6;
-          }
-          else
-            crrDayForMw = 0;
+          /*
+          if ( ifIsUub ) {
+            tmpCanvas->cd();
+            TGraphErrors *qpktime = new TGraphErrors( qpkDayTime.size(),
+                &qpkDayTime[0], &qpkAveDay[0], 0, &qpkAveDayErr[0] );
+            qpktime->Draw("AP");
+            gPad->WaitPrimitive();
+          } 
+          */
+          crrDayForMw = daysForMw - 1;
+          qpksDay0 = qpksDay1;
+          qpksDay1 = qpksDay2;
+          qpksDay2 = qpksDay3;
+          qpksDay3 = qpksDay4;
+          qpksDay4 = qpksDay5;
+          qpksDay5 = qpksDay6;
           retTime.push_back(currentDay);
         }
       }
@@ -502,15 +567,15 @@ void doAvePerTime(bool ifIsUub, vector<double> qpkVect, vector<double> timeVect,
       aveDay = 0.;
       qpk2 = 0.;
       qpkInDay = 0;
-      currentDay += oneDay;
-    }
+      currentDay += oneDay; 
+   }
     // Check if current qpk is zero or -nan
     if ( !(qpkVect[qpk_i] > 0.) )
       continue;
     // Doing day average
     aveDay += qpkVect[qpk_i];
     qpk2 += qpkVect[qpk_i]*qpkVect[qpk_i];
-    qpkInDay++;
+    qpkInDay++; 
   }
 }
 
@@ -626,7 +691,7 @@ void makeStatsFitMovingWindow() {
 
   // Applying moving-window
   for ( auto & st_i : stId ) {
-    int chosenSt = 864;
+    int chosenSt = 545;
     if ( st_i != chosenSt )
       continue;
     cout << "Doing for station " << st_i << endl;
@@ -676,7 +741,7 @@ void makeStatsFitMovingWindow() {
     fillingPval( distPvalUub[2], distPvalPmt3Uub, distLogPvalPmt3Uub );
 
     // TH1 to plot Slope and Chi2 as function of time
-    
+    /*
     TGraphErrors *qpkVstimeUb = new TGraphErrors(qpkTimeUb[0].size(),
         &qpkTimeUb[0][0], &qpkDayUb[0][0], 0, &qpkErrDayUb[0][0]);
     TGraphErrors *slopVstimePmt1Ub = new TGraphErrors(timeChi2SlopeUb[0].size(), 
@@ -691,9 +756,10 @@ void makeStatsFitMovingWindow() {
     TGraph *chi2VstimePmt1Uub = new TGraph(timeChi2SlopeUub[0].size(), 
         &timeChi2SlopeUub[0][0], &distChi2Uub[0][0]);
     
-    plottingCrossCheck("864", "UB", qpkVstimeUb, slopVstimePmt1Ub, chi2VstimePmt1Ub);
-    plottingCrossCheck("864", "UUB", qpkVstimeUub, slopVstimePmt1Uub, 
+    plottingCrossCheck("1225", "UB", qpkVstimeUb, slopVstimePmt1Ub, chi2VstimePmt1Ub);
+    plottingCrossCheck("1225", "UUB", qpkVstimeUub, slopVstimePmt1Uub, 
         chi2VstimePmt1Uub);
+        */
   }
 
   // Plotting and saving
@@ -701,7 +767,7 @@ void makeStatsFitMovingWindow() {
   plottingAndSaving("Pmt1Ub", "chi2VsSlopPmt1Ub", chi2VsSlopPmt1Ub);
   plottingAndSaving("Pmt2Ub", "chi2VsSlopPmt2Ub", chi2VsSlopPmt2Ub);
   plottingAndSaving("Pmt3Ub", "chi2VsSlopPmt3Ub", chi2VsSlopPmt3Ub);
-
+/*
   plottingAndSaving("Pmt1Uub", "chi2VsSlopPmt1Uub", chi2VsSlopPmt1Uub);
   plottingAndSaving("Pmt2Uub", "chi2VsSlopPmt2Uub", chi2VsSlopPmt2Uub);
   plottingAndSaving("Pmt3Uub", "chi2VsSlopPmt3Uub", chi2VsSlopPmt3Uub);
@@ -739,6 +805,6 @@ void makeStatsFitMovingWindow() {
   plottingAndSaving(plotLogPval, "Pmt1Uub", "logPvalDistPmt1Uub", distLogPvalPmt1Uub);
   plottingAndSaving(plotLogPval, "Pmt2Uub", "logPvalDistPmt2Uub", distLogPvalPmt2Uub);
   plottingAndSaving(plotLogPval, "Pmt3Uub", "logPvalDistPmt3Uub", distLogPvalPmt3Uub);
-
+*/
   //exit(0);
 }
