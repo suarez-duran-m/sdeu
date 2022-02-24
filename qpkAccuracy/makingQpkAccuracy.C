@@ -497,48 +497,59 @@ void plottingFinalSlp(TH1D *histo, bool ifUub) {
   finalSlpCanvas->Print(printName);
 }
 
-void fillAccDist(vector<vector<vector<double>>> finalQpkDistUb,
-    vector<vector<vector<double>>> finalQpkDistUub,
+void doingAcc(vector<vector<vector<double>>> finalQpkDistUb,
+    vector<vector<vector<double>>> finalQpkDistUub, 
     vector<double> &retAccPerIdUb, vector<double> &retAccPerIdUub, 
     vector<double> &retErrAccPerIdUb, vector<double> &retErrAccPerIdUub,
-    TH1D *retAccuUb, TH1D *retAccuUub ) {
+    TH1D *retAccuUb, TH1D *retAccuUub, TH1D *retDistDiff, 
+    vector<double> &retAccDiffPerId, vector<double> &retErrAccDiffPerId) {
+  // Vector to store the <Qpk> per PMT for UB and UUB
   vector < double > avePmt(2);
-  double mu = 0.; 
+  double mu = 0.;
   double errMu = 0.;
   double sgm = 0.;
   double errSgm = 0.;
   double errAcc = 0.;
+  double diff = 0.;
+  double diffErr = 0.;
+  TString histName;
+  // Flag to check if the Gaus fit was Ok
   vector < bool > ifFitOk(2);
+  // Vectors to store the Qpk distributions
   vector < double > qpkDistUb;
   vector < double > qpkDistUub;
+  // TH1D to plot and fit Qpk distribution
   TH1D *qpkNormUb;
   TH1D *qpkNormUub;
+  // Flag to check if PMT_i was ok for UB and UUB 
   bool pmtCoinci = false;
   for ( int st_i=0; st_i<finalQpkDistUb.size(); st_i++ ) {
     pmtCoinci = false;
     for ( int pmt_i=0; pmt_i<3; pmt_i++ ) {
-      if ( finalQpkDistUb[st_i][pmt_i].size() < 2 || 
+      // Checking if pmt_i has valid Qpk dist. (see cutByPval)
+      if ( finalQpkDistUb[st_i][pmt_i].size() < 2 ||
           finalQpkDistUub[st_i][pmt_i].size() < 2) {
-        cout << st_i << " " << pmt_i << " " 
-          << finalQpkDistUb[st_i][pmt_i].size() << " " 
-          << finalQpkDistUub[st_i][pmt_i].size() << endl;
         continue;
       }
       avePmt[0] = 0.; 
       avePmt[1] = 0.;
       qpkDistUb.clear();
       qpkDistUub.clear();
-      qpkNormUb = new TH1D("qpkNormUb", "", 200, 0., 2.);
-      qpkNormUub = new TH1D("qpkNormUub", "", 200, 0., 2.);
+      histName = Form("UB%d%d",st_i,pmt_i);
+      qpkNormUb = new TH1D(histName, "UB", 200, 0., 2.);
+      histName = Form("UUB%d%d",st_i,pmt_i);
+      qpkNormUub = new TH1D(histName, "UUB", 200, 0., 2.);
+      // Getting Qpk distribution and calculating <Qpk>
       for ( auto & qpk_i : finalQpkDistUb[st_i][pmt_i] ) {
         qpkDistUb.push_back( qpk_i );
         avePmt[0] += qpk_i;
       }
+      avePmt[0] /= qpkDistUb.size();
       for ( auto & qpk_i : finalQpkDistUub[st_i][pmt_i] ) {
         qpkDistUub.push_back( qpk_i );
         avePmt[1] += qpk_i;
       }
-      avePmt[0] /= qpkDistUb.size();
+      // Filling TH1D 
       for ( auto & qpk_i : qpkDistUb )
         qpkNormUb->Fill( qpk_i/avePmt[0] );
       avePmt[1] /= qpkDistUub.size();
@@ -548,18 +559,20 @@ void fillAccDist(vector<vector<vector<double>>> finalQpkDistUb,
     }
     if ( !pmtCoinci )
       continue;
-    
+    // Doing Gauss fitting to calculate accuracy    
     ifFitOk[0] = qpkNormUb->Fit("gaus", "Q");
     ifFitOk[1] = qpkNormUub->Fit("gaus", "Q");
     if ( !ifFitOk[0] && !ifFitOk[1] ) {
       mu = qpkNormUb->GetFunction("gaus")->GetParameter(1);
       sgm = qpkNormUb->GetFunction("gaus")->GetParameter(2);
-      retAccuUb->Fill( 100.*sgm/mu );
-      retAccPerIdUb[st_i] = 100.*sgm/mu;
+      diff = 100.*sgm/mu;
+      retAccuUb->Fill( diff );
+      retAccPerIdUb[st_i] = diff;
       errMu = (1./mu)*qpkNormUb->GetFunction("gaus")->GetParError(2);
       errSgm = (sgm/(mu*mu))*qpkNormUb->GetFunction("gaus")->GetParError(1);
-      errAcc = 100.*( errSgm*errSgm + errMu*errMu );       
+      errAcc = 100.*( errSgm*errSgm + errMu*errMu );
       retErrAccPerIdUb[st_i] = errAcc;
+      diffErr = errAcc*errAcc;
       // Doing for UUB
       mu = qpkNormUub->GetFunction("gaus")->GetParameter(1);
       sgm = qpkNormUub->GetFunction("gaus")->GetParameter(2);
@@ -569,11 +582,29 @@ void fillAccDist(vector<vector<vector<double>>> finalQpkDistUb,
       errSgm = (sgm/(mu*mu))*qpkNormUub->GetFunction("gaus")->GetParError(1);
       errAcc = 100.*( errSgm*errSgm + errMu*errMu );       
       retErrAccPerIdUub[st_i] = errAcc;
+      retDistDiff->Fill( diff - 100.*sgm/mu );
+      retAccDiffPerId[st_i] = diff - 100.*sgm/mu;
+      diffErr += errAcc*errAcc;
+      retErrAccDiffPerId[st_i] = sqrt(diffErr);
+    }
+    else {
+      retAccuUb->Fill(-1.);
+      retAccuUub->Fill(-1);
+      retErrAccPerIdUub[st_i] = -1.;
     }
     qpkNormUb->Reset();
     qpkNormUb->Delete();
     qpkNormUub->Reset();
     qpkNormUub->Delete();
+  }
+}
+
+void fillingPerId(vector<double> accVec, vector<double> errAccVec,
+    vector<double> stIdVec, TH1D *retHist) {
+  for ( int acc_i=0; acc_i<accVec.size(); acc_i++ ) {
+    retHist->SetBinContent(acc_i+1, accVec[acc_i]);
+    retHist->SetBinError(acc_i+1, errAccVec[acc_i]);
+    retHist->GetXaxis()->SetBinLabel(acc_i+1, Form("%.f", stIdVec[acc_i]));
   }
 }
 
@@ -740,24 +771,26 @@ void makingQpkAccuracy() {
   plottingFinalSlp(normSlpDistUb, false);
   plottingFinalSlp(normSlpDistUub, true);
 
-  /*
+  // Doing Accuracy calculations  
+  // TH1 histos to store the respective results
   TH1D *accDistUb = new TH1D("accDistUb", "", 200, 0, 20);
   vector < double > accPerIdUb(stId.size());
   vector < double > errAccPerIdUb(stId.size());
-
   TH1D *accDistUub = new TH1D("accDistUub", "", 200, 0, 20);
   vector < double > accPerIdUub(stId.size());
-  vector < double > errAccPerIdUub(stId.size());
-  
+  vector < double > errAccPerIdUub(stId.size()); 
+
   TH1D *distDiff = new TH1D("distDiff", "", 80, -4, 4);
-  TH1D *diffPerId = new TH1D("diffPerId", "", 40, -2, 2);
+  vector < double > accDiffPerId(stId.size());
+  vector < double > errAccDiffPerId(stId.size());
 
-  fillAccDist(finalQpkDistUb, finalQpkDistUub, accPerIdUb, accPerIdUub, 
-      errAccPerIdUb, errAccPerIdUub, accDistUb, accDistUub);
-  
+  doingAcc(finalQpkDistUb, finalQpkDistUub, accPerIdUb, accPerIdUub, 
+      errAccPerIdUb, errAccPerIdUub, accDistUb, accDistUub, distDiff, 
+      accDiffPerId, errAccDiffPerId);
+
+  // Plotting Accuracy distribution
   TCanvas *accCanvas = canvasStyle("accCanvas");
-  accCanvas->cd(); 
-
+  accCanvas->cd();
   accDistUb->SetStats(kFALSE);
   accDistUb->SetLineColor(kBlue);
   accDistUb->GetXaxis()->SetRangeUser(0., 5.);
@@ -772,20 +805,17 @@ void makingQpkAccuracy() {
   accDistUb->SetFillStyle(3345);
   accDistUb->SetFillColor(kBlue);
   accDistUb->Draw();
-
   accDistUub->SetLineColor(kRed);
   accDistUub->SetLineWidth(2);
   accDistUub->SetFillStyle(3354);
   accDistUub->SetFillColor(kRed);
   accDistUub->Draw("same");
-
   TLegend *leg = new TLegend(0.59,0.6,0.9,0.95);  
   leg->AddEntry(accDistUb, "UB", "l" );
   leg->AddEntry(accDistUb, Form("Mean: %.2f %% #pm %.2f %%",
         accDistUb->GetMean(), accDistUb->GetMeanError()), "");
   leg->AddEntry(accDistUb, Form("RMS: %.2f %% #pm %.2f %%",accDistUb->GetRMS(),
-        accDistUb->GetRMSError()),""); 
-
+        accDistUb->GetRMSError()),"");
   leg->AddEntry(accDistUub, "UUB", "l" );
   leg->AddEntry(accDistUub, Form("Mean: %.2f %% #pm %.2f %%",
         accDistUub->GetMean(), accDistUub->GetMeanError()), "");
@@ -795,65 +825,127 @@ void makingQpkAccuracy() {
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw();
-  //accCanvas->Print("../plots2/accQpkFitUbUubAllStAllPmt_Stats2.pdf");
-  
+  accCanvas->Print("../plots2/accQpkFitUbUubAllStAllPmt_Stats2.pdf");
+   
+  // Plotting accuracy per Station ID 
   TCanvas *accPerIdCanvas = canvasStyle("accPerIdCanvas");
   accPerIdCanvas->cd();
-  
-  TGraphErrors *graAccPerIdUb = new TGraphErrors(accPerIdUb.size(), &vecStID[0], 
-      &accPerIdUb[0], 0, &errAccPerIdUb[0]);
-  TGraphErrors *graAccPerIdUub = new TGraphErrors(accPerIdUub.size(), &vecStID[0], 
-      &accPerIdUub[0], 0, &errAccPerIdUub[0]);
+  TH1D *histAccPerIdUb = new TH1D("histAcccPerIdUb","UB", vecStID.size(), 0, 
+      vecStID.size());
+  TH1D *histAccPerIdUub = new TH1D("histAccPerIdUub","UUB", vecStID.size(), 0, 
+      vecStID.size());
+  fillingPerId(accPerIdUb, errAccPerIdUb, vecStID, histAccPerIdUb);
+  fillingPerId(accPerIdUub, errAccPerIdUub, vecStID, histAccPerIdUub);
   
   TLine *lineAveAccUb;
   TLine *lineAveAccUub;
+  histAccPerIdUb->SetTitle("");
+  histAccPerIdUb->SetStats(kFALSE);
+  histAccPerIdUb->GetXaxis()->SetTitle("Station ID.");
+  histAccPerIdUb->GetXaxis()->SetTitleOffset(1.5); 
+  histAccPerIdUb->GetXaxis()->SetTitleSize(0.05);
+  histAccPerIdUb->GetXaxis()->SetLabelSize(0.04);
+  histAccPerIdUb->GetXaxis()->SetTitleOffset(1.1);
+  histAccPerIdUb->GetYaxis()->SetRangeUser(0., 5.);
+  histAccPerIdUb->GetYaxis()->SetTitle("#sigma/#mu [%]");
+  histAccPerIdUb->GetYaxis()->SetTitleSize(0.06);
+  histAccPerIdUb->GetYaxis()->SetLabelSize(0.05);
+  histAccPerIdUb->SetMarkerStyle(71);
+  histAccPerIdUb->SetMarkerColor(kRed);
+  histAccPerIdUb->SetLineColor(kRed);
+  histAccPerIdUb->SetMarkerSize(1.2);
+  histAccPerIdUb->Draw("E1");
+  lineAveAccUb = new TLine(0.2, accDistUb->GetMean(), 74.5, accDistUb->GetMean());
+  lineAveAccUb->SetLineWidth(2);
+  lineAveAccUb->SetLineColor(kRed);
+  lineAveAccUb->Draw();
 
-  graAccPerIdUb->SetTitle("");
-  //graAccPerIdUb->SetStats(kFALSE);
-  graAccPerIdUb->GetXaxis()->SetTitle("Station ID.");
-  graAccPerIdUb->GetXaxis()->SetTitleOffset(1.5); 
-  graAccPerIdUb->GetXaxis()->SetTitleSize(0.05);
-  graAccPerIdUb->GetXaxis()->SetLabelSize(0.04);
-  graAccPerIdUb->GetXaxis()->SetTitleOffset(1.1);
-  //graAccPerIdUb->GetYaxis()->SetRangeUser(0., 5.);
-  graAccPerIdUb->GetYaxis()->SetTitle("#sigma/#mu [%]");
-  graAccPerIdUb->GetYaxis()->SetTitleSize(0.06);
-  graAccPerIdUb->GetYaxis()->SetLabelSize(0.05);
-  graAccPerIdUb->SetMarkerStyle(71);
-  graAccPerIdUb->SetMarkerColor(kRed);
-  graAccPerIdUb->SetLineColor(kRed);
-  graAccPerIdUb->SetMarkerSize(1.2);
-  graAccPerIdUb->Draw("AP");
-
-  //lineAveAccUub = new TLine(0.2, aveAccUub[0]/aveAccUub[1], 74.5, aveAccUub[0]/aveAccUub[1]);
-  //lineAveAccUub->SetLineWidth(2);
-  //lineAveAccUub->SetLineColor(kRed);
-  //lineAveAccUub->Draw();
-
-  graAccPerIdUub->SetMarkerStyle(73);
-  graAccPerIdUub->SetMarkerColor(kBlue);
-  graAccPerIdUub->SetLineColor(kBlue);
-  graAccPerIdUub->SetMarkerSize(1.2);
-  graAccPerIdUub->Draw("AP same");
-
-  //lineAveAccUb = new TLine(0.2, aveAccUb[0]/aveAccUb[1], 74.5, aveAccUb[0]/aveAccUb[1]);
-  //lineAveAccUb->SetLineWidth(2);
-  //lineAveAccUb->SetLineColor(kBlue);
-  //lineAveAccUb->Draw();
-*/
-  /*
-  leg = new TLegend(0.6,0.7,0.95,0.95);
-  strMean.Form("%.2f", aveAccUub[0]/aveAccUub[1]);
-  leg->AddEntry(greAccPerIdUub,Form("UUB Ave.: %.2f %% "+strMean+" %",), "l");
-  strMean.Form("%.2f", aveAccUb[0]/aveAccUb[1]);
-  leg->AddEntry(accPerIDub,"UB Ave.: "+strMean+" %", "l");
+  histAccPerIdUub->SetMarkerStyle(73);
+  histAccPerIdUub->SetMarkerColor(kBlue);
+  histAccPerIdUub->SetLineColor(kBlue);
+  histAccPerIdUub->SetMarkerSize(1.2);
+  histAccPerIdUub->Draw("E1 same");
+  lineAveAccUb = new TLine(0.2, accDistUub->GetMean(), 74.5, accDistUub->GetMean());
+  lineAveAccUb->SetLineWidth(2);
+  lineAveAccUb->SetLineColor(kBlue);
+  lineAveAccUb->Draw(); 
+  
+  leg = new TLegend(0.4,0.7,0.95,0.95);
+  leg->AddEntry(histAccPerIdUb,Form("UB Ave.: %.2f %% #pm %.2f %%",
+        accDistUb->GetMean(), accDistUb->GetMeanError()), "l");
+  leg->AddEntry(histAccPerIdUub,Form("UUB Ave.: %.2f %% #pm %.2f %%",
+        accDistUub->GetMean(), accDistUub->GetMeanError()), "l");
   leg->SetTextSize(0.05);
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->Draw();
-  */
+  accPerIdCanvas->Print("../plots2/accQpkFitUbUubPerSt_Stats2.pdf");
 
-  //accPerIdCanvas->Print("../plots2/accQpkFitUbUubPerSt_Stats2.pdf");
+  // Plotting Diff
+  TCanvas *diffCanvas = canvasStyle("diffCanvas");
+  diffCanvas->cd();
 
+  distDiff->SetTitle("");
+  distDiff->SetStats(kFALSE);
+  distDiff->GetXaxis()->SetTitle("#left(#sigma/#mu#right)_{UB} - #left(#sigma/#mu#right)_{UUB} [%]");
+  distDiff->GetXaxis()->SetTitleOffset(1.3);
+  distDiff->GetXaxis()->SetRangeUser(-3., 3.);
+  distDiff->GetXaxis()->SetTitleSize(0.06);
+  distDiff->GetXaxis()->SetLabelSize(0.05);
+  distDiff->GetXaxis()->SetTitleOffset(1.);
+  distDiff->GetYaxis()->SetTitle("Counts [au]");
+  distDiff->GetYaxis()->SetTitleSize(0.06); 
+  distDiff->GetYaxis()->SetLabelSize(0.05);
+  distDiff->GetYaxis()->SetRangeUser(0., 17.);
+  distDiff->SetLineColor(kGreen+3);
+  distDiff->Draw();
+
+  leg = new TLegend(0.5,0.78,0.98,0.9);
+  leg->AddEntry(distDiff, Form("MEAN: %.3f %% #pm %.3f %%", distDiff->GetMean(), 
+        distDiff->GetMeanError()), "");
+  leg->AddEntry(distDiff, Form("RMS:     %.3f %% #pm %.3f %%", distDiff->GetRMS(), 
+      distDiff->GetRMSError()), ""); 
+  leg->SetTextSize(0.05);
+  leg->SetBorderSize(0);
+  leg->SetFillStyle(0);
+  leg->Draw();
+
+  lineAveAccUb = new TLine(0.,0.,0.,17.);
+  lineAveAccUb->SetLineWidth(2);
+  lineAveAccUb->SetLineColor(kGray);
+  lineAveAccUb->SetLineStyle(2);
+  lineAveAccUb->Draw();
+  diffCanvas->Print("../plots2/accQpkFitUbUubDistDiff_Stats2.pdf");
+
+  TCanvas *diffPerIdCanvas = canvasStyle("diffPerIdCanvas");
+  TH1D *histDiffPerId = new TH1D("histDiffPerId","", vecStID.size(), 0,
+      vecStID.size());
+  fillingPerId(accDiffPerId, errAccDiffPerId, vecStID, histDiffPerId);
+
+  histDiffPerId->SetTitle("");
+  histDiffPerId->SetStats(kFALSE);                       
+  histDiffPerId->GetXaxis()->SetTitle("Station ID.");
+  histDiffPerId->GetXaxis()->SetTitleOffset(1.5);
+  histDiffPerId->GetXaxis()->SetTitleSize(0.05);
+  histDiffPerId->GetXaxis()->SetLabelSize(0.04);
+  histDiffPerId->GetXaxis()->SetTitleOffset(1.1);
+  histDiffPerId->GetYaxis()->SetRangeUser(-2., 2.);
+  histDiffPerId->GetYaxis()->SetTitleSize(0.06);
+  histDiffPerId->GetYaxis()->SetLabelSize(0.05);
+  histDiffPerId->GetYaxis()->SetTitleOffset(1.0);
+  histDiffPerId->GetYaxis()->SetTitle("#left(#sigma/#mu#right)_{UB} - #left(#sigma/#mu#right)_{UUB} [%]");
+  histDiffPerId->SetMarkerStyle(71);
+  histDiffPerId->SetMarkerColor(kGreen+3);
+  histDiffPerId->SetLineColor(kGreen+3);
+  histDiffPerId->SetMarkerSize(1.2);
+  histDiffPerId->Draw("P");
+ 
+  lineAveAccUb = new TLine(0.5,0.,74.5,0.);
+  lineAveAccUb->SetLineWidth(2);
+  lineAveAccUb->SetLineColor(kGray);
+  lineAveAccUb->SetLineStyle(2);
+  lineAveAccUb->Draw();
+
+  diffPerIdCanvas->Print("../plots2/accQpkFitUbUubDiffPerSt_Stats2.pdf");
   //exit(0);
 }
