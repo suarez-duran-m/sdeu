@@ -89,7 +89,7 @@ void plottingAndSaving(TString canvasName, TString outputName, TH2D *histo) {
   histo->Draw("COLZ");  
 
   //canvas->Print("../plots2/"+outputName+".pdf");
-  canvas->Print("../plots2/"+outputName+"AfterCuts.pdf");
+  //canvas->Print("../plots2/"+outputName+"AfterCuts.pdf");
   //canvas->Close();
 }
 
@@ -190,8 +190,8 @@ void plottingProj(TString canvasName, TString outputName, TH2D *histo, bool ifXi
     leg->SetFillStyle(0);
     leg->Draw();
   }
-  canvas->Print("../plots2/"+outputName+".pdf");
-  canvas->Close();
+  //canvas->Print("../plots2/"+outputName+".pdf");
+  //canvas->Close();
 }
 
 void plottingCrossCheck(TString stStr, TString ifUubStr, TGraphErrors *qpk, 
@@ -597,8 +597,8 @@ void doAvePerTime(int pmt, bool ifIsUub, vector<double> qpkVect,
 void makeStatsFitMovingWindow() {
   // Reading working stations' ID
   ifstream stationSelected;
-  //TString strFileSelecSt = "../halfList.txt";
-  TString strFileSelecSt = "../fullUubStationsListVert.txt";
+  TString strFileSelecSt = "../halfList.txt";
+  //TString strFileSelecSt = "../fullUubStationsListVert.txt";
   int readStId = 0;
   vector < int > stId;
   stationSelected.open(strFileSelecSt);
