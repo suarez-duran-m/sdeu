@@ -67,41 +67,87 @@
 \end{frame}
 
 \begin{frame}
+  \frametitle{Distribution of Qpk per day}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{1.\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/qpkDistPerDayUbUub.pdf}
+    \end{column} 
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Moving window}
+  \begin{center}
+    \animategraphics[label=taylor, controls, loop,
+    width=0.8\textwidth]{2}{/home/msd/postdoc/sdeu/qpkAccuracy/week}{0}{75}
+  \end{center}
+\end{frame}
+
+\begin{frame}
   \frametitle{Moving window algorithm results}
+  After a cut for > 10 Qpk per day
   \vspace{0.5cm}
   \begin{columns}
     \begin{column}{0.5\textwidth}
-      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Ub.pdf}
+      \includegraphics[width=1.\textwidth]{../plots2/chi2VsSlopUb2.pdf}
     \end{column}
     \begin{column}{0.5\textwidth}
-      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Uub.pdf}
-    \end{column}
-  \end{columns}
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt2Ub.pdf}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt2Uub.pdf}
+      \includegraphics[width=1.\textwidth]{../plots2/chi2VsSlopUub2.pdf}
     \end{column}
   \end{columns}
 \end{frame}
 
 \begin{frame}
   \frametitle{Moving window algorithm results}
+  After a cut for Log10(Pval) > -5.0
   \vspace{0.5cm}
   \begin{columns}
     \begin{column}{0.5\textwidth}
-      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt3Ub.pdf}
+      \includegraphics[width=1.\textwidth]{../plots2/chi2VsSlopUbProjSlop2.pdf}
     \end{column}
     \begin{column}{0.5\textwidth}
-      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt3Uub.pdf}
+      \includegraphics[width=1.\textwidth]{../plots2/chi2VsSlopUubProjSlop2.pdf}
     \end{column}
   \end{columns}
 \end{frame}
 
-
-
+%\begin{frame}
+%  \frametitle{Moving window algorithm results}
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Ub.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt1Uub.pdf}
+%    \end{column}
+%  \end{columns}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt2Ub.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt2Uub.pdf}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{Moving window algorithm results}
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt3Ub.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/chi2VsSlopPmt3Uub.pdf}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+%
+%
 %\begin{frame}
 %  \frametitle{How the moving window works}
 %  {\bf The goal:} To choose the more stable 7-days in a row for
@@ -509,7 +555,7 @@
 %    \end{column}
 %  \end{columns}
 %\end{frame}
-
+%
 %\begin{frame}
 %  \frametitle{Outliers: $(\sigma/\mu)_{\mathrm{UB}} -
 %  (\sigma/\mu)_{\mathrm{UUB}}$ > $-2.0$\,\% }
