@@ -1,0 +1,566 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\usepackage{ulem}
+\usepackage{hyperref}
+\usepackage{animate} % For gif
+\usepackage{media9}
+\usepackage{graphicx}
+
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{Accuracy of $\mathrm{Q}^{\mathrm{pk}}_{\mathrm{VEM}}$ fit for UB and UUB}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{How the moving window works}
+  {\bf The goal:} To choose the more stable 7-days in a row for
+  fitted $Q^{Pk}_{\mathrm{VEM}}$.
+  \vspace{0.2cm}
+  \begin{enumerate}
+      {\footnotesize
+    \item An $\left<Q^{Pk}_{\mathrm{VEM}}\right>$ is calculate
+      per day, then a first 7-day-series of
+      $\left<Q^{Pk}_{\mathrm{VEM}}\right>$ is built.
+    \item A linear fit is applied to the 7-day-series, and
+      the respective slope and $\chi^2$ are stored.
+    \item A new [7-day-series]$_1$ is built by replacing the
+      seventh day in previous [7-day-series]$_0$ by next day.
+    \item A check for continuity is applied, i.e. if 7 days are
+      not consecutive a new series is built, e.g. if series
+      $i$ has a discontinuity in day 3 jumping to day 5, a new
+      7-day-series is calculated from day 5.
+      }
+  \end{enumerate}
+  \begin{center}
+    \animategraphics[controls, loop,
+    width=0.4\textwidth]{2}{/home/msd/postdoc/sdeu/plots2/pltsForGif/weekUbSt806pmt1}{1}{6} % 69 
+  \end{center}
+  {\scriptsize It is possible to see how the average
+  $\left<Q^{Pk}_{\mathrm{VEM}}\right>_{7\mathrm{days}}$ is moving
+  leftward.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Distribution of Qpk per day}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{1.\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/qpkDistPerDayUbUub.pdf}
+    \end{column} 
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Moving window algorithm results}
+  After a cut for > 10 Qpk per day
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/chi2VsSlopUb2.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/chi2VsSlopUub2.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Moving window algorithm results}
+  After a cut for $\chi^2<10$, Slope $\mu\pm\sigma$, and
+  Log10(Pval) > $-5.0$
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/chi2VsSlopUbProjSlop2.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/chi2VsSlopUubProjSlop2.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How the accuracy is calculate}
+  {\footnotesize
+  \begin{enumerate}
+    \item After the cuts, per station and per PMT, a set of
+      7-day-series is obtained.
+    \item If for the same station, a PMT was not chosen, e.g.
+      in UB version, this one is not taken into the account for
+      UUB, and vice versa.
+    \item With the chosen PMT, a singular normalized
+      distribution is built for UB and UUB version.
+    \item A Gaussian function is fitted to the normalized
+      distribution and then the accuracy is calculated as:
+      $\sigma/\mu$, respectively.
+  \end{enumerate}
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{How the accuracy is calculate}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdDistUBSt1224.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdDistUUBSt1224.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdNormDistUBSt1224.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdNormDistUUBSt1224.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Accuracy results}
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accQpkFitUbUubAllStAllPmt_Stats2.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accQpkFitUbUubDistDiff_Stats2.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accQpkFitUbUubPerSt_Stats2.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/accQpkFitUbUubDiffPerSt_Stats2.pdf}
+    \end{column}
+  \end{columns}
+  {\scriptsize For accuracy distribution, only $\sigma/\mu$ <
+  $5.0$\,\% considered. }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outliers, $\mu/\sigma > 10.$\,\%}
+  \vspace{0.2cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdDistUBSt1223.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdDistUUBSt1223.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdNormDistUBSt1223.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdNormDistUUBSt1223.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outliers, $\mu/\sigma > 3.5$\,\% and 
+  $\left(\mu/\sigma\right)_{\mathrm{UB}} 
+  - \left(\mu/\sigma\right)_{\mathrm{UUB}} < -1.$\,\% }
+  \vspace{0.2cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdDistUBSt1218.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdDistUUBSt1218.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdNormDistUBSt1218.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdNormDistUUBSt1218.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outliers, $\left(\mu/\sigma\right)_{\mathrm{UB}} 
+  - \left(\mu/\sigma\right)_{\mathrm{UUB}} < -1.$\,\%}
+  \vspace{0.2cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdDistUBSt1224.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdDistUUBSt1224.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdNormDistUBSt1224.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdNormDistUUBSt1224.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outliers, $\left(\mu/\sigma\right)_{\mathrm{UB}} 
+  - \left(\mu/\sigma\right)_{\mathrm{UUB}} < -1.$\,\%}
+  \vspace{0.2cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdDistUBSt1746.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdDistUUBSt1746.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdNormDistUBSt1746.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdNormDistUUBSt1746.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outliers, $\left(\mu/\sigma\right)_{\mathrm{UB}} 
+  - \left(\mu/\sigma\right)_{\mathrm{UUB}} > 1.$\,\%}
+  \vspace{0.2cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdDistUBSt907.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdDistUUBSt907.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdNormDistUBSt907.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../plots2/qpkdNormDistUUBSt907.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Backup}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Moving window}
+  \begin{center}
+    \begin{columns}
+      \begin{column}{.5\textwidth}
+        \animategraphics[controls, loop,
+        width=0.8\textwidth]{2}{/home/msd/postdoc/sdeu/plots2/pltsForGif/weekUbSt1198pmt1}{0}{6}
+      \end{column}
+      \begin{column}{.5\textwidth}
+        \animategraphics[controls, loop, 
+        width=0.8\textwidth]{2}{/home/msd/postdoc/sdeu/plots2/pltsForGif/weekUbSt1198pmt3}{0}{6}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+
+
+
+
+
+
+%\begin{frame}
+%  \frametitle{Cross Check for moving window: Stations selected
+%  randomly and for PMT1}
+%  $Q^{pk}_{VEM}$, slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ as
+%  function of time
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../plots2/crossCheck864UB.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \begin{tikzpicture}
+%        \node(a) {
+%          \includegraphics[width=1.\textwidth]{../plots2/crossCheck864UUB.pdf}
+%        };
+%        \node at(a.center)[draw, red, line width=1pt, ellipse,
+%        rotate=0, minimum width=15pt, minimum height=10pt,
+%        xshift=35pt, yshift=34pt]{};
+%      \end{tikzpicture}
+%    \end{column}
+%  \end{columns}
+%  \vspace{0.3cm}
+%
+%  The moving window is over 7-days in a row. For UUB, the red
+%  circle enclose the only 8-days in a row available to fit, i.e.
+%  for this UUB stations, only two fits are possible.
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{Cross Check for moving window: Station selected
+%  randomly and for PMT1}
+%  $Q^{pk}_{VEM}$, slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ as
+%  function of time
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../plots2/crossCheck846UB.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../plots2/crossCheck846UUB.pdf}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{Cross Check for moving window: Station selected
+%  randomly and for PMT1}
+%  $Q^{pk}_{VEM}$ slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ as
+%  function of time
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../plots2/crossCheck853UB.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../plots2/crossCheck853UUB.pdf}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{Cross Check for moving window: Station selected
+%  randomly and for PMT1}
+%  $Q^{pk}_{VEM}$, slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ as
+%  function of time
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1190UB.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1190UUB.pdf}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{Cross Check for moving window: Station selected
+%  randomly and for PMT1}
+%  $Q^{pk}_{VEM}$, slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ as
+%  function of time
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1213UB.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1213UUB.pdf}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{Cross Check for moving window: Station selected
+%  randomly and for PMT1}
+%  $Q^{pk}_{VEM}$, slope/$\left<\mathrm{FADC}\right>$, $\chi^2$ as
+%  function of time
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1225UB.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../plots2/crossCheck1225UUB.pdf}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%\begin{frame}
+%  \frametitle{Outliers: $(\sigma/\mu)_{\mathrm{UB}} -
+%  (\sigma/\mu)_{\mathrm{UUB}}$ > $-2.0$\,\% }
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/accDistSt864ub.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/accDistSt864uub.pdf}
+%    \end{column}
+%  \end{columns}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots/qpksVsTimeSt864UUB.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/st864pmt1_week1.png}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{Outliers: $(\sigma/\mu)_{\mathrm{UB}} -
+%  (\sigma/\mu)_{\mathrm{UUB}}$ > $-2.0$\,\% }
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1205ub.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1205uub.pdf}
+%    \end{column}
+%  \end{columns}
+%  \begin{columns}
+%    \begin{column}{0.33\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots/qpksVsTimeSt1205UUB.pdf}
+%    \end{column}
+%    \begin{column}{0.33\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/st1205pmt1_week25.png}
+%    \end{column}
+%    \begin{column}{0.33\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/st1205pmt3_week25.png}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+%
+%
+%\begin{frame}
+%  \frametitle{Outliers: $(\sigma/\mu)_{\mathrm{UB}} -
+%  (\sigma/\mu)_{\mathrm{UUB}}$ > $-2.0$\,\% }
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1216ub.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1216uub.pdf}
+%    \end{column}
+%  \end{columns}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots/qpksVsTimeSt1216UB.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/st1216pmt2_week5.png}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{Outliers: $(\sigma/\mu)_{\mathrm{UB}} -
+%  (\sigma/\mu)_{\mathrm{UUB}}$ > $-2.0$\,\% }
+%  \vspace{0.5cm}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1740ub.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1740uub.pdf}
+%    \end{column}
+%  \end{columns}
+%  \begin{columns}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1745ub.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=.9\textwidth]{../plots2/accDistSt1745uub.pdf}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+
+\end{document}
