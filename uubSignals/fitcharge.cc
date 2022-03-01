@@ -105,6 +105,7 @@ vector < double > getFitRangeCh( TH1F &h, int rightleftBins ) {
 
 fitcharge::fitcharge() {
 	vemPosCh = 0.;
+  vemPosChErr = 0.;
   vemPosDeri = 0.;
 	getGraph = false;
 	fitChOk = false;
@@ -190,6 +191,11 @@ void fitcharge::getFitCh(TH1F &hist, int nblr) {
   ndfCharge = poly2->GetNDF();
   probCharge = poly2->GetProb();
 	vemPosCh = -poly2->GetParameter(1) / (2.*poly2->GetParameter(0));
+  double tmpA = poly2->GetParameter(1);
+  double tmpB = poly2->GetParameter(0);
+  double tmp0 = ( 1./(2.*tmpB) )*poly2->GetParError(1);
+  double tmp1 = ( tmpA/(2.*tmpB*tmpB) )*poly2->GetParError(0);
+  vemPosChErr = sqrt( tmp0*tmp0 + tmp1*tmp1 ) / vemPosCh;
   vemPosDeri = rangeValues[2];
 	critGoodFit = 5.5;
   par0 = poly2->GetParameter(0);
@@ -197,8 +203,10 @@ void fitcharge::getFitCh(TH1F &hist, int nblr) {
   par2 = poly2->GetParameter(2);
   fitGraphCh = (TGraphErrors*)chToFit->Clone();
 
-  if ( (chisCharge/ndfCharge) > critGoodFit )
+  if ( (chisCharge/ndfCharge) > critGoodFit ) {
     vemPosCh = 0.;
+    vemPosChErr = 0.;
+  }
 
 	delete chToFit;
 	delete poly2;
