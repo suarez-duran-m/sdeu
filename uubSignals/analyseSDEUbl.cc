@@ -396,6 +396,101 @@ void plotSgnl(TString strHigh, unsigned int st, vector<vector<double>> sgnlVals,
   sgnlCanvas->Close();
 }
 
+void plotBlOutLier(unsigned int st, 
+    vector<vector<vector<double>>> blLowVals,
+    vector<vector<vector<double>>> blHigVals ) {
+  // Searching for outlier event
+ 
+  // Doing X axis for Traces
+  vector < vector < double > > bins(3);
+  vector < int > chosenEvt(3);
+  for ( int pmt_i=0; pmt_i<3; pmt_i++ ) {
+    chosenEvt[pmt_i] = -1;
+    for ( unsigned int evt_i=0; evt_i<blLowVals[pmt_i].size(); evt_i++ )
+      if ( blLowVals[pmt_i][evt_i].size() > 1 ) {
+        chosenEvt[pmt_i] = evt_i;
+        break;
+      }
+    if ( chosenEvt[pmt_i] < 0 )
+      continue;
+    for ( unsigned int bin_i=0; bin_i<blLowVals[pmt_i][chosenEvt[pmt_i]].size();
+        bin_i++ )
+      bins[pmt_i].push_back( bin_i );
+  }
+  TGraph *grpBlpmt1Low = new TGraph( blLowVals[0][chosenEvt[0]].size(), &bins[0][0],
+      &blLowVals[0][chosenEvt[0]][0] );
+  TGraph *grpBlpmt2Low = new TGraph( blLowVals[1][chosenEvt[1]].size(), &bins[1][0], 
+      &blLowVals[1][chosenEvt[1]][0] );
+  TGraph *grpBlpmt3Low = new TGraph( blLowVals[2][chosenEvt[2]].size(), &bins[2][0], 
+      &blLowVals[2][chosenEvt[2]][0] );
+  TGraph *grpBlpmt1Hig = new TGraph( blHigVals[0][chosenEvt[0]].size(), &bins[0][0],
+      &blHigVals[0][chosenEvt[0]][0] );
+  TGraph *grpBlpmt2Hig = new TGraph( blHigVals[1][chosenEvt[1]].size(), &bins[1][0], 
+      &blHigVals[1][chosenEvt[1]][0] );
+  TGraph *grpBlpmt3Hig = new TGraph( blHigVals[2][chosenEvt[2]].size(), &bins[2][0], 
+      &blHigVals[2][chosenEvt[2]][0] );
+
+  TCanvas *blOutLierCanvas = canvasStyle("blOutLierCanvas");
+  blOutLierCanvas->cd();  
+  blOutLierCanvas->Draw();
+  TPad *p1 = new TPad("p1","p1",0.01,0.5,0.99,1.);
+  p1->Draw();
+  p1->Divide(3,1);
+  TPad *p11 = (TPad*)p1->cd(1);
+  p11->Draw();
+  grpBlpmt1Low->SetTitle("");
+  grpBlpmt1Low->GetYaxis()->SetRangeUser(150, 300);
+  grpBlpmt1Low->GetYaxis()->SetTitle("S [FADC]");
+  grpBlpmt1Low->GetXaxis()->SetTitle("bin [au]");
+  grpBlpmt1Low->Draw("AP");
+  TPad *p12 = (TPad*)p1->cd(2);
+  p12->Draw();
+  grpBlpmt2Low->SetTitle("");
+  grpBlpmt2Low->GetYaxis()->SetRangeUser(150, 300);
+  grpBlpmt2Low->GetYaxis()->SetTitle("S [FADC]");
+  grpBlpmt2Low->GetXaxis()->SetTitle("bin [au]");
+  grpBlpmt2Low->Draw("AP");
+  TPad *p13 = (TPad*)p1->cd(3);
+  p13->Draw();
+  grpBlpmt3Low->SetTitle("");
+  grpBlpmt3Low->GetYaxis()->SetRangeUser(150, 300);
+  grpBlpmt3Low->GetYaxis()->SetTitle("S [FADC]");
+  grpBlpmt3Low->GetXaxis()->SetTitle("bin [au]");
+  grpBlpmt3Low->Draw("AP");
+
+  blOutLierCanvas->cd(0);
+  gStyle->SetOptStat("neMR");
+  TPad *p2 = new TPad("p2","p2",0.01,0.,0.99,0.5);
+  p2->Draw();
+  p2->Divide(3,1);
+  TPad *p21 = (TPad*)p2->cd(1);
+  p21->Draw();
+  grpBlpmt1Hig->SetTitle("");
+  grpBlpmt1Hig->GetYaxis()->SetRangeUser(150, 300);
+  grpBlpmt1Hig->GetYaxis()->SetTitle("S [FADC]");
+  grpBlpmt1Hig->GetXaxis()->SetTitle("bin [au]");
+  grpBlpmt1Hig->Draw();
+
+  TPad *p22 = (TPad*)p2->cd(2);
+  p22->Draw();
+  grpBlpmt2Hig->SetTitle(""); 
+  grpBlpmt2Hig->GetYaxis()->SetRangeUser(150, 300);
+  grpBlpmt2Hig->GetYaxis()->SetTitle("S [FADC]");
+  grpBlpmt2Hig->GetXaxis()->SetTitle("bin [au]");
+  grpBlpmt2Hig->Draw();
+
+  TPad *p23 = (TPad*)p2->cd(3);
+  p23->Draw();
+  grpBlpmt3Hig->SetTitle(""); 
+  grpBlpmt3Hig->GetYaxis()->SetRangeUser(150, 300);
+  grpBlpmt3Hig->GetYaxis()->SetTitle("S [FADC]");
+  grpBlpmt3Hig->GetXaxis()->SetTitle("bin [au]");
+  grpBlpmt3Hig->Draw();
+
+  blOutLierCanvas->Print(Form("../plots2/blOutLierSt%u.pdf",st));
+  blOutLierCanvas->Close();  
+}
+
 double getmean( vector<double> arr ){
   double mean = 0.;
   for (auto & i : arr)
@@ -440,27 +535,25 @@ int main (int argc, char *argv[]) {
     cout << "Please specify the stations ids in the file " << endl;
     exit(0);
   }
-  // Auger variable to read data 
-  TString nameStati = to_string( stationsIds[0] );
-  // Creating root file to save results
-  TFile hfile("bl"+nameStati+".root","RECREATE","");
 
   // Creating vectors to calculate store Z values and base line
   // [st][pmt][evt] = Z
   double tmpZ = 0.;
   vector < vector < vector < double > > > ZlowVals(stationsIds.size());
   vector < vector < vector < double > > > ZhigVals(stationsIds.size());  
-  vector < vector < vector < double > > > Ztime(stationsIds.size());  
+  vector < vector < vector < double > > > Ztime(stationsIds.size());
   int smplBinsBl = 100;
   double tmpFrstErr = 0.;
   double tmpLastErr = 0.;
+  // For traces with Z > 2.5
+  // [st][pmt][evt][bin]
+  vector < vector < vector < vector < double > > > > bigZtracesLow(stationsIds.size());
+  vector < vector < vector < vector < double > > > > bigZtracesHig(stationsIds.size());
   // TH1D for first and last bin BL distributions
   TH1D *frstBinsBlLow;
   TH1D *frstBinsBlHig;
   TH1D *lastBinsBlLow;
   TH1D *lastBinsBlHig;
-  int stPosVect = 0;
-  int tmpPosVect = 0; 
   // For Qpk calculation
   fitcharge fittingQpk;
   TH1F *receivedChHisto = new TH1F();
@@ -475,59 +568,63 @@ int main (int argc, char *argv[]) {
   vector < vector < vector < double > > > signalTime(stationsIds.size());
   double tmpSigLow = 0.;
   double tmpSigHig = 0.;
+   // Re-size for PMTs
+  for ( unsigned int st_i=0; st_i<stationsIds.size(); st_i++ ) {
+    ZlowVals[st_i].resize(3);
+    ZhigVals[st_i].resize(3);
+    Ztime[st_i].resize(3);
+    bigZtracesLow[st_i].resize(3);
+    bigZtracesHig[st_i].resize(3);
+    qpk[st_i].resize(3);
+    qpkErr[st_i].resize(3);
+    qpkTime[st_i].resize(3);
+    signalLow[st_i].resize(3);
+    signalHig[st_i].resize(3);
+    signalTime[st_i].resize(3);
+    // Re-size for each PMT, traces with Z > 2.0
+    for ( int pmt_i=0; pmt_i<3; pmt_i++ ) {
+      bigZtracesLow[st_i][pmt_i].resize( totalNrEvents );
+      bigZtracesHig[st_i][pmt_i].resize( totalNrEvents );
+    }
+  }
 
   unsigned int previusEvent = 0;
   int sameUtc = 0;
   int nbinsInBl = 0;
+  int stPosVect = 0;
 
-  unsigned int nrEvents = 0;
   unsigned int nrEventsRead = 0;
   EventPos pos;
+
   // Reading Events
   for (pos=input.FirstEvent(); pos<input.LastEvent(); pos=input.NextEvent()) {
     ++nrEventsRead;
-    if (nrEventsRead%1000 == 0) {
-      cout << "====> Read " << nrEventsRead << " out of " << totalNrEvents << endl;
-      cout << "      Wrote: " << nrEvents << " events" << endl;
-    }
+    if (nrEventsRead%1000 == 0)
+      cout << "====> Read " << nrEventsRead << " out of " << totalNrEvents << endl;    
     bool found = false;
     IoSdEvent event(pos);
     // Searching is the station triggered in this event
-    for (unsigned int evt_i = 0 ; evt_i < event.Stations.size(); ++evt_i) {
+    for (unsigned int st_i = 0 ; st_i < event.Stations.size(); ++st_i) {
       found = false;
-      tmpPosVect = 0;
-      for (  vector<unsigned int>::const_iterator iter= stationsIds.begin();
-             iter!= stationsIds.end(); ++iter) {
-        if (event.Stations[evt_i].Id == *iter) {
+      for ( unsigned int stList_i=0; stList_i<stationsIds.size(); stList_i++ )
+        if (event.Stations[st_i].Id == stationsIds[stList_i]) {
           found = true;
-          stPosVect = tmpPosVect;
-        }
-        tmpPosVect++;
-      }
+          stPosVect = stList_i;
+        }      
       if (!found)
         continue;
-      // Re-size for PMTs
-      ZlowVals[stPosVect].resize(3);
-      ZhigVals[stPosVect].resize(3);
-      Ztime[stPosVect].resize(3);
-      qpk[stPosVect].resize(3);
-      qpkErr[stPosVect].resize(3);
-      qpkTime[stPosVect].resize(3);
-      signalLow[stPosVect].resize(3);
-      signalHig[stPosVect].resize(3);
-      signalTime[stPosVect].resize(3);
       // Asking if it is UUB
-      if ( event.Stations[evt_i].IsUUB && event.Id != previusEvent 
+      if ( event.Stations[st_i].IsUUB && event.Id != previusEvent 
           && sameUtc != event.utctime() ) {
         previusEvent = event.Id;
         sameUtc = event.utctime();
-        cout << "# Event " << event.Id << " Station " << event.Stations[evt_i].Id 
+        cout << "# Event " << event.Id << " Station " << event.Stations[st_i].Id 
           << endl;
         IoSdEvent event(pos);
         // Filter for error 
-        if ( !(event.Stations[evt_i].Error==256) )
+        if ( !(event.Stations[st_i].Error==256) )
           continue;
-        nbinsInBl = event.Stations[evt_i].UFadc->NSample;
+        nbinsInBl = event.Stations[st_i].UFadc->NSample;
         // Reading baseline bins
         for ( int pmt_i=0; pmt_i<3; pmt_i++ ) {
           // TH1D for first and last bins of BL
@@ -540,12 +637,12 @@ int main (int argc, char *argv[]) {
           lastBinsBlHig = new TH1D(Form("lastBinsBlHig%d%d%ld",
                 stationsIds[stPosVect], pmt_i, event.utctime()),"", 500, 0, 500);
           for (int k=0; k<smplBinsBl; k++) {
-            frstBinsBlLow->Fill( event.Stations[evt_i].UFadc->GetValue(pmt_i,1,k) );
-            frstBinsBlHig->Fill( event.Stations[evt_i].UFadc->GetValue(pmt_i,0,k) );
+            frstBinsBlLow->Fill( event.Stations[st_i].UFadc->GetValue(pmt_i,1,k) );
+            frstBinsBlHig->Fill( event.Stations[st_i].UFadc->GetValue(pmt_i,0,k) );
             lastBinsBlLow->Fill( 
-                event.Stations[evt_i].UFadc->GetValue(pmt_i,1,nbinsInBl-k) );
+                event.Stations[st_i].UFadc->GetValue(pmt_i,1,nbinsInBl-k) );
             lastBinsBlHig->Fill( 
-                event.Stations[evt_i].UFadc->GetValue(pmt_i,0,nbinsInBl-k) );
+                event.Stations[st_i].UFadc->GetValue(pmt_i,0,nbinsInBl-k) );
           }
           // Calculating and storing Z values
           tmpFrstErr = frstBinsBlLow->GetMeanError();
@@ -559,12 +656,20 @@ int main (int argc, char *argv[]) {
             / (sqrt( tmpFrstErr*tmpFrstErr + tmpLastErr*tmpLastErr ));
           ZhigVals[stPosVect][pmt_i].push_back( tmpZ );
           Ztime[stPosVect][pmt_i].push_back( event.utctime() );
+          // Storing traces with Z > 2.0
+          if ( tmpZ > 2.5 )
+            for ( int k=0; k<nbinsInBl; k++ ) {
+              bigZtracesLow[stPosVect][pmt_i][nrEventsRead].push_back(
+                  event.Stations[st_i].UFadc->GetValue(pmt_i,0,k) );
+              bigZtracesHig[stPosVect][pmt_i][nrEventsRead].push_back(
+                  event.Stations[st_i].UFadc->GetValue(pmt_i,0,k) );
+            }
           // Cut by Z values for high gain
           if ( tmpZ > 2.0 )
-            continue;
-          receivedChHisto = event.Stations[evt_i].HCharge(pmt_i);
+            continue;          
+          receivedChHisto = event.Stations[st_i].HCharge(pmt_i);
           fittingQpk.setChCrr(*receivedChHisto, 
-              event.Stations[evt_i].Histo->Offset[pmt_i+6], 
+              event.Stations[st_i].Histo->Offset[pmt_i+6], 
               Form("%d-%d-%ld", stPosVect, pmt_i, event.utctime()));
           receivedChCrr = fittingQpk.getChCrr();
           fittingQpk.getFitCh(*receivedChCrr, 30 );
@@ -576,15 +681,14 @@ int main (int argc, char *argv[]) {
             tmpSigLow = 0.;
             tmpSigHig = 0.;
             for ( int k=0; k<nbinsInBl; k++ ) {
-              tmpSigLow += event.Stations[evt_i].UFadc->GetValue(pmt_i,1,k) 
+              tmpSigLow += event.Stations[st_i].UFadc->GetValue(pmt_i,1,k) 
                 - frstBinsBlLow->GetMean();
-              tmpSigHig += event.Stations[evt_i].UFadc->GetValue(pmt_i,0,k) 
+              tmpSigHig += event.Stations[st_i].UFadc->GetValue(pmt_i,0,k) 
                 - frstBinsBlHig->GetMean();
             }
             signalLow[stPosVect][pmt_i].push_back( tmpSigLow*fadc2qpk );
             signalHig[stPosVect][pmt_i].push_back( tmpSigHig*fadc2qpk );
             signalTime[stPosVect][pmt_i].push_back( event.utctime() );
-
           }
           frstBinsBlLow->Clear();
           frstBinsBlLow->Delete();
@@ -601,15 +705,11 @@ int main (int argc, char *argv[]) {
   
   for ( unsigned int st_i=0; st_i<stationsIds.size(); st_i++ ) {
     plotZvals("Low", stationsIds[st_i], ZlowVals[st_i], Ztime[st_i]);
-    plotZvals("High", stationsIds[st_i], ZhigVals[st_i], Ztime[st_i]);  
- 
+    plotZvals("High", stationsIds[st_i], ZhigVals[st_i], Ztime[st_i]); 
     plotQpk(stationsIds[st_i], qpk[st_i], qpkErr[st_i], qpkTime[st_i]);
-
     plotSgnl("High", stationsIds[st_i], signalHig[st_i], signalTime[st_i]);
+    plotBlOutLier(stationsIds[st_i], bigZtracesLow[st_i], bigZtracesHig[st_i]);
   }
   
-  hfile.Write();
-  hfile.Close();
-
   return 0;
 }
