@@ -1,0 +1,117 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\usepackage{ulem}
+\usepackage{hyperref}
+\usepackage{animate} % For gif
+\usepackage{media9}
+\usepackage{graphicx}
+
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{Accuracy of $\mathrm{Q}^{\mathrm{pk}}_{\mathrm{VEM}}$ fit for UB and UUB}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Baseline stability}
+  Station 1190, low gain. $Z=(\mu_1-\mu_2)/\left(\sqrt{\sigma_1^2 +
+  \sigma_2^2}\right)$, $1$ first 100 bins, $2$ last 100 bins.
+  \vspace{0.1cm}
+  \begin{columns}
+    \begin{column}{1.\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/blZst1190Low.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Baseline stability}
+  Station 1190, high gain
+  \vspace{0.1cm}
+  \begin{columns}
+    \begin{column}{1.\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/blZst1190High.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{$Q^{\mathrm{pk}}_\mathrm{VEM}$ for events with Z <
+  2. High gain.}
+  Station 1190
+  \vspace{0.1cm}
+  \begin{columns}
+    \begin{column}{1.\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/qpkSt1190.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Signal for events with Z < 2. High gain.}
+  Station 1190
+  \vspace{0.1cm}
+  \begin{columns}
+    \begin{column}{1.\textwidth}
+      \includegraphics[width=.9\textwidth]{../plots2/sgnlSt1190High.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\end{document}
