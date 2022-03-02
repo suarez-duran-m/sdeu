@@ -15,6 +15,7 @@
 #include <TStyle.h>
 #include <TPaveStats.h>
 #include <TText.h>
+#include <TLine.h>
 
 #include "fitcharge.h"
 
@@ -77,6 +78,11 @@ void plotZvals(TString strHigh, unsigned int st, vector<vector<double>> zVals,
   grpZpmt1->GetXaxis()->SetTimeFormat("%m/%d");
   grpZpmt1->GetXaxis()->SetTimeOffset(0,"gmt");
   grpZpmt1->Draw("AP");
+  // 1625616000 July 7th; 1640822400 Dec. 30th
+  TLine *line = new TLine(1640822400, 0, 1640822400, 5);
+  line->SetLineWidth(1);
+  line->SetLineColor(kRed);
+  line->Draw();
   TPad *p12 = (TPad*)p1->cd(2);
   p12->Draw();
   grpZpmt2->SetTitle("");
@@ -85,6 +91,10 @@ void plotZvals(TString strHigh, unsigned int st, vector<vector<double>> zVals,
   grpZpmt2->GetXaxis()->SetTimeFormat("%m/%d");
   grpZpmt2->GetXaxis()->SetTimeOffset(0,"gmt");
   grpZpmt2->Draw("AP");
+  line = new TLine(1640822400, 0, 1640822400, 5);
+  line->SetLineWidth(1);
+  line->SetLineColor(kRed);
+  line->Draw();
   TPad *p13 = (TPad*)p1->cd(3);
   p13->Draw();
   grpZpmt3->SetTitle("");
@@ -93,6 +103,10 @@ void plotZvals(TString strHigh, unsigned int st, vector<vector<double>> zVals,
   grpZpmt3->GetXaxis()->SetTimeFormat("%m/%d");
   grpZpmt3->GetXaxis()->SetTimeOffset(0,"gmt");
   grpZpmt3->Draw("AP");
+  line = new TLine(1640822400, 0, 1640822400, 5);
+  line->SetLineWidth(1);
+  line->SetLineColor(kRed);
+  line->Draw();
 
   Zcanvas->cd(0);
   gStyle->SetOptStat("neMR");
@@ -178,6 +192,12 @@ void plotQpk(unsigned int st, vector<vector<double>> qpkVals,
   grpQpkpmt1->GetXaxis()->SetTimeFormat("%m/%d");
   grpQpkpmt1->GetXaxis()->SetTimeOffset(0,"gmt");
   grpQpkpmt1->Draw("AP");
+  // 1625616000 July 7th; 1640822400 Dec. 30th
+  TLine *line = new TLine(1640822400, grpQpkpmt1->GetYaxis()->GetXmin(), 
+      1640822400, grpQpkpmt1->GetYaxis()->GetXmax());
+  line->SetLineWidth(1);
+  line->SetLineColor(kRed);
+  line->Draw();
   TPad *p12 = (TPad*)p1->cd(2);
   p12->SetLeftMargin(2.);
   p12->Draw();
@@ -188,6 +208,12 @@ void plotQpk(unsigned int st, vector<vector<double>> qpkVals,
   grpQpkpmt2->GetXaxis()->SetTimeFormat("%m/%d");
   grpQpkpmt2->GetXaxis()->SetTimeOffset(0,"gmt");
   grpQpkpmt2->Draw("AP");
+  // 1625616000 July 7th; 1640822400 Dec. 30th
+  line = new TLine(1640822400, grpQpkpmt2->GetYaxis()->GetXmin(), 
+      1640822400, grpQpkpmt2->GetYaxis()->GetXmax());
+  line->SetLineWidth(1);
+  line->SetLineColor(kRed);
+  line->Draw();
   TPad *p13 = (TPad*)p1->cd(3);
   p13->SetLeftMargin(-1.);
   p13->Draw();
@@ -197,6 +223,12 @@ void plotQpk(unsigned int st, vector<vector<double>> qpkVals,
   //grpQpkpmt3->GetYaxis()->SetRangeUser(0., 5.);
   grpQpkpmt3->GetXaxis()->SetTimeFormat("%m/%d"); grpQpkpmt3->GetXaxis()->SetTimeOffset(0,"gmt");
   grpQpkpmt3->Draw("AP");
+  // 1625616000 July 7th; 1640822400 Dec. 30th
+  line = new TLine(1640822400, grpQpkpmt3->GetYaxis()->GetXmin(), 
+      1640822400, grpQpkpmt3->GetYaxis()->GetXmax());
+  line->SetLineWidth(1);
+  line->SetLineColor(kRed);
+  line->Draw();
 
   qpkCanvas->cd(0);
   gStyle->SetOptStat("neMR");
@@ -236,13 +268,12 @@ void plotQpk(unsigned int st, vector<vector<double>> qpkVals,
   TPaveStats *ptstats3 = getPaveStats(distQpkpmt3);
   ptstats3->Draw();
   distQpkpmt3->GetListOfFunctions()->Add(ptstats3);
-  ptstats3->SetParent(distQpkpmt3);
+  ptstats3->SetParent(distQpkpmt3); 
   distQpkpmt3->SetTitle(""); 
   distQpkpmt3->GetYaxis()->SetTitle("Counts [au]");
   distQpkpmt3->GetXaxis()->SetTitle("Q^{pk}_{VEM} [FADC]");
   distQpkpmt3->GetXaxis()->SetRangeUser(1e3, 2.5e3);
   distQpkpmt3->Draw();
-
   qpkCanvas->Print(Form("../plots2/qpkSt%u.pdf",st));
   qpkCanvas->Close();
 }
@@ -282,6 +313,12 @@ void plotSgnl(TString strHigh, unsigned int st, vector<vector<double>> sgnlVals,
   grpSgnlpmt1->GetXaxis()->SetTimeFormat("%m/%d");
   grpSgnlpmt1->GetXaxis()->SetTimeOffset(0,"gmt");
   grpSgnlpmt1->Draw("AP");
+  // 1625616000 July 7th; 1640822400 Dec. 30th
+  TLine *line = new TLine(1640822400, grpSgnlpmt1->GetYaxis()->GetXmin(), 
+      1640822400, grpSgnlpmt1->GetYaxis()->GetXmax());
+  line->SetLineWidth(1);
+  line->SetLineColor(kRed);
+  line->Draw();
   TPad *p12 = (TPad*)p1->cd(2);
   p12->Draw();
   grpSgnlpmt2->SetTitle("");
@@ -290,6 +327,12 @@ void plotSgnl(TString strHigh, unsigned int st, vector<vector<double>> sgnlVals,
   grpSgnlpmt2->GetXaxis()->SetTimeFormat("%m/%d");
   grpSgnlpmt2->GetXaxis()->SetTimeOffset(0,"gmt");
   grpSgnlpmt2->Draw("AP");
+  // 1625616000 July 7th; 1640822400 Dec. 30th
+  line = new TLine(1640822400, grpSgnlpmt2->GetYaxis()->GetXmin(), 
+      1640822400, grpSgnlpmt2->GetYaxis()->GetXmax());
+  line->SetLineWidth(1);
+  line->SetLineColor(kRed);
+  line->Draw();
   TPad *p13 = (TPad*)p1->cd(3);
   p13->Draw();
   grpSgnlpmt3->SetTitle("");
@@ -298,6 +341,12 @@ void plotSgnl(TString strHigh, unsigned int st, vector<vector<double>> sgnlVals,
   grpSgnlpmt3->GetXaxis()->SetTimeFormat("%m/%d");
   grpSgnlpmt3->GetXaxis()->SetTimeOffset(0,"gmt");
   grpSgnlpmt3->Draw("AP");
+  // 1625616000 July 7th; 1640822400 Dec. 30th
+  line = new TLine(1640822400, grpSgnlpmt3->GetYaxis()->GetXmin(), 
+      1640822400, grpSgnlpmt3->GetYaxis()->GetXmax());
+  line->SetLineWidth(1);
+  line->SetLineColor(kRed);
+  line->Draw();
 
   sgnlCanvas->cd(0);
   gStyle->SetOptStat("neMR");
@@ -558,9 +607,6 @@ int main (int argc, char *argv[]) {
 
     plotSgnl("High", stationsIds[st_i], signalHig[st_i], signalTime[st_i]);
   }
-
-
-
   
   hfile.Write();
   hfile.Close();
