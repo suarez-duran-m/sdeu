@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!DOCTYPE bootstrap [
+  <!ENTITY standardSdRealDetConfig SYSTEM '@CONFIGDIR@/standardSdRealDetConfig.xml'>
+  <!ENTITY standardSdRecModuleConfig SYSTEM '@CONFIGDIR@/standardSdRecModuleConfig.xml'>
+]>
+
+<bootstrap
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation='@SCHEMALOCATION@/bootstrap.xsd'
+  xmlns:xlink="http://www.auger.org/schema/types">
+
+  &standardSdRealDetConfig;
+  &standardSdRecModuleConfig;
+
+  <centralConfig>
+
+    <configLink
+      id         = "ModuleSequence"
+      type       = "XML"
+      xlink:href = "./ModuleSequence.xml"/>
+
+    <configLink
+      id         = "EventFileReader"
+      type       = "XML"
+      xlink:href = "./EventFileReader.xml"/>
+
+    <configLink
+      id         = "SdEACalibrationFiller"
+      type       = "XML"
+      xlink:href = "./SdEACalibrationFiller.xml"/>
+
+  </centralConfig>
+
+  <parameterOverrides>
+
+    <configLink id="RecDataWriter">
+      <RecDataWriter>
+        <asciiOutput>
+          <outputFileMode> eWrite </outputFileMode>
+          <mode> SD </mode>
+        </asciiOutput>
+      </RecDataWriter>
+    </configLink>
+
+  </parameterOverrides>
+
+</bootstrap>

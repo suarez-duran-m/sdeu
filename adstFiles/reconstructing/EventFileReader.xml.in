@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- Configuration of Module EventFileReader -->
+<EventFileReader
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation='@SCHEMALOCATION@/EventFileReader.xsd'>
+
+  <ReportFilenames/>
+
+  <!-- file type  Offline
+                  FDAS
+                  CDAS
+                  CORSIKA
+                  AIRES
+                  IoAuger -->
+
+  <CDAS>
+    
+    <!-- the list of filenames (space delimited) -->
+    <InputFilenames>
+      `find /home/msd/Documents/augerData/2018/10/sd_2018_10_01_11h50.root`
+      <!-- @SAMPLESHOWERS@ -name sd_id\*.root` -->
+    </InputFilenames>
+
+  </CDAS>
+    
+</EventFileReader>
