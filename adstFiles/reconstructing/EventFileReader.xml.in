@@ -18,7 +18,7 @@
     
     <!-- the list of filenames (space delimited) -->
     <InputFilenames>
-      `find /home/msd/Documents/augerData/2018/10/sd_2018_10_01_11h50.root`
+      `find /home/msd/Documents/augerData/2021/11/sd_2021_11_3*.root`
       <!-- @SAMPLESHOWERS@ -name sd_id\*.root` -->
     </InputFilenames>
 

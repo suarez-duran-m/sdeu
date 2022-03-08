@@ -40,6 +40,11 @@
           <outputFileMode> eWrite </outputFileMode>
           <mode> SD </mode>
         </asciiOutput>
+        
+        <rootOutput> 
+          <outputFileName> ADST2021_11_30-31.root </outputFileName>
+        </rootOutput>
+        
       </RecDataWriter>
     </configLink>
 
