@@ -47,6 +47,7 @@ int main ( int argc, char** argv) {
   vector < double > st2read = {846, 860, 1190, 1191, 1220, 1779};
   vector < vector < double > > totSigSt( st2read.size() );
   vector < vector < double > > totSigStErr( st2read.size() );
+  vector < vector < double > > accSigSt( st2read.size() );
   vector < vector < double > > timeSigSt( st2read.size() );
   // Charge Vs time, chStPmt[st][pmt][evt]
   vector < vector < vector < double > > > chStPmt( st2read.size() );
@@ -57,8 +58,12 @@ int main ( int argc, char** argv) {
     chStPmtErr[i].resize(3);
     chStPmtTime[i].resize(3);
   }
+  // Loaded starting
+  const int loadStart = 1324857618;
 
-  double tmpSigEvt = 0.;
+  double sumSigEvt = 0.;
+  double tmpSig = 0.;
+  double tmpSigErr = 0.;
   int st_posVec = 0;
   bool readSt = false;
   // Reading ADST files
@@ -69,20 +74,16 @@ int main ( int argc, char** argv) {
     cout << "Opened " << argv[adst_i]
       << " with " << inputFile.GetNEvents()
       << " events " << endl;
-    // Defining the Geometry to plot the Auger Map
-    
-    DetectorGeometry theGeometry;
-    inputFile.ReadDetectorGeometry(theGeometry);
-    // Reading events
-    
+
+    // Reading events    
     while ( inputFile.ReadNextEvent() == RecEventFile::eSuccess ) {
       const auto &sdEvent = theRecEvent->GetSDEvent();
       int nCand = sdEvent.GetNumberOfCandidates();
-      tmpSigEvt = 0.;
-      // Reading station in event
+      sumSigEvt = 0.;
+      // Reading station in the event
       for ( int st_i=0; st_i<nCand; st_i++ ) {
         readSt = false;
-        // Looking if it is a desired station
+        // Looking if there is a desired station
         for ( int st2r_i=0; st2r_i<st2read.size(); st2r_i++ )
           if ( sdEvent.GetStation(st_i)->GetId() == st2read[st2r_i] ) {
             readSt = true;
@@ -90,12 +91,16 @@ int main ( int argc, char** argv) {
           }
         if ( !readSt )
           continue;
-        tmpSigEvt += sdEvent.GetStation(st_i)->GetTotalSignal();
-        totSigSt[st_posVec].push_back( 
-            sdEvent.GetStation(st_i)->GetTotalSignal() );
-        totSigStErr[st_posVec].push_back( 
-            sdEvent.GetStation(st_i)->GetTotalSignalError() );
+        // Filling signals values
+        tmpSig = sdEvent.GetStation(st_i)->GetTotalSignal();
+        tmpSigErr = sdEvent.GetStation(st_i)->GetTotalSignalError();
+        sumSigEvt += tmpSig;
+        totSigSt[st_posVec].push_back( tmpSig );      
+        totSigStErr[st_posVec].push_back( tmpSigErr );
+        accSigSt[st_posVec].push_back( tmpSigErr/tmpSig );
         timeSigSt[st_posVec].push_back( sdEvent.GetGPSSecond() );
+
+        // Filling charge values
         for ( int pmt_i=0; pmt_i<3; pmt_i++ ) {
           chStPmt[st_posVec][pmt_i].push_back(
               sdEvent.GetStation(st_i)->GetCharge(pmt_i+1) );
@@ -104,20 +109,21 @@ int main ( int argc, char** argv) {
           chStPmtTime[st_posVec][pmt_i].push_back( sdEvent.GetGPSSecond() );
         }
       }
-      if ( tmpSigEvt > 0. ) {
-        totSigEvt.push_back( tmpSigEvt );
+      if ( sumSigEvt > 0. ) {
+        totSigEvt.push_back( sumSigEvt );
         timeSig.push_back( sdEvent.GetGPSSecond() );
       }
     }
   }
 
-  // Loaded starting
-  const int loadStart = 1324857618;
   // Plotting Signal distribution
+  double frtbin = 0;
+  double lstbin = 2e3;
+  int nBins = (int)(lstbin - frtbin)/1.;
    
-  TH1D *histTotSig = new TH1D("histTotSig", "", 2000, 0, 2e3);
-  TH1D *histTotSigBef = new TH1D("histTotSigBef", "", 2000, 0, 2e3);
-  TH1D *histTotSigAft = new TH1D("histTotSigAft", "", 2000, 0, 2e3);
+  TH1D *histTotSig = new TH1D("histTotSig", "", nBins, frtbin, lstbin);
+  TH1D *histTotSigBef = new TH1D("histTotSigBef", "", nBins, frtbin, lstbin);
+  TH1D *histTotSigAft = new TH1D("histTotSigAft", "", nBins, frtbin, lstbin);
   for ( int sig_i=0; sig_i<totSigEvt.size(); sig_i++ ) {
     if ( timeSig[sig_i] < loadStart )
       histTotSigBef->Fill( totSigEvt[sig_i] );
@@ -176,12 +182,80 @@ int main ( int argc, char** argv) {
   grpSigSt->SetMarkerSize(1.5);
   grpSigSt->Draw("AP");
 
-  TLine *line = new TLine(1324857618, 0, 1324857618, 1e3);
+  TLine *line = new TLine(loadStart, 0, loadStart, 1e3);
   line->SetLineWidth(1);
   line->SetLineColor(kRed);
   line->Draw();
 
   sigStCanv->Print("signalStation.pdf");
+
+  TGraph *grpAccSigSt = new TGraph(timeSigSt[0].size(),
+      &timeSigSt[0].front(), &accSigSt[0].front() );
+
+  frtbin = 0.;
+  lstbin = 10.;
+  nBins = (lstbin - frtbin) / 0.01;
+  TH1D *accSgDstStBef = new TH1D("accSgDstStBef","", nBins, frtbin, lstbin);
+  TH1D *accSgDstStAft = new TH1D("accSgDstStAft","", nBins, frtbin, lstbin);
+  for ( int acc_i=0; acc_i<accSigSt[0].size(); acc_i++ ) {
+    if ( timeSigSt[0][acc_i] < loadStart )
+      accSgDstStBef->Fill( accSigSt[0][acc_i] );
+    else
+      accSgDstStAft->Fill( accSigSt[0][acc_i] );
+  }
+
+  TCanvas *accSigStCanv = canvasStyle("accSigStCanv");
+  accSigStCanv->cd();
+  accSigStCanv->SetLogy(1);
+  grpAccSigSt->SetTitle("St. 846");
+  grpAccSigSt->GetXaxis()->SetTimeFormat("%m/%d");
+  grpAccSigSt->GetXaxis()->SetTimeOffset(315964782,"gmt");
+  grpAccSigSt->GetXaxis()->SetTitle("Time [month/day]");
+  grpAccSigSt->GetYaxis()->SetTitle("ErrSignal/Signal [au]");
+  grpAccSigSt->SetMarkerColor(kBlue);
+  grpAccSigSt->SetMarkerStyle(20);
+  grpAccSigSt->SetMarkerSize(1.5);
+  grpAccSigSt->Draw("AP");
+  
+  line = new TLine(loadStart, 0, loadStart, 1.58e2);
+  line->SetLineColor(kRed);
+  line->SetLineWidth(1);
+  line->Draw();
+
+  accSigStCanv->Print("accSigSt.pdf");
+
+  TCanvas *accSigDistStCanv = canvasStyle("accDistSigStCanv");
+  accSigDistStCanv->cd();
+
+  accSgDstStBef->SetStats(kFALSE);
+  accSgDstStBef->GetXaxis()->SetTitle("ErrSignal/Signal [au]");
+  accSgDstStBef->GetXaxis()->SetRangeUser(0, 3);
+  accSgDstStBef->GetYaxis()->SetTitle("Counts [au]");
+  accSgDstStBef->SetLineColor(kBlue);
+  accSgDstStBef->Draw();
+  accSgDstStAft->SetLineColor(kRed);
+  accSgDstStAft->Draw("same");
+
+  lgnd = new TLegend(0.6, 0.45, 0.98, 0.98);
+  lgnd->AddEntry(accSgDstStBef, "St.: 846", "");
+  lgnd->AddEntry(accSgDstStBef, "Before Loaded", "l");
+  lgnd->AddEntry(accSgDstStBef,
+      Form("Entries %.f",accSgDstStBef->GetEntries()), "");
+  lgnd->AddEntry(accSgDstStBef, 
+      Form("Mean %.2e #pm %.2e", accSgDstStBef->GetMean(), 
+        accSgDstStBef->GetMeanError()), "");
+  lgnd->AddEntry(accSgDstStAft, "After Loaded", "l");
+  lgnd->AddEntry(accSgDstStAft, 
+      Form("Entries %.f",accSgDstStAft->GetEntries()), "");
+  lgnd->AddEntry(accSgDstStAft,
+      Form("Mean %.2e #pm %.2e", accSgDstStAft->GetMean(), 
+        accSgDstStAft->GetMeanError()), "");
+  lgnd->SetTextSize(0.04);
+  lgnd->SetBorderSize(0);
+  lgnd->SetFillStyle(0);
+  lgnd->Draw();
+
+  accSigDistStCanv->Print("accDistSigSt.pdf");
 
   TGraphErrors *grpChStPmt1 = new TGraphErrors(chStPmt[0][0].size(), 
       &chStPmtTime[0][0].front(), &chStPmt[0][0].front(), 0, 
@@ -198,11 +272,11 @@ int main ( int argc, char** argv) {
   grpChStPmt1->SetMarkerSize(1.5);
   grpChStPmt1->Draw("AP");
 
-  line = new TLine(1324857618, 1.38e3, 1324857618, 1.58e3);
+  line = new TLine(loadStart, 1.38e3, loadStart, 1.58e3);
   line->SetLineColor(kRed);
   line->SetLineWidth(1);
   line->Draw();
   chStCanv->Print("chargeStation.pdf");
-  
+
   return 1;
 }
