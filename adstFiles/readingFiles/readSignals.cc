@@ -2,6 +2,7 @@
 #include <RecEventFile.h>
 #include <DetectorGeometry.h>
 #include <Traces.h>
+#include <TraceType.h>
 
 #include <TFile.h>
 #include <TProfile.h>
@@ -49,15 +50,41 @@ int main ( int argc, char** argv) {
   vector < vector < double > > totSigStErr( st2read.size() );
   vector < vector < double > > accSigSt( st2read.size() );
   vector < vector < double > > timeSigSt( st2read.size() );
-  // Charge Vs time, chStPmt[st][pmt][evt]
+  // From GAP 2003-030 [st][pmtab][vemBin]
+  vector < vector < vector < double > > > deltaVEM( st2read.size() );
+  vector < vector < vector < double > > > deltaVEM2( st2read.size() );
+  vector < vector < vector < double > > > avePerDel( st2read.size() );
+  vector < vector < vector < int > > > nEvtVEMab( st2read.size() );
+  // Charge Vs time, chStPmt[st][pmtab][evt]
   vector < vector < vector < double > > > chStPmt( st2read.size() );
   vector < vector < vector < double > > > chStPmtErr( st2read.size() );
   vector < vector < vector < double > > > chStPmtTime( st2read.size() );
+  const int nVemBins = 12;
+  const double vemBinWidth = 0.25; 
+  
+  vector < double > vecVemBins(nVemBins);
   for ( int i=0; i<st2read.size(); i++ ) {
     chStPmt[i].resize(3);
     chStPmtErr[i].resize(3);
     chStPmtTime[i].resize(3);
-  }
+    deltaVEM[i].resize(3);
+    deltaVEM2[i].resize(3);
+    avePerDel[i].resize(3);
+    nEvtVEMab[i].resize(3);
+    for ( int j=0; j<3; j++ ) {
+      deltaVEM[i][j].resize(nVemBins);
+      deltaVEM2[i][j].resize(nVemBins);
+      avePerDel[i][j].resize(nVemBins);
+      nEvtVEMab[i][j].resize(nVemBins);
+      for ( int jj=1; jj<nVemBins+1; jj++ ) {
+        deltaVEM[i][j][jj-1] = 0.;
+        deltaVEM2[i][j][jj-1] = 0.;
+        avePerDel[i][j][jj-1] = 0.;
+        nEvtVEMab[i][j][jj-1] = 0;
+        vecVemBins[jj-1] = jj*vemBinWidth;
+      }
+    } 
+  }  
   // Loaded starting
   const int loadStart = 1324857618;
 
@@ -66,6 +93,11 @@ int main ( int argc, char** argv) {
   double tmpSigErr = 0.;
   int st_posVec = 0;
   bool readSt = false;
+  double deltaVEMab = 0.;
+  double vemPMTa = 0.;
+  double vemPMTb = 0.;
+  double vemAve = 0.;
+  int bin2vem = 0;
   // Reading ADST files
   for ( int adst_i = 1; adst_i<argc-1; adst_i++ ) {
     RecEventFile inputFile(argv[adst_i]);
@@ -99,7 +131,45 @@ int main ( int argc, char** argv) {
         totSigStErr[st_posVec].push_back( tmpSigErr );
         accSigSt[st_posVec].push_back( tmpSigErr/tmpSig );
         timeSigSt[st_posVec].push_back( sdEvent.GetGPSSecond() );
-
+        
+        // From GAP 2003-030;
+        // pmt1-pmt2
+        vemPMTa = sdEvent.GetStation(st_i)->GetPMTTraces(eTotalTrace,1).GetVEMSignal();
+        vemPMTb = sdEvent.GetStation(st_i)->GetPMTTraces(eTotalTrace,2).GetVEMSignal();
+        vemAve = tmpSig; //(vemPMTa + vemPMTb) / 2.;
+        if ( vemPMTa > 1. && vemPMTb > 1. && tmpSig > 1. && tmpSig < 1e3 ) {
+        deltaVEMab = ( vemPMTa - vemPMTb ) / sqrt(2.);
+        bin2vem = int(log10(vemAve)/vemBinWidth);
+        deltaVEM[st_posVec][0][bin2vem] += deltaVEMab;
+        deltaVEM2[st_posVec][0][bin2vem] += deltaVEMab*deltaVEMab;
+        avePerDel[st_posVec][0][bin2vem] += tmpSig;
+        nEvtVEMab[st_posVec][0][bin2vem] += 1;
+        }        
+        // pmt1-pmt3
+        vemPMTa = sdEvent.GetStation(st_i)->GetPMTTraces(eTotalTrace,1).GetVEMSignal();
+        vemPMTb = sdEvent.GetStation(st_i)->GetPMTTraces(eTotalTrace,3).GetVEMSignal();
+        vemAve = tmpSig; //(vemPMTa + vemPMTb) / 2.;
+        if ( vemPMTa > 1. && vemPMTb > 1. && tmpSig > 1. && tmpSig < 1e3 ) {
+        deltaVEMab = ( vemPMTa - vemPMTb ) / sqrt(2.);
+        bin2vem = int(log10(vemAve)/vemBinWidth);
+        deltaVEM[st_posVec][1][bin2vem] += deltaVEMab;
+        deltaVEM2[st_posVec][1][bin2vem] += deltaVEMab*deltaVEMab;
+        avePerDel[st_posVec][1][bin2vem] += vemAve;
+        nEvtVEMab[st_posVec][1][bin2vem] += 1;
+        }        
+        // pmt3-pmt2
+        vemPMTa = sdEvent.GetStation(st_i)->GetPMTTraces(eTotalTrace,2).GetVEMSignal();
+        vemPMTb = sdEvent.GetStation(st_i)->GetPMTTraces(eTotalTrace,3).GetVEMSignal();
+        vemAve = tmpSig; //(vemPMTa + vemPMTb) / 2.; 
+        if ( vemPMTa > 1. && vemPMTb > 1. && tmpSig > 1. && tmpSig < 1e3 ) {
+        deltaVEMab = ( vemPMTa - vemPMTb ) / sqrt(2.);        
+        bin2vem = int(log10(vemAve)/vemBinWidth);
+        deltaVEM[st_posVec][2][bin2vem] += deltaVEMab;
+        deltaVEM2[st_posVec][2][bin2vem] += deltaVEMab*deltaVEMab;
+        avePerDel[st_posVec][2][bin2vem] += vemAve;
+        nEvtVEMab[st_posVec][2][bin2vem] += 1;
+        }
+                        
         // Filling charge values
         for ( int pmt_i=0; pmt_i<3; pmt_i++ ) {
           chStPmt[st_posVec][pmt_i].push_back(
@@ -277,6 +347,59 @@ int main ( int argc, char** argv) {
   line->SetLineWidth(1);
   line->Draw();
   chStCanv->Print("chargeStation.pdf");
+  
+  vector < vector < double > > sgmVEMpmt(3);
+  int tmpNevts = 0;
+  double sumDltVem = 0.;
+  double sumDltVem2 = 0.;
+  double aveVem = 0.;
+  double frsTerm = 0.;
+  int st_selected = 3;
+  /*
+  for ( int pmtab=0; pmtab<3; pmtab++ ) {
+    sgmVEMpmt[pmtab].resize(12);
+    for ( int i=0; i<nEvtVEMab[st_selected][pmtab].size(); i++ ) {
+      tmpNevts = nEvtVEMab[st_selected][pmtab][i];      
+      if ( tmpNevts < 2 || !(avePerDel[st_selected][pmtab][i] > 0) ) {
+        sgmVEMpmt[pmtab][i] = 0;
+        continue;
+      }
+      sumDltVem = deltaVEM[st_selected][pmtab][i] / tmpNevts;
+      sumDltVem2 = deltaVEM2[st_selected][pmtab][i] / tmpNevts;
+      aveVem = avePerDel[st_selected][pmtab][i] / tmpNevts;
+      frsTerm = sumDltVem2 - (sumDltVem*sumDltVem);
+      tmpNevts = tmpNevts / (tmpNevts-1);
+      sgmVEMpmt[pmtab][i] = (frsTerm*tmpNevts) / (aveVem);
+    }
+  }
 
-  return 1;
+  TGraph *grpSprdVEMpmt12 = new TGraph(vecVemBins.size(),
+      &vecVemBins.front(), &sgmVEMpmt[0].front() );
+  TGraph *grpSprdVEMpmt13 = new TGraph(vecVemBins.size(),
+      &vecVemBins.front(), &sgmVEMpmt[1].front() );
+  TGraph *grpSprdVEMpmt23 = new TGraph(vecVemBins.size(),
+      &vecVemBins.front(), &sgmVEMpmt[2].front() );
+
+  TCanvas *spreadVEMcanv = canvasStyle("spreadVEMcanv");
+  spreadVEMcanv->cd();
+  spreadVEMcanv->SetLogy(1);
+
+  grpSprdVEMpmt12->SetMarkerColor(kBlue);
+  grpSprdVEMpmt12->SetMarkerStyle(20);
+  grpSprdVEMpmt12->SetMarkerSize(1.5);
+  grpSprdVEMpmt12->Draw("AP");
+
+  grpSprdVEMpmt13->SetMarkerColor(kGreen+3);
+  grpSprdVEMpmt13->SetMarkerStyle(21);
+  grpSprdVEMpmt13->SetMarkerSize(1.5);
+  grpSprdVEMpmt13->Draw("P same");
+  
+  grpSprdVEMpmt23->SetMarkerColor(kRed);
+  grpSprdVEMpmt23->SetMarkerStyle(22);
+  grpSprdVEMpmt23->SetMarkerSize(1.5);
+  grpSprdVEMpmt23->Draw("P same");
+
+  spreadVEMcanv->Print("spreadVEMst.pdf");
+  */
+  return 0;
 }
