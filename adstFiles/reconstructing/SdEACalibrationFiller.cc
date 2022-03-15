@@ -38,7 +38,7 @@ namespace SdEACalibrationFillerKG {
   SdEACalibrationFiller::Init()
   {
     const Branch topB = CentralConfig::GetInstance()->GetTopBranch("SdEACalibrationFiller");
-    
+        
     Branch onlineValuesUUB = topB.GetChild("onlineValuesUUB");
     onlineValuesUUB.GetChild("rawCharge").GetData(fRawChargeUUB);
     onlineValuesUUB.GetChild("rawPeak").GetData(fRawPeakUUB);
@@ -129,17 +129,15 @@ namespace SdEACalibrationFillerKG {
       const auto& chargeHistoBinning = dStation.GetMuonChargeHistogramBinning<short>(pmtIt->GetType(), stationCalibData.GetVersion());
 
       // load raw values from XML
-      if (isUub) {
-        
+      if (isUub) {        
         const unsigned int pmtId = pmtIt->GetId();
         rawPeak = fRawPeakUUB[pmtId-1];
         rawCharge = fRawChargeUUB[pmtId-1];
         hgBaseline = fHgBaselineUUB[pmtId-1];
         lgBaseline = fLgBaselineUUB[pmtId-1];
         DARatio = fDARatioUUB[pmtId-1];
-
-      } else if (hasScintillator) {
-        
+      } 
+      else if (hasScintillator) {   
         const unsigned int pmtId = (pmtIt->GetType() == sdet::PMTConstants::eScintillator) ? 2 : 1;
         rawPeak = fRawPeakPPA[pmtId-1];
         rawCharge = fRawChargePPA[pmtId-1];
@@ -167,7 +165,6 @@ namespace SdEACalibrationFillerKG {
 
       // estimate HG and LG baseline for EA stations
       if (isUub && pmtIt->HasFADCTrace()) {
-
         PMT& pmt = *pmtIt;
 
         const TraceI& lgTrace = pmt.GetFADCTrace(sdet::PMTConstants::eLowGain, sevt::StationConstants::SignalComponent::eTotal);
@@ -217,15 +214,14 @@ namespace SdEACalibrationFillerKG {
 
       if (!muonChargeHistoSize || int(chargeHistoBinning.size()) - 1 != muonChargeHistoSize) {
         WARNING("There should be a muon charge histogram!");
-      } else {
-
+      } 
+      else {
         const CalibHistogram chargeHisto(chargeHistoBinning, pmtCalibData.GetMuonChargeHisto());
         const double baseEstimate = 
           pmtCalibData.GetBaseline() * 20 - pmtCalibData.GetMuonChargeHistoOffset();
         const double base = (fabs(baseEstimate) < 20) ? baseEstimate : 0;
 
         if (chargeHisto.GetMaximum() > 500) {
-
           int max = 0;
           unsigned int bin = chargeHisto.GetNBins() - 1;
           unsigned int nbbin = bin;
@@ -268,7 +264,8 @@ namespace SdEACalibrationFillerKG {
 
           if (!isUub) {
             res = estimate;
-          } else if (estimate < binmax && estimate > binmin && binmin > 0 && binmax < chargeHisto.GetNBins() && binmin < binmax) {
+          } 
+          else if (estimate < binmax && estimate > binmin && binmin > 0 && binmax < chargeHisto.GetNBins() && binmin < binmax) {
               double x = 0, x2 = 0, x3 = 0, x4 = 0, y = 0, xy = 0, x2y = 0;
               int nb = 0;
               for (unsigned int i = binmin; i < binmax; ++i) {
@@ -294,15 +291,12 @@ namespace SdEACalibrationFillerKG {
               
               if (res > chargeHisto.GetBinCenter(binmin) && res < chargeHisto.GetBinCenter(binmax)) 
                 res -= base; 
-            }
-            
-            // check that value is within range for UUB
-            if (isUub && !(res > humpvMin && res < humpvMax))
-              res = 0; 
-
+          }   
+          // check that value is within range for UUB
+          if (isUub && !(res > humpvMin && res < humpvMax))
+            res = 0; 
         } // if max value > 500
       } // if there is histogram
-      
       
       if (res) {
         rawCharge = res / 1.045;
