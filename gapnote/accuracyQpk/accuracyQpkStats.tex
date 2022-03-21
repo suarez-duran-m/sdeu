@@ -224,8 +224,8 @@ algorithm).
 \end{figure}
 \newpage
 
-\section{Moving window algorithm}
-\label{secMovingWindowAlgo}
+\section{Sliding window algorithm}
+\label{secSlidWindowAlgo}
 \begin{figure}[!t]
   \centering
   \subfigure {
@@ -255,7 +255,7 @@ produces $\sim19.5$ charge histograms per day while UB produces
 $23.5$ of these same.\\\\The time window has been chosen as six
 days, i.e. $5\%$ of total days in four months (August to
 November). To identify the stable window into the four months, a
-moving-window algorithm was applied for each PMT as follows
+sliding window algorithm was applied for each PMT as follows
 \begin{enumerate}
   \item Starting with the first day of August, an average of
     \qpkvem is calculate per day for six days, getting a first
@@ -421,7 +421,7 @@ distributions of the respective PMTs.\\\\In this way, we obtain a
 distribution that represents the \qpkvem normalized for each
 station. A Gauss function is fitted to this last distribution in
 order to the get the first two moments of the distribution, which
-are used to determine the accuracy, $\mu/\sigma$. The figure
+are used to determine the accuracy, $\sigma/\mu$. The figure
 \ref{fig1747QpkValues}, top row, shows an example for the
 distribution of \qpkvem values (\qpkDist) for station $1208$, UUB
 and UB version, meanwhile bottom row shows the distribution for
@@ -452,7 +452,7 @@ the \qpkvem normalized.
 
 The figure \ref{figAccuracyResults} shows the results for the
 accuracy of the fitted \qpkvem, applying the algorithm presented
-in section \ref{secMovingWindowAlgo}. There, the distribution of the
+in section \ref{secSlidWndowAlgo}. There, the distribution of the
 accuracy for UB, and UUB are presented, with a means of
 $1.40\,\%\pm0.06\,\%$ and $1.97\,\%\pm0.17\,\%$, respectively.
 \clearpage
@@ -461,11 +461,11 @@ $1.40\,\%\pm0.06\,\%$ and $1.97\,\%\pm0.17\,\%$, respectively.
 \begin{figure}[!t]
   \centering
   \subfigure {
-    \includegraphics[width=1.\textwidth]{../../plots2/accQpkFitUbUubAllStAllPmt_Stats.pdf}
+    \includegraphics[width=1.\textwidth]{../../plots2/accQpkFitUbUubAllStAllPmt_Stats2.pdf}
   }
   \caption{Results for the accuracy calculation of the \qpkvem
   fitting, using the algorithm describe in section 
-  \ref{secMovingWindowAlgo}. In the right side, the distribution
+  \ref{secSlidWindowAlgo}. In the right side, the distribution
   of the $\sigma/\mu$ values is presented for both version, UUB
   (red) and UB (blue). Here, it is possible to see that the
   accuracy for UUB is better than the one for UB.}
