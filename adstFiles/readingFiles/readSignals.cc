@@ -15,24 +15,19 @@
 #include <TLatex.h>
 #include <TLine.h>
 
-TCanvas *canvasStyle(TString name) {
-  TCanvas *canvas = new TCanvas(name, name, 102, 76, 1600, 900);
-  canvas->SetBorderMode(0);
-  canvas->SetBorderSize(2);
-  canvas->SetRightMargin(0.04);
-  canvas->SetLeftMargin(0.13);
-  canvas->SetTopMargin(0.014);
-  canvas->SetBottomMargin(0.15);
-  canvas->SetFrameBorderMode(0);
-  canvas->SetFrameBorderMode(0);
-  return canvas;
-}
-
 using namespace std;
+
+TCanvas *canvasStyle(TString name);
+void plotSigDist(int st_slct, double frtbin, double lstbin, int nbins, 
+    vector<vector<double>> sigValues, vector<vector<double>> time);
 
 /********************/
 /* Global variables */
 /********************/
+
+// Loaded sPMT starting
+const int loadStart = 1324857618;
+vector < double > st2read = {846, 860, 1190, 1191, 1220, 1779};
 
 int main ( int argc, char** argv) {
   if ( argc < 2 ) { cout << endl
@@ -43,11 +38,10 @@ int main ( int argc, char** argv) {
   }
   cout << endl << endl;
   // Vectors to store signals values
-  vector < double > totSigEvt;
-  vector < double > timeSig;
-  vector < double > st2read = {846, 860, 1190, 1191, 1220, 1779};
-  vector < vector < double > > totSigSt( st2read.size() );
-  vector < vector < double > > totSigStErr( st2read.size() );
+  vector < vector < double > > totSigEvt( st2read.size() );
+  vector < vector < double > > timeSig( st2read.size() );
+  vector < vector < double > > sigStTime( st2read.size() );
+  vector < vector < double > > sigStTimeErr( st2read.size() );
   vector < vector < double > > accSigSt( st2read.size() );
   vector < vector < double > > timeSigSt( st2read.size() );
   // From GAP 2003-030 [st][pmtab][vemBin]
@@ -85,8 +79,6 @@ int main ( int argc, char** argv) {
       }
     } 
   }  
-  // Loaded starting
-  const int loadStart = 1324857618;
 
   double sumSigEvt = 0.;
   double tmpSig = 0.;
@@ -123,12 +115,13 @@ int main ( int argc, char** argv) {
           }
         if ( !readSt )
           continue;
+
         // Filling signals values
         tmpSig = sdEvent.GetStation(st_i)->GetTotalSignal();
         tmpSigErr = sdEvent.GetStation(st_i)->GetTotalSignalError();
         sumSigEvt += tmpSig;
-        totSigSt[st_posVec].push_back( tmpSig );      
-        totSigStErr[st_posVec].push_back( tmpSigErr );
+        totSigEvt[st_posVec].push_back( tmpSig );
+        sigStTimeErr[st_posVec].push_back( tmpSigErr );
         accSigSt[st_posVec].push_back( tmpSigErr/tmpSig );
         timeSigSt[st_posVec].push_back( sdEvent.GetGPSSecond() );
         
@@ -180,64 +173,23 @@ int main ( int argc, char** argv) {
         }
       }
       if ( sumSigEvt > 0. ) {
-        totSigEvt.push_back( sumSigEvt );
-        timeSig.push_back( sdEvent.GetGPSSecond() );
+        totSigEvt[st_posVec].push_back( sumSigEvt );
+        timeSig[st_posVec].push_back( sdEvent.GetGPSSecond() );
       }
     }
   }
 
   // Plotting Signal distribution
   double frtbin = 0;
-  double lstbin = 2e3;
-  int nBins = (int)(lstbin - frtbin)/1.;
-   
-  TH1D *histTotSig = new TH1D("histTotSig", "", nBins, frtbin, lstbin);
-  TH1D *histTotSigBef = new TH1D("histTotSigBef", "", nBins, frtbin, lstbin);
-  TH1D *histTotSigAft = new TH1D("histTotSigAft", "", nBins, frtbin, lstbin);
-  for ( int sig_i=0; sig_i<totSigEvt.size(); sig_i++ ) {
-    if ( timeSig[sig_i] < loadStart )
-      histTotSigBef->Fill( totSigEvt[sig_i] );
-    else
-      histTotSigAft->Fill( totSigEvt[sig_i] );
-    histTotSig->Fill( totSigEvt[sig_i] );
-  }
+  double lstbin = 3.6;
+  int nBins = (int)(lstbin - frtbin)/0.05;
+  for ( int st_i=0; st_i<st2read.size(); st_i++ )
+    plotSigDist(st_i, frtbin, lstbin, nBins, totSigEvt, timeSig);
 
-  TCanvas *sigDistCanv = canvasStyle("sigDistCanv");
-  sigDistCanv->cd();
-  sigDistCanv->SetLogy(1);
-  sigDistCanv->SetLogx(1);
-  
-  histTotSig->SetStats(kFALSE);
-  histTotSig->GetYaxis()->SetTitle("Counts [au]");
-  histTotSig->GetXaxis()->SetTitle("S [VEM]");
-  histTotSig->GetXaxis()->SetTitleOffset(1.3);
-  histTotSig->SetLineColor(kBlack);
-  histTotSig->Draw();
-
-  histTotSigBef->SetLineColor(kBlue);
-  histTotSigBef->Draw("same");
-  histTotSigAft->SetLineColor(kRed);
-  histTotSigAft->Draw("same");
-
-  TLegend *lgnd = new TLegend(0.65, 0.45, 0.98, 0.98);
-  lgnd->AddEntry(histTotSig, "St.: 846, 860, 1190", "");
-  lgnd->AddEntry(histTotSig, "     1191, 1220, 1779", "");
-  lgnd->AddEntry(histTotSig, "Nov to Feb", "l");
-  lgnd->AddEntry(histTotSig, Form("Entries %.f",histTotSig->GetEntries()), "");  
-  lgnd->AddEntry(histTotSigBef, "Before Loaded", "l");
-  lgnd->AddEntry(histTotSigBef, 
-      Form("Entries %.f",histTotSigBef->GetEntries()), "");
-  lgnd->AddEntry(histTotSigAft, "After Loaded", "l");
-  lgnd->AddEntry(histTotSigAft, 
-      Form("Entries %.f",histTotSigAft->GetEntries()), "");
-  lgnd->SetTextSize(0.04);
-  lgnd->SetBorderSize(0);
-  lgnd->SetFillStyle(0);
-  lgnd->Draw();
-  sigDistCanv->Print("totSigDist.pdf");
-
-  TGraphErrors *grpSigSt = new TGraphErrors(timeSigSt[0].size(), 
-      &timeSigSt[0].front(), &totSigSt[0].front(), 0, &totSigStErr[0].front() );
+  /*
+  TGraphErrors *grpSigSt = new TGraphErrors(timeSigSt[st_selected].size(), 
+      &timeSigSt[st_selected].front(), &sigStTime[st_selected].front(), 0, 
+      &sigStTimeErr[st_selected].front() );
 
   TCanvas *sigStCanv = canvasStyle("sigStCanv");
   sigStCanv->cd();
@@ -257,21 +209,22 @@ int main ( int argc, char** argv) {
   line->SetLineColor(kRed);
   line->Draw();
 
-  sigStCanv->Print("signalStation.pdf");
+  sigStCanv->Print("recSignalStation.pdf");
+  //sigStCanv->Print("stdRecSignalStation.pdf");
 
-  TGraph *grpAccSigSt = new TGraph(timeSigSt[0].size(),
-      &timeSigSt[0].front(), &accSigSt[0].front() );
+  TGraph *grpAccSigSt = new TGraph(timeSigSt[st_selected].size(),
+      &timeSigSt[st_selected].front(), &accSigSt[st_selected].front() );
 
   frtbin = 0.;
   lstbin = 10.;
   nBins = (lstbin - frtbin) / 0.01;
   TH1D *accSgDstStBef = new TH1D("accSgDstStBef","", nBins, frtbin, lstbin);
   TH1D *accSgDstStAft = new TH1D("accSgDstStAft","", nBins, frtbin, lstbin);
-  for ( int acc_i=0; acc_i<accSigSt[0].size(); acc_i++ ) {
-    if ( timeSigSt[0][acc_i] < loadStart )
-      accSgDstStBef->Fill( accSigSt[0][acc_i] );
+  for ( int acc_i=0; acc_i<accSigSt[st_selected].size(); acc_i++ ) {
+    if ( timeSigSt[st_selected][acc_i] < loadStart )
+      accSgDstStBef->Fill( accSigSt[st_selected][acc_i] );
     else
-      accSgDstStAft->Fill( accSigSt[0][acc_i] );
+      accSgDstStAft->Fill( accSigSt[st_selected][acc_i] );
   }
 
   TCanvas *accSigStCanv = canvasStyle("accSigStCanv");
@@ -293,6 +246,7 @@ int main ( int argc, char** argv) {
   line->Draw();
 
   accSigStCanv->Print("accSigSt.pdf");
+  //accSigStCanv->Print("stdRecAccSigSt.pdf");
 
   TCanvas *accSigDistStCanv = canvasStyle("accDistSigStCanv");
   accSigDistStCanv->cd();
@@ -325,11 +279,12 @@ int main ( int argc, char** argv) {
   lgnd->SetFillStyle(0);
   lgnd->Draw();
 
-  accSigDistStCanv->Print("accDistSigSt.pdf");
+  accSigDistStCanv->Print("recAccDistSigSt.pdf");
+  //accSigDistStCanv->Print("stdRecAccDistSigSt.pdf");
 
-  TGraphErrors *grpChStPmt1 = new TGraphErrors(chStPmt[0][0].size(), 
-      &chStPmtTime[0][0].front(), &chStPmt[0][0].front(), 0, 
-      &chStPmtErr[0][0].front());
+  TGraphErrors *grpChStPmt1 = new TGraphErrors(chStPmt[st_selected][0].size(), 
+      &chStPmtTime[st_selected][0].front(), &chStPmt[st_selected][0].front(), 0, 
+      &chStPmtErr[st_selected][0].front());
   TCanvas *chStCanv = canvasStyle("chStCanv");
   chStCanv->cd();
 
@@ -347,15 +302,15 @@ int main ( int argc, char** argv) {
   line->SetLineWidth(1);
   line->Draw();
   chStCanv->Print("chargeStation.pdf");
+  //chStCanv->Print("stdRecChargeStation.pdf");
+  
   
   vector < vector < double > > sgmVEMpmt(3);
   int tmpNevts = 0;
   double sumDltVem = 0.;
   double sumDltVem2 = 0.;
   double aveVem = 0.;
-  double frsTerm = 0.;
-  int st_selected = 3;
-  /*
+  double frsTerm = 0.;  
   for ( int pmtab=0; pmtab<3; pmtab++ ) {
     sgmVEMpmt[pmtab].resize(12);
     for ( int i=0; i<nEvtVEMab[st_selected][pmtab].size(); i++ ) {
@@ -400,6 +355,77 @@ int main ( int argc, char** argv) {
   grpSprdVEMpmt23->Draw("P same");
 
   spreadVEMcanv->Print("spreadVEMst.pdf");
-  */
+  //spreadVEMcanv->Print("stdRecSpreadVEMst.pdf");
+  
+  */  
   return 0;
+}
+
+
+TCanvas *canvasStyle(TString name) {
+  TCanvas *canvas = new TCanvas(name, name, 102, 76, 1600, 900);
+  canvas->SetBorderMode(0);
+  canvas->SetBorderSize(2);
+  canvas->SetRightMargin(0.04);
+  canvas->SetLeftMargin(0.13);
+  canvas->SetTopMargin(0.014);
+  canvas->SetBottomMargin(0.15);
+  canvas->SetFrameBorderMode(0);
+  canvas->SetFrameBorderMode(0);
+  return canvas;
+}
+
+void plotSigDist(int st_slct, double frtbin, double lstbin, int nbins, 
+    vector<vector<double>> sigValues, vector<vector<double>> time) {
+  cerr << "Doing for Station: " << st2read[st_slct] << endl;
+  
+  TH1D histDistSigBef ("histDistSigBef", "", nbins, frtbin, lstbin);
+  TH1D histDistSigAft ("histDistSigAft", "", nbins, frtbin, lstbin);
+
+  for ( int sig_i=0; sig_i<sigValues[st_slct].size(); sig_i++ )
+    if ( time[st_slct][sig_i] < loadStart )
+      histDistSigBef.Fill( log10(sigValues[st_slct][sig_i]) );
+    else 
+      histDistSigAft.Fill( log10(sigValues[st_slct][sig_i]) );  
+
+  Double_t factor = 1.;
+  histDistSigBef.Scale(factor/histDistSigBef.GetEntries());
+  histDistSigAft.Scale(factor/histDistSigAft.GetEntries());
+
+  TCanvas *sigDistCanv = canvasStyle("sigDistCanv");
+  sigDistCanv->cd();
+  sigDistCanv->SetLogy(1);
+
+  histDistSigBef.SetStats(kFALSE);
+  histDistSigBef.GetYaxis()->SetTitle("a.u.");
+  histDistSigBef.GetYaxis()->SetTitleOffset(0.8);
+  histDistSigBef.GetYaxis()->SetTitleSize(0.06);
+  histDistSigBef.GetYaxis()->SetRangeUser(1e-3, 0.21);
+  histDistSigBef.GetYaxis()->SetLabelSize(0.05);
+  histDistSigBef.GetXaxis()->SetTitle("log_{10}(S/VEM)");
+  histDistSigBef.GetXaxis()->SetTitleOffset(1.);
+  histDistSigBef.GetXaxis()->SetTitleSize(0.06);
+  histDistSigBef.GetXaxis()->SetLabelSize(0.05);
+  histDistSigBef.SetLineColor(kBlue);
+  histDistSigBef.Draw();
+  histDistSigAft.SetLineColor(kRed);
+  histDistSigAft.Draw("same");
+
+  TLegend *lgnd = new TLegend(0.67, 0.45, 0.98, 0.98);
+  lgnd->AddEntry(&histDistSigBef, Form("St.: %.f",st2read[st_slct]), "");
+  lgnd->AddEntry(&histDistSigBef, "Before Loaded", "l");
+  lgnd->AddEntry(&histDistSigBef, 
+      Form("Entries %.f",histDistSigBef.GetEntries()), "");
+  lgnd->AddEntry(&histDistSigAft, "After Loaded", "l");
+  lgnd->AddEntry(&histDistSigAft, 
+      Form("Entries %.f",histDistSigAft.GetEntries()), "");
+  lgnd->SetTextSize(0.05);
+  lgnd->SetBorderSize(0);
+  lgnd->SetFillStyle(0);
+  lgnd->Draw();
+  sigDistCanv->Print(Form("totSigDistSt%.f.pdf",st2read[st_slct]));
+
+  histDistSigBef.Delete();
+  histDistSigAft.Delete();
+  sigDistCanv->Close();
 }
