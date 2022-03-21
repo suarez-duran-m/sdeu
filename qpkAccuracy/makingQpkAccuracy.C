@@ -961,7 +961,7 @@ void makingQpkAccuracy() {
   accCanvas->cd();
   accDistUb->SetStats(kFALSE);
   accDistUb->SetLineColor(kBlue);
-  accDistUb->GetXaxis()->SetRangeUser(0., 5.);
+  accDistUb->GetXaxis()->SetRangeUser(0., 3.);
   accDistUb->GetXaxis()->SetTitle("#sigma/#mu [%]");  
   accDistUb->GetXaxis()->SetTitleSize(0.06);
   accDistUb->GetXaxis()->SetLabelSize(0.05);
