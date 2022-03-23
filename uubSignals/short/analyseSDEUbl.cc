@@ -112,10 +112,11 @@ int main (int argc, char *argv[]) {
         cout << "# Event " << event.Id << " Station " << event.Stations[st_i].Id 
           << endl;
         IoSdEvent event(pos);
+        cout << "MSD " << event.Stations[st_i].Error << endl;
         // Filter for error 
         if ( !(event.Stations[st_i].Error==256) )
           continue;
-        // Reading by PMT 
+        // Reading by PMT
         for ( int pmt_i=0; pmt_i<3; pmt_i++ ) {
           receivedChHisto = event.Stations[st_i].HCharge(pmt_i);
           fittingQpk.setChCrr(*receivedChHisto, 
