@@ -120,7 +120,6 @@ int main ( int argc, char** argv) {
         tmpSig = sdEvent.GetStation(st_i)->GetTotalSignal();
         tmpSigErr = sdEvent.GetStation(st_i)->GetTotalSignalError();
         sumSigEvt += tmpSig;
-        totSigEvt[st_posVec].push_back( tmpSig );
         sigStTimeErr[st_posVec].push_back( tmpSigErr );
         accSigSt[st_posVec].push_back( tmpSigErr/tmpSig );
         timeSigSt[st_posVec].push_back( sdEvent.GetGPSSecond() );
@@ -184,7 +183,7 @@ int main ( int argc, char** argv) {
   double lstbin = 3.6;
   int nBins = (int)(lstbin - frtbin)/0.05;
   for ( int st_i=0; st_i<st2read.size(); st_i++ )
-    plotSigDist(st_i, frtbin, lstbin, nBins, totSigEvt, timeSig);
+    plotSigDist(st_i, frtbin, lstbin, nBins, totSigEvt, timeSig); 
 
   /*
   TGraphErrors *grpSigSt = new TGraphErrors(timeSigSt[st_selected].size(), 
@@ -384,48 +383,121 @@ void plotSigDist(int st_slct, double frtbin, double lstbin, int nbins,
 
   for ( int sig_i=0; sig_i<sigValues[st_slct].size(); sig_i++ )
     if ( time[st_slct][sig_i] < loadStart )
-      histDistSigBef.Fill( log10(sigValues[st_slct][sig_i]) );
+      histDistSigBef.Fill( log10(sigValues[st_slct][sig_i]) ); 
     else 
-      histDistSigAft.Fill( log10(sigValues[st_slct][sig_i]) );  
+      histDistSigAft.Fill( log10(sigValues[st_slct][sig_i]) );
+  
 
-  Double_t factor = 1.;
+  Double_t factor = 100.;
   histDistSigBef.Scale(factor/histDistSigBef.GetEntries());
   histDistSigAft.Scale(factor/histDistSigAft.GetEntries());
 
   TCanvas *sigDistCanv = canvasStyle("sigDistCanv");
   sigDistCanv->cd();
-  sigDistCanv->SetLogy(1);
+  sigDistCanv->Draw();
 
+  TPad *p1 = new TPad("p1","p1",0., 0.5, 0.6, 1.);
+  p1->Draw();
+  p1->Divide(1, 1);
+  TPad *p11 = (TPad*)p1->cd(1);
+  p11->SetTopMargin(0);
+  p11->SetBottomMargin(5.);
+  p11->SetLeftMargin(0.07);
+  p11->SetRightMargin(0);
+  p11->Draw();
+  p11->SetLogy(1);
   histDistSigBef.SetStats(kFALSE);
-  histDistSigBef.GetYaxis()->SetTitle("a.u.");
-  histDistSigBef.GetYaxis()->SetTitleOffset(0.8);
+  histDistSigBef.GetYaxis()->SetTitle(" N_{EvtBin}/N_{TotEvt} [%]");
+  histDistSigBef.GetYaxis()->SetTitleOffset(0.6);
   histDistSigBef.GetYaxis()->SetTitleSize(0.06);
-  histDistSigBef.GetYaxis()->SetRangeUser(1e-3, 0.21);
+  histDistSigBef.GetYaxis()->SetRangeUser(0.1, 30.);
   histDistSigBef.GetYaxis()->SetLabelSize(0.05);
-  histDistSigBef.GetXaxis()->SetTitle("log_{10}(S/VEM)");
   histDistSigBef.GetXaxis()->SetTitleOffset(1.);
   histDistSigBef.GetXaxis()->SetTitleSize(0.06);
   histDistSigBef.GetXaxis()->SetLabelSize(0.05);
   histDistSigBef.SetLineColor(kBlue);
+  histDistSigBef.SetFillColor(kBlue);
+  histDistSigBef.SetFillStyle(3004);
   histDistSigBef.Draw();
   histDistSigAft.SetLineColor(kRed);
+  histDistSigAft.SetFillColor(kRed);
+  histDistSigAft.SetFillStyle(3005);
   histDistSigAft.Draw("same");
-
-  TLegend *lgnd = new TLegend(0.67, 0.45, 0.98, 0.98);
+ 
+  TLegend *lgnd = new TLegend(0.8, 0.44, 0.99, 0.98);
   lgnd->AddEntry(&histDistSigBef, Form("St.: %.f",st2read[st_slct]), "");
-  lgnd->AddEntry(&histDistSigBef, "Before Loaded", "l");
+  lgnd->AddEntry(&histDistSigBef, "Before Loaded", "f");
   lgnd->AddEntry(&histDistSigBef, 
       Form("Entries %.f",histDistSigBef.GetEntries()), "");
-  lgnd->AddEntry(&histDistSigAft, "After Loaded", "l");
+  lgnd->AddEntry(&histDistSigAft, "After Loaded", "f");
   lgnd->AddEntry(&histDistSigAft, 
       Form("Entries %.f",histDistSigAft.GetEntries()), "");
   lgnd->SetTextSize(0.05);
   lgnd->SetBorderSize(0);
   lgnd->SetFillStyle(0);
   lgnd->Draw();
-  sigDistCanv->Print(Form("totSigDistSt%.f.pdf",st2read[st_slct]));
+
+  sigDistCanv->cd(0);
+  TPad *p2 = new TPad("p2","p2",0., 0., 0.6, 0.515);
+  p2->Draw();
+  p2->Divide(1,1);
+  TPad *p21 = (TPad*)p2->cd(1);
+  p21->SetTopMargin(0);
+  p21->SetBottomMargin(0.15);
+  p21->SetLeftMargin(0.07);
+  p21->SetRightMargin(0);
+  p21->Draw();
+
+  // Doing subtraction S_bef - S_aft
+  TH1D *histDiffSig = (TH1D*) histDistSigBef.Clone("hDiff");
+  histDiffSig->Add(&histDistSigAft, -1); 
+  histDiffSig->GetYaxis()->SetTitle("S_{Bef} - S_{Aft} [%]");
+  histDiffSig->GetYaxis()->SetTitleOffset(0.58);
+  histDiffSig->GetXaxis()->SetTitle("log_{10}(S/VEM)");
+  histDiffSig->SetLineColor(kGreen+3);
+  histDiffSig->SetFillStyle(0);
+  histDiffSig->Draw();
+
+  sigDistCanv->cd(0);
+  TPad *p3 = new TPad("p3","p3", 0.6,0.,1.,1.);
+  p3->Draw();
+  p3->Divide(1,1);
+  TPad *p31 = (TPad*)p3->cd(1);
+  //p31->SetTopMargin();
+  p31->SetBottomMargin(0.08);
+  p31->SetLeftMargin(-0.08);
+  p31->SetRightMargin(0.03);
+ 
+  TH1D distDiffSig("distDiffSig","", int(4e1), -20, 20);
+  for ( int i=1; i<histDiffSig->GetNbinsX(); i++ ) {
+    if ( histDiffSig->GetBinContent( i ) == 0 )
+      continue;
+    distDiffSig.Fill( histDiffSig->GetBinContent( i ) );
+  }
+  distDiffSig.SetStats(kFALSE);
+  distDiffSig.GetXaxis()->SetTitle("S_{Bef} - S_{Aft} [%]");
+  distDiffSig.GetYaxis()->SetTitle("Counts [au]");
+  distDiffSig.GetYaxis()->SetTitleOffset(1.);
+  distDiffSig.Draw();
+
+  lgnd = new TLegend(0.3, 0.7, 0.98, 0.91);
+  lgnd->AddEntry(&distDiffSig, Form(
+        "Entries %.f", distDiffSig.GetEntries()), "");
+  lgnd->AddEntry(&distDiffSig, Form(
+        "Mean: %.2e #pm %.2e", distDiffSig.GetMean(), distDiffSig.GetMeanError()),"");
+  lgnd->AddEntry(&distDiffSig, Form(
+        "RMS: %.2e #pm %.2e", distDiffSig.GetRMS(), distDiffSig.GetRMSError()),"");
+  lgnd->SetTextSize(0.04);
+  lgnd->SetBorderSize(0);
+  lgnd->SetFillStyle(0);
+  lgnd->Draw();
+
+  sigDistCanv->Print(Form("totSigDistSt%.f.pdf",st2read[st_slct])); 
 
   histDistSigBef.Delete();
   histDistSigAft.Delete();
+  distDiffSig.Delete();
+  sigDistCanv->Delete();
   sigDistCanv->Close();
+
 }
