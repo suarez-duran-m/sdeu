@@ -383,13 +383,15 @@ void fillingChi2VsSlop(vector<vector<vector<double>>> chi2,
 
 void plottingAndSaving(TString canvasName, TString outputName, TH2D *histo) {
   TCanvas *canvas = canvasStyle(canvasName); 
-  gStyle->SetStatX(0.85);
-  gStyle->SetStatY(0.95);
+  canvas->SetRightMargin(0.15);
+  canvas->SetLeftMargin(0.1);
+  //gStyle->SetStatX(0.85);
+  //gStyle->SetStatY(0.95);
   gStyle->SetOptStat("neMR");
   gStyle->SetPalette(56);
   TString strTmp;
  
-  TPaveStats *ptstats = new TPaveStats(0.6,0.55,0.95,0.98,"brNDC");
+  TPaveStats *ptstats = new TPaveStats(0.55,0.55,0.86,0.98,"brNDC");
   ptstats->SetName("stats");
   ptstats->SetBorderSize(1);
   ptstats->SetFillColor(0);
@@ -397,21 +399,25 @@ void plottingAndSaving(TString canvasName, TString outputName, TH2D *histo) {
   ptstats->SetTextFont(42);
   ptstats->SetStatFormat(".2e");
   TText *ptstats_LaTex = ptstats->AddText(Form("%s", histo->GetName()));
-  ptstats_LaTex->SetTextSize(0.06);
+  ptstats_LaTex->SetTextSize(0.05);
   ptstats->SetOptFit(0);
   ptstats->Draw();
   histo->GetListOfFunctions()->Add(ptstats);
   ptstats->SetParent(histo); 
   
-  histo->GetYaxis()->SetTitle("Log10(Pval)");
+  histo->GetYaxis()->SetTitle("log_{10}(Pval)");
   histo->GetXaxis()->SetTitle("Slope [FADC/day/#LTFADC#GT_{7days}]");
   histo->GetYaxis()->SetTitleSize(0.06);
   histo->GetYaxis()->SetLabelSize(0.05);
+  histo->GetYaxis()->SetTitleOffset(0.7);
   histo->GetXaxis()->SetTitleSize(0.06);
   histo->GetXaxis()->SetLabelSize(0.05);
-  //histo->GetYaxis()->SetRangeUser(-20., 1);
-  //histo->GetXaxis()->SetRangeUser(-0.02, 0.03);
-  histo->GetZaxis()->SetTitle("Counts [au]");
+  histo->Scale(100./histo->GetEntries());
+  histo->GetZaxis()->SetTitle("Counts [%]");
+  histo->GetZaxis()->SetTitleOffset(0.72);
+  histo->GetZaxis()->SetTitleSize(0.05);
+  histo->GetZaxis()->SetLabelSize(0.04);
+
   histo->Draw("COLZ");  
 
   canvas->Print("../plots2/"+outputName+"2.pdf");
@@ -478,6 +484,8 @@ TH1D *cutByPval(bool ifUub, vector<vector<vector<int>>> fitFrsDay,
 void plottingFinalSlp(TH1D *histo, bool ifUub) {
   TString printName = (ifUub) ? "UUB" : "UB"; 
   TCanvas *finalSlpCanvas = canvasStyle("Slp after Pval Cut, "+printName);
+  finalSlpCanvas->SetRightMargin(0.04);
+  finalSlpCanvas->SetLeftMargin(0.07);
   finalSlpCanvas->cd();
   finalSlpCanvas->SetLogy(kTRUE);
  
@@ -486,7 +494,7 @@ void plottingFinalSlp(TH1D *histo, bool ifUub) {
   gStyle->SetOptStat("eMR");
   gStyle->SetPalette(56);
 
-  TPaveStats *ptstats = new TPaveStats(0.6,0.55,0.95,0.98,"brNDC");      
+  TPaveStats *ptstats = new TPaveStats(0.65,0.65,0.98,0.98,"brNDC");      
   ptstats->SetName("stats");
   ptstats->SetBorderSize(1);
   ptstats->SetFillColor(0);
@@ -499,14 +507,16 @@ void plottingFinalSlp(TH1D *histo, bool ifUub) {
   ptstats->Draw();
   histo->GetListOfFunctions()->Add(ptstats);
   ptstats->SetParent(histo);
-  histo->GetYaxis()->SetTitle("Counts [au]");
+  histo->Scale(100./histo->GetEntries()); 
+  histo->GetYaxis()->SetTitle("Counts [%]");
+  histo->GetYaxis()->SetTitleSize(0.06); 
+  histo->GetYaxis()->SetTitleOffset(0.55);
+  histo->GetYaxis()->SetLabelSize(0.05);
   histo->GetXaxis()->SetTitle("Slope [FADC/day/#LTFADC#GT_{7days}]");
   histo->GetXaxis()->SetRangeUser(-0.01, 0.01);
-  histo->GetYaxis()->SetTitleSize(0.06); 
-  histo->GetYaxis()->SetLabelSize(0.05);
   histo->GetXaxis()->SetTitleSize(0.06);
   histo->GetXaxis()->SetLabelSize(0.05); 
-  histo->Draw();
+  histo->Draw("HIST");
   printName = (ifUub) ? "../plots2/chi2VsSlopUubProjSlop2.pdf" 
     : "../plots2/chi2VsSlopUbProjSlop2.pdf";
   finalSlpCanvas->Print(printName);
@@ -854,7 +864,7 @@ void makingQpkAccuracy() {
       errAveDayUub[cntSts][pmt_i-1].resize(daysAugNov);
       qpkPerDayUub[cntSts][pmt_i-1].resize(daysAugNov);
       qpksInDayUub[cntSts][pmt_i-1].resize(daysAugNov);
-      //if ( st_i != 1746 )
+      //if ( st_i != 545 )
         //continue;
       // Filling vectors with the Qpk fitted 
       fillQpkTimeVals(false, pmt_i, st_i, qpkUb[pmt_i-1], timeUb[pmt_i-1]);
@@ -913,12 +923,12 @@ void makingQpkAccuracy() {
       normSlpUub, chi2Uub, fitFrsDayUub);
   
   // TH2 to plot Log10(Pval) chi2 and NormSlope 
-  int nBinsX = 70; // bins for Norm. Slope's X axis
-  double xLow = -0.03;
-  double xUp = 0.04;
-  int nBinsY = 62; // bins for Log10(Pval) Y axis
+  double xLow = -0.04;
+  double xUp = 0.06;
+  int nBinsX = (xUp - xLow)/0.001; // bins for Norm. Slope's X axis
   double yLow = -30.;
   double yUp = 1;
+  int nBinsY = (int)(yUp - yLow)/0.5; // bins for Log10(Pval) Y axis
   TH2D *chi2VsSlopUb = new TH2D("chi2VsSlopUb", "", 
       nBinsX, xLow, xUp, nBinsY, yLow, yUp);
   TH2D *chi2VsSlopUub = new TH2D("chi2VsSlopUub", "", 
