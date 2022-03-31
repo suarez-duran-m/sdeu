@@ -40,13 +40,22 @@
           <outputFileMode> eWrite </outputFileMode>
           <mode> SD </mode>
         </asciiOutput>
-        <!--
+        
         <rootOutput> 
-          <outputFileName> ADST2021_11_30-31.root </outputFileName>
+          <outputFileName> forIoana/ADST2022_02_28_histos.root </outputFileName>
         </rootOutput>
-        -->
+
+        <minEnergyForTraces> 0 </minEnergyForTraces>          
+        <storeCalibHistos> 1 </storeCalibHistos>
       </RecDataWriter>
     </configLink>
+    <!-- 
+    <configLink id="SdEventSelector">
+      <SdEventSelector>
+        <RejectLightning> 1 </RejectLightning>
+      </SdEventSelector>
+      </configLink>
+    -->
 
   </parameterOverrides>
 

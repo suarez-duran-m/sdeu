@@ -14,15 +14,13 @@
                   AIRES
                   IoAuger -->
 
-  <CDAS>
-    
+  <CDAS>    
     <!-- the list of filenames (space delimited) -->
     <InputFilenames>
-      `find /media/msd/msd2tb/bxl/Documents/augerData/2018/11/sd_*.root`
-      <!-- `find /home/msd/Documents/augerData/2021/11/sd_2021_11_01_11*.root` -->
+      <!-- `find /media/msd/msd2tb/bxl/Documents/augerData/2022/02/sd_*.root` -->
+      `find /home/msd/Documents/augerData/2022/02/sd_2022_02_28*.root`
       <!-- @SAMPLESHOWERS@ -name sd_id\*.root` -->
     </InputFilenames>
-
   </CDAS>
     
 </EventFileReader>

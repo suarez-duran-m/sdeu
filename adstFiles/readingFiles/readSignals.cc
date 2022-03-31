@@ -19,13 +19,14 @@ using namespace std;
 
 TCanvas *canvasStyle(TString name);
 void plotSigDist(int st_slct, double frtbin, double lstbin, int nbins, 
-    vector<vector<double>> sigValues, vector<vector<double>> time);
+    vector<vector<double>> sigValues, vector<vector<double>> sigErrVal, 
+    vector<vector<double>> time);
 
 /********************/
 /* Global variables */
 /********************/
 
-// Loaded sPMT starting
+// Loaded SPMT starting
 const int loadStart = 1324857618;
 vector < double > st2read = {846, 860, 1190, 1191, 1220, 1779};
 
@@ -39,6 +40,7 @@ int main ( int argc, char** argv) {
   cout << endl << endl;
   // Vectors to store signals values
   vector < vector < double > > totSigEvt( st2read.size() );
+  vector < vector < double > > totSigEvtErr( st2read.size() );
   vector < vector < double > > timeSig( st2read.size() );
   vector < vector < double > > sigStTime( st2read.size() );
   vector < vector < double > > sigStTimeErr( st2read.size() );
@@ -81,6 +83,7 @@ int main ( int argc, char** argv) {
   }  
 
   double sumSigEvt = 0.;
+  double sumSigErrEvt = 0.;
   double tmpSig = 0.;
   double tmpSigErr = 0.;
   int st_posVec = 0;
@@ -104,6 +107,7 @@ int main ( int argc, char** argv) {
       const auto &sdEvent = theRecEvent->GetSDEvent();
       int nCand = sdEvent.GetNumberOfCandidates();
       sumSigEvt = 0.;
+      sumSigErrEvt = 0.;
       // Reading station in the event
       for ( int st_i=0; st_i<nCand; st_i++ ) {
         readSt = false;
@@ -115,15 +119,30 @@ int main ( int argc, char** argv) {
           }
         if ( !readSt )
           continue;
-
+  
+        if ( sdEvent.HasCalibrationHistograms() ) {
+          cerr << "MSD St. " << st_i << " has Calib histo" << endl;          
+          const vector<Traces>& traces = sdEvent.GetStation(st_i)->GetPMTTraces();
+          
+          for (vector<Traces>::const_iterator trIter = traces.begin();
+              trIter != traces.end(); ++trIter) {
+            const Traces& tr = *trIter;
+            if (tr.GetType() != eTotalTrace)
+              continue;
+            const CalibHistogram& calibHisto = tr.GetChargeHistogram();
+            cerr << "ok" << endl;
+          }
+        }
+        
         // Filling signals values
         tmpSig = sdEvent.GetStation(st_i)->GetTotalSignal();
         tmpSigErr = sdEvent.GetStation(st_i)->GetTotalSignalError();
         sumSigEvt += tmpSig;
+        sumSigErrEvt += tmpSigErr;
         sigStTimeErr[st_posVec].push_back( tmpSigErr );
         accSigSt[st_posVec].push_back( tmpSigErr/tmpSig );
         timeSigSt[st_posVec].push_back( sdEvent.GetGPSSecond() );
-        
+        /*
         // From GAP 2003-030;
         // pmt1-pmt2
         vemPMTa = sdEvent.GetStation(st_i)->GetPMTTraces(eTotalTrace,1).GetVEMSignal();
@@ -170,20 +189,23 @@ int main ( int argc, char** argv) {
               sdEvent.GetStation(st_i)->GetChargeError(pmt_i+1) );
           chStPmtTime[st_posVec][pmt_i].push_back( sdEvent.GetGPSSecond() );
         }
-      }
+        */
+      }      
       if ( sumSigEvt > 0. ) {
         totSigEvt[st_posVec].push_back( sumSigEvt );
-        timeSig[st_posVec].push_back( sdEvent.GetGPSSecond() );
+        totSigEvtErr[st_posVec].push_back( sumSigErrEvt );
+        timeSig[st_posVec].push_back( sdEvent.GetGPSSecond() );        
       }
     }
   }
 
   // Plotting Signal distribution
+  
   double frtbin = 0;
-  double lstbin = 3.6;
-  int nBins = (int)(lstbin - frtbin)/0.05;
+  double lstbin = 4.;
+  int nBins = (int)(lstbin - frtbin)/1.;
   for ( int st_i=0; st_i<st2read.size(); st_i++ )
-    plotSigDist(st_i, frtbin, lstbin, nBins, totSigEvt, timeSig); 
+    plotSigDist(st_i, frtbin, lstbin, nBins, totSigEvt, totSigEvtErr, timeSig);    
 
   /*
   TGraphErrors *grpSigSt = new TGraphErrors(timeSigSt[st_selected].size(), 
@@ -375,7 +397,8 @@ TCanvas *canvasStyle(TString name) {
 }
 
 void plotSigDist(int st_slct, double frtbin, double lstbin, int nbins, 
-    vector<vector<double>> sigValues, vector<vector<double>> time) {
+    vector<vector<double>> sigValues, vector<vector<double>> sigErrVal,
+    vector<vector<double>> time) {
   cerr << "Doing for Station: " << st2read[st_slct] << endl;
   
   TH1D histDistSigBef ("histDistSigBef", "", nbins, frtbin, lstbin);
@@ -383,11 +406,10 @@ void plotSigDist(int st_slct, double frtbin, double lstbin, int nbins,
 
   for ( int sig_i=0; sig_i<sigValues[st_slct].size(); sig_i++ )
     if ( time[st_slct][sig_i] < loadStart )
-      histDistSigBef.Fill( log10(sigValues[st_slct][sig_i]) ); 
-    else 
+      histDistSigBef.Fill( log10(sigValues[st_slct][sig_i]) );     
+    else
       histDistSigAft.Fill( log10(sigValues[st_slct][sig_i]) );
   
-
   Double_t factor = 100.;
   histDistSigBef.Scale(factor/histDistSigBef.GetEntries());
   histDistSigAft.Scale(factor/histDistSigAft.GetEntries());
@@ -396,21 +418,22 @@ void plotSigDist(int st_slct, double frtbin, double lstbin, int nbins,
   sigDistCanv->cd();
   sigDistCanv->Draw();
 
-  TPad *p1 = new TPad("p1","p1",0., 0.5, 0.6, 1.);
+  TPad *p1 = new TPad("p1","p1",0., 0.5, 0.98, 1.);
+  //TPad *p1 = new TPad("p1","p1",0., 0.5, 0.6, 1.);
   p1->Draw();
   p1->Divide(1, 1);
   TPad *p11 = (TPad*)p1->cd(1);
   p11->SetTopMargin(0);
   p11->SetBottomMargin(5.);
   p11->SetLeftMargin(0.07);
-  p11->SetRightMargin(0);
+  p11->SetRightMargin(0.01);
   p11->Draw();
   p11->SetLogy(1);
   histDistSigBef.SetStats(kFALSE);
   histDistSigBef.GetYaxis()->SetTitle(" N_{EvtBin}/N_{TotEvt} [%]");
   histDistSigBef.GetYaxis()->SetTitleOffset(0.6);
   histDistSigBef.GetYaxis()->SetTitleSize(0.06);
-  histDistSigBef.GetYaxis()->SetRangeUser(0.1, 30.);
+  histDistSigBef.GetYaxis()->SetRangeUser(0.1, 90);
   histDistSigBef.GetYaxis()->SetLabelSize(0.05);
   histDistSigBef.GetXaxis()->SetTitleOffset(1.);
   histDistSigBef.GetXaxis()->SetTitleSize(0.06);
@@ -418,11 +441,11 @@ void plotSigDist(int st_slct, double frtbin, double lstbin, int nbins,
   histDistSigBef.SetLineColor(kBlue);
   histDistSigBef.SetFillColor(kBlue);
   histDistSigBef.SetFillStyle(3004);
-  histDistSigBef.Draw();
+  histDistSigBef.Draw("E");
   histDistSigAft.SetLineColor(kRed);
   histDistSigAft.SetFillColor(kRed);
   histDistSigAft.SetFillStyle(3005);
-  histDistSigAft.Draw("same");
+  histDistSigAft.Draw("E same");
  
   TLegend *lgnd = new TLegend(0.8, 0.44, 0.99, 0.98);
   lgnd->AddEntry(&histDistSigBef, Form("St.: %.f",st2read[st_slct]), "");
@@ -438,26 +461,28 @@ void plotSigDist(int st_slct, double frtbin, double lstbin, int nbins,
   lgnd->Draw();
 
   sigDistCanv->cd(0);
-  TPad *p2 = new TPad("p2","p2",0., 0., 0.6, 0.515);
+  TPad *p2 = new TPad("p2","p2",0., 0., 0.98, 0.515);
+  //TPad *p2 = new TPad("p2","p2",0., 0., 0.6, 0.515);
   p2->Draw();
   p2->Divide(1,1);
   TPad *p21 = (TPad*)p2->cd(1);
   p21->SetTopMargin(0);
   p21->SetBottomMargin(0.15);
   p21->SetLeftMargin(0.07);
-  p21->SetRightMargin(0);
+  p21->SetRightMargin(0.01);
   p21->Draw();
 
   // Doing subtraction S_bef - S_aft
   TH1D *histDiffSig = (TH1D*) histDistSigBef.Clone("hDiff");
-  histDiffSig->Add(&histDistSigAft, -1); 
+  histDiffSig->Add(&histDistSigAft, -1);
   histDiffSig->GetYaxis()->SetTitle("S_{Bef} - S_{Aft} [%]");
   histDiffSig->GetYaxis()->SetTitleOffset(0.58);
   histDiffSig->GetXaxis()->SetTitle("log_{10}(S/VEM)");
   histDiffSig->SetLineColor(kGreen+3);
   histDiffSig->SetFillStyle(0);
-  histDiffSig->Draw();
+  histDiffSig->Draw("E");
 
+  /*
   sigDistCanv->cd(0);
   TPad *p3 = new TPad("p3","p3", 0.6,0.,1.,1.);
   p3->Draw();
@@ -491,13 +516,13 @@ void plotSigDist(int st_slct, double frtbin, double lstbin, int nbins,
   lgnd->SetBorderSize(0);
   lgnd->SetFillStyle(0);
   lgnd->Draw();
+  */
 
   sigDistCanv->Print(Form("totSigDistSt%.f.pdf",st2read[st_slct])); 
 
   histDistSigBef.Delete();
   histDistSigAft.Delete();
-  distDiffSig.Delete();
+  //distDiffSig.Delete();
   sigDistCanv->Delete();
   sigDistCanv->Close();
-
 }
