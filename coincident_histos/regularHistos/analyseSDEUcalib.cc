@@ -72,11 +72,16 @@ int main (int argc, char *argv[]) {
   }
 
   vector<unsigned int> stationsIds;
+  vector< unsigned int > utc2read;
   while (stationsFile.good()) {
     unsigned int st = 0;
-    stationsFile >> st;
-    if (st)
+    double gps = 0.;
+    double utc = 0.;
+    stationsFile >> st >> gps >> utc;
+    if (st) {
       stationsIds.push_back(st);
+      utc2read.push_back(utc);
+    }
   }
   
   if (stationsIds.empty()) {
@@ -110,59 +115,77 @@ int main (int argc, char *argv[]) {
 		pmtname = "results/St"+to_string( stationsIds[0] )+"pmt"+to_string( pmtId );
  
   string doMonth = string(whichmonth);
-	TH1F *receCh = new TH1F (); // Receive Ch from IoSdStation::HCharge
+	//TH1F *receCh = new TH1F (); // Receive Ch from IoSdStation::HCharge
 
   unsigned int previusEvent = 0; // Avoiding read the same event
   unsigned int nrEventsRead = 0;
   unsigned int nrEvents = 0;
   bool found = false;
 
-  TString tmpName;
-  fstream file;
+  //TString tmpName;
+  //fstream outChHist;
+  fstream outStWitHist;
+  outStWitHist.open("listStCalHist.dat", ios_base::out);
+  int st2PosVec = 0;
 
   EventPos pos;
-
+  // Moving through events
   for (pos=input.FirstEvent(); pos<input.LastEvent(); pos=input.NextEvent()) {
     nrEventsRead++;
     if (nrEventsRead%1000 == 0) {
       cout << "====> Read " << nrEventsRead << " out of " << totalNrEvents << endl;
       cout << "      Wrote: " << nrEvents << " events" << endl;
     }
-
     IoSdEvent event(pos);
     if ( event.Id == previusEvent )
-      continue; 
-
+      continue;
     previusEvent = event.Id;
-
+    // Moving through stations inside events
     for (unsigned int i = 0 ; i < event.Stations.size(); ++i) {
       found = false;
-      for (  vector<unsigned int>::const_iterator iter= stationsIds.begin();
-          iter!= stationsIds.end(); ++iter)
-        if (event.Stations[i].Id == *iter )
-          found = true;
+      //if ( event.Stations[i].Id == 1185 )
+        //cout << "MSD0 " << event.Id << " " << event.utctime() << endl;
+      // Searching for desire station        
+      for ( unsigned int st_i=0; st_i<stationsIds.size(); st_i++ ) {        
+        // Two seconds forward respect GPS time, who know's why
+        if ( event.utctime() == utc2read[st_i]+2 )  {
+          if (event.Stations[i].Id == stationsIds[st_i] ) {
+            found = true;
+            st2PosVec = st_i;
+          }
+        }
+      }
       if ( !found )
-        continue;
-      
+        continue;      
       if ( event.Stations[i].IsUUB ) {
         cout << "# Event " << event.Id << " Station " << event.Stations[i].Id
           << " " << nrEventsRead-1
           << endl;
-
-        if (event.Stations[i].Error==256) {
-          receCh = event.Stations[i].HCharge(pmtId-1);
-          tmpName.Form("Utc%ld.dat", event.UTCTime);
-          tmpName = pmtname+tmpName;
-          file.open(tmpName, ios_base::out);
-          for ( int bin_i=1; bin_i<receCh->GetNbinsX()+1; bin_i++ ) {
-            file << receCh->GetBinCenter( bin_i ) - 4 - receCh->GetBinCenter(0) << " " 
-              << receCh->GetBinContent( bin_i ) << endl;
-          }
-          file.close();
+        if (event.Stations[i].Error==256) {          
+          //receCh = event.Stations[i].HCharge(pmtId-1);
+          //tmpName.Form("Utc%ld.dat", event.UTCTime);
+          //tmpName = pmtname+tmpName;
+          //outChHist.open(tmpName, ios_base::out);
+          //for ( int bin_i=1; bin_i<receCh->GetNbinsX()+1; bin_i++ ) {
+            //outChHist << receCh->GetBinCenter( bin_i ) - 4 - receCh->GetBinCenter(0) 
+              //<< " " << receCh->GetBinContent( bin_i ) << endl;
+          //}
+          //outChHist.close();
+          //if ( event.Stations[i].Id == 1185 ) {
+          
+          if ( fabs( event.utctime() - utc2read[st2PosVec] ) < 3 ) {
+            cout << "MSD " << event.Stations[i].Id << " " 
+              << event.Id << " " << event.utctime() << " "
+              << utc2read[st2PosVec] << " "
+              << event.utctime() - utc2read[st2PosVec] << " "
+              << event.Stations[i].gps()->Second << endl;
+          } 
+          outStWitHist << event.Stations[i].Id << endl;
         }
       }
     }
   }
+  outStWitHist.close();
  
 	return 0;
 }
