@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!DOCTYPE bootstrap [
+  <!ENTITY standardSdRealDetConfig SYSTEM '@CONFIGDIR@/standardSdRealDetConfig.xml'>
+  <!ENTITY standardSdRecModuleConfig SYSTEM '@CONFIGDIR@/standardSdRecModuleConfig.xml'>
+]>
+
+<bootstrap
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation='@SCHEMALOCATION@/bootstrap.xsd'
+  xmlns:xlink="http://www.auger.org/schema/types">
+
+  &standardSdRealDetConfig;
+  &standardSdRecModuleConfig;
+
+  <centralConfig>
+
+    <configLink
+      id         = "ModuleSequence"
+      type       = "XML"
+      xlink:href = "./ModuleSequence.xml"/>
+
+    <configLink
+      id         = "EventFileReader"
+      type       = "XML"
+      xlink:href = "./EventFileReader.xml"/>
+
+    <configLink
+      id         = "SdEACalibrationFiller"
+      type       = "XML"
+      xlink:href = "./SdEACalibrationFiller.xml"/>
+
+    <configLink
+      id         = "GetFitOutputsMSD"
+      type       = "XML"
+      xlink:href = "./GetFitOutputsMSD.xml"/>
+
+  </centralConfig>
+
+  <parameterOverrides>
+
+    <configLink id="GetFitOutputsMSD">
+      <GetFitOutputsMSD>
+        <OutPutFileName> output.root </OutPutFileName>
+        <SelectStId> 1205 </SelectStId>
+        <SelectPmt> 1 </SelectPmt>
+      </GetFitOutputsMSD>
+    </configLink>
+
+    <configLink id="RecDataWriter">
+      <RecDataWriter> 
+        <asciiOutput> 
+          <outputFileMode> eWrite </outputFileMode>
+          <mode> SD </mode>
+        </asciiOutput>
+        
+        <rootOutput> 
+          <outputFileName> ADST2022_02_09_st1205.root </outputFileName>
+        </rootOutput>
+
+        <minEnergyForTraces> 0 </minEnergyForTraces>          
+        <storeCalibHistos> 1 </storeCalibHistos>
+      </RecDataWriter>
+    </configLink>
+
+  </parameterOverrides>
+
+</bootstrap>

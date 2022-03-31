@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- Configuration of module SdEACalibrationFiller -->
+
+<SdEACalibrationFiller>
+
+   <onlineValuesUUB>
+       <!-- Averaged values obtained from EA data Jan 2018 - Apr 2018 -->  
+       <rawCharge> 1282.37 1239.21 1343.60 6.3292 252.58 </rawCharge>
+
+       <rawPeak> 150.00 150.00 150.00 1.00 54.00 </rawPeak>
+       
+       <hgBaseline> 220.0 239.0 227.0 281.0 266.0 </hgBaseline>
+       
+       <lgBaseline> 277.0 298.0 279.0 0.0 298.0 </lgBaseline>
+
+       <DARatio> 32 32 32 1 128 </DARatio>
+
+    </onlineValuesUUB>
+
+    <onlineValuesPPA>
+        <!-- very raw estimates obtained from first data stream March 2019 -->
+        <!-- first value correspond to WCD PMTs and second to SSD PMT -->
+        <rawCharge> 120.0 30.0 </rawCharge>
+        <rawPeak> 66.6 16.7 </rawPeak> <!-- charge / 1.8 -->
+    </onlineValuesPPA>
+
+    <offlineValuesUUB>
+      <!-- Approximated SmallPMT calibration from small showers data
+           collected between April 2021 and September 2021 -->
+      <!-- Not very reliable for actual reconstruction -->
+      <beta> 1.3 </beta>
+      <betaErr> 0.1 </betaErr>
+      <betaChi2> 0 </betaChi2>
+      <betaCorrectionFact> 1.0 </betaCorrectionFact>
+    </offlineValuesUUB>
+    
+</SdEACalibrationFiller>

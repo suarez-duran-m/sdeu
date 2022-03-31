@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!-- Configuration of Module GetFitOutputs -->
+
+<GetFitOutputs>
+
+  <OutPutFileName> offlineUubAug2021St863Pmt1Testing.root </OutPutFileName>
+  <!-- Station Id you want to running over -->
+  <SelectStId> 710 </SelectStId>
+  <!-- PMT Id you want to running over -->
+  <SelectPmt> 1 </SelectPmt>
+
+</GetFitOutputs>
