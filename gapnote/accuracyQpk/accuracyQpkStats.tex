@@ -122,14 +122,11 @@ Off}$\hspace{.05em}\raisebox{.4ex}{$\bf\underline{\rm\bf line}$}}\xspace}
   expected to have a better accuracy for the estimation of the
   \qpkvem values respect of the previous Unified Board (UB).
   Here, the process to calculate the accuracy of the \qpkvem
-  values for the UUB and UB is presented, and the results of its
-  application on $80$ UUB stations, and their respective UB
-  version, are showed.
+  values for the UUB and UB is presented, and the results for
+  $75$ UUB stations, and their respective UB version, are showed.
 \end{abstract}
 
-%
-%\newpage
-%
+
 \thispagestyle{empty}
 $\;$
 %\listoftodos
@@ -137,72 +134,69 @@ $\;$
 \noindent
 \clearpage
 
+\section{Introduction}
+The deployment of the Upgraded Unified Board (UUB) of the WCDs of
+belonging to the surface array\,\cite{augerPrimeDesign} requires
+a systematic calibration, taken as reference the previous Unified
+Board (UB). A quantity that works as checker of this calibration
+stability is the \qpkvem and its accuracy, which it is important
+also to understand the fluctuation of the signals recorded by the
+WCDs\,\cite{gap2003-030}. This quantity is extracted from fitting
+the muon hump presented in the charge calibration
+histograms.\\\\In order to calculate the accuracy of the \qpkvem,
+here we have implemented a method to fit and extract the
+respective \qpkvem, for both UUB and UB. Then, the accuracy was
+calculated for a set of values into a time window of seven days.
+This time period was chosen by following the implementation of a
+sliding widow algorithm, through which the stablest \qpkvem
+average per day in seven days was found.
+
 \section{Fitting histograms}
 \label{secFitting}
 
 \begin{figure}[!t]
+  \label{figChargeDerivative}
   \centering
   \subfigure {
     \includegraphics[width=.5\textwidth]{../../plots/chargeHisto863.pdf}
     \includegraphics[width=.5\textwidth]{../../plots/chargeDerHisto863.pdf}
   }
-  \caption{Algorithm's steps applied to get the \qpkvem from the
-  calibration histograms. Left: typical charge calibration
-  histogram, where the black line represents the smoothing
-  histogram ($H_S$) after applying 15-bin sliding window. Right:
-  first derivative histogram ($H_{DS}$) in black, and smoothing
-  of this last one in red ($H_{SDS}$); here, the green vertical
-  line shows the maximum or the first approach of \qpkvem.}
-  \label{figChargeDerivative}
+  \caption{Fitting algorithm to fit the muon hump in calibration
+  charge histogram (see details in the text). Left: a sample of a
+  typical charge calibration histogram, where the black line
+  represents the smoothing histogram ($H_S$) after applying
+  15-bin sliding window. Right: first derivative histogram
+  ($H_{DS}$) in black, and its respective smoothing in red
+  ($H_{SDS}$). Here, the green vertical line shows the maximum or
+  the first approach of \qpkvem.}
 \end{figure}
 
-The \qpkvem value is obtained from the charge calibration
-histogram, an algorithm based on the first derivative has been
-implemented and applied. The goal of this procedure is to
-estimate the \qpkvem as the maximum of a second order polynomial,
-fitting the respective hump muon. In this sense, the first
-derivative of the histogram works as first approach to locate
-this hump, and from there to estimate the fit range. This
-algorithm is described below, and showed in figure
-\ref{figChargeDerivative}:
-
+The \qpkvem value is obtained from charge calibration histograms
+by fitting the muon hump. We have implemented an algorithm which
+uses the first derivative to perform this fit. The propose of
+the derivative is to get a first approach of the hump position,
+and from this to fix the fitting range. This algorithm is
+illustrated in figure \ref{figChargeDerivative}, and detailed
+next:
 \begin{enumerate}
   \item Smoothing the histogram using a 15-bin sliding window,
     $H_S$.
-  \item Obtaining the first derivative of the $H_S$, by
+  \item Obtaining the first derivative from $H_S$, applying
     \begin{equation}
       \frac{f(x+1)-f(x-1)}{2h} \, ,
     \end{equation}
-    which is called $H_{DS}$.
+    and named as $H_{DS}$.
   \item Smoothing $H_{DS}$, by 15-bin sliding window, and
-    obtaining $H_{SDS}$.
+    getting $H_{SDS}$.
   \item Searching for the estimated \qpkvem, i.e. first bin for
     $H_{SDS}$ equal to zero, from right to left.
   \item Fixing the fitting range using n-bin leftward and n-bin
     rightward from the estimated \qpkvem.
 \end{enumerate}
-The last algorithm' step requires an extra procedure in order to
-fixed the number of n-bin. Using a set of histograms, the
-stability of the fit (in terms of RMS/$\left<
-Q^\mathrm{Peak}_\mathrm{VEM} \right>$) was plotted as a function
-of the n-bin. For this, the estimated \qpkvem from the derivative
-(step 4.) was used as initial parameter, and from this point, a
-number of n-bin was fixed with an extra condition of not reaching
-the valley of the histogram. Finally, the
-RMS/$\left<Q^\mathrm{Peak}_\mathrm{VEM}\right>$ vs n-bin was
-plotted, and it is presented in the first row of figure
-\ref{figApplyingAlgorithm}. There, the stability of the fit
-is seen at and after 30-bin, and this last one is chosen as the
-number of n-bin for the algorithm' step 5. In the bottom row of
-figure \ref{figApplyingAlgorithm}, an example of applying this
-procedure is presented. Section \ref{secQpkVsTime} contains the
-\qpkvem values obtained by this method from 75 UUB stations
-and for the same stations but in UB version (using the same
-algorithm).
-\clearpage
+\clearpage 
 
-\textcolor{white}{hi}
 \begin{figure}[!t]
+  \label{figFitStabNbins}
   \centering
   \subfigure {
     \includegraphics[width=.5\textwidth]{../../plots/uubChRmsFitBinsLrSt863.pdf}
@@ -220,854 +214,292 @@ algorithm).
   derivative (step 4.), and the vertical blue line shows the
   \qpkvem obtained as the maximum of the fitted second order
   polynomial.}
-  \label{figApplyingAlgorithm}
+  \label{figFitStabNbins}
 \end{figure}
-\newpage
 
-\section{Sliding window algorithm}
+The last step in the algorithm requires an extra procedure in
+order to fixed the number of n-bin. To this, a set of histograms
+have been fitted using different values for n, and then we check
+for the stability of the fit, i.e. RMS$_\mathrm{n}$/$\left<
+Q^\mathrm{Peak}_\mathrm{VEM,\,n} \right>$. For this procedure, an
+extra condition was implemented in order to avoid fit the valley
+of the histogram. The results of this procedure is presented in
+figure \ref{figFitStabNbins}. There, the stability of the fit
+is seen at and after 30-bin, and this last one is chosen as the
+number of n-bin for the step 5 of the algorithm. In the bottom
+row of the same figure, an example of applying this procedure is
+presented. Section \ref{secQpkVsTime} contains the \qpkvem values
+obtained by this method for 75 UUB stations and for the same
+stations but in UB version, using the same algorithm.
+
+\section{Sliding window algorithm for \qpkvem accuracy
+calculation}
 \label{secSlidWindowAlgo}
-\begin{figure}[!t]
-  \centering
-  \subfigure {
-    \includegraphics[width=1.\textwidth]{../../plots2/distDiffAveQpkDayPmts.pdf}
-    %\includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt1Uub.pdf}
-  }
-  \caption{Average of number of histograms fitted per day,
-  $< N_{Q^{pk}_{VEM}}>$, for UB and UUB, from August
-  to November, 2018 and 2021 respectively. In global, the UUB
-  version produces $\sim19.5$ T3 triggers per day, around 4 less
-  than the same ones for UB.}
-  \label{figDistDiffAveQpkDayPmts}
-\end{figure}
-
-The strategy followed to calculate the \qpkvem accuracy is based
-on the selection of a time window in which the \qpkvem as a
-function of time was stable, i.e. \qpkvem$(t)\sim$ constant. In
-this sense, as first step the average of number of histograms
-fitted per day, $<N_{Q^{pk}_{VEM}}>$, was calculated by PMT for
-UB and UUB, and the distribution for the difference of this
-averages (UB minus UUB) is presented in figure
-\ref{figDistDiffAveQpkDayPmts}. There is possible to see that the
-mean of each distribution is positive and around 4 histograms per 
-day, which imply that, in average, the UUB version is producing
-four T3 triggers less per day than UB; in global, the UUB version
-produces $\sim19.5$ charge histograms per day while UB produces
-$23.5$ of these same.\\\\The time window has been chosen as six
-days, i.e. $5\%$ of total days in four months (August to
-November). To identify the stable window into the four months, a
-sliding window algorithm was applied for each PMT as follows
-\begin{enumerate}
-  \item Starting with the first day of August, an average of
-    \qpkvem is calculate per day for six days, getting a first
-    six-day-series.
-  \item A linear fit is applied to previous six-day-series, and
-    the respective slope and $\chi^2$ are stored.
-  \item After the first [six-day-series]$_0$, a new
-    [six-day-series]$_1$ is building replacing the sixth day in
-    [six-day-series]$_0$ by the next day in the respective month.
-  \item A check in the [six-day-series]$_i$ continuity is
-    applied, i.e. checking the six days are consecutive, if not a
-    new series is build starting for the first day after the
-    discontinuity; for instance, if series $i$ has a
-    discontinuity in day 3 jumping to day 5, so the new
-    six-day-series is calculated starting from the day 5.
-\end{enumerate}
-\newpage
-
-\begin{figure}[!t]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt1Ub.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt1Uub.pdf}
-  }
-  \caption{$\chi^2$ Vs Slope. PMT1}
-  \label{figChi2VsSlopPmt1}
-\end{figure}
-
-\begin{figure}[!t]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt2Ub.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt2Uub.pdf}
-  }
-  \caption{$\chi^2$ Vs Slope. PMT2}
-  \label{figChi2VsSlopPmt2}
-\end{figure}
-
-
-\begin{figure}[!t]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt3Ub.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt3Uub.pdf}
-  }
-  \caption{$\chi^2$ Vs Slope. PMT3}
-  \label{figChi2VsSlopPmt3}
-\end{figure}
-
-The results of this algorithm are shown in figures
-\ref{figChi2VsSlopPmt1} to \ref{figChi2VsSlopPmt3}, where the
-distribution of the $\chi^2$ versus the slope obtained from each
-[six-day-series] is presented per PMT, for both UB and UUB.
-There, it is seen that for the three PMTs, the slope distribution
-is narrower for UB than UUB, with a clear hot-region seen for UB
-PMTs but which it is not observable in UUB. On the other hand,
-the mean of the slopes is close to zero for UB, but close to $-1$
-for UUB. This means that, in average, the \qpkvem values for UUB
-are decreasing at a rate of one FADC per day. Regarding the
-quality of the fits, in average the $\chi^2$ is better for UUB
-stations, $\left<\chi^2\right>\sim 15$, than UB,
-$\left<\chi^2\right>\sim 22$.\\\\Figures
-\ref{figChi2VsSlopProjSlopPmt1} to
-\ref{figChi2VsSlopProjSlopPmt3} show the projection for the slope
-distribution, where is clear that, for the three PMTs, this
-distribution is narrow ($\sigma\sim1$), with $\mu\sim0$\,FADC/day
-for UB, while for UUB it is wide ($\sigma\sim5$) and
-$\mu\sim-1$\,FADC/day. The projections for $\chi^2$ distributions
-are presented in figures from \ref{figChi2VsSlopProjChi2Pmt1} to
-\ref{figChi2VsSlopProjChi2Pmt3} together with the respective
-cumulative distribution, which one has been include with the aim
-to set a criteria to reject \qpkvem according with its fit
-quality, this due to the extended tail of the distribution and
-that its maximum cover less than $30\,\%$ of the counts.
+Once the \qpkvem values have been obtained, we procedure to check
+its accuracy for the UUB version, and compare it with the one
+for UB version.\\\\The calculation of the accuracy is based on
+the selection of a time window in which the \qpkvem as a function
+of time was stable; here seven days in a row (7-day-row). To
+determine this period of time, the average of the \qpkvem per day
+was plotted as function of time for each of the 75 stations, from
+August to November, year 2021 for UUB, and year 2018 for UB. In
+order to chose the respective 7-day-row, a first condition was
+set in terms of the minimum of values per day needed in each day.
+With this porpoise, the distribution of \qpkvem per day was
+calculate and presented in figure \ref{figDistQpkPerDay}, from
+which we have chosen 10 \qpkvem values per day as the
+minimum.
 \clearpage
 
 \begin{figure}[!t]
+  \label{figDistQpkPerDay}
   \centering
   \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt1UbProjSlop.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt1UubProjSlop.pdf}
+    \includegraphics[width=.8\textwidth]{../../plots2/qpkDistPerDayUbUub.pdf}
   }
-  \caption{Slope distribution for PMT1, left UB and right UUB.}
-  \label{figChi2VsSlopProjSlopPmt1}
+  \caption{Distribution of \qpkvem per day for 75 stations, from
+  August to November, with UUB (red, year 2021) and UB (blue,
+  year 2018) electronics version. The black line represents the
+  respective Gaussian fit.}
+  \label{figDistQpkPerDay}
 \end{figure}
+
+The sliding window algorithm was applied to each
+station, and each PMT, following next steps:
+\begin{enumerate}
+  \item The $\left< Q^{\mathrm{Peak}}_{\mathrm{VEM}}\right>$ per
+    day as function of time is calculate from August to November.
+  \item Starting from the first day of August, a
+    [7-day-series]$_0$ is build.
+  \item A check for continuity is applied, i.e. if each day has
+    not more then 10 \qpkvem values, or the 7 days are not
+    consecutive a new series is built, e.g. if series $i$ has a
+    discontinuity in day 3 jumping to day 5, a new 7-day-series
+    is calculated from day 5.
+  \item If [7-day-series]$_i$ is consecutive, a linear fit is
+    applied to the 7-day-series, and the respective slope and
+    p-value are stored.
+\end{enumerate}
+
+Figure \ref{figLogPvalVsSlop} shows the distribution for the
+p-values as function of the normalized slope by the average of
+the \qpkvem for the 7 days, and obtained with the former method;
+applied for 75 stations, all PMTs, UB and UUB version,
+respectively. There, it is seen how the normalized slope is
+closer to zero for UB than UUB, whereas for both version the
+$\log_{10}($p-value$)$ distribution has a hot spot for values
+bigger than $-4$. After these results, and taking into the account 
+that the number of degree of freedom is 5 for all the
+fits\footnote{Here, only fits with 5 DOF were used; different
+ones were rejected.}, we chose all fits ([7-days-row]$_i$)
+matching with: $\chi^2<10$ ($\log_{10}($p-value$)<-1.12$), and
+normalized slope in $\mu\pm\sigma$ (x axis, figure
+\ref{figLogPvalVsSlop}).\\The results after these cuts are
+presented in figure \ref{figProjSlop}, where the distribution of
+the normalized slope is presented for both UB and UUB. Using
+these results, we can chose the best 7-day-row to perform the
+accuracy calculation.
+\clearpage
 
 \begin{figure}[!t]
+  \label{figLogPvalVsSlop}
   \centering
   \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt2UbProjSlop.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt2UubProjSlop.pdf}
+    \includegraphics[width=0.55\textwidth]{../../plots2/chi2VsSlopUb2.pdf}
+    \includegraphics[width=0.55\textwidth]{../../plots2/chi2VsSlopUub2.pdf}
   }
-  \caption{Slope distribution for PMT2, left UB and right UUB.}
-  \label{figChi2VsSlopProjSlopPmt2}
+  \caption{Distribution of p-value as function of the slope,
+  normalized by the average of the \qpkvem for the 7 days,
+  obtained after applied the sliding window method (see text for
+  details), for 75 stations, all PMT, UB (left), and UUB (right)
+  version. A hot spot for p-values bigger than $-4$ is observed
+  for UB and UUB, whereas the normalized slope closer to zero for
+  UB than UUB.}
+  \label{figLogPvalVsSlop}
 \end{figure}
-
-\begin{figure}[!t]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt3UbProjSlop.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt3UubProjSlop.pdf}
-  }
-  \caption{Slope distribution for PMT3, left UB and right UUB.}
-  \label{figChi2VsSlopProjSlopPmt3} 
-\end{figure}
-
-In this sense, a $\chi^2$ of $18$ for UB, and $12$ for UUB, has
-been chosen as cut, values including the $60\,\%$ of the counts,
-as it can be seen in the respective plots.
-
 \section{Accuracy calculation}
 
-For the calculation of the accuracy, a set of \qpkvem values, per
-PMT, were used. This set corresponds to the [six-day-series] with
-the minimum $\chi^2$ among the ones with slope between $-0.5$ and
-$0.5$, for both UB and UUB. This range is inside one sigma of the
-slope distributions, as figures from
-\ref{figChi2VsSlopProjSlopPmt1} to
-\ref{figChi2VsSlopProjSlopPmt3}. This imply that some PMTs, from
-some stations, were discarded because there was not a
-[six-day-series] with a slope into the former range. For
-instance, if the PMT$_i$ from the UB station A was discarded, so
-the same PMT$_i$ for UUB version was discarded too.
-\clearpage
-
-\begin{figure}[!t]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt1UbProjChi2.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt1UubProjChi2.pdf}
-  }
-  \caption{$\chi^2$ distribution PMT1, left UB, right UUB. In
-  red, the cumulative of the distribution is presented.}
-  \label{figChi2VsSlopProjChi2Pmt1}
-\end{figure}
-
-\begin{figure}[!t]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt2UbProjChi2.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt2UubProjChi2.pdf}
-  }
-  \caption{$\chi^2$ distribution for PMT2, left UB, right UUB. In
-  red, the cumulative of the distribution is presented.}
-  \label{figChi2VsSlopProjChi2Pmt2}
-\end{figure}
-
-\begin{figure}[!t]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt3UbProjChi2.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots2/chi2VsSlopPmt3UubProjChi2.pdf}
-  }
-  \caption{$\chi^2$ distribution for PMT3, left UB, right UUB. In
-  red, the cumulative of the distribution is presented}
-  \label{figChi2VsSlopProjChi2Pmt3}
-\end{figure}
-
-\noindent Using the [six-day-series] selected, and for the
-respective PMT, the \qpkvem were normalized, respect the average
-of the set, and a single distribution is built by summing the
-distributions of the respective PMTs.\\\\In this way, we obtain a
-distribution that represents the \qpkvem normalized for each
-station. A Gauss function is fitted to this last distribution in
-order to the get the first two moments of the distribution, which
-are used to determine the accuracy, $\sigma/\mu$. The figure
-\ref{fig1747QpkValues}, top row, shows an example for the
-distribution of \qpkvem values (\qpkDist) for station $1208$, UUB
-and UB version, meanwhile bottom row shows the distribution for
-the \qpkvem normalized.
-\clearpage
-
-\begin{figure}[!t]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/filteredPMTsSt1208.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/filteredUbPMTsSt1208.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/filteredSt1208.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/filteredUbSt1208.pdf}
-  }
-  \caption{Upper row, distribution of the fitted \qpkvem values
-  (\qpkDist, in the plot) for station 1747, for each PMT (red
-  PMT1, blue PMT2, and green PMT3), UUB (left) and UB (right)
-  version. Lower row, For same station, results for \qpkvem
-  normalized respect the average of the respective PMTs. The
-  magenta line represents the \qpkNormDist, i.e. the sum of
-  \qpkDist with a RMS lower or equal to $1.3$ times the $\sigma$
-  of the preliminary distribution (see text for details). In red,
-  a Gauss function fitted to \qpkNormDist.}
-  \label{fig1747QpkValues}
-\end{figure}
-
-The figure \ref{figAccuracyResults} shows the results for the
-accuracy of the fitted \qpkvem, applying the algorithm presented
-in section \ref{secSlidWndowAlgo}. There, the distribution of the
-accuracy for UB, and UUB are presented, with a means of
-$1.40\,\%\pm0.06\,\%$ and $1.97\,\%\pm0.17\,\%$, respectively.
+The accuracy calculation was perform following the next steps for
+each station, for both UB and UUB version:
+\begin{enumerate}
+  \item The best 7-day-row is chosen per PMT as the one with the
+    normalized slope closest to zero and
+    $\log_{10}($p-value$)<-1.12$.
+  \item If for a certain station, either UB or UUB, some PMT has
+    not a 7-day-row in agreement with the previous requirements,
+    this PMT is remove for the calculation from both UB and UUB.
+  \item For each PMT, a singular normalized distribution of the
+    respective \qpkvem values, into the respective 7-day-row, is
+    built.
+  \item A Gaussian function is fitted to the normalized
+    distribution and then the accuracy is calculated as:
+    $\sigma/\mu$, respectively.
+\end{enumerate}
+An example of the steps 3 and 4 of former method are illustrated
+in figure \ref{figQpkNormalizedSt1224}.
 \clearpage
 
 
 \begin{figure}[!t]
+  \label{figProjSlop}
   \centering
   \subfigure {
-    \includegraphics[width=1.\textwidth]{../../plots2/accQpkFitUbUubAllStAllPmt_Stats2.pdf}
+    \includegraphics[width=0.55\textwidth]{../../plots2/chi2VsSlopUbProjSlop2.pdf}
+    \includegraphics[width=0.55\textwidth]{../../plots2/chi2VsSlopUubProjSlop2.pdf}
+  }
+  \caption{Distribution of normalized slopes fitted for
+  [7-days-row]$_i$ matching: $\chi^2<10$
+  ($\log_{10}($p-value$)>-1.12$), and normalized slope
+  $\mu\pm\sigma$ (x axis, figure  \ref{figLogPvalVsSlop}). For UB
+  case, the mean of the distribution is closer to zero than UUB
+  case.}
+  \label{figProjSlop}
+\end{figure}
+
+The results of the \qpkvem accuracy calculation are presented in
+figure \ref{figAccuracyResults}, where the plot of the accuracy
+per station is presented on the left, whereas the accuracy
+distribution of showed on the right figure. There, it is possible
+to see that the accuracy for UUB version is
+$1.61\,\%\pm0.06\,\%$, and for UB is $1.36\,\%\pm0.06\,\%$, which
+differ from the $2\,\%$ calculated for the engineering array and
+presented in \cite{gap2002-046}. Figure \ref{figOutlier1223}
+present an example of one station with an outlier accuracy.\\\\On
+the other hand, in figure \ref{figDiffAcc} the difference between
+the accuracy for UB minus the one for UUB is presented per
+station, left plot, together its distribution, right plot. There,
+it is seen that in effect the UUB accuracy is bigger than UB for
+the majority of the stations, with a mean value of
+$-0.252\,\%\pm0.052\,\%$. In figure \ref{figOutlier1224} an
+outlier example ($<-1\,\%$) is presented.
+
+\clearpage
+
+\begin{figure}[!t]
+  \label{figQpkNormalizedSt1224}
+  \centering
+  \subfigure {
+    \includegraphics[width=0.55\textwidth]{../../plots2/qpkdDistUBSt1224.pdf}
+    \includegraphics[width=0.55\textwidth]{../../plots2/qpkdDistUUBSt1224.pdf}
+  }
+  \subfigure {
+    \includegraphics[width=0.55\textwidth]{../../plots2/qpkdNormDistUBSt1224.pdf}
+    \includegraphics[width=0.55\textwidth]{../../plots2/qpkdNormDistUUBSt1224.pdf}
+  }  
+  \caption{Example of the method applied to calculate the
+  accuracy of the \qpkvem, station 1224. Upper row, distribution
+  of the \qpkvem values from the best 7-day-raw selected; left
+  UB, right UUB. Lower row, former distribution normalized
+  respect the average of the respective PMT. The red line
+  represents the Gauss function fitted.}
+  \label{figQpkNormalizedSt1224}
+\end{figure}
+
+\begin{figure}[!t]
+  \label{figAccuracyResults}
+  \centering
+  \subfigure {
+    \includegraphics[width=.55\textwidth]{../../plots2/accQpkFitUbUubPerSt_Stats2.pdf}
+    \includegraphics[width=.55\textwidth]{../../plots2/accQpkFitUbUubAllStAllPmt_Stats2.pdf}
   }
   \caption{Results for the accuracy calculation of the \qpkvem
   fitting, using the algorithm describe in section 
-  \ref{secSlidWindowAlgo}. In the right side, the distribution
-  of the $\sigma/\mu$ values is presented for both version, UUB
-  (red) and UB (blue). Here, it is possible to see that the
-  accuracy for UUB is better than the one for UB.}
+  \ref{secSlidWindowAlgo}; in blue color for UB, and in red color
+  for UUB. In the right side, the distribution of the
+  $\sigma/\mu$ values is presented for both version, UUB (red)
+  and UB (blue). Here, it is possible to see that the accuracy
+  for UUB is better than the one for UB.}
   \label{figAccuracyResults}
 \end{figure}
 \textcolor{white}{hi}
 \clearpage
 
+\begin{figure}
+  \label{figDiffAcc}
+  \centering
+  \subfigure {
+    \includegraphics[width=0.55\textwidth]{../../plots2/accQpkFitUbUubDiffPerSt_Stats2.pdf}
+    \includegraphics[width=0.55\textwidth]{../../plots2/accQpkFitUbUubDistDiff_Stats2.pdf}
+  }
+  \caption{Difference between the accuracy for UB minus the one
+  for UUB. Left, the plot of this difference per station. Right,
+  its distribution. Here, it is possible to see how per UB
+  stations the accuracy is lower than the one for the respective
+  UUB version.}
+  \label{figDiffAcc}
+\end{figure}
 
-\section{Results hand-selection}
 \begin{figure}[!t]
+  \label{figOutlier1223}
   \centering
   \subfigure {
-    \includegraphics[width=1.\textwidth]{../../plots2/accQpkFitUbUubAllStAllPmt_hand.pdf}
+    \includegraphics[width=0.55\textwidth]{../../plots2/qpkdDistUBSt1223.pdf}
+    \includegraphics[width=0.55\textwidth]{../../plots2/qpkdDistUUBSt1223.pdf}
   }
-  \caption{Results for the accuracy calculation of the \qpkvem
-  fitting, selecting the [n-day-series] by hand. In the right
-  side, the distribution of the $\sigma/\mu$ values is presented
-  for both version, UUB (red) and UB (blue). Here, it is possible
-  to see that the accuracy for UUB is better than the one for
-  UB.}
-  \label{figAccuracyResultsHand}
+  \subfigure {
+    \includegraphics[width=0.55\textwidth]{../../plots2/qpkdNormDistUBSt1223.pdf}
+    \includegraphics[width=0.55\textwidth]{../../plots2/qpkdNormDistUUBSt1223.pdf}
+  }  
+  \caption{Station 1223 with an outlier accuracy ($>10\,\%$).
+  Here, it is possible to see how the PMT3 produce a wide
+  distribution for the normalized \qpkvem.}
+  \label{figOutlier1223}
 \end{figure}
 
-The figure \ref{figAccuracyResultsHand} shows the results for the
-accuracy of the fitted \qpkvem, selecting the [n-day-series] by
-hand. The respective intervals are shown on figures in section
-\ref{secQpkVsTime}, horizontal black line. There, the
-distribution of the accuracy for UB, and UUB are presented, with
-a means of $1.40\,\%\pm0.06\,\%$ and $1.97\,\%\pm0.17\,\%$,
-respectively.
+\textcolor{white}{hi}
 \clearpage
 
-
-
-
-\section{\qpkvem as function of time}
-\label{secQpkVsTime}
-
-\begin{figure}[!b]
+\begin{figure}[!t]
+  \label{figOutlier1224}
   \centering
   \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt545UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt545UUB.pdf}
+    \includegraphics[width=0.55\textwidth]{../../plots2/qpkdDistUBSt1224.pdf}
+    \includegraphics[width=0.55\textwidth]{../../plots2/qpkdDistUUBSt1224.pdf}
   }
   \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/chi2NdfQpksVsTimeSt545UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/chi2NdfQpksVsTimeSt545UUB.pdf}
-  }   
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt804UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt804UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt806UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt806UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. The first row shows the
-  average of the \qpkvem per day plotting as function of time,
-  for the station  545, left UB, and right UUB version. In the
-  second raw, the quality of the respective fit (the average of
-  $\chi^2/$ndf per day), same station, is plotting as function of
-  time. The third and fourth row present the same results as row
-  1, for stations 804 and 806. if the label ``Selected'' is seen,
-  it means that some, or all, PMTs were chosen to calculate the
-  accuracy of \qpkvem.}
-  %\label{figQpksTime}
+    \includegraphics[width=0.55\textwidth]{../../plots2/qpkdNormDistUBSt1224.pdf}
+    \includegraphics[width=0.55\textwidth]{../../plots2/qpkdNormDistUUBSt1224.pdf}
+  }  
+  \caption{Station 1224 with an outlier value for the difference
+  between accuracy UB minus accuracy UUB ($<-1\,\%$). Here, it is
+  seen that the normalized distribution of the \qpkvem values is
+  wider in the UUB version than in UB one.}
+  \label{figOutlier1224}
 \end{figure}
+
+\textcolor{white}{hi}
 \clearpage
 
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt827UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt827UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt830UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt830UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt832UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt832UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt833UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt833UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
+\section{Summary and conclusions}
+We have presented a different method to fit the charge
+calibration histograms and get the respective \qpkvem value. This
+method used the first derivative of the histogram to estimate the
+fitting range.\\\\
+A sliding window method has been implemented to find the most
+stable period for the \qpkvem, in both UB and UUB. In our case,
+this period consist in seven days in a row.\\\\
+We have calculate the accuracy of the \qpkvem using the
+normalized distribution of the \qpkvem values inside the chosen
+stable period. From there, we have calculated the accuracy for
+the UUB version in $1.61\,\%\pm0.06\,\%$, and
+$1.36\,\%\pm0.06\,\%$ for UB, which differ from the $2\,\%$
+calculated in \cite{gap2002-046} for the engineering array.
 
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt836UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt836UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt840UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt840UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt843UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt843UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt846UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt846UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
 
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt849UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt849UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt850UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt850UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt851UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt851UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt853UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt853UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
+\begin{thebibliography}{}
+  \setlength{\itemsep}{0.0pt}
+    \bibitem{augerPrimeDesign}
+      A.~Aab \textit{et al.}, ``The Pierre Auger Observatory
+      Upgrade - Preliminary Design Report,'' arXiv:1604.03637
+      [astro-ph.IM].
+    \bibitem{gap2003-030} M. Ave, P. Bauleo, T. Yamamoto,
+      {\em Signal Fluctuation in the Auger Surface Detector
+      Array}, GAP 2003-030
+    \bibitem{gap2002-046} A. Tripathi, K. Arisaka, M. Healy, D.
+      Barnhill, W. Slater, {\em A Systematic Calibration of
+      Surface Detectors using Muon Data from the Engineering
+      Array}, GAP 2002-046
 
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt849UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt849UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt850UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt850UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt851UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt851UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt853UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt853UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt856UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt856UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt859UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt859UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt860UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt860UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt861UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt861UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt862UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt862UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt863UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt863UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt864UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt864UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt866UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt866UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt868UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt868UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt871UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt871UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt907UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt907UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1185UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1185UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1190UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1190UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1191UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1191UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1198UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1198UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1205UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1205UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1207UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1207UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1208UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1208UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1209UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1209UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1210UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1210UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1211UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1211UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1213UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1213UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1214UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1214UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1216UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1216UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1217UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1217UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1218UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1218UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1219UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1219UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1220UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1220UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage1
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1221UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1221UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1222UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1222UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1223UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1223UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1224UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1224UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1225UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1225UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1227UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1227UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1729UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1729UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1733UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1733UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1735UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1735UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1736UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1736UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1737UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1737UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1738UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1738UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1739UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1739UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1740UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1740UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1741UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1741UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1742UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1742UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1743UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1743UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1744UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1744UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1745UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1745UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1746UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1746UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1747UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1747UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1779UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1779UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1791UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1791UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1798UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1798UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1817UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1817UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1818UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1818UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1819UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1819UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1851UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1851UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
-hi
-\begin{figure}[!b]
-  \centering
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1854UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1854UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1878UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1878UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1880UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeHandSt1880UUB.pdf}
-  }
-  \subfigure {
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1881UB.pdf}
-    \includegraphics[width=0.49\textwidth]{../../plots/qpksVsTimeSt1881UUB.pdf}
-  }
-  \caption{\qpkvem values obtained applying the algorithm
-  presented in section \ref{secFitting}. Each row shows the 
-  average of the \qpkvem per day plotting as function of time,
-  left UB, and right UUB version. If the label ``Selected'' is
-  seen, it means that some, or all, PMTs were chosen to calculate
-  the accuracy of \qpkvem.}
-\end{figure}
-\clearpage
-
+\end{thebibliography}
 
 \end{document}
