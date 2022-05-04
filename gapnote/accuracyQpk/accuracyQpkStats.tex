@@ -118,12 +118,14 @@ Off}$\hspace{.05em}\raisebox{.4ex}{$\bf\underline{\rm\bf line}$}}\xspace}
 
 \begin{abstract}
   \noindent
-  From the installation of the Upgraded Unified Board (UUB) is
-  expected to have a better accuracy for the estimation of the
-  \qpkvem values respect of the previous Unified Board (UB).
-  Here, the process to calculate the accuracy of the \qpkvem
-  values for the UUB and UB is presented, and the results for
-  $75$ UUB stations, and their respective UB version, are showed.
+  From the deployment of the Upgraded Unified Board (UUB) it is 
+  expected to have a better accuracy for the calculation of the
+  \qpkvem values, respect of the previous Unified Board (UB).
+  Here, a method to calculate the accuracy of the \qpkvem values
+  for the UUB and UB is presented, including a new method
+  to fit the muon hump in charge calibration histogram. In this
+  way, the accuracy was calculate for $75$ UUB stations, and
+  their respective UB version.
 \end{abstract}
 
 
@@ -135,23 +137,24 @@ $\;$
 \clearpage
 
 \section{Introduction}
-The deployment of the Upgraded Unified Board (UUB) of the WCDs of
-belonging to the surface array\,\cite{augerPrimeDesign} requires
-a systematic calibration, taken as reference the previous Unified
-Board (UB). A quantity that works as checker of this calibration
-stability is the \qpkvem and its accuracy, which it is important
-also to understand the fluctuation of the signals recorded by the
-WCDs\,\cite{gap2003-030}. This quantity is extracted from fitting
-the muon hump presented in the charge calibration
-histograms.\\\\In order to calculate the accuracy of the \qpkvem,
-here we have implemented a method to fit and extract the
-respective \qpkvem, for both UUB and UB. Then, the accuracy was
-calculated for a set of values into a time window of seven days.
-This time period was chosen by following the implementation of a
-sliding widow algorithm, through which the stablest \qpkvem
-average per day in seven days was found.
+The deployment of the Upgraded Unified Board (UUB) for the
+surface array\,\cite{augerPrimeDesign} requires a systematic
+monitoring and calibration, using as reference the previous
+Unified Board (UB). The \qpkvem is one of the more important
+quantities to calculate and monitoring because it is used to
+normalize the SD signals, making possible the comparison among
+different WCDs, and also to understand the signals
+fluctuations\,\cite{gap2003-030}.\\\\In this work, the accuracy
+of the \qpkvem is calculated as a checker of its stability,
+extracting its value through fitting the muon hump in the charge
+calibration histograms\,\cite{BERTOU2006839} and comparing
+between UB and UUB. In order to guarantee the precision in this
+calculation, two methods have been implemented, first one
+regarding the fitting of the muon hump, and second one to chose a
+time window of seven days in a row which the fitted \qpkvem
+values were stable, in both version UB and UUB.
 
-\section{Fitting histograms}
+\section{Fitting the muon hump}
 \label{secFitting}
 
 \begin{figure}[!t]
@@ -161,23 +164,23 @@ average per day in seven days was found.
     \includegraphics[width=.5\textwidth]{../../plots/chargeHisto863.pdf}
     \includegraphics[width=.5\textwidth]{../../plots/chargeDerHisto863.pdf}
   }
-  \caption{Fitting algorithm to fit the muon hump in calibration
-  charge histogram (see details in the text). Left: a sample of a
-  typical charge calibration histogram, where the black line
-  represents the smoothing histogram ($H_S$) after applying
-  15-bin sliding window. Right: first derivative histogram
-  ($H_{DS}$) in black, and its respective smoothing in red
-  ($H_{SDS}$). Here, the green vertical line shows the maximum or
-  the first approach of \qpkvem.}
+  \caption{Algorithm to fit the muon hump in calibration charge
+  histograms (see details in the text). Left: a sample of a
+  typical charge calibration histogram, the black line represents
+  the smoothing histogram after applying a 15-bin sliding window
+  ($H_S$). Right: in black the first derivative histogram
+  ($H_{DS}$) and its respective smoothing in red ($H_{SDS}$).
+  Here, the green vertical line shows the maximum or the first
+  approach for \qpkvem.}
+  \label{figChargeDerivative}
 \end{figure}
 
 The \qpkvem value is obtained from charge calibration histograms
 by fitting the muon hump. We have implemented an algorithm which
-uses the first derivative to perform this fit. The propose of
-the derivative is to get a first approach of the hump position,
-and from this to fix the fitting range. This algorithm is
-illustrated in figure \ref{figChargeDerivative}, and detailed
-next:
+uses the first derivative to perform this fit, obtaining in this
+way a first approach of the hump position, and from there the
+fitting range. The figure \ref{figChargeDerivative} illustrated
+this algorithm, which detailed next:
 \begin{enumerate}
   \item Smoothing the histogram using a 15-bin sliding window,
     $H_S$.
@@ -206,49 +209,50 @@ next:
     \includegraphics[width=.5\textwidth]{../../plots/chargeFitPoly2863.pdf}
     \includegraphics[width=.5\textwidth]{../../plots/chargeFitResidualsPoly2863.pdf}
   }
-  \caption{Top row, results for the stability of fitting the hump
-  muon (RMS/$\left<Q^\mathrm{Peak}_\mathrm{VEM}\right>$) as
+  \caption{Top row, results for fitting stability of the hump
+  muon, RMS/$\left<Q^\mathrm{Peak}_\mathrm{VEM}\right>$, as
   function of the n-bin. After 30 bins the stability is reached.
-  Bottom row, an example of applying the algorithm; here the
-  vertical green line shows the hump VEM obtained from the first
-  derivative (step 4.), and the vertical blue line shows the
-  \qpkvem obtained as the maximum of the fitted second order
+  Bottom row, an example of application of the algorithm; here
+  the vertical green line shows the hump VEM obtained from the
+  first derivative (step 4.), and the vertical blue line shows
+  the \qpkvem obtained as the maximum of the fitted second order
   polynomial.}
   \label{figFitStabNbins}
 \end{figure}
 
 The last step in the algorithm requires an extra procedure in
-order to fixed the number of n-bin. To this, a set of histograms
-have been fitted using different values for n, and then we check
-for the stability of the fit, i.e. RMS$_\mathrm{n}$/$\left<
-Q^\mathrm{Peak}_\mathrm{VEM,\,n} \right>$. For this procedure, an
-extra condition was implemented in order to avoid fit the valley
-of the histogram. The results of this procedure is presented in
-figure \ref{figFitStabNbins}. There, the stability of the fit
-is seen at and after 30-bin, and this last one is chosen as the
-number of n-bin for the step 5 of the algorithm. In the bottom
-row of the same figure, an example of applying this procedure is
-presented. Section \ref{secQpkVsTime} contains the \qpkvem values
-obtained by this method for 75 UUB stations and for the same
-stations but in UB version, using the same algorithm.
+order to fixed the number of n-bin. So, a set of histograms have
+been fitted using different values for n, and then the stability
+of the fit,
+RMS$_\mathrm{n}$/$\left<Q^\mathrm{Peak}_\mathrm{VEM,\,n}
+\right>$, have been checked; avoiding to fit the valley of the
+histogram. The results of this procedure are presented in
+figure \ref{figFitStabNbins}. There, the stability of the fit is
+reached after 30-bin, which chosen as the number of n-bin for the
+step 5 of the algorithm. In the bottom row of the same figure, an
+example of applying this procedure is
+presented.
+%Section \ref{secQpkVsTime} contains the \qpkvem values
+%obtained by this method for 75 UUB stations and for the same
+%stations but in UB version, using the same algorithm.
 
 \section{Sliding window algorithm for \qpkvem accuracy
 calculation}
 \label{secSlidWindowAlgo}
-Once the \qpkvem values have been obtained, we procedure to check
-its accuracy for the UUB version, and compare it with the one
-for UB version.\\\\The calculation of the accuracy is based on
-the selection of a time window in which the \qpkvem as a function
-of time was stable; here seven days in a row (7-day-row). To
-determine this period of time, the average of the \qpkvem per day
-was plotted as function of time for each of the 75 stations, from
-August to November, year 2021 for UUB, and year 2018 for UB. In
-order to chose the respective 7-day-row, a first condition was
-set in terms of the minimum of values per day needed in each day.
-With this porpoise, the distribution of \qpkvem per day was
-calculate and presented in figure \ref{figDistQpkPerDay}, from
-which we have chosen 10 \qpkvem values per day as the
-minimum.
+
+The calculation of the accuracy is based on the selection of a
+period of time in which the \qpkvem as a function of time was
+stable, in this case we have chosen a full week (7-day-row). To
+determine this time window, we have used the charge calibration
+histograms measured from August to November, 2021 for UUB and
+2018 for UB. From these set of data, the average of \qpkvem per
+day was plotted as function of time for each one of the 75, UUB
+and UB.\\\\In order to chose the respective 7-day-row with a good
+statistic, a first condition was set in terms of the minimum of
+\qpkvem values per day needed in each day. To apply this
+condition, the distribution of \qpkvem per day was calculate, and
+it is presented in figure \ref{figDistQpkPerDay}, from which we
+have chosen as $10$ the minimum of \qpkvem values per day.
 \clearpage
 
 \begin{figure}[!t]
@@ -264,7 +268,7 @@ minimum.
   \label{figDistQpkPerDay}
 \end{figure}
 
-The sliding window algorithm was applied to each
+\noindent The sliding window algorithm was applied to each
 station, and each PMT, following next steps:
 \begin{enumerate}
   \item The $\left< Q^{\mathrm{Peak}}_{\mathrm{VEM}}\right>$ per
@@ -273,32 +277,30 @@ station, and each PMT, following next steps:
     [7-day-series]$_0$ is build.
   \item A check for continuity is applied, i.e. if each day has
     not more then 10 \qpkvem values, or the 7 days are not
-    consecutive a new series is built, e.g. if series $i$ has a
-    discontinuity in day 3 jumping to day 5, a new 7-day-series
-    is calculated from day 5.
+    consecutive (some day has not data), a new series is built,
+    e.g. if series $i$ has a discontinuity in day 3 jumping to
+    day 5, a new 7-day-series is calculated from day 5.
   \item If [7-day-series]$_i$ is consecutive, a linear fit is
-    applied to the 7-day-series, and the respective slope and
-    p-value are stored.
+    applied, and the respective slope and p-value are stored.
 \end{enumerate}
 
-Figure \ref{figLogPvalVsSlop} shows the distribution for the
-p-values as function of the normalized slope by the average of
-the \qpkvem for the 7 days, and obtained with the former method;
-applied for 75 stations, all PMTs, UB and UUB version,
-respectively. There, it is seen how the normalized slope is
-closer to zero for UB than UUB, whereas for both version the
-$\log_{10}($p-value$)$ distribution has a hot spot for values
-bigger than $-4$. After these results, and taking into the account 
-that the number of degree of freedom is 5 for all the
-fits\footnote{Here, only fits with 5 DOF were used; different
-ones were rejected.}, we chose all fits ([7-days-row]$_i$)
-matching with: $\chi^2<10$ ($\log_{10}($p-value$)<-1.12$), and
-normalized slope in $\mu\pm\sigma$ (x axis, figure
-\ref{figLogPvalVsSlop}).\\The results after these cuts are
-presented in figure \ref{figProjSlop}, where the distribution of
-the normalized slope is presented for both UB and UUB. Using
-these results, we can chose the best 7-day-row to perform the
-accuracy calculation.
+\noindent The figure \ref{figLogPvalVsSlop} shows the
+distribution for the p-values as function of the normalized slope
+(respect the average of the \qpkvem during the 7 days), obtained
+by applying the former algorithm to the 75 stations, all PMTs.
+There, it is seen how the normalized slope is closer to zero for
+UB than UUB, whereas for both version the $\log_{10}($p-value$)$
+distribution has a hot spot for values bigger than $-4$.\\\\With
+these results, and taking into the account that the number of
+degree of freedom is 5 for all the fits\footnote{Here, only fits
+with 5 DOF were used; different ones were rejected.}, we chose
+all fits matching with: $\chi^2<10$, i.e.
+$\log_{10}($p-value$)<-1.12$, and a normalized slope between
+$\mu\pm\sigma$ (x axis, figure \ref{figLogPvalVsSlop}). The
+results after these cuts are presented in figure
+\ref{figProjSlop}, where the distribution of the normalized slope
+is presented for both UB and UUB. With these results, we can
+chose the best 7-day-row to perform the accuracy calculation.
 \clearpage
 
 \begin{figure}[!t]
@@ -308,19 +310,20 @@ accuracy calculation.
     \includegraphics[width=0.55\textwidth]{../../plots2/chi2VsSlopUb2.pdf}
     \includegraphics[width=0.55\textwidth]{../../plots2/chi2VsSlopUub2.pdf}
   }
-  \caption{Distribution of p-value as function of the slope,
-  normalized by the average of the \qpkvem for the 7 days,
-  obtained after applied the sliding window method (see text for
-  details), for 75 stations, all PMT, UB (left), and UUB (right)
-  version. A hot spot for p-values bigger than $-4$ is observed
-  for UB and UUB, whereas the normalized slope closer to zero for
-  UB than UUB.}
+  \caption{Distribution of p-value as function of the normalized
+  slope (i.e. divided by the average of the \qpkvem during the 7
+  days). Values obtained after applied the sliding window method
+  to 75 stations, all PMT (see text for details). On the left the
+  distribution for UB, and on the right the one for UUB. A hot
+  spot for p-values bigger than $-4$ is observed for UB and UUB,
+  whereas the normalized slope closer to zero for UB than UUB.}
   \label{figLogPvalVsSlop}
 \end{figure}
 \section{Accuracy calculation}
 
-The accuracy calculation was perform following the next steps for
-each station, for both UB and UUB version:
+The calculation for the \qpkvem accuracy to each station was
+perform following the next steps for each station, for both UB
+and UUB version:
 \begin{enumerate}
   \item The best 7-day-row is chosen per PMT as the one with the
     normalized slope closest to zero and
@@ -328,15 +331,17 @@ each station, for both UB and UUB version:
   \item If for a certain station, either UB or UUB, some PMT has
     not a 7-day-row in agreement with the previous requirements,
     this PMT is remove for the calculation from both UB and UUB.
-  \item For each PMT, a singular normalized distribution of the
-    respective \qpkvem values, into the respective 7-day-row, is
-    built.
-  \item A Gaussian function is fitted to the normalized
+  \item To each PMT, a singular normalized distribution of the
+    respective \qpkvem values is built; into the respective.
+  \item A Gaussian function is fitted to each PMT normalized
     distribution and then the accuracy is calculated as:
     $\sigma/\mu$, respectively.
 \end{enumerate}
-An example of the steps 3 and 4 of former method are illustrated
-in figure \ref{figQpkNormalizedSt1224}.
+An example of the steps 3 and 4 of this method are illustrated
+in figure \ref{figQpkNormalizedSt1224} for UB and UUB. There, it
+is possible to see that the distribution of the normalized
+\qpkvem values fits to a Gaussian function, for the both
+versions.\\\\
 \clearpage
 
 
@@ -356,23 +361,22 @@ in figure \ref{figQpkNormalizedSt1224}.
   \label{figProjSlop}
 \end{figure}
 
-The results of the \qpkvem accuracy calculation are presented in
-figure \ref{figAccuracyResults}, where the plot of the accuracy
-per station is presented on the left, whereas the accuracy
-distribution of showed on the right figure. There, it is possible
-to see that the accuracy for UUB version is
-$1.61\,\%\pm0.06\,\%$, and for UB is $1.36\,\%\pm0.06\,\%$, which
-differ from the $2\,\%$ calculated for the engineering array and
-presented in \cite{gap2002-046}. Figure \ref{figOutlier1223}
-present an example of one station with an outlier accuracy.\\\\On
-the other hand, in figure \ref{figDiffAcc} the difference between
-the accuracy for UB minus the one for UUB is presented per
-station, left plot, together its distribution, right plot. There,
-it is seen that in effect the UUB accuracy is bigger than UB for
-the majority of the stations, with a mean value of
-$-0.252\,\%\pm0.052\,\%$. In figure \ref{figOutlier1224} an
-outlier example ($<-1\,\%$) is presented.
-
+\noindent The results for the \qpkvem accuracy are presented in
+figure \ref{figAccuracyResults}, where the accuracy per station
+is presented on the left, whereas the its distribution is showed
+on the right panel. There, it is seen that the accuracy for UUB
+takes a value of $1.61\,\%\pm0.06\,\%$, and $1.36\,\%\pm0.06\,\%$
+for UB. The latest value differ from the $2\,\%$ calculated in
+\cite{gap2002-046} for the engineering array.\\\\On the other
+hand, in figure \ref{figDiffAcc} the difference between the
+accuracy for UB minus the one for UUB is presented per station,
+left plot, together its distribution, right plot. There, it is
+possible to confirm that the \qpkvem accuracy for UUB stations
+are in general bigger than the ones for UBs, with a mean value
+for this difference of $-0.252\,\%\pm0.052\,\%$.\\\\Examples of
+ourliers in figure \ref{figAccuracyResults}, and in figure
+\ref{figDiffAcc} are presented in figures \ref{figOutlier1223}
+and \ref{figOutlier1224}, respectively.
 \clearpage
 
 \begin{figure}[!t]
@@ -471,19 +475,20 @@ outlier example ($<-1\,\%$) is presented.
 \clearpage
 
 \section{Summary and conclusions}
-We have presented a different method to fit the charge
-calibration histograms and get the respective \qpkvem value. This
-method used the first derivative of the histogram to estimate the
-fitting range.\\\\
-A sliding window method has been implemented to find the most
-stable period for the \qpkvem, in both UB and UUB. In our case,
-this period consist in seven days in a row.\\\\
-We have calculate the accuracy of the \qpkvem using the
-normalized distribution of the \qpkvem values inside the chosen
-stable period. From there, we have calculated the accuracy for
-the UUB version in $1.61\,\%\pm0.06\,\%$, and
+We have developed and presented a different method to fit the
+muon hump in charge calibration histograms, and from there to
+estimate the respective \qpkvem value, for UUB and UB
+version; as it was presented in figures \ref{figChargeDerivative}
+and \ref{figFitStabNbins}.\\\\A sliding window method was
+implemented to find the most stable period for the \qpkvem
+values, i.e. during 7 consecutive days in a row; for both
+version, UB and UUB.\\\\We have calculate the accuracy of the
+\qpkvem using the normalized distribution of the \qpkvem values
+for the most stable period. From there, we have calculated the
+accuracy for UUB version as $1.61\,\%\pm0.06\,\%$, and
 $1.36\,\%\pm0.06\,\%$ for UB, which differ from the $2\,\%$
 calculated in \cite{gap2002-046} for the engineering array.
+
 
 
 \begin{thebibliography}{}
@@ -495,11 +500,16 @@ calculated in \cite{gap2002-046} for the engineering array.
     \bibitem{gap2003-030} M. Ave, P. Bauleo, T. Yamamoto,
       {\em Signal Fluctuation in the Auger Surface Detector
       Array}, GAP 2003-030
+    \bibitem{BERTOU2006839} X. Bertou and P.S. Allison 
+      and C. Bonifazi and \textit{et al.}, {\em Calibration of
+      the surface array of the Pierre Auger Observatory}, Nuclear
+      Instruments and Methods in Physics Research Section A:
+      Accelerators, Spectrometers, Detectors and Associated
+      Equipment, vol. 568, number 2, 2006 
     \bibitem{gap2002-046} A. Tripathi, K. Arisaka, M. Healy, D.
       Barnhill, W. Slater, {\em A Systematic Calibration of
       Surface Detectors using Muon Data from the Engineering
       Array}, GAP 2002-046
-
 \end{thebibliography}
 
 \end{document}
