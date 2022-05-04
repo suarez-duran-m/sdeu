@@ -121,7 +121,7 @@ int main ( int argc, char** argv) {
           continue;
   
         if ( sdEvent.HasCalibrationHistograms() ) {
-          cerr << "MSD St. " << st_i << " has Calib histo" << endl;          
+          //cerr << "MSD St. " << st_i << " has Calib histo" << endl;          
           const vector<Traces>& traces = sdEvent.GetStation(st_i)->GetPMTTraces();
           
           for (vector<Traces>::const_iterator trIter = traces.begin();
@@ -130,7 +130,7 @@ int main ( int argc, char** argv) {
             if (tr.GetType() != eTotalTrace)
               continue;
             const CalibHistogram& calibHisto = tr.GetChargeHistogram();
-            cerr << "ok" << endl;
+            //cerr << "ok" << endl;
           }
         }
         
@@ -518,7 +518,7 @@ void plotSigDist(int st_slct, double frtbin, double lstbin, int nbins,
   lgnd->Draw();
   */
 
-  sigDistCanv->Print(Form("totSigDistSt%.f.pdf",st2read[st_slct])); 
+  //sigDistCanv->Print(Form("totSigDistSt%.f.pdf",st2read[st_slct])); 
 
   histDistSigBef.Delete();
   histDistSigAft.Delete();
