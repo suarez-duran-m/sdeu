@@ -142,6 +142,7 @@ int main ( int argc, char** argv) {
         sigStTimeErr[st_posVec].push_back( tmpSigErr );
         accSigSt[st_posVec].push_back( tmpSigErr/tmpSig );
         timeSigSt[st_posVec].push_back( sdEvent.GetGPSSecond() );
+        cout << tmpSig << endl;
         /*
         // From GAP 2003-030;
         // pmt1-pmt2
