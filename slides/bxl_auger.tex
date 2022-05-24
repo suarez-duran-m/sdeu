@@ -1,0 +1,408 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{Calibration of the SD Array of the Pierre Auger Observatory}
+\author{
+  Mauricio Su\'arez Dur\'an
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{The SD array}
+  \centering
+    \includegraphics[width=.4\textwidth]{/home/msd/Pictures/pierre_auger_sd-array.jpg}
+    \begin{itemize}
+      \item<1-> $1600$ WCD, each one with $3$ PMTs
+      \item<2-> The Cherenkov light is measured in units of the
+        signal produced by a vertical and central through-going
+        (VCT) $\rightarrow$ termed a vertical-equivalent muon
+        (VEM).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Technical limitations}
+  \begin{itemize}
+      \item<1-> The bandwidth available from each SD to the CDAS
+        is approximately 1200 bits per second.
+      \item<2-> The local processor is an 80 MHz PowerPC 403GCX
+        lacking ﬂoating-point hardware.
+      \item<3-> The remoteness of the detectors.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Important technical aspects}
+  \begin{itemize}
+    \item<1-> Digitisation at 40 MHz and 10-bit ﬂash
+      analog-to-digital converters (FADCs) to digitize the
+      signals from the 3 PMTs.
+    \item<2-> Two signals from each PMT one from the anode, and
+      the other from the last dynode, amplified and inverted to a
+      total to nominally 32 times the anode.
+    \item<3-> The signal recorded by the FADC is referred to in
+      units of channels (ch), with a range of $0-1023$,
+      corresponding to an input range of $0-2$\,V. Each FADC bib
+      corresponds to $25$\,ns.
+  \end{itemize}
+% \centering
+%  \includegraphics[width=.5\textwidth]{/home/msd/Pictures/auger_observatory.png}
+\end{frame}
+
+
+\begin{frame}
+  \begin{columns}
+    \begin{column}{.9\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/table_calib_terms.png}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Charge histograms and VEM}
+  Atmospheric muons passing through the detector at
+  $\sim2500$\,Hz, but the SD (in normal conﬁguration) has no way
+  to select only VCT muons.
+  \begin{columns}
+    \begin{column}{.35\textwidth}
+      \includegraphics<2->[width=1.\textwidth]{/home/msd/Pictures/charge_vem_3-fold.png}
+    \end{column}
+  \end{columns}
+  This peak ($Q^{\mathrm{peak}}_{\mathrm{VEM}}$) is at
+  approximately $1.09$ VEM for the sum of the 3 PMTs and
+  $1.03\pm0.02$) VEM for each PMT, both measured with a muon
+  telescope providing the trigger in a reference tank.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Height histograms and trigger}
+  The SD uses two triggers to identify showe candidates
+  \begin{enumerate}
+    \item<1-> A simple threshold trigger, satisfied when the
+      signal from all 3 PMTs exceeds a set threshold (designed
+      for signals close to the shower core).
+    \item<2-> A time-over-threshold trigger, which requires that
+      the signal from 2 of the 3 PMTs exceed a much lower
+      threshold than the first one for a number of time bins
+      within a given time window (designed for signals far from
+      the shower core).
+  \end{enumerate}
+  \begin{itemize}
+    \item<3-> These triggers are set in electronics units
+      (channels) -a measure of the current from the PMT- so the
+      station must have a reference unit for current as well
+      $\rightarrow$ $I^{\mathrm{peak}}_{\mathrm{VEM}}$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Height histograms and trigger}
+  \begin{columns}
+    \begin{column}{.4\textwidth}
+      \includegraphics<1->[width=1.\textwidth]{/home/msd/Pictures/amplitude_vem_3-fold.png}
+    \end{column}
+  \end{columns}
+  \begin{itemize}
+    \item<2->This peak, like the charge histogram peak, is
+      related to the peak current produced by a vertical
+      through-going muom $I^{\mathrm{peak}}_{\mathrm{VEM}}$.
+    \item<3-> The target trigger threshold is
+      $3.2I^{\mathrm{peak}}_{\mathrm{VEM}}$ for the simple
+      threshold trigger, and
+      $0.2I^{\mathrm{peak}}_{\mathrm{VEM}}$ for the
+      time-over-threshold trigger.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{VEM calibration procedure}
+  \begin{enumerate}
+    \item<2-> Set up the end-to-end gains to have
+      $I^{\mathrm{peak}}_{\mathrm{VEM}}$ at $50$\,ch.
+    \item<3-> Continually perform a local calibration to
+      determine $I^{\mathrm{peak}}_{\mathrm{VEM}}$ in channels to
+      adjust the electronics-level trigger.
+    \item<4-> Determine the value of $Q^{peak}_{VEM}$ to high
+      accuracy using charge histograms, and use the known
+      conversion from $Q^{\mathrm{peak}}_{\mathrm{VEM}}$ to $1$\,VEM
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{1. End-to-end gain setup}
+  \begin{enumerate}
+    \item<1-> The end-to-end gains (i.e.
+      $I^{\mathrm{peak}}_{\mathrm{VEM}}$ in electronics units) of
+      each of the 3 PMTs are set up by matching a point in the
+      spectrum to a measured rate from a reference tank.
+    \item<2-> The reference tank is calibrated by obtaining a
+      charge histogram and adjusting the PMT high voltage until
+      $Q^{\mathrm{peak}}_{\mathrm{VEM}}$ of the three histograms
+      agree.
+    \item<3-> The singles rate of a PMT at 150 ch above baseline
+      was required to be $100$\,Hz, which corresponds to a
+      trigger point of roughly
+      $3.0Q^{\mathrm{peak}}_{\mathrm{VEM}}$. This choice sets up
+      each of the PMTs to have approximately
+      $50$\,ch/$I^{\mathrm{peak}}_{\mathrm{VEM}}$.
+  \end{enumerate}
+  \begin{itemize}
+    \item<4-> When the local station electronics is first turned
+      on, each PMT high voltage is adjusting until the rate is
+      $100$\,Hz at a point $150$\,ch above baseline.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{1. End-to-end gain setup}
+  The end-to-end gain measurement implies that the PMTs in the
+  SDs will not have equivalent gains-indeed, even PMTs within the
+  same tank may not have equivalent gains.
+  \vspace{0.5cm}
+  \begin{columns}
+    \begin{column}{.5\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/photoelectrons_dynodoVsGain.png}
+    \end{column}
+  \end{columns}
+  The choice of $50$\,ch $I^{\mathrm{peak}}_{\mathrm{VEM}}$
+  results in a mean gain of approximately $3.4\times10^5$ for a
+  mean $n_{\mathrm{pe}}$/VEM$\sim94$\,pe.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Continual on-line calibration}
+  Once the gains of the 3 PMTs are set up, the drifts of the
+  value of $I^{\mathrm{peak}}_{\mathrm{VEM}}$ in electronics
+  units for each detector must be compensated to ensure that the
+  surface array triggers uniformly.
+  \vspace{0.75cm}
+  \begin{itemize}
+    \item<2-> The PMT high voltage is not changed during normal operation
+    \item<3-> For normal operation, this non-uniformity is
+      minimal $\sim10$\,\%.
+    \item<4-> Detectors which have drifted significantly
+      ($>20$\,ch) from the nominal
+      $I^{\mathrm{peak}}_{\mathrm{VEM}}$ of $50$\,ch are
+      re-initialized.
+    \item<5-> The average value of
+      $I^{\mathrm{peak}}_{\mathrm{VEM}}$ for the PMTs of the SD
+      is currently $46\pm4$\,ch.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Continual on-line calibration}
+  \begin{itemize}
+    \item<1-> The value of $I^{\mathrm{peak}}_{\mathrm{VEM}}$ as
+      defined in Section 2.2 is not obtained on-line since this
+      would increase the dead time of the detector to
+      unacceptable levels.
+      \includegraphics<2>[width=.4\textwidth]{/home/msd/Pictures/amplitude_vem_3-fold.png}
+    \item<3-> Instead, the trigger levels are set with respect to
+      an estimate of $I^{\mathrm{peak}}_{\mathrm{VEM}}$
+      ($I^{\mathrm{est.}}_{\mathrm{VEM}}$), which is defined for
+      a given PMT by requiring that the rate of events satisfying
+      a ``calibration trigger'' be $70$\,Hz.
+    \item<4-> An event satisfies the calibration trigger if the
+      signal is above $2.5I^{\mathrm{est.}}_{\mathrm{VEM}}$ for
+      the given PMT and above
+      $1.75I^{\mathrm{est.}}_{\mathrm{VEM}}$ for all three PMTs.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How to obtain $I^{\mathrm{est.}}_{\mathrm{VEM}}$}
+  $\sigma$-$\delta$ convergence algorithm
+  \begin{enumerate}
+    \item<1-> Start with a value of
+      $I^{\mathrm{est.}}_{\mathrm{VEM}}=50$\,ch.
+    \item<2-> Measure, for each PMT, the rate of events
+      satisfying the calibration trigger by counting these events
+      for a time $t_\mathrm{cal}$, initially set to $5$\,s.
+    \item<3-> If, for a given PMT, the rate is above
+      $70+\sigma$\,Hz, increase
+      $I^{\mathrm{est.}}_{\mathrm{VEM}}$ by $\delta$. Likewise,
+      if the rate is below $70-\sigma$\,Hz, decrease
+      $I^{\mathrm{est.}}_{\mathrm{VEM}}$ by $\delta$, with
+      $\sigma=2$\,Hz and $\delta=1$\,ch initially.
+    \item<4-> If the rate of any single PMT is more than
+      $10\sigma$ away from $70$\,Hz, adjust
+      $I^{\mathrm{est.}}_{\mathrm{VEM}}$ by $5$\,ch in the
+      appropriate direction, set $t_\mathrm{cal}$ to $10$\,s,
+      $\sigma=1$\,ch, and repeat from step 2.
+    \item<5-> Otherwise, if $t_\mathrm{cal}<60$\,s, increase
+      $t_\mathrm{cal}$ by $5$\,s. If $\delta>0.1$\,ch, decrease 
+      $\delta$ by $0.1$\,ch, and repeat from step (2).
+  \end{enumerate}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Results before and after the convergence algorithm}
+  \begin{columns}
+    \begin{column}{.42\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/rate_time_convergence.png}
+    \end{column}
+  \end{columns}
+  \begin{itemize}
+    \item<2-> The rapid convergence to $20$\,Hz shows that the
+      method described enables the uniform trigger levels to be
+      established rapidly.
+    \item<3-> A comparison of the converged
+      $I^{\mathrm{est.}}_{\mathrm{VEM}}$ value with values
+      obtained from a pulse height histogram gives
+      $I^{\mathrm{est.}}_{\mathrm{VEM}}=(0.94\pm0.06)I^{\mathrm{peak}}_{\mathrm{VEM}}$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Continual on-line calibration} 
+  $\sigma$-$\delta$ convergence algorithm for $Q^{\mathrm{peak}}_{\mathrm{VEM}}$
+  \begin{itemize}
+    \item<2-> The on-line calibration also estimates
+      $Q^{\mathrm{peak}}_{\mathrm{VEM}}$ as well
+      ($Q^{\mathrm{est.}}_{\mathrm{VEM}}$), by computing the
+      charge of pulses with a peak of exactly
+      $I^{\mathrm{est.}}_{\mathrm{VEM}}$, determined initially
+      from the charge of the first pulse.
+    \item<3-> A comparison of the converged
+      $Q^{\mathrm{est.}}_{\mathrm{VEM}}$ and
+      $Q^{\mathrm{peak}}_{\mathrm{VEM}}$ determined from a peak
+      fit to the charge histograms yields
+      $Q^{\mathrm{est.}}_{\mathrm{VEM}}=(0.96\pm0.03)Q^{\mathrm{peak}}_{\mathrm{VEM}}$.
+    \item<4-> The history over the last $7t_\mathrm{cal}$
+      ($60$\,s) periods of the adjustments to
+      $I^{\mathrm{est.}}_{\mathrm{VEM}}$ is included with each
+      event, along with $I^{\mathrm{est.}}_{\mathrm{VEM}}$,
+      $Q^{\mathrm{est.}}_{\mathrm{VEM}}$, and the last $70$\,Hz
+      rates for each of the 3 PMTs.
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Pressure dependence of the on-line calibration}
+  \begin{columns}
+    \begin{column}{.6\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/chargeVsPressure.png}
+    \end{column}
+  \end{columns}
+  Correlation of the ratio
+  $Q^{\mathrm{est.}}_{\mathrm{VEM}}$/$Q^{\mathrm{peak}}_{\mathrm{VEM}}$
+  to atmospheric pressure as measured by a weather station
+  located at the Los Leones fluorescence site. Note
+  $1$\,hPa $ =1.020$\,g\,cm$^{-2}$ in atmospheric depth. The
+  effect $\sim0.1$\,\%\,g$^{-1}$\,cm$^2$ on the trigger level
+  over the  course of a year is approximately $3$\.\%.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Histograms created every minute}
+  \begin{itemize}
+    \item<1-> Charge histograms for each individual PMT.
+    \item<2-> Charge histogram for the sum of all 3 PMTs.
+    \item<3-> Pulse height histograms for each individual PMT.
+    \item<4-> Histograms of the baseline of each FADC channel.
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Calibration data}
+  \begin{columns}
+    \begin{column}{.8\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/calib_histos_bl-height.png}
+    \end{column}
+  \end{columns}
+  Example calibration data which are sent back with candidate
+  event data, built from approximately 150 000 pulses collected
+  in the minute prior to the event.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Calibration data}
+  \begin{columns}
+    \begin{column}{.6\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/calib_charge-shape-summed.png}
+    \end{column}
+  \end{columns}
+  Example calibration data which are sent back with candidate
+  event data, built from approximately 150 000 pulses collected
+  in the minute prior to the event. The average of all pulse
+  shapes with an integrated charge of $1.0\pm0.1$
+  $Q^{\mathrm{est.}}_{\mathrm{VEM}}$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Dynode/anode ratio (D/A)}
+  \begin{itemize}
+    \item<1-> The nominal gain between the dynode and the anode
+      is 32-that is, 5 bits of overlap out of a 10 bit FADC,
+      giving 15 total bits of dynamic range.
+    \item<2-> the best measurement of D/A would occur simply by
+      taking the peak of the dynode divided by the peak of the
+      anode, and averaging over many samples.
+    \item<3-> But,the dynode is ampliﬁed by two Analog Devices
+      AD8012 ampliﬁer stages, each of which has a phase delay of
+      approximately $2-3$\,ns.
+    \item<4-> So, D=A is therefore measured by modelling the
+      anode signal shape (A) from the dynode (D) as
+  \end{itemize}
+  \centering
+   $ A(t) = \frac{1}{R} ( (1-\epsilon)D(t) + \epsilon D( t+1 ) ) $
+\end{frame}
+
+\end{document}

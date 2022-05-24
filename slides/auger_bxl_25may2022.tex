@@ -1,0 +1,611 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\usepackage{ulem}
+\usepackage{hyperref}
+\usepackage{animate} % For gif
+\usepackage{media9}
+\usepackage{graphicx}
+
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{Signals analysis for stations with SPMT loaded with sandbag}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Analysis performed according with}
+  \begin{itemize}
+    \item Stations studied: 846, 860, 1190, 1191, 1220, 1779
+      \vspace{0.2cm}
+    \item Sandbags were deployed during December, 2021.
+      \vspace{0.2cm}
+    \item Analysis applied on three batches of data:
+      \vspace{0.1cm}
+      \begin{itemize}
+        \item Before loaded: from September 1st to November 30th,
+          2021
+          \vspace{0.1cm}
+        \item After loaded: from February 1st to April 30th, 2022
+          \vspace{0.1cm}
+        \item Control: two sets: first from September 1st to
+          November 30th, 2017; second one from February 1st to
+          April 31st, 2018
+      \end{itemize}
+  \end{itemize}
+  \vspace{.5cm}
+
+  The control batches are used just as a reference.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Signals calculated from reconstructions (from
+  sd*.root to adst*.root):}
+  {\bf OffLine used: commit
+  7fe310bc300e7d8697990bc2353b84a5d50b9b86\\
+  (March 4th, 12:35:11, 2022)}
+  \vspace{.5cm}
+
+  \begin{columns}[T]
+    \begin{column}{.5\textwidth}
+      Modules used for Before/After loaded (UUB):
+      \begin{itemize}
+        \item SdEACalibrationFiller
+        \item SdCalibrator replaced by: SdStationChecker,
+          SdBaselineFinder, SdHistogramFitter, SdTraceCalibrator
+      \end{itemize}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Modules used for Control batch\\
+      (UB):
+      \begin{itemize}
+        \item SdDataReconstruction (StandardApplication)
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ===========================
+% *** Signals Station 846 ***
+\begin{frame}
+  \frametitle{Total signals distribution, Station 846}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/totSigDist846.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/totSigDist846.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+% ===========================
+% *** Signals Station 860 ***
+\begin{frame}
+  \frametitle{Total signals distribution, Station 860}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/totSigDist860.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/totSigDist860.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+% ============================
+% *** Signals Station 1190 ***
+\begin{frame}
+  \frametitle{Total signals distribution, Station 1190}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/totSigDist1190.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/totSigDist1190.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+% ============================
+% *** Signals Station 1191 ***
+\begin{frame}
+  \frametitle{Total signals distribution, Station 1191}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/totSigDist1191.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/totSigDist1191.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+% ============================
+% *** Signals Station 1220 ***
+\begin{frame}
+  \frametitle{Total signals distribution, Station 1220}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/totSigDist1220.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/totSigDist1220.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+% ============================
+% *** Signals Station 1779 ***
+\begin{frame}
+  \frametitle{Total signals distribution, Station 1779}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/totSigDist1779.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/totSigDist1779.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+
+% ============================
+% *** Muon tau Station 846 ***
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 846}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus846PMT1.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus846PMT1.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 846}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus846PMT2.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus846PMT2.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 846}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus846PMT3.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus846PMT3.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+% ============================
+% *** Muon tau Station 860 ***
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 860}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus860PMT1.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus860PMT1.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 860}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus860PMT2.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus860PMT2.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 860}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus860PMT3.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus860PMT3.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+% =============================
+% *** Muon tau Station 1190 ***
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 1190}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus1190PMT1.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus1190PMT1.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 1190}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus1190PMT2.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control  (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus1190PMT2.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 1190}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus1190PMT3.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus1190PMT3.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+% =============================
+% *** Muon tau Station 1191 ***
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 1191}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus1191PMT1.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus1191PMT1.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 1191}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus1191PMT2.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus1191PMT2.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 1191}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus1191PMT3.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus1191PMT3.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+% =============================
+% *** Muon tau Station 1220 ***
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 1220}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus1220PMT1.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus1220PMT1.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 1220}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus1220PMT2.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus1220PMT2.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 1220}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus1220PMT3.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus1220PMT3.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+
+% =============================
+% *** Muon tau Station 1779 ***
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 1779}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus1779PMT1.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus1779PMT1.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 1779}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus1779PMT2.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus1779PMT2.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Muon decay signal (from fitting on shape histogram), Station 1779}
+  
+  \begin{columns}[T,c]
+    \begin{column}{.5\textwidth}
+      Before/After sandbag (2021/2022, UUB):
+      \vspace{.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/distTaus1779PMT3.pdf}
+    \end{column}
+    \begin{column}{.5\textwidth}
+      Control (2017-2018, UB):
+      \vspace{0.3cm}
+
+      \includegraphics[width=1.\textwidth]{/home/msd/postdoc/sdeu/adstFiles/annaSignals/results/control/distTaus1779PMT3.pdf}
+    \end{column}    
+\end{columns}
+\end{frame}
+
+
+\end{document}
