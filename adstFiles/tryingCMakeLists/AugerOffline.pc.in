@@ -1,0 +1,25 @@
+prefix=@prefix@
+
+libdir=${prefix}/lib
+includedir=${prefix}/include
+datadir=@datadir@
+path= @bindir@
+
+rootsys= @ROOTSYS@
+main=${libdir}/AugerOfflineMain.o
+config=@datadir@/auger-offline/config
+adstcxxflags= -I@includedir@/adst
+adstldflags= -L@libdir@ -lRecEventKG -lAnalysisKG
+schema_location= @XMLSCHEMALOCATION@
+
+
+Name: AugerOffline
+Description: Pierre Auger's offline framework.
+Version: @OFFLINE_MAJOR_VERSION@.@OFFLINE_MINOR_VERSION@.@OFFLINE_PATCH_VERSION@
+URL: @OFFLINE_PACKAGE_URL@
+Libs: @LDFLAGS@ -L@libdir@ -lAugerModules -lAugerFramework -lAugerEventIO -lAugerUtilities -lRecEventKG @IOSD_LDFLAGS@ @FDEVENTLIB_LDFLAGS@ @IOAUGER_LDFLAGS@ @CDASUTILS_LDFLAGS@ @CDASEC_LDFLAGS@ @CDASES_LDFLAGS@ @CDASER_LDFLAGS@ @GEANT4_LDFLAGS@ @XERCES_LDFLAGS@ @CLHEP_LDFLAGS@ @MYSQL_LDFLAGS@ @SQLite_LDFLAGS@ @ROOT_LDFLAGS@ @AIRES_LDFLAGS@ @BOOST_LDFLAGS@
+# Libs.private: -lnone
+Cflags: @CPPFLAGS@ @GEANT4_CPPFLAGS@ @XERCES_CPPFLAGS@ @CLHEP_CPPFLAGS@ @MYSQL_CPPFLAGS@ @SQLite_CPPFLAGS@ @ROOT_CPPFLAGS@ @AIRES_CPPFLAGS@ @BOOST_CPPFLAGS@ @IOSD_CPPFLAGS@ @FDEVENTLIB_CPPFLAGS@ @IOAUGER_CPPFLAGS@ @CDASUTILS_CPPFLAGS@ @CDASEC_CPPFLAGS@ @CDASES_CPPFLAGS@ @CDASER_CPPFLAGS@ -I@includedir@ ${adstcxxflags}
+
+# Requires:
+# Conflicts: 

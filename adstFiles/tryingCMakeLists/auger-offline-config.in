@@ -1,0 +1,283 @@
+#!/bin/sh
+
+# Auger Offline configuration script
+# Author: Lukas Nellen
+# $Id: auger-offline-config.in 33504 2020-05-25 09:20:43Z darko $
+
+# multiple options do not make sense
+if [ "$#" -ne 1 ] ; then
+  sh $0 --help
+  exit 1
+fi
+
+# prefix=@prefix@ this is not relocatable
+bindir=$(dirname "$0")
+prefix=$(cd "$bindir/.." && pwd)
+exec_prefix=@exec_prefix@
+
+CDAS_LIB_DIR=@CDAS_LIB_DIR@
+if [ x$CDAS_LIB_DIR = x ]; then
+  CDAS_LIB_DIR=@IOSD_LIB_DIR@:@IOMD_LIB_DIR@:@IOAUGER_LIB_DIR@:@CDASUTILS_LIB_DIR@:@CDASEC_LIB_DIR@:@CDASES_LIB_DIR@:@CDASER_LIB_DIR@
+fi
+
+ROOT_LIB_DIR=@ROOT_LIBDIR@
+CLHEP_LIB_DIR=@CLHEPHOME@/lib
+BOOST_LIB_DIR=@BOOST_LIB_DIR@
+FD_LIB_DIR=@FDEVENTLIB_HOME@/lib
+XERCESC_LIB_DIR=@XERCESCROOT@/lib
+MYSQL_LIB_DIR=@MySQL_LIB_DIR@
+HDF5_LIB_DIR=@HDF5_ROOT@/lib
+
+# keep mysql lib at the end!
+PAO_LD_LIBRARY_PATH=$ROOT_LIB_DIR:$CLHEP_LIB_DIR:$BOOST_LIB_DIR:$FD_LIB_DIR:$CDAS_LIB_DIR:$XERCESC_LIB_DIR:$HDF5_LIB_DIR:@libdir@:$MYSQL_LIB_DIR
+
+G4_LIB_DIR=@GEANT4_LIB_DIR@
+if [ x$G4_LIB_DIR != x ]; then
+  PAO_LD_LIBRARY_PATH=$PAO_LD_LIBRARY_PATH:$G4_LIB_DIR
+fi
+
+FFTW3_LIB_DIR=@FFTW3_LIB_DIR@
+if [ x$FFTW3_LIB_DIR != x ]; then
+  PAO_LD_LIBRARY_PATH=$PAO_LD_LIBRARY_PATH:$FFTW3_LIB_DIR
+fi
+
+AERADAQ_LIB_DIR=@AERADAQ_LIB_DIR@
+if [ x$AERADAQ_LIB_DIR != x ]; then
+  PAO_LD_LIBRARY_PATH=$PAO_LD_LIBRARY_PATH:$AERADAQ_LIB_DIR
+fi
+
+AERAROOTIO_LIB_DIR=@AERAROOTIO_LIB_DIR@
+if [ x$AERAROOTIO_LIB_DIR != x ]; then
+  PAO_LD_LIBRARY_PATH=$PAO_LD_LIBRARY_PATH:$AERAROOTIO_LIB_DIR
+fi
+
+EINSPLINE_LIB_DIR=@EINSPLINE_LIB_DIR@
+if [ x$EINSPLINE_LIB_DIR != x ]; then
+  PAO_LD_LIBRARY_PATH=$PAO_LD_LIBRARY_PATH:$EINSPLINE_LIB_DIR
+fi
+
+case "$1" in
+
+  (--version) echo @OFFLINE_PACKAGE_VERSION@ ;;
+
+  (--bugs) echo Report bugs at @OFFLINE_PACKAGE_BUGREPORT@ ;;
+
+  (--cppflags) echo @GEANT4_CPPFLAGS@ @CLHEP_CPPFLAGS@ @ROOT_CPPFLAGS@ @AIRES_CPPFLAGS@ @BOOST_CPPFLAGS@ @IOSD_CPPFLAGS@ @FDEVENTLIB_CPPFLAGS@ @IOAUGER_CPPFLAGS@ @CDASUTILS_CPPFLAGS@ @CDASEC_CPPFLAGS@ @CDASES_CPPFLAGS@ @CDASER_CPPFLAGS@ @EINSPLINE_CPPFLAGS@ @FFTW3_CPPFLAGS@ @AERADAQ_CPPFLAGS@ @AERAROOTIO_CPPFLAGS@ @EIGEN_CPPFLAGS@ @XERCES_CPPFLAGS@ @HDF5_CPPFLAGS@ -I@includedir@ -I@includedir@/adst @SQLite_CPPFLAGS@ @MYSQL_CPPFLAGS@ ;;
+
+  (--ldflags) echo @LDFLAGS@ -L@libdir@ @LINKER_FIX_FLAG@ -lAugerModules -lAugerFramework -lAugerEventIO -lAugerUtilities -lAugerTools -lRecEventKG -lAnalysisKG @IOSD_LDFLAGS@ @FDEVENTLIB_LDFLAGS@ @IOAUGER_LDFLAGS@ @CDASUTILS_LDFLAGS@ @CDASEC_LDFLAGS@ @CDASES_LDFLAGS@ @CDASER_LDFLAGS@ @CDAS_LDFLAGS@ @GEANT4_LDFLAGS@ @CLHEP_LDFLAGS@ @ROOT_LDFLAGS@ @AIRES_LDFLAGS@ @BOOST_LDFLAGS@ @EINSPLINE_LDFLAGS@ @FFTW3_LDFLAGS@ @AERADAQ_LDFLAGS@ @AERAROOTIO_LDFLAGS@ @XERCES_LDFLAGS@ @HDF5_LDFLAGS@ @SQLite_LDFLAGS@ @MYSQL_LDFLAGS@ ;;
+
+  (--cxxflags) echo @CMAKE_CXX_FLAGS@ ;;
+
+  (--install|--prefix) echo "$prefix" ;;
+
+  (--main) echo @libdir@/AugerOfflineMain.o ;;
+
+  (--config) echo @datadir@/auger-offline/config ;;
+
+  (--schema-location) echo @XMLSCHEMALOCATION@ ;;
+
+  (--sqlite-location) echo @SQLITE_DIR@ ;;
+
+  (--sqlite-suffix) echo @SQLITE_SUFFIX@ ;;
+
+  (--db) echo @datadir@/auger-offline/dbsetup ;;
+
+  (--libtool) echo @bindir@/libtool-auger-offline ;;
+
+  (--path) echo @bindir@:@ROOTSYS@/bin ;;
+
+  (--bindir) echo @bindir@ ;;
+
+  (--ld_library_path) echo $PAO_LD_LIBRARY_PATH ;;
+
+  (--rootsys) echo @ROOTSYS@ ;;
+
+  (--has-aires) if [ x@HAVE_AIRES@ = x1 ]; then echo yes; else echo no; fi ;;
+
+  (--adstcxxflags) echo -I@includedir@/adst ;;
+
+  (--adstldflags) echo -L@libdir@ -lRecEventKG -lAnalysisKG ;;
+
+  (--env-sh)
+    if [ x$@PLATFORM_LD_LIBRARY_PATH@ = x ]; then
+      echo export @PLATFORM_LD_LIBRARY_PATH@=$PAO_LD_LIBRARY_PATH\;
+    else
+      echo export @PLATFORM_LD_LIBRARY_PATH@=$PAO_LD_LIBRARY_PATH:\$@PLATFORM_LD_LIBRARY_PATH@\;
+    fi
+    echo export PATH=@bindir@:@ROOTSYS@/bin:\$PATH\;
+    echo export ROOTSYS=@ROOTSYS@\;
+    echo export PYTHONPATH=$ROOT_LIB_DIR:@libdir@/python:\$PYTHONPATH\;
+    if [ x$@GEANT4_CONFIG_G4NEUTRONHPDATA@ != x ]; then
+      echo export G4NEUTRONHPDATA=@GEANT4_CONFIG_G4NEUTRONHPDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4LEDATA@ != x ]; then
+      echo export G4LEDATA=@GEANT4_CONFIG_G4LEDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4LEVELGAMMADATA@ != x ]; then
+      echo export G4LEVELGAMMADATA=@GEANT4_CONFIG_G4LEVELGAMMADATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4RADIOACTIVEDATA@ != x ]; then
+      echo export G4RADIOACTIVEDATA=@GEANT4_CONFIG_G4RADIOACTIVEDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4NEUTRONXSDATA@ != x ]; then
+      echo export G4NEUTRONXSDATA=@GEANT4_CONFIG_G4NEUTRONXSDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4PIIDATA@ != x ]; then
+      echo export G4PIIDATA=@GEANT4_CONFIG_G4PIIDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4REALSURFACEDATA@ != x ]; then
+      echo export G4REALSURFACEDATA=@GEANT4_CONFIG_G4REALSURFACEDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4SAIDXSDATA@ != x ]; then
+      echo export G4SAIDXSDATA=@GEANT4_CONFIG_G4SAIDXSDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4ABLADATA@ != x ]; then
+      echo export G4ABLADATA=@GEANT4_CONFIG_G4ABLADATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4ENSDFSTATEDATA@ != x ]; then
+      echo export G4ENSDFSTATEDATA=@GEANT4_CONFIG_G4ENSDFSTATEDATA@\;
+    fi
+    ;;
+
+  (--rev-env-sh)
+    if [ x$@PLATFORM_LD_LIBRARY_PATH@ = x ]; then
+      echo export @PLATFORM_LD_LIBRARY_PATH@=$PAO_LD_LIBRARY_PATH\;
+    else
+      echo export @PLATFORM_LD_LIBRARY_PATH@=\$@PLATFORM_LD_LIBRARY_PATH@:$PAO_LD_LIBRARY_PATH\;
+    fi
+    echo export PATH=\$PATH:@bindir@:@ROOTSYS@/bin\;
+    echo export ROOTSYS=@ROOTSYS@\;
+    echo export PYTHONPATH=\$PYTHONPATH:$ROOT_LIB_DIR:@libdir@/python\;
+    if [ x$@GEANT4_CONFIG_G4NEUTRONHPDATA@ != x ]; then
+      echo export G4NEUTRONHPDATA=@GEANT4_CONFIG_G4NEUTRONHPDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4LEDATA@ != x ]; then
+      echo export G4LEDATA=@GEANT4_CONFIG_G4LEDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4LEVELGAMMADATA@ != x ]; then
+      echo export G4LEVELGAMMADATA=@GEANT4_CONFIG_G4LEVELGAMMADATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4RADIOACTIVEDATA@ != x ]; then
+      echo export G4RADIOACTIVEDATA=@GEANT4_CONFIG_G4RADIOACTIVEDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4NEUTRONXSDATA@ != x ]; then
+      echo export G4NEUTRONXSDATA=@GEANT4_CONFIG_G4NEUTRONXSDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4PIIDATA@ != x ]; then
+      echo export G4PIIDATA=@GEANT4_CONFIG_G4PIIDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4REALSURFACEDATA@ != x ]; then
+      echo export G4REALSURFACEDATA=@GEANT4_CONFIG_G4REALSURFACEDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4SAIDXSDATA@ != x ]; then
+      echo export G4SAIDXSDATA=@GEANT4_CONFIG_G4SAIDXSDATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4ABLADATA@ != x ]; then
+      echo export G4ABLADATA=@GEANT4_CONFIG_G4ABLADATA@\;
+    fi
+    if [ x$@GEANT4_CONFIG_G4ENSDFSTATEDATA@ != x ]; then
+      echo export G4ENSDFSTATEDATA=@GEANT4_CONFIG_G4ENSDFSTATEDATA@\;
+    fi
+    ;;
+
+  (--env-csh)
+    if [ x$@PLATFORM_LD_LIBRARY_PATH@ = x ]; then
+      echo setenv @PLATFORM_LD_LIBRARY_PATH@ $PAO_LD_LIBRARY_PATH
+    else
+      echo setenv @PLATFORM_LD_LIBRARY_PATH@ $PAO_LD_LIBRARY_PATH:\$@PLATFORM_LD_LIBRARY_PATH@
+    fi
+    echo setenv PATH @bindir@:@ROOTSYS@/bin:\$PATH
+    echo setenv ROOTSYS @ROOTSYS@
+    if [ x$PYTHONPATH = x ]; then
+      echo setenv PYTHONPATH $ROOT_LIB_DIR:@libdir@/python
+    else
+      echo setenv PYTHONPATH $ROOT_LIB_DIR:@libdir@/python:\$PYTHONPATH
+    fi
+    if [ x$@GEANT4_CONFIG_G4NEUTRONHPDATA@ != x ]; then
+      echo setenv G4NEUTRONHPDATA @GEANT4_CONFIG_G4NEUTRONHPDATA@
+    fi
+    if [ x$@GEANT4_CONFIG_G4LEDATA@ != x ]; then
+      echo setenv G4LEDATA @GEANT4_CONFIG_G4LEDATA@
+    fi
+    if [ x$@GEANT4_CONFIG_G4LEVELGAMMADATA@ != x ]; then
+      echo setenv G4LEVELGAMMADATA @GEANT4_CONFIG_G4LEVELGAMMADATA@
+    fi
+    if [ x$@GEANT4_CONFIG_G4RADIOACTIVEDATA@ != x ]; then
+      echo setenv G4RADIOACTIVEDATA @GEANT4_CONFIG_G4RADIOACTIVEDATA@
+    fi
+    if [ x$@GEANT4_CONFIG_G4NEUTRONXSDATA@ != x ]; then
+      echo setenv G4NEUTRONXSDATA @GEANT4_CONFIG_G4NEUTRONXSDATA@
+    fi
+    if [ x$@GEANT4_CONFIG_G4PIIDATA@ != x ]; then
+      echo setenv G4PIIDATA @GEANT4_CONFIG_G4PIIDATA@
+    fi
+    if [ x$@GEANT4_CONFIG_G4REALSURFACEDATA@ != x ]; then
+      echo setenv G4REALSURFACEDATA @GEANT4_CONFIG_G4REALSURFACEDATA@
+    fi
+    if [ x$@GEANT4_CONFIG_G4SAIDXSDATA@ != x ]; then
+      echo setenv G4SAIDXSDATA @GEANT4_CONFIG_G4SAIDXSDATA@
+    fi
+    if [ x$@GEANT4_CONFIG_G4ABLADATA@ != x ]; then
+      echo setenv G4ABLADATA @GEANT4_CONFIG_G4ABLADATA@
+    fi
+    if [ x$@GEANT4_CONFIG_G4ENSDFSTATEDATA@ != x ]; then
+      echo setenv G4ENSDFSTATEDATA @GEANT4_CONFIG_G4ENSDFSTATEDATA@
+    fi
+    ;;
+
+  (--has-geant4) echo "@GEANT4_FOUND@" ;;
+
+  (--has-geant49) echo "@G4_VERSION_BELOW_G410_PUB_INTERFACE_BREAK@" ;;
+
+  (--help)
+    cat <<EOF 1>&2
+
+Auger offline software configuration tool version @OFFLINE_PACKAGE_VERSION@.
+
+Retrieve configuration options of the currently installed version of
+the Auger offline software
+    --version            Package version
+    --bugs               Bug reporting information
+    --cppflags           Flags for the C++ pre-processor (to locate header files)
+    --cxxflags           Flags for the C++ compiler and linker
+                         (optimization, warning, debugging, ...)
+    --ldflags            Flags for the linker
+    --libtool            Path to copy of the libtool script used to compile the
+                         auger offline software
+    --install, --prefix  Installation directory
+    --main               Path and name of the object file with the main
+    --config             Path to default configuration files
+    --schema-location    Path to schema files
+    --sqlite-location    Path to sqlite files
+    --sqlite-suffix      Suffix for sqlite files
+    --db                 Path to database setup file(s)
+    --path               Path to executables
+    --ld_library_path    Path's to extra shared libraries
+    --adstcxxflags       Flags for including ADST headers during pre-processing
+    --adstldflags        Flags for linking ADST libraries
+    --rootsys            The ROOTSYS environment variable as set during compilation
+    --has-aires          Whether compiled with Aires support or not
+    --has-geant4         Offline built with GEANT 4 modules
+    --has-geant49        Uses old GEANT 4.9.x
+    --env-sh             Provide statements for configuring the enviroment for
+                         the Bourne-shell family of shells
+    --rev-env-sh         Same as --env-sh but with paths appended at the end
+    --env-csh            Provide statements for configuring the enviroment for
+                         the c-shell family of shells
+    --help               This information
+
+For setting up the user's environment, use something like
+  eval \`$0 --env-sh\`
+or
+  eval \`$0 --env-csh\`
+in the .bashrc or .cshrc
+EOF
+    ;;
+
+  (*)
+    echo "Unknown option '$1' " 2>&1
+    sh $0 --help
+    exit 1
+    ;;
+
+esac
