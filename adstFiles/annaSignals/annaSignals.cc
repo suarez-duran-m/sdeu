@@ -24,9 +24,10 @@ using namespace std;
 
 
 int main ( int argc, char** argv) {
-  if ( argc < 2 ) { cout << endl
-      << "Usage: " << argv[0] << " <st_for_analysis> <file_adstfiles>" << endl
+  if ( argc < 3 ) { cout << endl
+      << "Usage: " << argv[0] << " <st_for_analysis> <ifControl> <file_adstfiles>" << endl
         << "<st_for_analysis>: Station ID for analysis" << endl
+        << "<ifControl>: True if you running for control porpoise -> output in results/control/" << endl
         << "<file_adstfiles>: File with list of adst files to read" 
         << endl;
     exit(0);
@@ -34,11 +35,13 @@ int main ( int argc, char** argv) {
 
   // Station for analysis
   int st2read = atoi(argv[1]);
+  bool ifControl = argv[2];
   TString stName;
   stName.Form("%d", st2read);
+  TString printPath = ifControl ? "results/control/" : "results/";
 
   // Dates to plot Total signal distributions
-  const int gps1stDec2021 = 1196121618;//1196121618; //1322352018;
+  const int gps1stDec2021 = ifControl ? 1196121618 : 1322352018;
   const int gps1stFeb2022 = 1327708818;  
   //vector < int > st2read = {846, 860, 1190, 1191, 1220, 1779};
 
@@ -71,7 +74,7 @@ int main ( int argc, char** argv) {
   TH1D totSglDist2022("totSglDist2022","", nBins, frstBin, lstBin);
 
   // Reading ADST files and extracting signals for each PMT
-  for (int file_i=2; file_i<argc; file_i++) {
+  for (int file_i=3; file_i<argc; file_i++) {
     readAdstFile dataFile;
     dataFile.setAdstFileName(argv[file_i]);
     //dataFile.checkNumberEvts();
@@ -105,9 +108,9 @@ int main ( int argc, char** argv) {
     }
   }
 
-  plotDiffDist pltDist(stName, &dist12, &dist13, &dist23, 
+  plotDiffDist pltDist(stName, printPath, &dist12, &dist13, &dist23, 
       &totSglDist2021, &totSglDist2022);
-
+  
   pltDist.plotTausMuon(&dstMuonTau2021Pmt1, &dstMuonTau2021Pmt2, &dstMuonTau2021Pmt3,
       &dstMuonTau2022Pmt1, &dstMuonTau2022Pmt2, &dstMuonTau2022Pmt3);
   pltDist.writeRootFile();

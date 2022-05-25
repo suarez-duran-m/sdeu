@@ -4,8 +4,8 @@
 #include "TF1.h"
 using namespace std;
 
-plotDiffDist::plotDiffDist(TString stId, TH1D *pmt12, TH1D *pmt13, TH1D *pmt23, 
-    TH1D *totSignalBef, TH1D *totSignalAft) {
+plotDiffDist::plotDiffDist(TString stId, TString printPath, TH1D *pmt12, TH1D *pmt13, 
+    TH1D *pmt23, TH1D *totSignalBef, TH1D *totSignalAft) {
   outputFile = new TFile("results/"+stId+".root", "RECREATE");
 
   diff12 = pmt12;
@@ -16,6 +16,7 @@ plotDiffDist::plotDiffDist(TString stId, TH1D *pmt12, TH1D *pmt13, TH1D *pmt23,
   totSglAft = totSignalAft;
 
   stName = stId;
+  outputPath = printPath;
   canvasDiff = doCanvas(stId+"Diff");
   canvasSignal = doCanvas(stId+"Signal");
   canvasTaus = doCanvas(stId+"Taus");
@@ -80,7 +81,7 @@ void plotDiffDist::doDiffDistPlot() {
 
   doLegendDiff();
 
-  canvasDiff->Print("results/control/diffDist"+stName+".pdf");
+  canvasDiff->Print(outputPath+"diffDist"+stName+".pdf");
 }
 
 void plotDiffDist::doDisTausPlot(TString pmtId, TH1D *tausBef, TH1D *tausAft) {
@@ -107,7 +108,7 @@ void plotDiffDist::doDisTausPlot(TString pmtId, TH1D *tausBef, TH1D *tausAft) {
 
   doLegendTaus(pmtId, tausBef, tausAft);
 
-  canvasTaus->Print("results/control/distTaus"+stName+pmtId+".pdf");
+  canvasTaus->Print(outputPath+"distTaus"+stName+pmtId+".pdf");
 }
 
 void plotDiffDist::doDisTotSglPlot() {
@@ -149,7 +150,7 @@ void plotDiffDist::doDisTotSglPlot() {
 
   doLegendSignal();
 
-  canvasSignal->Print("results/control/totSigDist"+stName+".pdf");
+  canvasSignal->Print(outputPath+"totSigDist"+stName+".pdf");
 }
 
 void plotDiffDist::doLegendDiff() {

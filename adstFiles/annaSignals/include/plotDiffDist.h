@@ -8,8 +8,8 @@
 
 class plotDiffDist {
   public:
-    plotDiffDist(TString stId, TH1D *pmt12, TH1D *pmt13, TH1D *pmt23,
-        TH1D *totSignalBef, TH1D *totSignalAft);
+    plotDiffDist(TString stId, TString printPath, TH1D *pmt12, TH1D *pmt13, 
+        TH1D *pmt23, TH1D *totSignalBef, TH1D *totSignalAft);
     void plotTausMuon(TH1D *tauBefPmt1, TH1D *tauBefPmt2, TH1D *tauBefPmt3,
         TH1D *tauAftPmt1, TH1D *tauAftPmt2, TH1D *tauAftPmt3);
     void writeRootFile();
@@ -30,6 +30,7 @@ class plotDiffDist {
     TH1D *totSglAft;
 
     TString stName;
+    TString outputPath;
     TCanvas *canvasDiff;
     TLegend *legendDiff;
     TCanvas *canvasSignal;
