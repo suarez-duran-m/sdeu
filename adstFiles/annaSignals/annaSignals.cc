@@ -27,7 +27,8 @@ int main ( int argc, char** argv) {
   if ( argc < 3 ) { cout << endl
       << "Usage: " << argv[0] << " <st_for_analysis> <ifControl> <file_adstfiles>" << endl
         << "<st_for_analysis>: Station ID for analysis" << endl
-        << "<ifControl>: True if you running for control porpoise -> output in results/control/" << endl
+        << "<ifControl>: 1 if you running for control porpoise -> output in results/control/ " << endl
+        << "             0 otherwise" << endl  
         << "<file_adstfiles>: File with list of adst files to read" 
         << endl;
     exit(0);
@@ -35,7 +36,7 @@ int main ( int argc, char** argv) {
 
   // Station for analysis
   int st2read = atoi(argv[1]);
-  bool ifControl = argv[2];
+  bool ifControl = atoi(argv[2]);
   TString stName;
   stName.Form("%d", st2read);
   TString printPath = ifControl ? "results/control/" : "results/";

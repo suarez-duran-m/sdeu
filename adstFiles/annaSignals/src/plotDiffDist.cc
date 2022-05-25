@@ -6,7 +6,11 @@ using namespace std;
 
 plotDiffDist::plotDiffDist(TString stId, TString printPath, TH1D *pmt12, TH1D *pmt13, 
     TH1D *pmt23, TH1D *totSignalBef, TH1D *totSignalAft) {
-  outputFile = new TFile("results/"+stId+".root", "RECREATE");
+
+  stName = stId;
+  outputPath = printPath;
+
+  outputFile = new TFile(outputPath+stId+".root", "RECREATE");
 
   diff12 = pmt12;
   diff13 = pmt13;
@@ -15,8 +19,6 @@ plotDiffDist::plotDiffDist(TString stId, TString printPath, TH1D *pmt12, TH1D *p
   totSglBef = totSignalBef;
   totSglAft = totSignalAft;
 
-  stName = stId;
-  outputPath = printPath;
   canvasDiff = doCanvas(stId+"Diff");
   canvasSignal = doCanvas(stId+"Signal");
   canvasTaus = doCanvas(stId+"Taus");
@@ -86,6 +88,7 @@ void plotDiffDist::doDiffDistPlot() {
 
 void plotDiffDist::doDisTausPlot(TString pmtId, TH1D *tausBef, TH1D *tausAft) {
   canvasTaus->cd();
+  canvasTaus->SetLogy();
 
   int max = tausBef->GetMaximum() > tausAft->GetMaximum() 
     ? tausBef->GetMaximum() : tausAft->GetMaximum();
@@ -95,7 +98,7 @@ void plotDiffDist::doDisTausPlot(TString pmtId, TH1D *tausBef, TH1D *tausAft) {
   tausBef->GetXaxis()->SetLabelSize(0.05);
   tausBef->GetXaxis()->SetTitleSize(0.05);
   tausBef->GetXaxis()->SetTitleOffset(1.);
-  tausBef->GetYaxis()->SetRangeUser(0, 1.1*max);
+  tausBef->GetYaxis()->SetRangeUser(1e-1, 1.1*max);
   tausBef->GetYaxis()->SetTitle("Counts [au]");
   tausBef->GetYaxis()->SetLabelSize(0.05);
   tausBef->GetYaxis()->SetTitleSize(0.05);
@@ -115,9 +118,6 @@ void plotDiffDist::doDisTotSglPlot() {
   canvasSignal->cd();
   canvasSignal->SetLeftMargin(0.094);
 
-  int max = totSglBef->GetMaximum() > totSglAft->GetMaximum() 
-    ? totSglBef->GetMaximum() : totSglAft->GetMaximum();
- 
   TF1 *powerLow = new TF1 ("powerLow", "[0]*x^(-[1])",4, 18); 
 
   totSglBef->Sumw2(true);
@@ -130,16 +130,19 @@ void plotDiffDist::doDisTotSglPlot() {
   totSglBef->GetFunction("powerLow")->SetLineColor(kBlue);
   totSglBef->GetFunction("powerLow")->SetLineWidth(1);
   totSglBef->SetStats(kFALSE);
-  //totSglBef->GetYaxis()->SetRangeUser(0, max+1.2*sqrt(max));
+  totSglBef->GetYaxis()->SetRangeUser(1e-3, 6e-1);
   totSglBef->GetYaxis()->SetTitle("Counts [au]");
   totSglBef->GetYaxis()->SetTitleSize(0.05);
   totSglBef->GetYaxis()->SetTitleOffset(0.9);
   totSglBef->GetYaxis()->SetLabelSize(0.05);
+  totSglBef->GetXaxis()->SetRangeUser(2,30);
   totSglBef->GetXaxis()->SetTitle("S [VEM]");
   totSglBef->GetXaxis()->SetTitleSize(0.05);
   totSglBef->GetXaxis()->SetTitleOffset(1.);
   totSglBef->GetXaxis()->SetLabelSize(0.05);
   totSglBef->SetLineColor(kBlue);
+  canvasSignal->SetLogy();
+  canvasSignal->SetLogx();
   totSglBef->Draw("E1");
 
   totSglAft->GetFunction("powerLow")->SetLineColor(kRed);
@@ -178,7 +181,7 @@ void plotDiffDist::doLegendDiff() {
 }
 
 void plotDiffDist::doLegendSignal() {
-  legendSignal = new TLegend(0.7, 0.5, 0.98, 0.95);
+  legendSignal = new TLegend(0.3, 0.15, 0.68, 0.6);
   legendSignal->SetHeader("Station "+stName);
 
   legendSignal->AddEntry(totSglBef, "Sep-Nov, Bef","l");
