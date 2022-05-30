@@ -19,6 +19,9 @@ plotDiffDist::plotDiffDist(TString stId, TString printPath, TH1D *pmt12, TH1D *p
   totSglBef = totSignalBef;
   totSglAft = totSignalAft;
 
+  for (int i=0; i<4; i++) 
+    betaFitTotSgnl.push_back( 0. );
+
   canvasDiff = doCanvas(stId+"Diff");
   canvasSignal = doCanvas(stId+"Signal");
   canvasTaus = doCanvas(stId+"Taus");
@@ -208,6 +211,10 @@ void plotDiffDist::doLegendSignal() {
   legendSignal->SetBorderSize(0);
   legendSignal->SetFillStyle(0);
   legendSignal->Draw();
+  betaFitTotSgnl[0] = totSglBef->GetFunction("powerLow")->GetParameter(1);
+  betaFitTotSgnl[1] = totSglAft->GetFunction("powerLow")->GetParameter(1);
+  betaFitTotSgnl[2] = totSglBef->GetFunction("powerLow")->GetParError(1);
+  betaFitTotSgnl[3] = totSglAft->GetFunction("powerLow")->GetParError(1);
 }
 
 void plotDiffDist::doLegendTaus(TString pmtId, TH1D *tausBef, TH1D *tausAft) {
@@ -227,6 +234,10 @@ void plotDiffDist::doLegendTaus(TString pmtId, TH1D *tausBef, TH1D *tausAft) {
   legendTaus->SetBorderSize(0);
   legendTaus->SetFillStyle(0);
   legendTaus->Draw();
+}
+
+vector<double> plotDiffDist::getBetaFitTotSgnl() {
+  return betaFitTotSgnl;
 }
 
 void plotDiffDist::writeRootFile() {
@@ -254,3 +265,4 @@ void plotDiffDist::writeRootFile() {
   outputFile->Write();
   outputFile->Close();
 }
+
