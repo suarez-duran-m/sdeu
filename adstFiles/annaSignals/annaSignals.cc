@@ -28,6 +28,8 @@ void readPlotPerSt(unsigned int stid, TString stName, int argc, char** argv,
     const int gps1stFeb2021, TString printPath, vector<vector<double>> &beta,
     vector<vector<double>> &errBeta);
 
+TCanvas *canvasStyle(TString name);
+
 
 int main ( int argc, char** argv) {
   if ( argc < 3 ) { cout << endl
@@ -84,32 +86,30 @@ int main ( int argc, char** argv) {
   TFile betasGraph ("results/betasGraph.root", "RECREATE");
 
   TH1D grpBef("grpBef","", st2read.size(), 0, st2read.size());
-      //st2read.size(), &graphXbins[0], &betTotSgnl[0][0], &graphXerrors[0], &errBetTotSgnl[0][0]);
   TH1D grpAft("grpAft","", st2read.size(), 0, st2read.size());
-      //st2read.size(), &graphXbins[0], &betTotSgnl[1][0], &graphXerrors[0], &errBetTotSgnl[1][0]);
 
+  double fstBin = -5.;
+  double lstBin = 5.;
+  int nbins = 100;
+  TH1D distBetaBef("distBetaBef","",nbins,fstBin,lstBin);
+  TH1D distBetaAft("distBetaAft","",nbins,fstBin,lstBin);
  
   for ( int i=0; i<st2read.size(); i++ ) {
     stName.Form("%.f", st2read[i]);
+
     grpBef.SetBinContent(i+1, betTotSgnl[0][i]);
     grpBef.SetBinError(i+1, errBetTotSgnl[0][i]);
     grpBef.GetXaxis()->SetBinLabel(i+1, stName); 
+    distBetaBef.Fill( betTotSgnl[0][i] );
 
     grpAft.SetBinContent(i+1, betTotSgnl[1][i]);
     grpAft.SetBinError(i+1, errBetTotSgnl[1][i]);
     grpAft.GetXaxis()->SetBinLabel(i+1, stName);
+    distBetaAft.Fill( betTotSgnl[1][i] );
   } 
 
-  TCanvas c("c", "c", 102, 76, 1600, 900);
-  c.SetBorderMode(0);
-  c.SetBorderSize(2);
-  c.SetRightMargin(0.017);
-  c.SetLeftMargin(0.074);
-  c.SetTopMargin(0.014);
-  c.SetBottomMargin(0.1);
-  c.SetFrameBorderMode(0);
-  c.SetFrameBorderMode(0); 
-  c.cd();
+  TCanvas *cBetIds = canvasStyle("BestasVsIds");
+  cBetIds->cd();
 
   grpBef.SetStats(kFALSE);
   grpBef.GetXaxis()->SetTitle("St. Id");
@@ -124,19 +124,55 @@ int main ( int argc, char** argv) {
   grpAft.SetMarkerStyle(24);
   grpAft.Draw("E1 same");
 
-  TLegend legend(0.6, 0.5, 0.98, 0.95);
-  legend.AddEntry(&grpBef, "Before","l");
-  legend.AddEntry(&grpAft, "After","l");
-  legend.SetTextSize(0.04);
-  legend.SetBorderSize(0);
-  legend.SetFillStyle(0);
-  legend.Draw();
+  TLegend *legend = new TLegend(0.8, 0.5, 0.98, 0.95);
+  legend->AddEntry(&grpBef, "Before","l");
+  legend->AddEntry(&grpAft, "After","l");
+  legend->SetTextSize(0.04);
+  legend->SetBorderSize(0);
+  legend->SetFillStyle(0);
+  legend->Draw();
 
-  c.Print("results/betasGraph.pdf");
+  cBetIds->Print("results/betasGraph.pdf");
 
   grpBef.Write();
   grpAft.Write();
-  c.Write();
+  cBetIds->Write();
+  legend->Write();
+
+
+  TCanvas *cBetDist = canvasStyle("BetasDistri");
+  cBetDist->cd();
+
+  distBetaBef.SetStats(kFALSE);
+  distBetaBef.GetXaxis()->SetTitle("Beta [au]");
+  distBetaBef.SetLineColor(kBlue);  
+  distBetaBef.Draw("e1");
+
+  distBetaAft.SetLineColor(kRed);
+  distBetaAft.Draw("e1 same");
+
+  legend = new TLegend(0.1, 0.5, 0.38, 0.95);
+  legend->AddEntry(&distBetaBef, "Before","l");
+  legend->AddEntry(&distBetaBef, Form("Mean: %.2f #pm %.2f", 
+        distBetaBef.GetMean(), distBetaBef.GetMeanError()), "");
+  legend->AddEntry(&distBetaBef, Form("RMS: %.2f #pm %.2f",
+        distBetaBef.GetRMS(), distBetaBef.GetRMSError()), "");
+  legend->AddEntry(&distBetaAft, "After","l");
+  legend->AddEntry(&distBetaAft, Form("Mean: %.2f #pm %.2f",
+        distBetaAft.GetMean(), distBetaAft.GetMeanError()), "");
+  legend->AddEntry(&distBetaAft, Form("RMS: %.2f #pm %.2f",
+        distBetaAft.GetRMS(), distBetaAft.GetRMSError()), "");
+  legend->SetTextSize(0.04);
+  legend->SetBorderSize(0);
+  legend->SetFillStyle(0);
+  legend->Draw();
+
+  cBetDist->Print("results/betasDist.pdf");
+
+  distBetaBef.Write();
+  distBetaAft.Write();
+  cBetDist->Write();
+  legend->Write();
 
   betasGraph.Write();
   betasGraph.Close();
@@ -227,4 +263,17 @@ void readPlotPerSt(unsigned int stid, TString stName, int argc, char** argv,
   errBeta[1].push_back( tmpBetas[3] );  
 
   pltDist.writeRootFile();
+}
+
+TCanvas *canvasStyle(TString name){
+  TCanvas *c = new TCanvas(name, name, 102, 76, 1600, 900);
+  c->SetBorderMode(0);
+  c->SetBorderSize(2);
+  c->SetRightMargin(0.017);
+  c->SetLeftMargin(0.074);
+  c->SetTopMargin(0.014);
+  c->SetBottomMargin(0.1);
+  c->SetFrameBorderMode(0);
+  c->SetFrameBorderMode(0); 
+  return c;
 }
