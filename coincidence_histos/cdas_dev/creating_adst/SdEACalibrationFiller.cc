@@ -126,7 +126,8 @@ namespace SdEACalibrationFillerKG {
 
       PMTCalibData& pmtCalibData = pmtIt->GetCalibData();
       StationCalibData& stationCalibData = station.GetCalibData();
-      const auto& chargeHistoBinning = dStation.GetMuonChargeHistogramBinning<short>(pmtIt->GetType(), stationCalibData.GetVersion());     
+      const auto& chargeHistoBinning = dStation.GetMuonChargeHistogramBinning<short>(pmtIt->GetType(), stationCalibData.GetVersion());
+      const auto& peakHistoBinning = dStation.GetMuonPeakHistogramBinning<short>(pmtIt->GetType(), stationCalibData.GetVersion());
 
       // load raw values from XML
       if (isUub) {        
@@ -154,7 +155,7 @@ namespace SdEACalibrationFillerKG {
 
           // for WCD we trust the online estimates (from LS)
           pmtCalibData.SetVEMPeak(rawPeak);
-          pmtCalibData.SetVEMCharge(rawCharge);
+          pmtCalibData.SetVEMCoinciCharge(rawCharge);
           continue;
 
         } else if (pmtIt->GetType() == sdet::PMTConstants::eScintillator) {
@@ -210,7 +211,10 @@ namespace SdEACalibrationFillerKG {
       // find estimate of VEM / MIP charge using calibration histograms
       double estimate = 0;
       double res = 0;
+      double QpkCoinci = 0.;
+      double IpkCoinci = 0.;
       const int muonChargeHistoSize = pmtCalibData.GetMuonChargeHisto().size();
+
 
       if (!muonChargeHistoSize || int(chargeHistoBinning.size()) - 1 != muonChargeHistoSize) {
         WARNING("There should be a muon charge histogram!");
@@ -291,11 +295,92 @@ namespace SdEACalibrationFillerKG {
               
               if (res > chargeHisto.GetBinCenter(binmin) && res < chargeHisto.GetBinCenter(binmax)) 
                 res -= base; 
-          }   
+          }
           // check that value is within range for UUB
           if (isUub && !(res > humpvMin && res < humpvMax))
-            res = 0; 
+            res = 0;          
         } // if max value > 500
+
+        // Fitting coincidence charge histogram        
+        const std::vector<int> checkCoinciCharge = pmtCalibData.GetMuonCoinciChargeHisto();
+        if ( checkCoinciCharge.size() > 0 ) {
+          const CalibHistogram chargeCoinciHisto(chargeHistoBinning,
+              pmtCalibData.GetMuonCoinciChargeHisto());
+          const double baseEst = 
+            pmtCalibData.GetBaseline() * 20 - pmtCalibData.GetMuonCoinciChargeHistoOffset();
+          const double baseC = (fabs(baseEst) < 20) ? baseEst : 0;
+
+          unsigned int binmin = 50;
+          unsigned int binmax = 400;
+          const double humpMin = 800;
+          const double humpMax = 2500;
+
+          double x = 0, x2 = 0, x3 = 0, x4 = 0, y = 0, xy = 0, x2y = 0;
+          int nb = 0;
+          for (unsigned int i = binmin; i < binmax; ++i) {
+            const double v = chargeCoinciHisto.GetBinAverage(i);
+            const double a = chargeCoinciHisto.GetBinCenter(i);
+            x += a;
+            x2 += a * a;
+            x3 += a * a * a;
+            x4 += a * a * a * a;
+            y += v;
+            xy += a * v;
+            x2y += a * a * v;
+            ++nb;
+          }
+          double B = (y * (x4 * x - x2 * x3) + xy * (x2 * x2 - nb * x4) +
+              x2y * (nb * x3 - x * x2));
+          double A = (y * (x2 * x2 - x * x3) + xy * (nb * x3 - x * x2) +
+              x2y * (x * x - nb * x2));
+          QpkCoinci = -B / (2 * A);
+          if (QpkCoinci > chargeCoinciHisto.GetBinCenter(binmin) 
+              && QpkCoinci < chargeCoinciHisto.GetBinCenter(binmax))
+            QpkCoinci -= baseC;
+          
+          if (!(QpkCoinci > humpMin && QpkCoinci < humpMax))
+            QpkCoinci = 0;
+        }
+        // Fitting coincidence peak histogram        
+        const std::vector<int> checkCoinciPeak = pmtCalibData.GetMuonCoinciPeakHisto();
+        if ( checkCoinciPeak.size() > 0 ) {
+          const CalibHistogram peakCoinciHisto(peakHistoBinning,
+              pmtCalibData.GetMuonCoinciPeakHisto());
+          const double baseEst = 
+            pmtCalibData.GetBaseline() * 20 - pmtCalibData.GetMuonCoinciPeakHistoOffset();
+          const double baseC = (fabs(baseEst) < 20) ? baseEst : 0;
+
+          unsigned int binmin = 5;
+          unsigned int binmax = 100;
+          const double humpPkMin = 50;
+          const double humpPkMax = 800;
+
+          double x = 0, x2 = 0, x3 = 0, x4 = 0, y = 0, xy = 0, x2y = 0;
+          int nb = 0;
+          for (unsigned int i = binmin; i < binmax; ++i) {
+            const double v = peakCoinciHisto.GetBinAverage(i);
+            const double a = peakCoinciHisto.GetBinCenter(i);
+            x += a;
+            x2 += a * a;
+            x3 += a * a * a;
+            x4 += a * a * a * a;
+            y += v;
+            xy += a * v;
+            x2y += a * a * v;
+            ++nb;
+          }
+          double B = (y * (x4 * x - x2 * x3) + xy * (x2 * x2 - nb * x4) +
+              x2y * (nb * x3 - x * x2));
+          double A = (y * (x2 * x2 - x * x3) + xy * (nb * x3 - x * x2) +
+              x2y * (x * x - nb * x2));
+          IpkCoinci = -B / (2 * A);
+          if (IpkCoinci > peakCoinciHisto.GetBinCenter(binmin) 
+              && IpkCoinci < peakCoinciHisto.GetBinCenter(binmax))
+            IpkCoinci -= baseC;
+          
+          if (!(IpkCoinci > humpPkMin && IpkCoinci < humpPkMax))
+            IpkCoinci = 0;
+        }        
       } // if there is histogram
       
       if (res) {
@@ -316,8 +401,11 @@ namespace SdEACalibrationFillerKG {
       }
 
       pmtCalibData.SetVEMPeak(rawPeak); 
-      pmtCalibData.SetVEMCharge(rawCharge);
+      pmtCalibData.SetVEMCoinciCharge(rawCharge);
 
+      // For coincidence histos      
+      pmtCalibData.SetVEMCoinciPeak(IpkCoinci);
+      pmtCalibData.SetVEMCoinciCharge(QpkCoinci);
     }
   }
 

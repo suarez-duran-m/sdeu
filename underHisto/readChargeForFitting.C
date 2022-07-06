@@ -232,6 +232,8 @@ void readChargeForFitting()
   leg->SetHeader("#splitline{Charge histogrma Station 863}{(Event "+strEvt+")}");
   leg->AddEntry(charge,"Charge histogram","l");
   leg->AddEntry(chargeSmooth,"H_{S} histogram","l");
+  leg->SetTextSize(0.05);
+  leg->SetBorderSize(0);
   leg->Draw();  
   c1->Print("../plots/chargeHisto863.pdf");
 

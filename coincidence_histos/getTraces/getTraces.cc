@@ -107,7 +107,7 @@ int main (int argc, char *argv[]) {
     for (unsigned int i = 0 ; i < event.Stations.size(); ++i) {
       found = false;
       // Searching for desire station        
-      for ( unsigned int st_i=0; st_i<stationsIds.size(); st_i++ ) {        
+      for ( unsigned int st_i=0; st_i<stationsIds.size(); st_i++ ) { 
         // Two seconds forward respect GPS time, who know's why
         if ( event.utctime() == utc2read[st_i]+2 )
           if (event.Stations[i].Id == stationsIds[st_i] )
