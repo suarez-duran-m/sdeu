@@ -1,0 +1,153 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\usepackage{ulem}
+\usepackage{hyperref}
+\usepackage{animate} % For gif
+\usepackage{media9}
+\usepackage{graphicx}
+\usepackage{listings}
+
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{Coincidence histograms in Offline}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Searching for the properly range to fit coincidence
+  histograms}
+  As a first approach, two criteria were considered:
+  \vspace{0.5cm}
+  \begin{itemize}
+    \item<2-> The $\chi^2/$Ndof     
+    \item<3-> The error of the peak obtained from the fit; named
+      as ErrIpk, for pulse height histograms and ErrQpk, for
+      charge histograms.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Searching for the properly range to fit coincidence
+  histograms}
+  As a first approach, two criteria were considered:
+  \vspace{0.5cm}
+  \begin{itemize}
+    \item The $\chi^2/$Ndof     
+    \item The error of the peak obtained from the fit; named
+      as ErrIpk, for pulse height histograms and ErrQpk, for
+      charge histograms.
+  \end{itemize}
+  \vspace{1.0cm}
+
+  The algorithm was temporally implemented in the
+  SdHistogramFitterKGB.cc module:
+  \begin{lstlisting}[language=C++, basicstyle = \ttfamily\tiny]
+  for ( int binLow = firstBinLow; binLow < lastBinHigh-5; binLow+=binWidth )
+    for ( int binHigh = binLow+(6*binWidth); binHigh < lastBinHigh; binHigh+=binWidth ) {
+      [...]
+    }
+  \end{lstlisting}
+  Where binWidth takes the value of 4, for height pulse
+  histograms, and 8 for charge histograms. The number 6
+  corresponds to minimum number of data points, due to we are
+  fitting a second order polynomial.
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Results for height pulse histograms}
+
+  \begin{columns} 
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/lowHigChi2NdofIpk.pdf}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/lowHigErrIpk.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/lowHigPvalIpk.pdf}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Results for charge histograms}
+
+  \begin{columns}  
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/lowHigChi2NdofQpk.pdf}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/lowHigErrQpk.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/lowHigPvalQpk.pdf}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\end{document}
