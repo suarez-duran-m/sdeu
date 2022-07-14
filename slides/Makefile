@@ -1,4 +1,5 @@
-base=auger_bxl_06jul2022
+base=auger_Wuppertal_21jul2022
+#auger_bxl_13jul2022
 #bxl_26jan2022
 #sdeuMeetOct122021
 #auger_bxl
@@ -21,6 +22,6 @@ full:
 	pdflatex ${name}.tex
 
 clean:
-	rm -f ${name}.aux ${name}.log ${name}.bbl ${name}.blg ${name}.out ${name}.toc sections/*.aux ${name}.dvi ${name}.nav ${name}.snm
+	rm -f ${name}.aux ${name}.log ${name}.bbl ${name}.blg ${name}.out ${name}.toc sections/*.aux ${name}.dvi ${name}.nav ${name}.snm ${name}.vrb
 fullclean:
 	rm -f *.aux *.log *.gz *.bak *.bbl *.blg *.out *.toc ${name}.pdf
