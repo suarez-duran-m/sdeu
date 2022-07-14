@@ -2,104 +2,161 @@ void doingChi2Ndof() {
   ifstream dataFile("ndfVsRedChi2_Ipk.dat", ios::in);
   //ifstream dataFile("ndfVsRedChi2_Qpk.dat", ios::in);
 
-  int nOfBins = 400;
-  vector < vector < double > > lowHigChi2(nOfBins);
-  vector < vector < double > > cntsLowHig(nOfBins);
-  vector < vector < double > > arrErrIpk(nOfBins);
-  vector < vector < double > > arrPval(nOfBins);
+  int nBinLow = 400;
+  int nNdof = 100;
+  // redChi2[binlow][ndof] = redChi2
+  vector < vector < double > > redChi2(nBinLow);
+  vector < vector < double > > errIQpk(nBinLow);
+  vector < vector < double > > pval(nBinLow);
+  vector < vector < double > > cntsPerBin(nBinLow);
+  vector < double > xAxisNdof(nNdof);
 
-  for ( int i=0; i<nOfBins; i++ ) {
-    lowHigChi2[i].resize(nOfBins);
-    arrErrIpk[i].resize(nOfBins);
-    cntsLowHig[i].resize(nOfBins);
-    arrPval[i].resize(nOfBins);
+  for ( int i=0; i<nBinLow; i++ ) {
+    redChi2[i].resize( nNdof );
+    errIQpk[i].resize( nNdof );
+    pval[i].resize( nNdof );
+    cntsPerBin[i].resize( nNdof );
 
-    for ( int j=0; j<nOfBins; j++ ) {
-      lowHigChi2[i][j] = 0.;
-      arrErrIpk[i][j] = 0.;
-      cntsLowHig[i][j] = 0.;
-      arrPval[i][j] = 0.;
+    for ( int j=0; j<nNdof; j++ ) {
+      redChi2[i][j] = 0.;
+      errIQpk[i][j] = 0.;
+      pval[i][j] = 0.;
+      cntsPerBin[i][j] = 0.;
+      xAxisNdof[j] = j;
     }
   }
 
-  double ndof = 0.;
-  double chi2ndof = 0.;
-  double ipkErr = 0.;
-  double lowBin = 0.;
-  double higBin = 0.;
-
-  TGraph2D *lowHigChi2Ndof = new TGraph2D();
-  TGraph2D *lowHigErrIpk = new TGraph2D();
-  TGraph2D *lowHigPval = new TGraph2D();
-  lowHigChi2Ndof->SetTitle("; binLow [FADC]; binHigh [FADC]; #chi^{2}/Ndof [FADC]"); 
-  lowHigPval->SetTitle("; binLow [FADC]; binHigh [FADC]; Log(Pval)");
-  lowHigErrIpk->SetTitle("; binLow [FADC]; binHigh [FADC]; ErrIpk [%]"); 
-  //lowHigErrIpk->SetTitle("; binLow [FADC]; binHigh [FADC]; ErrQpk [%]"); 
+  double tmpNdof = 0.;
+  double tmpRedChi2 = 0.;
+  double tmpErrIQpk = 0.;
+  double tmpLowBin = 0.;
+  double tmpHigBin = 0.;
 
   while (dataFile.good()) {
-    dataFile >> ndof >> chi2ndof >> ipkErr >> lowBin >> higBin;
-      lowHigChi2[lowBin][higBin] += chi2ndof;
-      arrErrIpk[lowBin][higBin] += ipkErr;
-      arrPval[lowBin][higBin] += log10( TMath::Prob(chi2ndof*ndof, ndof) );
-      cntsLowHig[lowBin][higBin]++;
+    dataFile >> tmpNdof >> tmpRedChi2 >> tmpErrIQpk >> tmpLowBin >> tmpHigBin;
+    redChi2[tmpLowBin][tmpNdof] += tmpRedChi2;
+    errIQpk[tmpLowBin][tmpNdof] += tmpErrIQpk;
+    pval[tmpLowBin][tmpNdof] += log10( TMath::Prob(tmpRedChi2*tmpNdof, tmpNdof) );    
+    cntsPerBin[tmpLowBin][tmpNdof]++;
   }
- 
-  int nPoint = 0;
-  int nPointPval = 0;
 
-  for ( int i=0; i<nOfBins; i++ )
-    for ( int j=0; j<nOfBins; j++ )
-      if ( cntsLowHig[i][j] > 0 ) {
-        lowHigChi2[i][j] /= cntsLowHig[i][j];
-        lowHigChi2Ndof->SetPoint( nPoint, i, j, lowHigChi2[i][j] );
-        //lowHigChi2Ndof->SetPoint( nPoint, i*8, j*8, lowHigChi2[i][j] );
-        arrErrIpk[i][j] /= cntsLowHig[i][j];
-        lowHigErrIpk->SetPoint( nPoint, i, j, 100.*arrErrIpk[i][j] );
-        //lowHigErrIpk->SetPoint( nPoint, i*8, j*8, 100.*arrErrIpk[i][j] );
-        arrPval[i][j] /= cntsLowHig[i][j];
-        if ( arrPval[i][j] > -10 && arrPval[i][j] < -0.001 ) {
-          lowHigPval->SetPoint( nPointPval, i, j, arrPval[i][j] );
-          //lowHigPval->SetPoint( nPointPval, i*8, j*8, arrPval[i][j] );
-          nPointPval++;
-        }
-        nPoint++;
+  for ( int i=0; i<nBinLow; i++ )
+    for ( int j=0; j<nNdof; j++ )
+      if ( cntsPerBin[i][j] > 0 ) {
+        redChi2[i][j] /= cntsPerBin[i][j];
+        errIQpk[i][j] /= cntsPerBin[i][j];
+        errIQpk[i][j] *= 100.;
       }
-  int usePalette = 56;
 
-  TCanvas c2dChi2("c2dChi2","",1.6e3, 9e2);
-  c2dChi2.cd();
-  c2dChi2.SetTopMargin(0.03);
-  c2dChi2.SetLeftMargin(0.08);
-  c2dChi2.SetRightMargin(0.13);
-  gStyle->SetPalette(usePalette);
+  TGraph redChi2Grph100(xAxisNdof.size(), &xAxisNdof.front(), &redChi2[100].front());
+  redChi2Grph100.SetTitle("; Ndof [au]; #chi^{2}/Ndof [FADC]");
+  
+  TGraph redChi2Grph125(xAxisNdof.size(), &xAxisNdof.front(), &redChi2[124].front());
+  TGraph redChi2Grph150(xAxisNdof.size(), &xAxisNdof.front(), &redChi2[152].front());
+  TGraph redChi2Grph175(xAxisNdof.size(), &xAxisNdof.front(), &redChi2[176].front());
+  TGraph redChi2Grph200(xAxisNdof.size(), &xAxisNdof.front(), &redChi2[200].front());
 
-  lowHigChi2Ndof->Draw("COLZ CONT");
-  c2dChi2.Print("lowHigChi2NdofIpk.pdf");
-  //c2dChi2.Print("lowHigChi2NdofQpk.pdf");
+  TCanvas cvnsRedChi2("cvnsRedChi2","",1.6e3, 9e2);
+  cvnsRedChi2.cd();
+  cvnsRedChi2.SetTopMargin(0.03);
+  cvnsRedChi2.SetLeftMargin(0.08);
+  cvnsRedChi2.SetRightMargin(0.02);
 
-  TCanvas c2dErrIpk("c2dErrIpk","",1.6e3, 9e2);
-  c2dErrIpk.cd();
-  c2dErrIpk.SetTopMargin(0.03);
-  c2dErrIpk.SetLeftMargin(0.08);
-  c2dErrIpk.SetRightMargin(0.13);
-  gStyle->SetPalette(usePalette);
+  redChi2Grph100.GetXaxis()->SetRangeUser(0, 74);
+  redChi2Grph100.GetYaxis()->SetRangeUser(0.8, 4.5);
+  redChi2Grph100.SetMarkerStyle(20);
+  redChi2Grph100.SetMarkerSize(2);
+  redChi2Grph100.SetMarkerColor(kBlue);
+  redChi2Grph100.Draw("ap");
 
-  lowHigErrIpk->Draw("COLZ CONT");
-  c2dErrIpk.Print("lowHigErrIpk.pdf");
-  //c2dErrIpk.Print("lowHigErrQpk.pdf");
+  redChi2Grph125.SetMarkerStyle(21);
+  redChi2Grph125.SetMarkerSize(2);
+  redChi2Grph125.SetMarkerColor(kYellow+2);
+  redChi2Grph125.Draw("p same");
+
+  redChi2Grph150.SetMarkerStyle(22);
+  redChi2Grph150.SetMarkerSize(2.5);
+  redChi2Grph150.SetMarkerColor(kGreen+2);
+  redChi2Grph150.Draw("p same");
+
+  redChi2Grph175.SetMarkerStyle(23);
+  redChi2Grph175.SetMarkerSize(2.5);
+  redChi2Grph175.SetMarkerColor(kRed);
+  redChi2Grph175.Draw("p same");
+
+  redChi2Grph200.SetMarkerStyle(33);
+  redChi2Grph200.SetMarkerSize(2.5);
+  redChi2Grph200.SetMarkerColor(kGray+3);
+  redChi2Grph200.Draw("p same");
+
+  TLegend *lgn = new TLegend(0.12, 0.75, 0.35, 0.92);
+  lgn->AddEntry(&redChi2Grph100,"binLow = 100 [FADC]", "p");
+  lgn->AddEntry(&redChi2Grph125,"binLow = 125 [FADC]", "p");
+  lgn->AddEntry(&redChi2Grph150,"binLow = 150 [FADC]", "p");
+  lgn->AddEntry(&redChi2Grph175,"binLow = 175 [FADC]", "p");
+  lgn->AddEntry(&redChi2Grph200,"binLow = 200 [FADC]", "p");
+  lgn->SetBorderSize(0);
+  lgn->SetTextSize(0.04);
+  lgn->Draw();
+  
+  cvnsRedChi2.Print("redChi2Ipk.pdf");
 
 
-  usePalette = 53;
-  TCanvas c2dPval("c2dPval","",1.6e3, 9e2);
-  c2dPval.cd();
-  c2dPval.SetTopMargin(0.03);
-  c2dPval.SetLeftMargin(0.08);
-  c2dPval.SetRightMargin(0.13);
-  gStyle->SetPalette(usePalette);
- 
-  lowHigPval->Draw("COLZ CONT");
-  c2dPval.Print("lowHigPvalIpk.pdf");
-  //c2dPval.Print("lowHigPvalQpk.pdf");
+  // *********************************
+  // =========== ErrIQpk =============
+
+  TGraph errIQpkGrph100(xAxisNdof.size(), &xAxisNdof.front(), &errIQpk[100].front());
+  errIQpkGrph100.SetTitle("; Ndof [au]; #sigma/Ipk [%]");
+  
+  TGraph errIQpkGrph125(xAxisNdof.size(), &xAxisNdof.front(), &errIQpk[124].front());
+  TGraph errIQpkGrph150(xAxisNdof.size(), &xAxisNdof.front(), &errIQpk[152].front());
+  TGraph errIQpkGrph175(xAxisNdof.size(), &xAxisNdof.front(), &errIQpk[176].front());
+  TGraph errIQpkGrph200(xAxisNdof.size(), &xAxisNdof.front(), &errIQpk[200].front());
+
+  TCanvas cvnsErrIQpk("cvnsErrIQpk","",1.6e3, 9e2);
+  cvnsErrIQpk.cd();
+  cvnsErrIQpk.SetTopMargin(0.03);
+  cvnsErrIQpk.SetLeftMargin(0.08);
+  cvnsErrIQpk.SetRightMargin(0.02);
+
+  errIQpkGrph100.GetXaxis()->SetRangeUser(0, 74);
+  errIQpkGrph100.GetYaxis()->SetRangeUser(0.5, 12);
+  errIQpkGrph100.SetMarkerStyle(20);
+  errIQpkGrph100.SetMarkerSize(2);
+  errIQpkGrph100.SetMarkerColor(kBlue);
+  errIQpkGrph100.Draw("ap");
+
+  errIQpkGrph125.SetMarkerStyle(21);
+  errIQpkGrph125.SetMarkerSize(2);
+  errIQpkGrph125.SetMarkerColor(kYellow+2);
+  errIQpkGrph125.Draw("p same");
+
+  errIQpkGrph150.SetMarkerStyle(22);
+  errIQpkGrph150.SetMarkerSize(2.5);
+  errIQpkGrph150.SetMarkerColor(kGreen+2);
+  errIQpkGrph150.Draw("p same");
+
+  errIQpkGrph175.SetMarkerStyle(23);
+  errIQpkGrph175.SetMarkerSize(2.5);
+  errIQpkGrph175.SetMarkerColor(kRed);
+  errIQpkGrph175.Draw("p same");
+
+  errIQpkGrph200.SetMarkerStyle(33);
+  errIQpkGrph200.SetMarkerSize(2.5);
+  errIQpkGrph200.SetMarkerColor(kGray+3);
+  errIQpkGrph200.Draw("p same");
+
+  lgn = new TLegend(0.65, 0.75, 0.88, 0.92);
+  lgn->AddEntry(&errIQpkGrph100,"binLow = 100 [FADC]", "p");
+  lgn->AddEntry(&errIQpkGrph125,"binLow = 125 [FADC]", "p");
+  lgn->AddEntry(&errIQpkGrph150,"binLow = 150 [FADC]", "p");
+  lgn->AddEntry(&errIQpkGrph175,"binLow = 175 [FADC]", "p");
+  lgn->AddEntry(&errIQpkGrph200,"binLow = 200 [FADC]", "p");
+  lgn->SetBorderSize(0);
+  lgn->SetTextSize(0.04);
+  lgn->Draw();
+  
+  cvnsErrIQpk.Print("errIQpkIpk.pdf");
 
   exit(0);
 }
