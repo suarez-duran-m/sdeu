@@ -1,0 +1,292 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\usepackage{ulem}
+\usepackage{hyperref}
+\usepackage{animate} % For gif
+\usepackage{media9}
+\usepackage{graphicx}
+\usepackage{listings}
+
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{Fitting algorithm for Coincidence histograms in Offline}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{How to fit the coincidence histograms?}
+  Let's start with height coincidence histograms, and fitting a
+  second order polynomial
+
+  \begin{center}
+    \includegraphics[width=.7\textwidth]{/home/msd/Pictures/EventBrowser_badHeighHist.png}
+  \end{center}
+  So, the first task is to identify wrong height coincidence
+  histograms.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Identifying wrong height coincidence histograms}
+  \framesubtitle{Using the symmetry of the coincidence histograms}
+  \vspace{0.5cm}
+
+  \begin{itemize}
+    \item Find the bin with the maximum of counts (binMax)
+    \item From bin 25 until 100 (beginning of big-bins), counts the number of
+      entries leftward and rightward, respect the binMax.
+    \item Plot the distribution of
+      (EntrLeftward-EntrRightward)/TotEntr.
+  \end{itemize}
+
+  \begin{center}
+    \includegraphics[width=.4\textwidth]{/home/msd/Pictures/EventBrowser_compSymmetryHeigh.png}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Identifying wrong coincidence height histograms:
+  results}
+  \framesubtitle{Using the symmetry of the height coincidence
+  histograms}
+  \begin{center}
+    \includegraphics[width=.9\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_DistLeftRightIpk.pdf}
+  \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Setting the properly range to fit height
+  coincidence histograms}
+  \framesubtitle{Using the symmetry of the height coincidence
+  histograms}
+  \vspace{0.5cm}
+
+  \begin{itemize}
+    \item Find the bin with the maximum of counts (binMax)           
+    \item From binMax, fit a second order polynomial from binMax
+      - n to binMax + n.
+    \item Check for the distribution of $\chi^2$, error of fit
+      as a function of the number of degree of freedom.
+  \end{itemize}
+  \vspace{.5cm}
+
+  A temporary algorithm was implemented in the
+  SdHistogramFitterKGB.cc module in order to find the best range:
+  \begin{lstlisting}[language=C++, basicstyle = \ttfamily\tiny]
+  if ( cntsLeft-cntsRight/totCnts < 0.14 ) {
+    for ( int nFADC=8; nFADC<100; nFADC+=4 ) {
+      [...]
+      MakeQuadraticFitter(coinciPeakHisto, binMax - nFADC, binMax + nFADC).GetFitData(qf);
+      [...]
+    }
+  }
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Setting the properly range to fit height
+  coincidence histograms: results}
+  \framesubtitle{Using the symmetry of the height coincidence
+  histograms}
+  \vspace{0.5cm}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.88\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_ErrIpk.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.88\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_redChi2Ipk.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.88\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_logPvalIpk.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.88\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_succesHistsoIpk.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Algorithm to fit height coincidence histograms}
+  \begin{enumerate}
+    \item Find the bin with the maximum of counts (binMax)           
+    \item From binMax, fit a second order polynomial to range:
+      binMax-44 (44 is equivalent to 19 Ndof).
+    \item Check if the previous range fulfill that: $\sigma/$Ipk
+      $<0.05$ and $\chi^2/$Ndof $<2.0$
+    \item If not, steps 2 and 3 are repeated for the range:
+      binMax-48.
+    \item The steps 2 and 3 are repeated until for some range the
+      step 3 is fulfilled or until the final range of binMax-80
+      is reached. If it is the last case, so Ipk gets zero.
+  \end{enumerate}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Results for height pulse histograms}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_IpkVsCIpk.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_ErrIpkVsCIpk.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_ZErrIpkVsCIpk.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Algorithm to fit height coincidence histograms:
+  results}
+  \begin{center}
+    \includegraphics[width=.82\textwidth]{/home/msd/Pictures/EventBrowser_badHisto-WrongFitCorr.png}
+  \end{center}
+\end{frame}
+
+
+
+% =========== For charge ===============
+%\begin{frame}
+%  \frametitle{Setting the range for charge histograms}
+%
+%  \begin{columns}
+%    \centering
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_ErrQpk.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_redChi2Qpk.pdf}
+%    \end{column}
+%  \end{columns}
+%
+%  \begin{columns}
+%    \centering
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_logPvalQpk.pdf}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+%
+%\begin{frame}
+%  \frametitle{After set 20 Ndof leftward/rightward} 
+%  
+%  \begin{columns}
+%    \centering
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_DistIpk.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_DistErrIpk.pdf}
+%    \end{column}
+%  \end{columns}
+%
+%  \begin{columns}
+%    \centering
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_DistChi2Ipk.pdf}
+%    \end{column}
+%    \begin{column}{0.5\textwidth}
+%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_DisPvallIpk.pdf}
+%    \end{column}
+%  \end{columns}
+%\end{frame}
+%
+%
+%
+%\begin{frame}
+%  \frametitle{Results for height pulse histograms}
+%
+%  \begin{center}
+%    \includegraphics[width=.85\textwidth]{/home/msd/Pictures/EventBrowser_badHisto-WrongFitCorr.png}
+%  \end{center}
+%\end{frame}
+%
+%
+%\begin{frame}
+%  \frametitle{Results for height pulse histograms}
+%
+%  \begin{center}
+%    \includegraphics[width=.85\textwidth]{/home/msd/Pictures/EventBrowser_GoodHisto-NotFitCorr.png}
+%  \end{center}
+%\end{frame}
+%
+%
+%\begin{frame}
+%  \frametitle{Results for height pulse histograms}
+%
+%  \begin{center}
+%    \includegraphics[width=.85\textwidth]{/home/msd/Pictures/EventBrowser_GoodHisto-BadFitCorr.png}
+%  \end{center}
+%
+%\end{frame}
+
+\end{document}

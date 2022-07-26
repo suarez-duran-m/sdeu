@@ -142,7 +142,7 @@ void annaBinsLRQpk() {
   line->SetLineColor(kGray+2);
   line->Draw();
 
-  cvnsErrIQpk.Print("resLeftRight_ErrQpk.pdf");
+  cvnsErrIQpk.Print("results/resLeftRight_ErrQpk.pdf");
 
 
   TGraphErrors redChi2grph(xAxisNdof.size(), &xAxisNdof.front(), &arrChi2Ndf.front(), 0, &arrChi2NdfDev.front());
@@ -165,7 +165,7 @@ void annaBinsLRQpk() {
   line->SetLineColor(kGray+2);
   line->Draw();
 
-  cvnsRedChi2.Print("resLeftRight_redChi2Qpk.pdf");
+  cvnsRedChi2.Print("results/resLeftRight_redChi2Qpk.pdf");
 
 
   TGraphErrors logPvalgrph(xAxisNdof.size(), &xAxisNdof.front(), &arrPval.front(), 0, &arrPvalDev.front());
@@ -189,7 +189,7 @@ void annaBinsLRQpk() {
   line->SetLineColor(kGray+2);
   line->Draw();
 
-  cvnsLogPval.Print("resLeftRight_logPvalQpk.pdf");
+  cvnsLogPval.Print("results/resLeftRight_logPvalQpk.pdf");
 
 
   TGraph succesHistos(xAxisNdof.size(), &xAxisNdof.front(), &nCntsInFadc.front());
@@ -248,7 +248,7 @@ void annaBinsLRQpk() {
   lgnd->SetTextSize(0.04);
   lgnd->Draw();
 
-  cvnsDistCntLeft.Print("resLeftRight_DistLeftRightQpk.pdf");
+  cvnsDistCntLeft.Print("results/resLeftRight_DistLeftRightQpk.pdf");
 
 /*
   TCanvas cvnsAfterDistIpk("cvnsAfterDistIpk","",1.6e3, 9e2);
@@ -257,7 +257,7 @@ void annaBinsLRQpk() {
   cvnsAfterDistIpk.SetLogy();
 
   distIpk.Draw();
-  cvnsAfterDistIpk.Print("resLeftRight_DistQpk.pdf");
+  cvnsAfterDistIpk.Print("results/resLeftRight_DistQpk.pdf");
 
 
   TCanvas cvnsAfterDistErrIpk("cvnsAfterDistErrIpk","",1.6e3, 9e2);
@@ -266,7 +266,7 @@ void annaBinsLRQpk() {
   cvnsAfterDistErrIpk.SetLogy();
 
   distErrIpk.Draw();
-  cvnsAfterDistErrIpk.Print("resLeftRight_DistErrQpk.pdf");
+  cvnsAfterDistErrIpk.Print("results/resLeftRight_DistErrQpk.pdf");
   
   
   TCanvas cvnsAfterDistChi2("cvnsAfterDistChi2","",1.6e3, 9e2);
@@ -275,7 +275,7 @@ void annaBinsLRQpk() {
   cvnsAfterDistChi2.SetLogy();
   
   distChi2.Draw();
-  cvnsAfterDistChi2.Print("resLeftRight_DistChi2Qpk.pdf");
+  cvnsAfterDistChi2.Print("results/resLeftRight_DistChi2Qpk.pdf");
 
   
   TCanvas cvnsAfterDistPval("cvnsAfterDistPval","",1.6e3, 9e2);
@@ -284,7 +284,7 @@ void annaBinsLRQpk() {
   cvnsAfterDistPval.SetLogy();
   
   distLogPval.Draw();
-  cvnsAfterDistPval.Print("resLeftRight_DisPvallQpk.pdf");
+  cvnsAfterDistPval.Print("results/resLeftRight_DisPvallQpk.pdf");
 */
   exit(0);
 }
