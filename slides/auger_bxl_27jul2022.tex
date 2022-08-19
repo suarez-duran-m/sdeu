@@ -205,6 +205,20 @@
 
 
 \begin{frame}
+  \frametitle{Results for height pulse histograms}
+  \framesubtitle{Outliers}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/heightHistoOutlier.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/heightCoinciHistoOutlier.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
   \frametitle{Algorithm to fit height coincidence histograms:
   results}
   \begin{center}
@@ -213,80 +227,173 @@
 \end{frame}
 
 
-
+% **************************************
 % =========== For charge ===============
-%\begin{frame}
-%  \frametitle{Setting the range for charge histograms}
-%
-%  \begin{columns}
-%    \centering
-%    \begin{column}{0.5\textwidth}
-%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_ErrQpk.pdf}
-%    \end{column}
-%    \begin{column}{0.5\textwidth}
-%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_redChi2Qpk.pdf}
-%    \end{column}
-%  \end{columns}
-%
-%  \begin{columns}
-%    \centering
-%    \begin{column}{0.5\textwidth}
-%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_logPvalQpk.pdf}
-%    \end{column}
-%  \end{columns}
-%\end{frame}
-%
-%\begin{frame}
-%  \frametitle{After set 20 Ndof leftward/rightward} 
-%  
-%  \begin{columns}
-%    \centering
-%    \begin{column}{0.5\textwidth}
-%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_DistIpk.pdf}
-%    \end{column}
-%    \begin{column}{0.5\textwidth}
-%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_DistErrIpk.pdf}
-%    \end{column}
-%  \end{columns}
-%
-%  \begin{columns}
-%    \centering
-%    \begin{column}{0.5\textwidth}
-%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_DistChi2Ipk.pdf}
-%    \end{column}
-%    \begin{column}{0.5\textwidth}
-%      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_DisPvallIpk.pdf}
-%    \end{column}
-%  \end{columns}
-%\end{frame}
-%
-%
-%
-%\begin{frame}
-%  \frametitle{Results for height pulse histograms}
-%
-%  \begin{center}
-%    \includegraphics[width=.85\textwidth]{/home/msd/Pictures/EventBrowser_badHisto-WrongFitCorr.png}
-%  \end{center}
-%\end{frame}
-%
-%
-%\begin{frame}
-%  \frametitle{Results for height pulse histograms}
-%
-%  \begin{center}
-%    \includegraphics[width=.85\textwidth]{/home/msd/Pictures/EventBrowser_GoodHisto-NotFitCorr.png}
-%  \end{center}
-%\end{frame}
-%
-%
-%\begin{frame}
-%  \frametitle{Results for height pulse histograms}
-%
-%  \begin{center}
-%    \includegraphics[width=.85\textwidth]{/home/msd/Pictures/EventBrowser_GoodHisto-BadFitCorr.png}
-%  \end{center}
-%
-%\end{frame}
+% **************************************
+
+\begin{frame}
+  \frametitle{Doing for charge coincidence histograms}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Checking for wrong charge coincidence histograms}
+  \framesubtitle{Using the symmetry of the coincidence histograms}
+  \vspace{0.5cm}
+
+  \begin{itemize}
+    \item Find the bin with the maximum of counts (binMax)
+    \item From bin 25 until 100 (beginning of big-bins), counts the number of
+      entries leftward and rightward, respect the binMax.
+    \item Plot the distribution of
+      (EntrLeftward-EntrRightward)/TotEntr.
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Checking for wrong charge coincidence histograms:
+  results}
+  
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.85\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_DistLeftRightQpk.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.85\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/asymmetryChargeCoinciHisto0p4.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.85\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/asymmetryChargeCoinciHisto0p5.pdf}
+    \end{column}
+  \end{columns}
+  \vspace{0.5cm}
+
+  Not wrong charge coincidence histograms, as there are for
+  pulse height ones.
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \frametitle{Setting the properly range to fit charge
+  coincidence histograms}
+  \framesubtitle{Using the symmetry of the charge coincidence
+  histograms}
+  \vspace{0.5cm}
+
+  \begin{itemize}
+    \item Find the bin with the maximum of counts (binMax)           
+    \item From binMax, fit a second order polynomial from binMax
+      - n to binMax + n.
+    \item Check for the distribution of $\chi^2$, error of fit
+      as a function of the number of degree of freedom.
+  \end{itemize}
+  \vspace{.5cm}
+
+  A temporary algorithm was implemented in the
+  SdHistogramFitterKGB.cc module in order to find the best range:
+  \begin{lstlisting}[language=C++, basicstyle = \ttfamily\tiny]
+  for ( int nFADC=16; nFADC<1000; nFADC+=8 ) {
+    [...]
+    MakeQuadraticFitter(coinciChargeHisto, binMax - nFADC, binMax + nFADC).GetFitData(qf);
+    [...]
+  }
+  \end{lstlisting}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Setting the properly range to fit charge
+  coincidence histograms: results}
+  \framesubtitle{Using the symmetry of the height coincidence
+  histograms}
+  \vspace{0.5cm}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.88\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_ErrQpk.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.88\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_redChi2Qpk.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.88\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_logPvalQpk.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.88\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_succesHistsoQpk.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Algorithm to fit charge coincidence histograms}
+  \begin{enumerate}
+    \item Find the bin with the maximum of counts (binMax)           
+    \item From binMax, fit a second order polynomial to range:
+      binMax-296 (296 is equivalent to 71 Ndof).
+    \item Check if the previous range fulfill that: $\sigma/$Ipk
+      $<0.05$ and $\chi^2/$Ndof $<2.0$
+    \item If not, steps 2 and 3 are repeated for the range:
+      binMax-304.
+    \item The steps 2 and 3 are repeated until for some range the
+      step 3 is fulfilled or until the final range of binMax-496
+      is reached. If it is the last case, so Ipk gets zero.
+  \end{enumerate}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Results for charge coincidence histograms}
+  \vspace{0.5cm}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.95\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_QpkVsCQpk.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.95\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_ErrQpkVsCQpk.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.95\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_Chi2.pdf}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Results for charge coincidence histograms}
+  \framesubtitle{Outliers}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.42\textwidth}
+      \begin{minipage}{\textwidth}
+        \includegraphics[width=.8\textwidth]{/home/msd/Pictures/QpkVsCQpk_outliers.png}
+      \end{minipage}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{minipage}{\textwidth}
+        \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/chargeHistoOutlier.pdf}
+      \end{minipage}
+      \begin{minipage}{\textwidth}
+        \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/chargeCoinciHistoOutlier.pdf}
+      \end{minipage}
+    \end{column}
+  \end{columns}
+\end{frame}
 
 \end{document}
