@@ -5,11 +5,11 @@ void setTGraphStyle(TH1D& graph);
 void setTGraphStyle(TH2D& graph);
 
 void annaBinsLRIpk() {
-  ifstream dataFile("binsLefltRightIpk.dat");
+  ifstream dataFile("binsLefltRightIpk4.dat");
 
-  const int totalHistos = 2198; //2464;
+  const int totalHistos = 102290; //2449;//2198; //2464;
   //int nbins = 152;
-  int nbins = 3000;
+  int nbins = 96;
   vector < double > xAxisFadcLR(nbins);
   vector < double > arrErrIQpk(nbins);
   vector < double > arrErrIQpkDev(nbins);
@@ -41,14 +41,17 @@ void annaBinsLRIpk() {
   vector < double > valsChi2;
   vector < double > valsErrIpk;
 
+  double checkPval = 0.;
+  double tmpMax1 = 0.;
+
   while ( dataFile >> tmpNfadc >> tmpIpk >> tmpErrIpk >> tmpChi2Ndf >> tmpNdof ) {
-    if ( !tmpNdof || !tmpChi2Ndf )
-      continue;
-    if ( tmpNfadc < 9 )
+
+    checkPval = TMath::Prob(tmpChi2Ndf*tmpNdof, tmpNdof);
+    if ( checkPval < 1e-10 )
       continue;
     
+    // Error coming as ErrIpk/Ipk 
     tmpErrIpk *= 100.;
-
     valsChi2.push_back( tmpChi2Ndf );
     valsErrIpk.push_back( tmpErrIpk );
 
@@ -94,26 +97,23 @@ void annaBinsLRIpk() {
   }
   dataFileAfterFit.close();  
 
-  int nMinus1 = 0;
-  for ( int i=0; i<nbins; i++ ) {
+  for ( int i=0; i<nbins; i++ ) {    
     if ( nCntsInFadc[i] == 0 )
-      continue;
-
-    nMinus1 = nCntsInFadc[i]-1;
+      continue;    
     
     arrErrIQpk[i] = arrErrIQpk[i]/nCntsInFadc[i];
-    arrErrIQpkDev[i] = sqrt(arrErrIQpkDev[i]/nMinus1 - nCntsInFadc[i]*arrErrIQpk[i]*arrErrIQpk[i]/nMinus1);
+    arrErrIQpkDev[i] = sqrt(arrErrIQpkDev[i]/nCntsInFadc[i] - arrErrIQpk[i]*arrErrIQpk[i]);
+    // Error of the mean: sigma/sqrt(N);
     arrErrIQpkDev[i] /= sqrt(nCntsInFadc[i]);
 
     arrChi2Ndf[i] = arrChi2Ndf[i]/nCntsInFadc[i];
-    arrChi2NdfDev[i] = sqrt(arrChi2NdfDev[i]/nMinus1 - nCntsInFadc[i]*arrChi2Ndf[i]*arrChi2Ndf[i]/nMinus1);
+    arrChi2NdfDev[i] = sqrt(arrChi2NdfDev[i]/nCntsInFadc[i] - arrChi2Ndf[i]*arrChi2Ndf[i]);
     arrChi2NdfDev[i] /= sqrt(nCntsInFadc[i]);
 
     arrPval[i] = arrPval[i]/nCntsInFadc[i];
-    arrPvalDev[i] = sqrt(arrPvalDev[i]/nMinus1 - nCntsInFadc[i]*arrPval[i]*arrPval[i]/nMinus1);
+    arrPvalDev[i] = sqrt(arrPvalDev[i]/nCntsInFadc[i] - arrPval[i]*arrPval[i]);
     arrPvalDev[i] /= sqrt(nCntsInFadc[i]);
     arrPval[i] *= -1.;
-
     nCntsInFadc[i] = 100.*(nCntsInFadc[i]/totalHistos);
   }
 
@@ -121,7 +121,7 @@ void annaBinsLRIpk() {
   double maxNdof = 48.;
 
   TGraphErrors errIQpkgrph(xAxisNdof.size(), &xAxisNdof.front(), &arrErrIQpk.front(), 0, &arrErrIQpkDev.front());
-  errIQpkgrph.SetTitle("; Ndof [au]; #sigma/Ipk [%]");
+  errIQpkgrph.SetTitle("; Ndof [au]; #LT ErrIpk/Ipk #GT [au]");
   
   TCanvas cvnsErrIQpk("cvnsErrIQpk","",1.6e3, 9e2);
   setCanvasStyle(cvnsErrIQpk);
@@ -129,7 +129,6 @@ void annaBinsLRIpk() {
   cvnsErrIQpk.SetLogy();
 
   errIQpkgrph.GetXaxis()->SetRangeUser(minNdof, maxNdof);
-  errIQpkgrph.GetYaxis()->SetRangeUser(0.5, 6);
   errIQpkgrph.SetMarkerStyle(20);
   errIQpkgrph.SetMarkerSize(2);
   errIQpkgrph.SetMarkerColor(kBlue);
@@ -170,7 +169,7 @@ void annaBinsLRIpk() {
   cvnsLogPval.SetLogy();
 
   logPvalgrph.GetXaxis()->SetRangeUser(minNdof, maxNdof);
-  logPvalgrph.GetYaxis()->SetRangeUser(.5, 3.7);
+  logPvalgrph.GetYaxis()->SetRangeUser(0.5, 4.5);
   logPvalgrph.SetMarkerStyle(20);
   logPvalgrph.SetMarkerSize(2);
   logPvalgrph.SetMarkerColor(kBlue);
@@ -189,7 +188,7 @@ void annaBinsLRIpk() {
   cvnsSuccHistos.cd();
 
   succesHistos.GetXaxis()->SetRangeUser(minNdof, maxNdof);
-  succesHistos.GetYaxis()->SetRangeUser(82, 100);
+  succesHistos.GetYaxis()->SetRangeUser(82, 95);
   succesHistos.SetMarkerStyle(20);
   succesHistos.SetMarkerSize(2);
   succesHistos.SetMarkerColor(kBlue);
@@ -216,14 +215,14 @@ void annaBinsLRIpk() {
   double cut = distCntsLeftRight.GetFunction("gaus")->GetParameter(1) 
     + 3*distCntsLeftRight.GetFunction("gaus")->GetParameter(2);
 
-  line = new TLine(cut, 0, cut, 1e2);
+  TLine *line = new TLine(cut, 0, cut, 1e2);
   line->SetLineWidth(2);
   line->Draw();
 
   TLegend *lgnd = new TLegend(0.7, 0.75, 0.9, 0.94);
   lgnd->AddEntry(&distCntsLeftRight,Form("Mean: %.3f #pm %.3f",
       distCntsLeftRight.GetMean(), distCntsLeftRight.GetMeanError()), "l");
-  lgnd->AddEntry(&distCntsLeftRight.GetFunction("gaus"), Form("#mu = %.3f; #sigma = %.3f",
+  lgnd->AddEntry(distCntsLeftRight.GetFunction("gaus"), Form("#mu = %.3f; #sigma = %.3f",
         distCntsLeftRight.GetFunction("gaus")->GetParameter(1),
         distCntsLeftRight.GetFunction("gaus")->GetParameter(2)),"l");
   lgnd->AddEntry(line, Form("Cut at #mu+3#sigma: %.3f", cut), "l");
@@ -267,11 +266,11 @@ void annaBinsLRIpk() {
         distIpk.ProfileY()->GetMean(), distIpk.ProfileY()->GetMeanError()), "");
   lgnd->AddEntry(&distIpk, Form("RMS: %.2f #pm %.2f",
         distIpk.ProfileY()->GetRMS(), distIpk.ProfileY()->GetRMSError()), "");
-  lgnd->AddEntry(&distIpk.GetFunction("pol1"), "Fit", "");
-  lgnd->AddEntry(&distIpk.GetFunction("pol1"), Form("Slope = %.2f #pm %.2f",
+  lgnd->AddEntry(distIpk.GetFunction("pol1"), "Fit", "");
+  lgnd->AddEntry(distIpk.GetFunction("pol1"), Form("Slope = %.2f #pm %.2f",
         distIpk.GetFunction("pol1")->GetParameter(1), 
         distIpk.GetFunction("pol1")->GetParError(1)), "");
-  lgnd->AddEntry(&distIpk.GetFunction("pol1"), Form("b = %.2f #pm %.2f",
+  lgnd->AddEntry(distIpk.GetFunction("pol1"), Form("b = %.2f #pm %.2f",
         distIpk.GetFunction("pol1")->GetParameter(0),
         distIpk.GetFunction("pol1")->GetParError(0)), "");
   lgnd->SetBorderSize(0);
@@ -369,28 +368,34 @@ void annaBinsLRIpk() {
 
 void setCanvasStyle(TCanvas& canvas) {
   canvas.SetTopMargin(0.03);
-  canvas.SetLeftMargin(0.08);
-  canvas.SetRightMargin(0.02);
+  canvas.SetBottomMargin(0.17);
+  canvas.SetLeftMargin(0.11);
+  canvas.SetRightMargin(0.07);
 }
-
 
 void setTGraphStyle(TGraphErrors& graph) {
-  graph.GetYaxis()->SetLabelSize(0.05);
-  graph.GetYaxis()->SetTitleSize(0.05);
-  graph.GetXaxis()->SetLabelSize(0.05);
-  graph.GetXaxis()->SetTitleSize(0.05);
+  graph.GetYaxis()->SetTitleSize(0.07);
+  graph.GetYaxis()->SetLabelSize(0.06);
+  graph.GetYaxis()->SetTitleOffset(0.1);
+  graph.GetXaxis()->SetTitleSize(0.07);
+  graph.GetXaxis()->SetLabelSize(0.06);
+  graph.GetXaxis()->SetTitleOffset(1.);
 }
 void setTGraphStyle(TGraph& graph) {
-  graph.GetYaxis()->SetLabelSize(0.05);
-  graph.GetYaxis()->SetTitleSize(0.05);
-  graph.GetXaxis()->SetLabelSize(0.05);
-  graph.GetXaxis()->SetTitleSize(0.05);
+  graph.GetYaxis()->SetTitleSize(0.07);
+  graph.GetYaxis()->SetLabelSize(0.06);
+  graph.GetYaxis()->SetTitleOffset(0.1);
+  graph.GetXaxis()->SetTitleSize(0.07);
+  graph.GetXaxis()->SetLabelSize(0.06);
+  graph.GetXaxis()->SetTitleOffset(1.);
 }
 void setTGraphStyle(TH1D& graph) {
-  graph.GetYaxis()->SetLabelSize(0.05);
-  graph.GetYaxis()->SetTitleSize(0.05);
-  graph.GetXaxis()->SetLabelSize(0.05);
-  graph.GetXaxis()->SetTitleSize(0.05);
+  graph.GetYaxis()->SetTitleSize(0.07);
+  graph.GetYaxis()->SetLabelSize(0.06);
+  graph.GetYaxis()->SetTitleOffset(0.1);
+  graph.GetXaxis()->SetTitleSize(0.07);
+  graph.GetXaxis()->SetLabelSize(0.06);
+  graph.GetXaxis()->SetTitleOffset(1.);
 }
 void setTGraphStyle(TH2D& graph) {
   graph.GetYaxis()->SetLabelSize(0.05);
