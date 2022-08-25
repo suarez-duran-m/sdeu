@@ -1,0 +1,519 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\usepackage{ulem}
+\usepackage{hyperref}
+\usepackage{animate} % For gif
+\usepackage{media9}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xspace}
+
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\def\Offline{\mbox{$\overline{\rm Off}$\hspace{.05em}\raisebox{.4ex}{$\underline{\rm line}$}}\xspace}
+\def\OfflineB{\mbox{$\bf\overline{\rm\bf Off}$\hspace{.05em}\raisebox{.4ex}{$\bf\underline{\rm\bf line}$}}\xspace}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{Coincidence calibration histograms in \Offline}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{The code that has been written}
+  \begin{itemize}
+    \item Implementation of new Classes:
+      \begin{itemize}
+        \item<1-> CDAS-DAQ (Compiled, not run tested)
+        \item<1-> CDAS-User (From ASCII files to sd and ad root          
+          files.)
+      \end{itemize}
+      \vspace{0.2cm}
+
+    \item<2->Implementation of new variables in \Offline (From
+      sd/ad files to ADST files):
+      \begin{itemize}
+        \item<2-> ADST/EventBrowser
+        \item<2-> ADST/RecEvent/src/Traces.cc
+        \item<2-> ADST/RecEvent/src/SDEvent.cc
+        \item<2-> ADST/EventBrowser/src/EventBrowserSignals.h
+        \item<2-> Framework/SEvent/PMTRecData.h
+        \item<2-> Framework/SEvent/PMTCalibData.h
+        \item<2-> EventIO/CDAS/CDASToOfflineEventConverter.cc
+        \item<2-> Modules/General/RecDataWriterNG/SD2ADST.cc
+        \item<2-> Modules/SdReconstruction/SdTraceCalibratorOG/SdTraceCalibrator.cc
+        \item<2-> Modules/SdReconstruction/SdHistogramFitterKG/SdHistogramFitterKG.cc
+      \end{itemize}
+      \vspace{0.2cm}
+
+    \item<3->Coincidence histograms able to be include into ad,
+      sd and ADST root files.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Implementation tested with two set of data:}
+
+  \begin{itemize}
+    \item<1-> 1st data set: February 2nd, 9th and 10th, 2022.
+    \item<1-> 2nd data set: July from 24th to 31st, 2022.
+  \end{itemize}
+  \vspace{0.5cm}
+
+  With these data:
+  \begin{itemize}
+    \item<2-> A fitting algorithm to find the
+      CQ$^{\mathrm{pk}}$/CI$^{\mathrm{pk}}$ value was implemented
+    \item<2-> Reconstruction of events using a 
+      Q$^{\mathrm{VEM}}$, calculated from CQ$^{\mathrm{pk}}$, was
+      performed.
+  \end{itemize}
+      
+\end{frame}
+
+\begin{frame}
+  \frametitle{Results: EventBrowser visualization}
+  \vspace{0.2cm}
+
+  \begin{columns}
+    \centering
+    \begin{column}{.75\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/eventBrowser_coincidenceHistosVEM.png}
+    \end{column}
+  \end{columns}
+  \vspace{0.5cm}
+
+  The symmetry and presence of a "single" peak are used to
+  design the fitting algorithm.
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Algorithm for fitting 2nd order polynomial to
+  coincidence histograms}
+  As a first approach, two parameter to study:
+  \vspace{0.2cm}
+
+  \begin{itemize}
+    \item The $\chi^2/$Ndof     
+    \item The error of the peak obtained from the fit; named
+      as ErrIpk, for pulse height histograms and ErrQpk, for
+      charge histograms.
+  \end{itemize}
+  \vspace{0.2cm}
+
+  The algorithm was temporally implemented in the
+  SdHistogramFitterKGB.cc module:
+  \vspace{0.1cm}
+  \begin{itemize}
+    \item Find the bin with the maximum of counts (binMax)
+    \item From binMax, fit a second order polynomial from binMax - n to binMax + n.
+    \item Check for the distribution of $\chi^2$ , error of fit
+      as a function of the number of degree of freedom.
+  \end{itemize}
+
+  \begin{lstlisting}[language=C++, basicstyle = \ttfamily\tiny]
+  for ( int nFADC =8; nFADC <100; nFADC +=4 ) {
+    [...]
+    MakeQuadraticFitter ( coinciPeakHisto , binMax - nFADC , binMax + nFADC ). GetFitData ( qf );
+    [...]
+  }
+  \end{lstlisting}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Results: Setting the range for height pulse histograms}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.8\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_ErrIpk.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.8\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_redChi2Ipk.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.8\textwidth]{../coincidence_histos/cdas_dev/creating_adst//results/resLeftRight_logPvalIpk.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.8\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_succesHistsoIpk.pdf}
+    \end{column}
+  \end{columns}
+  \vspace{0.1cm}
+
+  Results obtained with 1st data set.\\From 19 to 35 Ndof, the
+  fit that agrees with: $\sigma/$Ipk< $5$\,\%, and $\chi^2/$Ndof
+  < 2.0 is the one from which the CI$^{\mathrm{pk}}$ is set.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Setting the range for charge histograms}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.8\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_ErrQpk.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.8\textwidth]{../coincidence_histos/cdas_dev/creating_adst//results/resLeftRight_redChi2Qpk.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.8\textwidth]{../coincidence_histos/cdas_dev/creating_adst//results/resLeftRight_logPvalQpk.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.8\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/resLeftRight_succesHistsoQpk.pdf}
+    \end{column}
+  \end{columns}
+  \vspace{0.1cm}
+
+  Results obtained with 2nd data set.\\
+  From 71 to 121 Ndof, the fit that agrees with: $\sigma/$Qpk
+  < $5$\,\%, and $\chi^2/$Ndof < 2.0 is the one from which
+  the CQ$^{\mathrm{pk}}$ is set.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Validating with Katarina's results (1st data set)}
+
+  \Offline:
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/deltaPmt13.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/deltaPmt2.pdf}
+    \end{column}
+  \end{columns}
+
+  Katarina (Applying a cut for histograms with v/h<0.8)
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/katarina_deltaPmt_dist.png}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Validating with Katarina's results (1st data set),
+  one by one}
+
+  \Offline:
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.95\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/coinciFactorPmt1.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.95\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/coinciFactorPmt2.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.95\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/coinciFactorPmt3.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Calculating $\Delta$ for 1st and 2nd data set}
+  \vspace{0.2cm}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/CQpkOverQpkPmt1.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/CQpkOverQpkPmt2.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/CQpkOverQpkPmt3.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      {\small
+      These conversion values are included into:
+      SdHistogramFitterKG.xml.in as variables named
+      {\it cchargeDeltaFactorPMT\{1,2,3\}}, respectively.
+      \vspace{0.2cm}
+
+      This mean, now it is possible to choose between using
+      Q$^{\mathrm{pk}}$ or CQ$^{\mathrm{pk}}$ for VEM
+      calibration: SdTraceCalibrator.xml.in ({\it
+      useVEMfromCoinci})
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Results for reconstruction (using 1st and 2nd data
+  set)}
+  Relative magnitude of signals per PMT
+  (Only events with signal in the three PMTs)
+  \vspace{0.3cm}
+
+  Using Q$^{\mathrm{pk}}$ 
+  \begin{columns}
+    \centering
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/relative_S1.pdf}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/relative_S2.pdf}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/relative_S3.pdf}
+    \end{column}
+  \end{columns}
+  \vspace{0.2cm}
+ 
+  Using CQ$^{\mathrm{pk}}$ 
+  \begin{columns}
+    \centering
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/relativeCoinci_S1.pdf}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/relativeCoinci_S2.pdf}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/relativeCoinci_S3.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outlier: event 68958543}
+  \vspace{0.2cm}
+
+  \begin{columns}
+    \centering
+    \begin{column}{.85\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/68958543_coinci_event.png}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Outlier: event 68958543}
+  \vspace{0.2cm}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/68958543_st867.png}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/68958543_st859.png}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/68958543_st868.png}
+    \end{column}
+  \end{columns}
+  \vspace{0.2cm}
+ 
+  \begin{columns}
+    \centering
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/68958543_coinci_st867.png}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/68958543_coinci_st859.png}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{/home/msd/Pictures/68958543_coinci_st868.png}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Results for reconstruction (using 1st and 2nd data
+  set)}
+  Asymmetry of signals in the station
+  (Only events with signal in the three PMTs)
+  \vspace{0.3cm}
+
+  Using Q$^{\mathrm{pk}}$ 
+  \begin{columns}
+    \centering
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/asymmetry_S1.pdf}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/asymmetry_S2.pdf}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/asymmetry_S3.pdf}
+    \end{column}
+  \end{columns}
+  \vspace{0.2cm}
+ 
+  Using CQ$^{\mathrm{pk}}$ 
+  \begin{columns}
+    \centering
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/asymmetryCoinci_S1.pdf}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/asymmetryCoinci_S2.pdf}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/asymmetryCoinci_S3.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Results for reconstruction (using 1st and 2nd data
+  set)}
+  Distribution of the asymmetry of signals in the station
+  (Only events with signal in the three PMTs)
+  \vspace{0.3cm}
+
+  Using Q$^{\mathrm{pk}}$
+  \begin{columns}
+    \centering
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/asymmetryDist_S1.pdf}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/asymmetryDist_S2.pdf}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/asymmetryDist_S3.pdf}
+    \end{column}
+  \end{columns}
+  \vspace{0.2cm}
+
+  Using CQ$^{\mathrm{pk}}$
+  \begin{columns}
+    \centering
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/asymmetryDistCoinci_S1.pdf}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/asymmetryDistCoinci_S2.pdf}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/asymmetryDistCoinci_S3.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Results for reconstruction (using 1st and 2nd data
+  set)}
+  Signal in a single PMT
+  (Only events with signal in the three PMTs)
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/signalPMT1OverTot.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/signalPMT2OverTot.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.9\textwidth]{../coincidence_histos/cdas_dev/reading_adst/results/signalPMT3OverTot.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      An extra check needed to be sure about these differences
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Remarks}
+  \begin{itemize}
+    \item Coincidence histograms able to be include into ad, sd and ADST root files.
+    \item EventBrowser allows to see the coincidence histograms.
+    \item A fitting algorithm for coincidence histogram
+      implemented and tested by using 1st data set.
+    \item This fitting algorithm was validated by comparison with
+      an independent method, i.e. Katarina's algorithms using
+      python/scipy libraries.
+    \item $\Delta$ values obtained with this \Offline
+      implementation agree with Katarina's results.
+    \item An extra check is needed to be sure about the possible 
+      improvement in signals using coincidence histograms.
+  \end{itemize}
+\end{frame}
+
+ 
+
+\end{document}

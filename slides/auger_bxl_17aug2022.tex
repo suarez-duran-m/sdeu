@@ -1,0 +1,266 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage[font=scriptsize]{caption}
+\usepackage{multirow}
+\usepackage{ulem}
+\usepackage{hyperref}
+\usepackage{animate} % For gif
+\usepackage{media9}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xspace}
+
+\captionsetup[figure]{labelformat=empty}
+
+\usetikzlibrary{tikzmark,shapes,arrows,backgrounds,fit,positioning}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\def\Offline{\mbox{$\overline{\rm Off}$\hspace{.05em}\raisebox{.4ex}{$\underline{\rm line}$}}\xspace}
+\def\OfflineB{\mbox{$\bf\overline{\rm\bf Off}$\hspace{.05em}\raisebox{.4ex}{$\bf\underline{\rm\bf line}$}}\xspace}
+
+\addtobeamertemplate{navigation symbols}{}
+{
+	\insertframenumber{}
+}
+
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{section in foot}{fg=white, bg=blue}
+\setbeamercolor{subsection in foot}{fg=black, bg=white}
+\setbeamerfont{footline}{size=\fontsize{6}{6}\selectfont}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode
+  \hbox
+  {
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm]{subsection in foot}
+    \end{beamercolorbox}
+    
+    \begin{beamercolorbox}
+      [wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in foot}
+      \hfill
+      \insertframenumber
+      %\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}
+  }
+}
+
+
+\title{Comparison results for \Offline's Fitting algorithm vs
+Katarina's Fitting algorithm}
+\author{
+  Mauricio Su\'arez Dur\'an and Ioana~C.~Mari\c{s}
+}
+\institute{IIHE-ULB}
+
+\titlegraphic{
+  \begin{figure}[h]
+    \centering
+   %\includegraphics[width=5cm]{ulbLogo2.png}
+    \hspace*{8.cm}
+    \includegraphics[width=5.5cm]{iihe.jpeg}
+  \end{figure}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Algorithms:}
+  \begin{itemize} 
+    \item Katarina ($Q^{\mathrm{Kat}}_{\mathrm{pk}}$): Least
+      squares implemented in scipy.optimize.curve\_fit in python:
+      $f(Q) = aQ^2+bQ+c$
+      \vspace{0.5cm}
+    \item \Offline ($Q^{\mathrm{Offline}}_{\mathrm{pk}}$):
+      SdHistogramFitterKG.cc writing by Alexander
+      Streich and Allan Payeras.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparison between $Q^{\mathrm{Kat}}_{\mathrm{pk}}$
+  and $Q^{\mathrm{Offline}}_{\mathrm{pk}}$}
+  \vspace{0.1cm}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.945\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/qpkRelPmt1Grp1.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.945\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/qpkRelPmt1Grp2.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=.945\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/qpkRelPmt1Grp3.pdf}
+    \end{column}
+  \end{columns}
+  An average, 8 entries per bin
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparison between
+  $CQ^{\mathrm{Kat}}_{\mathrm{pk}}$ and $CQ^{\mathrm{Offline}}_{\mathrm{pk}}$}
+  \vspace{0.1cm}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/cqpkRelPmt1Grp1.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/cqpkRelPmt1Grp2.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/cqpkRelPmt1Grp3.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparison between $Q^{\mathrm{Kat}}_{\mathrm{pk}}$
+  and $Q^{\mathrm{Offline}}_{\mathrm{pk}}$}
+  \vspace{0.1cm}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/qpkRelPmt2Grp1.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/qpkRelPmt2Grp2.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/qpkRelPmt2Grp3.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparison between
+  $CQ^{\mathrm{Kat}}_{\mathrm{pk}}$ and $CQ^{\mathrm{Offline}}_{\mathrm{pk}}$}
+  \vspace{0.1cm}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/cqpkRelPmt2Grp1.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/cqpkRelPmt2Grp2.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/cqpkRelPmt2Grp3.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparison between $Q^{\mathrm{Kat}}_{\mathrm{pk}}$
+  and $Q^{\mathrm{Offline}}_{\mathrm{pk}}$}
+  \vspace{0.1cm}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/qpkRelPmt3Grp1.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/qpkRelPmt3Grp2.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/qpkRelPmt3Grp3.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparison between
+  $CQ^{\mathrm{Kat}}_{\mathrm{pk}}$ and
+  $CQ^{\mathrm{Offline}}_{\mathrm{pk}}$}
+  \vspace{0.1cm}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/cqpkRelPmt3Grp1.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/cqpkRelPmt3Grp2.pdf}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/cqpkRelPmt3Grp3.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Distribution for $Q^{\mathrm{Kat}}_{\mathrm{pk}}$ Vs
+  $Q^{\mathrm{Offline}}_{\mathrm{pk}}$}
+  \vspace{0.1cm}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/distQpkRelPmt1.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/distQpkRelPmt2.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/distQpkRelPmt3.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Distribution for $CQ^{\mathrm{Kat}}_{\mathrm{pk}}$ Vs
+  $CQ^{\mathrm{Offline}}_{\mathrm{pk}}$}
+  \vspace{0.1cm}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/distCQpkRelPmt1.pdf}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/distCQpkRelPmt2.pdf}
+    \end{column}
+  \end{columns}
+  \begin{columns}
+    \centering
+    \begin{column}{0.5\textwidth}
+      \includegraphics[width=1.\textwidth]{../coincidence_histos/cdas_dev/creating_adst/results/distCQpkRelPmt3.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\end{document}
