@@ -164,7 +164,7 @@ int main (int argc, char *argv[]) {
           << endl;
         if (event.Stations[i].Error==256) {
           receCh = event.Stations[i].HPeak(pmtId-1);
-          tmpName.Form("st%d_Utc%ld", event.Stations[i].Id, event.utctime());
+          tmpName.Form("MSDst%d_Utc%ld", event.Stations[i].Id, event.utctime());
           tmpName = tmpName+"_"+pmtname+".dat";
           outChHist.open(tmpName, ios_base::out);
           for ( int bin_i=1; bin_i<receCh->GetNbinsX()+1; bin_i++ ) {
