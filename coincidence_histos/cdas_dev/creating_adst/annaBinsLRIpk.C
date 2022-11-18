@@ -5,7 +5,7 @@ void setTGraphStyle(TH1D& graph);
 void setTGraphStyle(TH2D& graph);
 
 void annaBinsLRIpk() {
-  ifstream dataFile("binsLefltRightIpk4.dat");
+  ifstream dataFile("binsLefltRightIpk_FebJul.dat");
 
   const int totalHistos = 102290; //2449;//2198; //2464;
   //int nbins = 152;
@@ -38,23 +38,15 @@ void annaBinsLRIpk() {
   double tmpNdof = 0.; 
   double tmpPval = 0.;
 
-  vector < double > valsChi2;
-  vector < double > valsErrIpk;
-
   double checkPval = 0.;
-  double tmpMax1 = 0.;
 
   while ( dataFile >> tmpNfadc >> tmpIpk >> tmpErrIpk >> tmpChi2Ndf >> tmpNdof ) {
-
     checkPval = TMath::Prob(tmpChi2Ndf*tmpNdof, tmpNdof);
     if ( checkPval < 1e-10 )
-      continue;
-    
+      continue; 
     // Error coming as ErrIpk/Ipk 
     tmpErrIpk *= 100.;
     valsChi2.push_back( tmpChi2Ndf );
-    valsErrIpk.push_back( tmpErrIpk );
-
     arrErrIQpk[int(tmpNfadc)] += tmpErrIpk;
     arrErrIQpkDev[int(tmpNfadc)] += tmpErrIpk*tmpErrIpk;
 
@@ -121,7 +113,7 @@ void annaBinsLRIpk() {
   double maxNdof = 48.;
 
   TGraphErrors errIQpkgrph(xAxisNdof.size(), &xAxisNdof.front(), &arrErrIQpk.front(), 0, &arrErrIQpkDev.front());
-  errIQpkgrph.SetTitle("; Ndof [au]; #LT ErrIpk/Ipk #GT [au]");
+  errIQpkgrph.SetTitle("; Ndof [au]; #LT ErrIpk/Ipk #GT [%]");
   
   TCanvas cvnsErrIQpk("cvnsErrIQpk","",1.6e3, 9e2);
   setCanvasStyle(cvnsErrIQpk);
