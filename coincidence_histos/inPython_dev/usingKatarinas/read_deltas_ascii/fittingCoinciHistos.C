@@ -9,6 +9,8 @@
 #include <TStyle.h>
 #include <TGraphErrors.h>
 #include "Math/PdfFuncMathCore.h"
+#include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -28,86 +30,69 @@ Double_t linearFunction(Double_t *x, Double_t *par) {
     return par[0] + par[1]*x[0];
 }
 
-Double_t logNormalFunction(Double_t *x, Double_t *par) {
+Double_t logNormalFunctionRoot(Double_t *x, Double_t *par) {
     return par[0]*ROOT::Math::lognormal_pdf(x[0], par[1], par[2]);
 }
 
+Double_t logNormalFunction(Double_t *x, Double_t *par) {
+    Double_t num = ROOT::Math::log(x[0]) - par[1];
+    Double_t den = 2.0 * par[2] * par[2];
+    return par[0] * ROOT::Math::exp( -1.*(num*num) / den);
+}
+
 Double_t fitFunction(Double_t *x, Double_t *par) {
-    return linearFunction(x, par) + logNormalFunction(x, &par[2]); //&par[1]); //&par[2]);
+    return linearFunction(x, par) + logNormalFunction(x, &par[2]);
+}
+
+Double_t fitFunctionIoana(Double_t *x, Double_t *par) {
+    Double_t f1Pars[2] = {par[0], par[1]};
+    Double_t transition = par[2];    
+    Double_t f2Pars[3] = {1, par[3], par[4]};
+    Double_t c = linearFunction(&transition, f1Pars) / logNormalFunction(&transition, f2Pars);
+    Double_t f3Pars[3] = {c, par[3], par[4]};
+    //
+    return (x[0] < transition) ? linearFunction(x, f1Pars) : logNormalFunction(x, f3Pars);
+}
+
+Double_t fitFunctionIoana2(Double_t *x, Double_t *par) {
+    Double_t f1Pars[2] = {par[0], par[1]};
+    Double_t transition = par[2];
+    Double_t f2Pars[3] = {par[3], par[4], par[5]};
+    //
+    return (x[0] < transition) ? linearFunction(x, f1Pars):logNormalFunction(x, f2Pars);
 }
 
 void fillingDistribution(TH1D *hist, vector<double> deltas) {
-    for(int i=0; i<deltas.size(); i++)
-        if(deltas[i] > -666.0)
-            hist->Fill( deltas[i] );
-}
-
-void discartingEmptyStation(vector<double> deltas, vector<double> deltasErr,
-    vector<double> vh, vector<double> vhErr, vector<double> &shortDlt, 
-    vector<double> &shortDltErr, vector<double> &shortVh, vector<double> 
-    &shortVhErr) {
-    for(int i=0; i<deltas.size(); i++)    
-        if(deltas[i] > -666.0) {
-            shortDlt.push_back(deltas[i]);
-            shortDltErr.push_back(deltasErr[i]);
-            shortVh.push_back(vh[i]);
-            shortVhErr.push_back(vhErr[i]);
-        }
-}
-
-Double_t getErrorFitFunction(double x, double errA[2], double errB[2], double errC[2], 
-    double errD[2]) {
-    //
-    double errX = 0.;
-    double piVal = 2.0 * ROOT::Math::Pi();
-    double log2Term = pow((log(x) - errD[0]), 2);
-    double expTerm = exp( -1.0 * log2Term / ( 2.0 * errC[0] * errC[0]));
-    double numTerm = sqrt(errC[0] * piVal);
-    double derB = (-1.0 * log2Term * expTerm) / (errC[0] * errC[0] * x * x * numTerm)
-        - expTerm / (x * x * numTerm);
-    double derC = (errB[0] * piVal * log2Term * expTerm) / (2. * errC[0] * x * x * pow(numTerm, 3))
-        + (errB[0] * piVal * expTerm) / (2. * x * x * pow(numTerm, 3))
-        - (errB[0] * pow(log2Term, 2) * expTerm) / (pow(errC[0], 5) * x * x * numTerm)
-        + (errB[0] * log2Term * expTerm) / (pow(errC[0], 3) * x * x * numTerm);
-    double derD = (errB[0] * pow(log2Term, 0.5) * expTerm) / (errC[0] * errC[0] * x * x * numTerm)
-        - (errB[0] * pow((log(x) - errD[0]), 3) * expTerm) / (pow(errC[0], 4) * x * x * numTerm);
-    //
-    errX = sqrt(errA[1]*errA[1] + pow((derB*errB[1]), 2 ) + pow((derC*errC[1]), 2) + pow((derD*errD[1]),2));
-    //
-    return errX;
+    for(int i=0; i<deltas.size(); i++)        
+        hist->Fill( deltas[i] );
 }
 
 void fittingCoinciHistos() {
     //
-    // Reading the list of label: of gsp and st
+    // Reading the label list: gsp and st
     auto treeFileList = new TTree("treeFileList", "treeFileList");
-    TString fileListName = "../deltas_python_short.dat";
-    //TString fileListName = "../deltas_python.dat";
-    //TString fileListName = "list_gpsStId_deltas_short.dat";
-    treeFileList->ReadFile(fileListName, "gps/D:stId/I:pmtId/I:cQpk/D:cQpkErr/D:cQpkOff/D:cQpkErrOff/D:Qpk/D:QpkErr/D:QpkOff/D:QpkOffErr/D:delta/D:deltaErr/D:vh/D:vhErr/D");
-    //treeFileList->ReadFile(fileListName, "gps/I:stId/I:pmtId/I:cQpk/D");
-    int nHisto = treeFileList->Draw("gps:stId:pmtId:cQpk:vh:vhErr", "vh < 0.75", "goff");
-    //int nHisto = treeFileList->Draw("gps:stId:pmtId:cQpk", "", "goff");
+    TString fileListName = "../deltas_python2.dat";
+    treeFileList->ReadFile(fileListName);
+    int nHisto = treeFileList->Draw("gps:stId:pmtId","", "goff");
     //
     // Charging name labels
     double *gpsLabel = treeFileList->GetVal(0);
     double *stIdLabel = treeFileList->GetVal(1);
     double *pmtIdLabel = treeFileList->GetVal(2);
-    double *cQpkLabel = treeFileList->GetVal(3);
-    double *vhLabel = treeFileList->GetVal(4);
-    double *vhLabelErr = treeFileList->GetVal(5);
     // 
     // Vector for Delta storing
-    vector < double > chi2FitFcn;
-    vector < double > chi2Line;
-    vector < double > chi2LogNormal;
+    vector < vector < double > > parameters(5);
     vector < vector < double > > deltasTime(3);
     vector < vector < double > > deltasPmt(3);
     vector < vector < double > > deltasPmtErr(3);
+    vector < vector < double > > logPval(3);
+    vector < vector < double > > chi2FitFcn(3);
     vector < vector < vector < double > > > deltaPerSt(3);
     vector < vector < vector < double > > > deltaPerStErr(3);
     vector < vector < vector < double > > > vhPerSt(3);
     vector < vector < vector < double > > > vhPerStErr(3);
+    //
+    // Initializing vectors
     for(int i=0; i<3; i++) {
         deltaPerSt[i].resize(2000);
         deltaPerStErr[i].resize(2000);
@@ -115,168 +100,444 @@ void fittingCoinciHistos() {
         vhPerStErr[i].resize(2000);
     }
     //
-    int firstNhistos = 0;
+    int totCoincHisto = 0;
+    int cntFitCoincHisto = 0;
+    //
     auto c0 = canvasStyle("c0");
-    TString outPutPdfHistos = "histosFitted.pdf"; //"histosFitted_weirdDelta_2-4.pdf";
+    TString outPutPdfHistos = "histosFitted.pdf";
     c0->Print(outPutPdfHistos+"(");
-    
+    auto outputInfo = new TFile("outputOct.root", "RECREATE");
+    //
+    // Variables to read and store        
+    double timeGps;
+    double stid;
+    double pmtid;        
+    double qpkPy;
+    double qpkPyErr;
+    double qpkOff;
+    double qpkErrOff;
+    double cQpkPy;
+    double cQpkErrPy;
+    double vh;
+    double vhErr;
+    double signal;
+    double ldf;
+    double dist;
+    double ener;
+    double enerErr;
+    double angle;
+    // 
+    // New variables to store
+    double poLogNormCQpk;
+    double poLogNormCQpkErr;
+    double fitPar1;
+    double fitParErr1;
+    double fitPar2;
+    double fitParErr2;
+    double fitPar3;
+    double fitParErr3;
+    double fitPar4;
+    double fitParErr4;
+    double fitPar5;
+    double fitParErr5;
+    double cqpkChi2;
+    double cqpkNdf;
+    //
+    // Creating branches for new TTree in output file    
+    outputInfo->cd();
+    auto treeNew = new TTree("treeNew","treeNew");
+    treeNew->Branch("gpsTime", &timeGps, "gpsTime/D");
+    treeNew->Branch("sdId", &stid, "sdId/D");
+    treeNew->Branch("pmtId", &pmtid, "pmtId/D");
+    treeNew->Branch("qpkPy", &qpkPy, "qpkPy/D");
+    treeNew->Branch("qpkPyErr", &qpkPyErr, "qpkErrPy/D");
+    treeNew->Branch("qpkOffLine", &qpkOff, "qpkOffLine/D");
+    treeNew->Branch("qpkErrOffLine", &qpkErrOff, "qpkErrOffLine/D");
+    treeNew->Branch("cqpkPy", &cQpkPy, "cqpkPy/D");
+    treeNew->Branch("cqpkErrPy", &cQpkErrPy, "cqpkErrPy/D");        
+    treeNew->Branch("poLogNormCQpk", &poLogNormCQpk, "poLogNormCQpk/D");
+    treeNew->Branch("poLogNormCQpkErr", &poLogNormCQpkErr, "poLogNormCQpkErr/D");
+    treeNew->Branch("poLogNormChi2", &cqpkChi2, "poLogNormChi2/D");
+    treeNew->Branch("poLogNormNdf", &cqpkNdf, "poLogNormNdf/D");
+    treeNew->Branch("poLogNormPar1", &fitPar1, "poLogNormPar1/D");
+    treeNew->Branch("poLogNormParErr1", &fitParErr1, "poLogNormParErr1/D");
+    treeNew->Branch("poLogNormPar2", &fitPar2, "poLogNormPar2/D");
+    treeNew->Branch("poLogNormParErr2", &fitParErr2, "poLogNormParErr2/D");
+    treeNew->Branch("poLogNormPar3", &fitPar3, "poLogNormPar3/D");
+    treeNew->Branch("poLogNormParErr3", &fitParErr3, "poLogNormParErr3/D");
+    treeNew->Branch("poLogNormPar4", &fitPar4, "poLogNormPar4/D");
+    treeNew->Branch("poLogNormParErr4", &fitParErr4, "poLogNormParErr4/D");
+    treeNew->Branch("poLogNormPar5", &fitPar5, "poLogNormPar5/D");
+    treeNew->Branch("poLogNormParErr5", &fitParErr5, "poLogNormParErr5/D");
+    treeNew->Branch("vh", &vh, "vh/D");
+    treeNew->Branch("vhErr", &vhErr, "vhErr/D");
+    treeNew->Branch("signal", &signal, "signal/D");
+    treeNew->Branch("LDF", &ldf, "LDF/D");
+    treeNew->Branch("Energy", &ener, "Energy/D");
+    treeNew->Branch("EnergyErr", &enerErr, "EnergyErr/D");
+    treeNew->Branch("spDist", &dist, "spDist/D");
+    treeNew->Branch("Zenith", &angle, "Zenith/D");          
+    //treeNew->Branch("CCH", "TH1D", cChisto, 128000, 0);
     //
     // Opening and fitting histos from root files
+    //
+    //nHisto = 10;
     for (int histo_i=0; histo_i<nHisto; histo_i++) {
+        //if((int)gpsLabel[histo_i] > 1342137618) // For Feb.
+        //if((int)gpsLabel[histo_i] < 1342137618 || (int)gpsLabel[histo_i] > 1343347218) // For Jul.
+        //if((int)gpsLabel[histo_i] < 1343347218 || (int)gpsLabel[histo_i] > 1344124818) // For Aug0109.
+        //if((int)gpsLabel[histo_i] < 1344124818  || (int)gpsLabel[histo_i] > 1344729618) // For Aug1016.
+        if((int)gpsLabel[histo_i] < 1344729618) // For Oct.
+            continue;
         //
         // Charging histos from the root file, per PMT
-        TString filename = "../results/plots/outlier_delta_";
-        auto hist_file = TFile::Open(filename+Form("%d_%d_%d.root", 
-            (int)gpsLabel[histo_i], (int)stIdLabel[histo_i], 
-            (int)pmtIdLabel[histo_i] )
-        );
-        // 
+	    ostringstream filename;
+	    filename << "../results/plots/fittedHisto_delta_" 
+            << (int)gpsLabel[histo_i] << "_"
+            << (int)stIdLabel[histo_i] << "_"
+            << (int)pmtIdLabel[histo_i] << ".root";
+        auto hist_file = TFile::Open(filename.str().c_str());
+        //
         // Skipping non-existing files
         if ( hist_file == NULL )
             continue;
+        //
+        // Reading root file with CCH and extra data
+        hist_file->cd();
         auto cChisto = (TH1D*)hist_file->Get("cch");
-        auto qpkVals = (TVectorD*)hist_file->Get("TVectorT<double>;1");
+        //
+        // Fitting
         //
         // Creating function for fit
-        int x0Fline = 600; //300;//600;
-        int xfFline = 1200; //1000;//1200;
+        int x0Fline = 600;
+        int xfFline = 1200;
         int x0LogNormal = 1200;
-        int xfLogNormal =  9000;//2800;
-        int totParameters = 5;
-        //auto fLine = new TF1("fLine","[0]", x0Fline, xfFline);
-        auto fLine = new TF1("fLine","[0] + [1]*x", x0Fline, xfFline);
-        auto fLogNormal = new TF1("fLogNormal","[0]*ROOT::Math::lognormal_pdf(x, [1], [2])", x0LogNormal, xfLogNormal);
-        auto fitFcn = new TF1("fitFcn", fitFunction, x0Fline-100, xfLogNormal+100, totParameters);
+        int xfLogNormal = 4000;
         //
-        // Parameters initialisation
-        fLine->SetParameters(1, 1, 1);
-        fLogNormal->SetParameters(1, 1, 1);
+        auto fLine = new TF1("fLine", linearFunction, x0Fline, xfFline, 2);
+        auto fLogNormal = new TF1("fLogNormal",logNormalFunction, x0LogNormal, xfLogNormal, 3);        
+	    auto fitFcn = new TF1("fitFcn", fitFunctionIoana, x0Fline-100, xfLogNormal+100, 5); 
         //
+        // Putting colors
+        /*
+	    fLine->SetLineColor(kGreen+3);
+        fLine->SetLineWidth(3);
+        fLogNormal->SetLineColor(kBlack);
+        fLogNormal->SetLineWidth(3);
+	    fitFcn->SetLineColor(kRed);
+	    fitFcn->SetLineWidth(3);
+        */
+        //	
+	    // Parameters initialisation
+        fLine->SetParameters(10, 1);
+        fLogNormal->SetParameters(15.6, 7.3, 0.3);
+	    //
         // Fitting pol1 and LogNormal independenly
         cChisto->Fit(fLine, "QR");
         cChisto->Fit(fLogNormal, "QR+");
         //
-        // Setting parameter for log1+logNormal function
-        fitFcn->SetParameters(cChisto->GetFunction("fLine")->GetParameter(0),
-            cChisto->GetFunction("fLine")->GetParameter(1),
-            cChisto->GetFunction("fLogNormal")->GetParameter(0),
-            cChisto->GetFunction("fLogNormal")->GetParameter(1),
-            cChisto->GetFunction("fLogNormal")->GetParameter(2)
-        );
+        // Fittting final function        
+	    fitFcn->SetParNames("a", "b", "t", "n", "m", "s");
+        fitFcn->SetParameters(4.6, 0.0017, 1045, 7.32, 0.32);
         //
-        // Fitting pol1+logNormal function
-        cChisto->Fit(fitFcn, "QR+");
+        //fitFcn->SetParameters(fLine->GetParameter(0), fLine->GetParameter(1),
+        //	1100, fLogNormal->GetParameter(0),fLogNormal->GetParameter(1), 
+        //    fLogNormal->GetParameter(2));                
         //
-        // Checking for fit quality
+        cChisto->Fit(fitFcn,"QR+");
+        double tmpChi2 = 0.;
+        int tmpNdf = 0;
+        //
+        // Computing Chi2
         /*
-        if ( cChisto->GetFunction("fLine")->GetChisquare() > 18. 
-            || cChisto->GetFunction("fLogNormal")->GetChisquare() > 35. 
-            || cChisto->GetFunction("fitFcn")->GetChisquare() > 50 ) {
-                hist_file->Close();
+        for(int bin_i=50; bin_i < 500; bin_i++) {
+            double tmp_Xval = cChisto->GetBinCenter(bin_i);
+            if(tmp_Xval < fitFcn->GetParameter(2) || tmp_Xval > xfLogNormal)
                 continue;
-            }
+            double y_val = fitFunctionIoana(&tmp_Xval, fitFcn->GetParameters());
+            tmpChi2 += pow((cChisto->GetBinContent(bin_i) - y_val), 2) / y_val;
+            tmpNdf++;
+        }        
+        tmpNdf -= 3;
         */
+        tmpChi2 = fitFcn->GetChisquare();
+        tmpNdf = fitFcn->GetNDF();
+        double tmpLog10Pval = TMath::Log10(TMath::Prob(tmpNdf, tmpChi2));
+        //if(tmpChi2 > 35. && tmpChi2 < 55.) {
+            chi2FitFcn[(int)pmtIdLabel[histo_i] - 1].push_back(tmpChi2 / tmpNdf);
+            logPval[(int)pmtIdLabel[histo_i] - 1].push_back(tmpLog10Pval);
+        //}
         //
-        // Calculating distribution peak from derivative function of fitFcn
-        double pkFitFcn = 0.;
-        for ( int i=cChisto->GetNbinsX(); i>10; i-- ) {
-            if ( fitFcn->Derivative(cChisto->GetBinCenter(i)) > 0 ) {
-                pkFitFcn = cChisto->GetBinCenter(i);
-                break;
-            }
-        }
-        double deltaFit = 100. * ((pkFitFcn/(*qpkVals)[0] - 1.0 ));
+        // Calculating distribution mode to get CQpk
+        double pkFitFcn = ROOT::Math::exp(fitFcn->GetParameter(3));
+        double pkFitFcnErr = pkFitFcn * fitFcn->GetParError(3);
+        //
+        //
+        hist_file->cd();
+        auto tree = (TTree*)hist_file->Get("T");
+        // 
+        hist_file->cd();
+        tree->SetBranchAddress("gpsTime", &timeGps);
+        tree->SetBranchAddress("sdId", &stid);
+        tree->SetBranchAddress("pmtId", &pmtid);        
+        tree->SetBranchAddress("qpk", &qpkPy);
+        tree->SetBranchAddress("qpkErr", &qpkPyErr);
+        tree->SetBranchAddress("qpkOffLine", &qpkOff);
+        tree->SetBranchAddress("qpkErrOffLine", &qpkErrOff);
+        tree->SetBranchAddress("cqpkPy", &cQpkPy);
+        tree->SetBranchAddress("cqpkErrPy", &cQpkErrPy);
+        tree->SetBranchAddress("vh", &vh);
+        tree->SetBranchAddress("vhErr", &vhErr);
+        tree->SetBranchAddress("signal", &signal);
+        tree->SetBranchAddress("LDF", &ldf);
+        tree->SetBranchAddress("Energy", &ener);
+        tree->SetBranchAddress("EnergyErr", &enerErr);
+        tree->SetBranchAddress("spDist", &dist);
+        tree->SetBranchAddress("Zenith", &angle);        
+        tree->GetEntry(0);
+        //
+        poLogNormCQpk = pkFitFcn;
+        poLogNormCQpkErr = pkFitFcnErr;
+        cqpkChi2 = tmpChi2;
+        cqpkNdf = tmpNdf;
+        fitPar1 = fitFcn->GetParameter(0);        
+        fitParErr1 = fitFcn->GetParError(0);
+        fitPar2 = fitFcn->GetParameter(1);
+        fitParErr2 = fitFcn->GetParError(1);
+        fitPar3 = fitFcn->GetParameter(2);
+        fitParErr3 = fitFcn->GetParError(2);
+        fitPar4 = fitFcn->GetParameter(3);
+        fitParErr4 = fitFcn->GetParError(4);
+        fitPar5 = fitFcn->GetParameter(4);
+        fitParErr5 = fitFcn->GetParError(4);
+        //
+        outputInfo->cd();
+        treeNew->Fill();
+        //
+        hist_file->Close();
+        //
+        // Counting readed coinc histo.
+        //totCoincHisto++;
+        //
+        // Creating function for fit
         /*
-        if (abs(deltaFit) > 10.)
-            continue;
+        int x0Fline = 600;
+        int xfFline = 1200;
+        int x0LogNormal = 1200;
+        int xfLogNormal = 4000;
+        //
+        auto fLine = new TF1("fLine", linearFunction, x0Fline, xfFline, 2);
+        auto fLogNormal = new TF1("fLogNormal",logNormalFunction, x0LogNormal, xfLogNormal, 3);        
+	    auto fitFcn = new TF1("fitFcn", fitFunctionIoana, x0Fline-100, xfLogNormal+100, 5); 
+        //
+        // Putting colors
+	    fLine->SetLineColor(kGreen+3);
+        fLine->SetLineWidth(3);
+        fLogNormal->SetLineColor(kBlack);
+        fLogNormal->SetLineWidth(3);
+	    fitFcn->SetLineColor(kRed);
+	    fitFcn->SetLineWidth(3);
+        //	
+	    // Parameters initialisation
+        fLine->SetParameters(10, 1);
+        fLogNormal->SetParameters(15.6, 7.3, 0.3);
+	    //
+        // Fitting pol1 and LogNormal independenly
+        cChisto->Fit(fLine, "QR");
+        cChisto->Fit(fLogNormal, "QR+");
+        //
+        // Fittting final function        
+	    fitFcn->SetParNames("a", "b", "t", "n", "m", "s");
+        fitFcn->SetParameters(4.6, 0.0017, 1045, 7.32, 0.32);
+        //
+        //fitFcn->SetParameters(fLine->GetParameter(0), fLine->GetParameter(1),
+        //	1100, fLogNormal->GetParameter(0),fLogNormal->GetParameter(1), 
+        //    fLogNormal->GetParameter(2));                
+        //
+        cChisto->Fit(fitFcn,"QR+");
+        double tmpChi2 = 0.;
+        int tmpNdf = 0;
         */
         //
-        // Storing Deltas
-        double errA[2];
-        double errB[2];
-        double errC[2];
-        double errD[2];
-        //
-        errA[0] = cChisto->GetFunction("fitFcn")->GetParameter(1);
-        errA[1] = cChisto->GetFunction("fitFcn")->GetParError(1);
-        errB[0] = cChisto->GetFunction("fitFcn")->GetParameter(2);
-        errB[1] = cChisto->GetFunction("fitFcn")->GetParError(2);
-        errC[0] = cChisto->GetFunction("fitFcn")->GetParameter(3);
-        errC[1] = cChisto->GetFunction("fitFcn")->GetParError(3);
-        errD[0] = cChisto->GetFunction("fitFcn")->GetParameter(3); //4);
-        errD[1] = cChisto->GetFunction("fitFcn")->GetParError(3); //4);
-        double errPk = getErrorFitFunction(pkFitFcn, errA, errB, errC, errD);
-        double errDelta = 100. * sqrt(pow((errPk/(*qpkVals)[0]), 2) + pow((pkFitFcn / pow((*qpkVals)[0], 2)), 2));
-        deltasTime[(int)pmtIdLabel[histo_i] - 1].push_back( gpsLabel[histo_i] );
-        deltasPmt[(int)pmtIdLabel[histo_i] - 1].push_back( deltaFit );
-        chi2FitFcn.push_back(cChisto->GetFunction("fitFcn")->GetChisquare());
-        chi2Line.push_back(cChisto->GetFunction("fLine")->GetChisquare());
-        chi2LogNormal.push_back(cChisto->GetFunction("fLogNormal")->GetChisquare());
-        deltaPerSt[(int)pmtIdLabel[histo_i]-1][(int)stIdLabel[histo_i]].push_back(deltaFit);
-        deltaPerStErr[(int)pmtIdLabel[histo_i]-1][(int)stIdLabel[histo_i]].push_back(errDelta);
-        vhPerSt[(int)pmtIdLabel[histo_i]-1][(int)stIdLabel[histo_i]].push_back(vhLabel[histo_i]);
-        vhPerStErr[(int)pmtIdLabel[histo_i]-1][(int)stIdLabel[histo_i]].push_back(vhLabelErr[histo_i]);
-        //
-        // Plotting outliers
+        // Computing Chi2
         /*
-        if (deltaFit < 2 || deltaFit > 4) {
-            hist_file->Close();
-            continue;
+        for(int bin_i=50; bin_i < 500; bin_i++) {
+            double tmp_Xval = cChisto->GetBinCenter(bin_i);
+            if(tmp_Xval < fitFcn->GetParameter(2) || tmp_Xval > xfLogNormal)
+                continue;
+            double y_val = fitFunctionIoana(&tmp_Xval, fitFcn->GetParameters());
+            tmpChi2 += pow((cChisto->GetBinContent(bin_i) - y_val), 2) / y_val;
+            tmpNdf++;
+        }        
+        tmpNdf -= 3;
+        */
+        /*
+        tmpChi2 = fitFcn->GetChisquare();
+        tmpNdf = fitFcn->GetNDF();
+        double tmpLog10Pval = TMath::Log10(TMath::Prob(tmpNdf, tmpChi2));
+        //if(tmpChi2 > 35. && tmpChi2 < 55.) {
+            chi2FitFcn[(int)pmtIdLabel[histo_i] - 1].push_back(tmpChi2 / tmpNdf);
+            logPval[(int)pmtIdLabel[histo_i] - 1].push_back(tmpLog10Pval);
+        //}
+        //
+        // Calculating distribution mode to get CQpk
+        double pkFitFcn = ROOT::Math::exp(fitFcn->GetParameter(3));
+        double pkFitFcnErr = pkFitFcn * fitFcn->GetParError(3);
+        //
+        // Calculating delta
+        double deltaFit = 100. * ((pkFitFcn / qpkPy - 1.0 ));
+        double term1 = pkFitFcnErr / qpkPy;
+        double term2 = pkFitFcn * qpkPyErr / pow(qpkPy, 2);
+        double deltaFitErr = 100. * ROOT::Math::sqrt(pow(term1, 2)+ pow(term2, 2));
+        */
+        //
+        //if(tmpChi2 > 35. && tmpChi2 < 55.) {
+        /*
+        if(deltaFit > -10. && deltaFit < 10.) {
+            deltasPmt[(int)pmtIdLabel[histo_i] - 1].push_back(deltaFit);
+            deltasPmtErr[(int)pmtIdLabel[histo_i] - 1].push_back(deltaFitErr);
+            deltaPerSt[(int)pmtIdLabel[histo_i] - 1][(int)stIdLabel[histo_i]].push_back(deltaFit);
+            deltaPerStErr[(int)pmtIdLabel[histo_i] - 1][(int)stIdLabel[histo_i]].push_back(deltaFitErr);
+            vhPerSt[(int)pmtIdLabel[histo_i] - 1][(int)stIdLabel[histo_i]].push_back(vh);
+            vhPerStErr[(int)pmtIdLabel[histo_i] - 1][(int)stIdLabel[histo_i]].push_back(vhErr);
+            cntFitCoincHisto++;
+            //
+            // Storing fit parameters
+            for(int i=0; i<5; i++)
+                parameters[i].push_back(fitFcn->GetParameter(i));
+            //continue;
         }
         */
-        firstNhistos++;
-        if(firstNhistos > 500)
-            continue;
+        //
+        // Writting into root output file
+        //
+        // Getting the respective values from reading root file
+        //tree->GetEntry(0);
+        //
+        /*
         c0->cd();
+        auto pad1 = new TPad("pad1", "pad1", 0.01, 0.5, 0.99, 1.);
+        pad1->Draw();
+        pad1->cd();
+        //
         cChisto->SetStats();
         cChisto->GetXaxis()->SetTitle("[FADC]");
         cChisto->GetYaxis()->SetTitle("Counts [au]");
-        cChisto->GetFunction("fLine")->SetLineWidth(2);
-        cChisto->GetFunction("fLine")->SetLineColor(kGreen+3);
-        cChisto->GetFunction("fLogNormal")->SetLineWidth(0);
-        cChisto->GetFunction("fitFcn")->SetLineColor(kRed);
-        cChisto->GetFunction("fitFcn")->SetLineWidth(3);
         cChisto->Draw();
+        fLogNormal->Draw("same");
+	    fitFcn->Draw("same");
+        //
+        auto cQpkLine = new TLine(pkFitFcn, 0, pkFitFcn, 14);
+        cQpkLine->SetLineColor(kRed);
+        cQpkLine->SetLineWidth(3);        
+        cQpkLine->Draw();
         //        
-        TLegend lgnd(0.6, 0.3, 0.96, 0.7);
-        lgnd.AddEntry(cChisto, Form("CQpk from Python: %.2f", cQpkLabel[histo_i]),"");
-        lgnd.AddEntry(cChisto, Form("Delta: %.2f", 
-            100.*((cQpkLabel[histo_i]/(*qpkVals)[0] - 1.))), "");
+        TLegend lgnd(0.6, 0.3, 0.84, 0.7);
+        term1 = cQpkErrPy / qpkPy;
+        term2 = cQpkPy * qpkPyErr / pow(qpkPy, 2);
+        double deltaErr = ROOT::Math::sqrt(pow(term1, 2)+pow(term2, 2));
+        lgnd.AddEntry(cChisto, Form("CQpk from Python: %.2f #\pm %.2f", cQpkPy, cQpkErrPy), "");
+        lgnd.AddEntry(cChisto, Form("Delta: %.2f #\pm %.2f",
+            100.*((cQpkPy/qpkPy - 1.)), 100.*deltaErr) , "");
         //
-        lgnd.AddEntry(cChisto->GetFunction("fitFcn"), Form("CQpk: %.2f", 
-            pkFitFcn), "l");
-        lgnd.AddEntry(cChisto->GetFunction("fitFcn"), Form("Delta: %.2f", deltaFit, ""), "");
-        lgnd.AddEntry(cChisto->GetFunction("fitFcn"), Form("Chi2/NDF: %.2f/%d", 
-            cChisto->GetFunction("fitFcn")->GetChisquare(), 
-            cChisto->GetFunction("fitFcn")->GetNDF()), "");
-        //
-        lgnd.AddEntry(cChisto->GetFunction("fLine"), Form("Chi2/NDF: %.2f/%d", 
-            cChisto->GetFunction("fLine")->GetChisquare(), 
-            cChisto->GetFunction("fLine")->GetNDF()), "");
-        //
-        lgnd.AddEntry(cChisto->GetFunction("fLogNormal"), Form("Chi2/NDF: %.2f/%d", 
-            cChisto->GetFunction("fLogNormal")->GetChisquare(), 
-            cChisto->GetFunction("fLogNormal")->GetNDF()), "");
+        lgnd.AddEntry(fitFcn, Form("CQpk: %.2f #\pm %.2f", pkFitFcn, pkFitFcnErr), "l");
+        lgnd.AddEntry(fitFcn, Form("Delta: %.2f #\pm %.2f", deltaFit, deltaFitErr), "");
+        lgnd.AddEntry(fitFcn, Form("Chi2/NDF: %.2f / %d", tmpChi2, tmpNdf), "");
+        lgnd.AddEntry(fitFcn, Form("Log10(Pval): %.2f", tmpLog10Pval), "");
         //
         lgnd.SetBorderSize(0);
         lgnd.SetLineWidth(0);
         lgnd.SetTextSize(0.04);
         lgnd.Draw();
+        //
+        // Doing residuals
+        c0->cd();
+        auto pad2 = new TPad("pad2", "pad2", 0.01, 0., 0.99, 0.5);
+        pad2->Draw();
+        pad2->cd();
+        vector < double > x_vals;
+        vector < double > y_diff;
+        vector < double > y_diffErr;
+        for(int bin_i=50; bin_i < 500; bin_i++) {  
+            double tmp_Xval = cChisto->GetBinCenter(bin_i);            
+            if(tmp_Xval < fitFcn->GetParameter(2) || tmp_Xval > xfLogNormal)
+                continue;
+            double y_val = fitFunctionIoana(&tmp_Xval, fitFcn->GetParameters());        
+            x_vals.push_back(tmp_Xval);
+            y_diff.push_back(cChisto->GetBinContent(bin_i) - y_val);
+            double err1 = ROOT::Math::sqrt(cChisto->GetBinContent(bin_i));
+            double parC = fitFcn->GetParameter(3);
+            double parM = fitFcn->GetParameter(4);
+            double parS = fitFcn->GetParameter(5);
+            double lnxM = ROOT::Math::log(tmp_Xval) - parM;
+            double term1 = lnxM * 0.5*cChisto->GetBinWidth(bin_i) / (tmp_Xval * parS*parS);
+            double term2 = lnxM * fitFcn->GetParError(4) / (parS*parS);
+            double term3 = 1.5 * pow(lnxM, 2) * fitFcn->GetParError(5) / pow(parS, 3);
+            double term4 = fitFcn->GetParError(3) / parC;
+            double err2 = y_val* ROOT::Math::sqrt(pow(term1, 2) + pow(term2, 2) 
+                + pow(term3, 2) + pow(term4, 2));
+            y_diffErr.push_back(ROOT::Math::sqrt(pow(err1, 2) + pow(err2, 2)));
+        }
+        auto residuals = new TGraphErrors (x_vals.size(), &x_vals.front(), &y_diff.front(), 
+            0, &y_diffErr.front());
+        residuals->SetName("residuals");
+        residuals->SetTitle("");
+        residuals->GetXaxis()->SetTitle("[FADC]");
+        residuals->GetYaxis()->SetTitle("Residuals [au]");
+        residuals->SetLineColor(kGray);
+        residuals->SetMarkerColor(kBlack);
+        residuals->SetMarkerStyle(21);
+        residuals->Draw("AP");
+        //
+        auto lneg = new TLine(x_vals[0]-100, -2, x_vals.back(), -2);
+        auto lpos = new TLine(x_vals[0]-100, 2, x_vals.back(), 2);
+        lneg->SetLineStyle(2);
+        lneg->Draw();
+        lpos->SetLineStyle(2);
+        lpos->Draw();
+        //
+        c0->cd(0);
         c0->Print(outPutPdfHistos);
-        
+        x_vals.clear();
+        y_diff.clear();
+        y_diffErr.clear();
+        //
         // Closing current root file
         hist_file->Close();
-    }
+        */
+    }    
     //
     c0->Print(outPutPdfHistos+")");
+    cout << endl << "MSD coinc histos fitted: " << endl;
+    cout << cntFitCoincHisto << " out of " << totCoincHisto << " " 
+        << 100.*(1. - double(cntFitCoincHisto) / double(totCoincHisto)) << endl;
+    cout << endl;
+    // 
+    // Writing and closing output root file
+    outputInfo->cd();   
+    treeNew->Write();
+    outputInfo->Write();
+    outputInfo->Close();
+    //
+    // Computing average for fit parameters:
+    cout << endl << "MSD average for fitFcn parameters" << endl;
+    double a[5];
+    for(int par_i=0; par_i<5; par_i++) {
+        a[par_i] = 0;
+        for(int j=0; j<parameters[par_i].size(); j++)
+            a[par_i] += parameters[par_i][j];   
+        a[par_i] /= parameters[par_i].size();
+        cout << a[par_i] << ", ";
+    }
+    cout << endl;
     //
     // Creating output root file
     auto outputRoot = TFile::Open("deltasDistribution.root", "recreate");
     //
     // Filling delta distributions
-    auto deltaDistPmt1 = new TH1D ("deltaDistPmt1", "", 100, -10, 10);
-    auto deltaDistPmt2 = new TH1D ("deltaDistPmt2", "", 100, -10, 10);
-    auto deltaDistPmt3 = new TH1D ("deltaDistPmt3", "", 100, -10, 10);
+    auto deltaDistPmt1 = new TH1D ("deltaDistPmt1", "", 200, -20, 20);
+    auto deltaDistPmt2 = new TH1D ("deltaDistPmt2", "", 200, -20, 20);
+    auto deltaDistPmt3 = new TH1D ("deltaDistPmt3", "", 200, -20, 20);
     //
     // Filling
     fillingDistribution(deltaDistPmt1, deltasPmt[0]);
@@ -288,46 +549,91 @@ void fittingCoinciHistos() {
     canvasPMT13->cd();
     //
     deltaDistPmt1->GetXaxis()->SetTitle("Delta [%]");
-    deltaDistPmt1->GetYaxis()->SetTitle("Counts [au]");    
+    deltaDistPmt1->GetYaxis()->SetTitle("Counts [au]");
     deltaDistPmt1->Draw();
     deltaDistPmt3->SetLineColor(kRed);
     deltaDistPmt3->Draw("same");
     //
     // Filling for chi2
-    auto distChi2FitFcn = new TH1D ("distChi2FitFcn", "", 3000, 0, 300);
-    auto distChi2Line = new TH1D ("distChi2Line", "", 740, 0, 74);
-    auto distChi2LogNormal = new TH1D ("distChi2LogNoraml", "", 2100, 0, 210);
+    auto distChi2FitFcnPmt1 = new TH1D ("distChi2FitFcnPmt1", "", 100, 0, 10);
+    auto distChi2FitFcnPmt2 = new TH1D ("distChi2FitFcnPmt2", "", 100, 0, 10);
+    auto distChi2FitFcnPmt3 = new TH1D ("distChi2FitFcnPmt3", "", 100, 0, 10);
     //
-    fillingDistribution(distChi2FitFcn, chi2FitFcn);
-    fillingDistribution(distChi2Line, chi2Line);
-    fillingDistribution(distChi2LogNormal, chi2LogNormal);
+    fillingDistribution(distChi2FitFcnPmt1, chi2FitFcn[0]);
+    fillingDistribution(distChi2FitFcnPmt2, chi2FitFcn[1]);
+    fillingDistribution(distChi2FitFcnPmt3, chi2FitFcn[2]);
     //
-    auto canvasChi2 = canvasStyle("canvasChi2");
-    canvasChi2->cd();
-    distChi2LogNormal->SetLineColor(kRed);
-    distChi2LogNormal->Draw();
-    distChi2Line->SetLineColor(kGreen+3);
-    distChi2Line->Draw("same");
-    distChi2LogNormal->SetLineColor(kBlue);
-    distChi2LogNormal->Draw("same");
+    // Filling for P-Values
+    auto distPvalPmt1 = new TH1D ("distPvalPmt1", "", 100, -50, 0);
+    auto distPvalPmt2 = new TH1D ("distPvalPmt2", "", 100, -50, 0);
+    auto distPvalPmt3 = new TH1D ("distPvalPmt3", "", 100, -50, 0);
+    //
+    fillingDistribution(distPvalPmt1, logPval[0]);
+    fillingDistribution(distPvalPmt2, logPval[1]);
+    fillingDistribution(distPvalPmt3, logPval[2]);
+    //
+    auto canvasPval = canvasStyle("canvasPval");
+    canvasPval->cd();
+    auto pad01 = new TPad("pad01", "pad01", 0.01, 0.5, 0.32, 1.);
+    pad01->Draw();
+    pad01->cd();
+    distPvalPmt1->SetLineColor(kRed);
+    distPvalPmt1->GetXaxis()->SetTitle("Log10(Pval) [au]");
+    distPvalPmt1->GetYaxis()->SetTitle("Counts [au]");
+    distPvalPmt1->Draw();
+    canvasPval->cd();
+    auto pad02 = new TPad("pad02", "pad02", 0.33, 0.5, 0.65, 1.);
+    pad02->Draw();
+    pad02->cd();
+    distPvalPmt2->SetLineColor(kOrange+1);
+    distPvalPmt2->GetXaxis()->SetTitle("Log10(Pval) [au]");
+    distPvalPmt2->GetYaxis()->SetTitle("Counts [au]");         
+    distPvalPmt2->Draw();
+    canvasPval->cd();
+    auto pad03 = new TPad("pad03", "pad03", 0.66, 0.5, 0.99, 1.);
+    pad03->Draw();
+    pad03->cd();
+    distPvalPmt3->SetLineColor(kBlue);
+    distPvalPmt3->GetXaxis()->SetTitle("Log10(Pval) [au]");
+    distPvalPmt3->GetYaxis()->SetTitle("Counts [au]");
+    distPvalPmt3->Draw();
+    //
+    canvasPval->cd();
+    auto pad11 = new TPad("pad11", "pad11", 0.01, 0., 0.32, 0.48);
+    pad11->Draw();
+    pad11->cd();
+    distChi2FitFcnPmt1->SetLineColor(kRed);
+    distChi2FitFcnPmt1->GetXaxis()->SetTitle("#chi^{2} Ndf [au]");
+    distChi2FitFcnPmt1->GetYaxis()->SetTitle("Counts [au]");
+    //distChi2FitFcnPmt1->GetXaxis()->SetRangeUser(0, 1);
+    distChi2FitFcnPmt1->Draw();
+    canvasPval->cd();
+    auto pad12 = new TPad("pad12", "pad12", 0.33, 0., 0.65, 0.48);
+    pad12->Draw();
+    pad12->cd();
+    distChi2FitFcnPmt2->SetLineColor(kOrange+1);
+    distChi2FitFcnPmt2->GetXaxis()->SetTitle("#chi^{2} [au]");
+    distChi2FitFcnPmt2->GetYaxis()->SetTitle("Counts [au]");    
+    //distChi2FitFcnPmt2->GetXaxis()->SetRangeUser(0, 1);
+    distChi2FitFcnPmt2->Draw();
+    canvasPval->cd();
+    auto pad13 = new TPad("pad13", "pad13", 0.66, 0., 0.99, 0.48);
+    pad13->Draw();
+    pad13->cd();
+    distChi2FitFcnPmt3->SetLineColor(kBlue);
+    distChi2FitFcnPmt3->GetXaxis()->SetTitle("#chi^{2} [au]");
+    distChi2FitFcnPmt3->GetYaxis()->SetTitle("Counts [au]");    
+    //distChi2FitFcnPmt3->GetXaxis()->SetRangeUser(0, 1);
+    distChi2FitFcnPmt3->Draw();
+    //
+    canvasPval->cd();    
+    canvasPval->Print("distPvalPmts.pdf");
     //
     // Doing weighed deltas
     vector < vector < double > > deltaWeighed(3);
     vector < vector < double > > deltaWeighedErr(3);
     vector < vector < double > > vhWeighed(3);
     vector < vector < double > > vhWeighedErr(3);
-    for(int i=0; i<3; i++) {
-        deltaWeighed[i].resize(2000);
-        deltaWeighedErr[i].resize(2000);
-        vhWeighed[i].resize(2000);
-        vhWeighedErr[i].resize(2000);
-        for(int j=0; j<2000; j++) {
-            deltaWeighed[i][j] = -666.0;
-            deltaWeighedErr[i][j] = -666.0;
-            vhWeighed[i][j] = -666.0;
-            vhWeighedErr[i][j] = -666.0;
-        }
-    }
     //
     for(int pmt_i=0; pmt_i<3; pmt_i++) {
         for(int sd_i=0; sd_i<2000; sd_i++) {
@@ -335,26 +641,27 @@ void fittingCoinciHistos() {
             double denDelta = 0.;
             double numVh = 0.;
             double denVh = 0.;
-            if(deltaPerSt[pmt_i][sd_i].size() > 0) {                
-                for(int dlt_i=0; dlt_i<deltaPerSt[pmt_i][sd_i].size(); dlt_i++) {
-                    numDelta += deltaPerSt[pmt_i][sd_i][dlt_i] / pow(deltaPerStErr[pmt_i][sd_i][dlt_i], 2);
-                    denDelta += 1. / pow(deltaPerStErr[pmt_i][sd_i][dlt_i], 2);
-                    //
-                    numVh += vhPerSt[pmt_i][sd_i][dlt_i] / pow(vhPerStErr[pmt_i][sd_i][dlt_i], 2);
-                    denVh += 1. / pow(vhPerStErr[pmt_i][sd_i][dlt_i], 2);
-                }
-                deltaWeighed[pmt_i][sd_i] = numDelta / denDelta;
-                deltaWeighedErr[pmt_i][sd_i] = sqrt(1. / denDelta);
-                vhWeighed[pmt_i][sd_i] = numVh / denVh;
-                vhWeighedErr[pmt_i][sd_i] = sqrt(1. / denVh);
+            if(deltaPerSt[pmt_i][sd_i].size() < 1)
+                continue;
+            //
+            for(int dlt_i=0; dlt_i<deltaPerSt[pmt_i][sd_i].size(); dlt_i++) {
+                numDelta += deltaPerSt[pmt_i][sd_i][dlt_i] / pow(deltaPerStErr[pmt_i][sd_i][dlt_i], 2);
+                denDelta += 1. / pow(deltaPerStErr[pmt_i][sd_i][dlt_i], 2);
+                //
+                numVh += vhPerSt[pmt_i][sd_i][dlt_i] / pow(vhPerStErr[pmt_i][sd_i][dlt_i], 2);
+                denVh += 1. / pow(vhPerStErr[pmt_i][sd_i][dlt_i], 2);
             }
+            deltaWeighed[pmt_i].push_back(numDelta / denDelta);
+            deltaWeighedErr[pmt_i].push_back(sqrt(1. / denDelta));
+            vhWeighed[pmt_i].push_back(numVh / denVh);
+            vhWeighedErr[pmt_i].push_back(sqrt(1. / denVh));
         }
     }
     //
     // Doing distribution for weighed deltas    
-    auto weighDeltaDistPmt1 = new TH1D ("weighDeltaDistPmt1", "", 200, -10, 10);
-    auto weighDeltaDistPmt2 = new TH1D ("weighDeltaDistPmt2", "", 200, -10, 10);
-    auto weighDeltaDistPmt3 = new TH1D ("weighDeltaDistPmt3", "", 200, -10, 10);
+    auto weighDeltaDistPmt1 = new TH1D ("weighDeltaDistPmt1", "", 400, -20, 20);
+    auto weighDeltaDistPmt2 = new TH1D ("weighDeltaDistPmt2", "", 400, -20, 20);
+    auto weighDeltaDistPmt3 = new TH1D ("weighDeltaDistPmt3", "", 400, -20, 20);
     fillingDistribution(weighDeltaDistPmt1, deltaWeighed[0]);
     fillingDistribution(weighDeltaDistPmt2, deltaWeighed[1]);
     fillingDistribution(weighDeltaDistPmt3, deltaWeighed[2]);
@@ -384,31 +691,59 @@ void fittingCoinciHistos() {
     //
     //
     // Doing Deltas vs VH
-    vector < vector < double > > dltWei(3);
-    vector < vector < double > > dltWeiErr(3);
-    vector < vector < double > > vhWei(3);
-    vector < vector < double > > vhWeiErr(3);
-    discartingEmptyStation(deltaWeighed[0], deltaWeighedErr[0], vhWeighed[0], vhWeighedErr[0], dltWei[0], dltWeiErr[0], vhWei[0], vhWeiErr[0]);
-    discartingEmptyStation(deltaWeighed[1], deltaWeighedErr[1], vhWeighed[1], vhWeighedErr[1], dltWei[1], dltWeiErr[1], vhWei[1], vhWeiErr[1]);
-    discartingEmptyStation(deltaWeighed[2], deltaWeighedErr[2], vhWeighed[2], vhWeighedErr[2], dltWei[2], dltWeiErr[2], vhWei[2], vhWeiErr[2]);
-    auto deltaVsVhPmt1 = new TGraphErrors (dltWei[0].size(), &vhWei[0].front(), &dltWei[0].front(), &vhWeiErr[0].front(), &dltWeiErr[0].front());
-    auto deltaVsVhPmt2 = new TGraphErrors (dltWei[1].size(), &vhWei[1].front(), &dltWei[1].front(), &vhWeiErr[1].front(), &dltWeiErr[1].front());
-    auto deltaVsVhPmt3 = new TGraphErrors (dltWei[2].size(), &vhWei[2].front(), &dltWei[2].front(), &vhWeiErr[2].front(), &dltWeiErr[2].front());
+    auto deltaVsVhPmt1 = new TGraphErrors (deltaWeighed[0].size(), &vhWeighed[0].front(), 
+        &deltaWeighed[0].front(), &vhWeighedErr[0].front(), &deltaWeighedErr[0].front());
+    auto deltaVsVhPmt2 = new TGraphErrors (deltaWeighed[1].size(), &vhWeighed[1].front(),
+        &deltaWeighed[1].front(), &vhWeighedErr[1].front(), &deltaWeighedErr[1].front());
+    auto deltaVsVhPmt3 = new TGraphErrors (deltaWeighed[2].size(), &vhWeighed[2].front(),
+        &deltaWeighed[2].front(), &vhWeighedErr[2].front(), &deltaWeighedErr[2].front());
     //
     auto canvasDltVh = canvasStyle("canvasDltVh");
     canvasDltVh->cd();
-    //    
+    pad01 = new TPad("pad01", "pad01", 0.01, 0., 0.32, 1.);
+    pad01->Draw();
+    pad01->cd();
+    //
+    deltaVsVhPmt1->SetName("deltaVsVhPmt1");
+    deltaVsVhPmt1->SetTitle("PMT1");
+    deltaVsVhPmt1->GetXaxis()->SetTitle("v/h [au]");
+    deltaVsVhPmt1->GetYaxis()->SetTitle("#Delta [%]");
+    deltaVsVhPmt1->SetLineColor(kRed);
+    deltaVsVhPmt1->SetMarkerStyle(21);
     deltaVsVhPmt1->Draw("ap");
-    //deltaVsVhPmt2->Draw("ap");
-    //deltaVsVhPmt3->Draw("ap");
     deltaVsVhPmt1->Write();
+    //
+    canvasDltVh->cd();
+    pad02 = new TPad("pad02", "pad02", 0.33, 0., 0.65, 1.);
+    pad02->Draw();
+    pad02->cd();
+    deltaVsVhPmt2->SetName("deltaVsVhPmt2");
+    deltaVsVhPmt2->SetTitle("PMT2");
+    deltaVsVhPmt2->GetXaxis()->SetTitle("v/h [au]");
+    deltaVsVhPmt2->GetYaxis()->SetTitle("#Delta [%]");
+    deltaVsVhPmt2->SetLineColor(kOrange+1);
+    deltaVsVhPmt2->SetMarkerStyle(21);
+    deltaVsVhPmt2->Draw("ap");
     deltaVsVhPmt2->Write();
+    //
+    canvasDltVh->cd();
+    pad03 = new TPad("pad03", "pad03", 0.66, 0., 1., 1.);
+    pad03->Draw();
+    pad03->cd();
+    deltaVsVhPmt3->SetName("deltaVsVhPmt3");
+    deltaVsVhPmt3->SetTitle("PMT3");
+    deltaVsVhPmt3->GetXaxis()->SetTitle("v/h [au]");
+    deltaVsVhPmt3->GetYaxis()->SetTitle("#Delta [%]");
+    deltaVsVhPmt3->SetLineColor(kBlue);
+    deltaVsVhPmt3->SetMarkerStyle(21);
+    deltaVsVhPmt3->Draw("ap");
     deltaVsVhPmt3->Write();
+    //
     canvasDltVh->Print("deltasVsVhPmt1.pdf");
     //
     // Doing Deltas Vs time
+    /*
     auto deltaVsTimePmt1 = new TGraphErrors (nHisto, gpsLabel, cQpkLabel);
-    //auto deltaVsTimePmt1 = new TGraphErrors (deltasPmt[0].size(), &deltasTime[0].front(), &deltasPmt[0].front());
     auto deltaVsTimePmt2 = new TGraphErrors (deltasPmt[1].size(), &deltasTime[1].front(), &deltasPmt[1].front());
     auto deltaVsTimePmt3 = new TGraphErrors (deltasPmt[2].size(), &deltasTime[2].front(), &deltasPmt[2].front());
     //
@@ -436,6 +771,7 @@ void fittingCoinciHistos() {
     deltaVsTimePmt3->GetXaxis()->SetTimeOffset(315964782,"gmt");    
     deltaVsTimePmt3->Draw("ap");
     deltaVsTimePmt3->Write();
+    */
     //
     // Writing and closing output root file
     cout << "MSD, writting and closing" << endl;

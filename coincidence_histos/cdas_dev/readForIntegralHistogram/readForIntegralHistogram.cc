@@ -24,7 +24,7 @@ void setTH1FontStyle(TH1D& histo);
 TGraphErrors doHisto(vector<int> counts, vector<double> bins, TString stId, 
     TString typeOutlier);
 void setTGraphFontStyle(TGraph& grph);
-void plottingSt666(TGraph grph, TString pmtId);
+void plottingSt666(TGraph grph, TString typeHist, TString pmtId);
 
 
 int main ( int argc, char** argv) {
@@ -39,10 +39,13 @@ int main ( int argc, char** argv) {
   TH1D distInteCI("distInteCI","", 250 , 0, 6);
 
   vector < vector < double > > countsCI_st666(3);
-  vector < double > st666_bins(150);
+  vector < vector < double > > countsCQ_st666(3);
+  vector < double > st666_binsCI(150);
+  vector < double > st666_binsCQ(600);
   vector < int > tot666Histos(3);
   for ( int i=0; i<3; i++ ) {
-    countsCI_st666[i].resize(150); 
+    countsCI_st666[i].resize(150);
+    countsCQ_st666[i].resize(600);
     tot666Histos[i] = 0;
   }
  
@@ -51,8 +54,10 @@ int main ( int argc, char** argv) {
   TCanvas cvnsOutlierCI1e4("cvnsOutlierCI1e4", "", 1.6e3, 9e2);
   cvnsOutlierCI1e4.Print("results/outliersCI1e4.pdf(");
 
-  TCanvas cvnsOutlierCQ1e4("cvnsOutlierQI1e4", "", 1.6e3, 9e2);
+  TCanvas cvnsOutlierCQ1e4("cvnsOutlierCQ1e4", "", 1.6e3, 9e2);
   cvnsOutlierCQ1e4.Print("results/outliersCQ1e4.pdf(");
+  TCanvas cvnsOutlierCQ1p5e4("cvnsOutlierCQ1p5e4", "", 1.6e3, 9e2);
+  cvnsOutlierCQ1p5e4.Print("results/outliersCQ1p5e4.pdf(");
 
   gErrorIgnoreLevel = kWarning;
 
@@ -74,16 +79,22 @@ int main ( int argc, char** argv) {
         const SdRecStation& recStation = stations[iS];
         if ( recStation.IsUUB() ) {
           const vector<Traces>& traces = recStation.GetPMTTraces();
+          
           // Reading per PMT
           //
           for (vector<Traces>::const_iterator trIter = traces.begin();
               trIter != traces.end(); ++trIter) {
             const Traces& tr = *trIter;
+            cout << "MSD eTotalTrace: " << eTotalTrace << endl;
             if (tr.GetType() != eTotalTrace)
               continue;
-            const unsigned int pmtId = tr.GetPMTId();            
+            const unsigned int pmtId = tr.GetPMTId();
             if ( pmtId > 3 )
               continue;
+            if ( tr.IsVEMChargeFromHistogram() )
+              cout << "MSD from Fit " << endl;
+            else 
+              cout << "MSD from online" << endl;
 
             // Correction by big-bins
             //
@@ -92,6 +103,10 @@ int main ( int argc, char** argv) {
             const vector<Int_t>& valHistoCI = tr.GetCoinciPeakHistogram().GetValues();
             if ( !valHistoCI.size() )
               continue;
+
+            if ( tr.GetCoinciCharge() > 2300 && tr.GetCoinciCharge() < 2600 )
+              cout << "MSD 2500 " << theRecEvent->GetSDEvent().GetEventId() << endl;
+
             for ( int j = 0; j < 103; j++ ) {
               integral += valHistoCI[j];
               if ( recStation.GetId() == 666 )
@@ -110,7 +125,7 @@ int main ( int argc, char** argv) {
               const vector< double >& bins = tr.GetCoinciPeakHistogram().GetBinning();
               if ( recStation.GetId() == 666 )
                 for ( int i=0; i<bins.size(); i++ )
-                st666_bins[i] = bins[i];
+                st666_binsCI[i] = bins[i];
 
               TString stId = Form("%d", recStation.GetId());
               TString typeOutlier = "CI";
@@ -149,10 +164,16 @@ int main ( int argc, char** argv) {
 
             integral = 0;
             const vector<Int_t>& valHistoCQ = tr.GetCoinciChargeHistogram().GetValues();
-            for ( int j = 0; j < 404; j++ )
+            for ( int j = 0; j < 403; j++ ) {
               integral += valHistoCQ[j];
-            for (int j = 0; j < 197; j++)
+              if ( recStation.GetId() == 666 )
+                countsCQ_st666[pmtId-1][j] += valHistoCQ[j];
+            }
+            for (int j = 0; j < 197; j++) {
               integral += valHistoCQ[j + 403] / bigbins;
+              if ( recStation.GetId() == 666 )
+                countsCQ_st666[pmtId-1][j+403] += valHistoCQ[j+403] / bigbins;
+            }
             distInteCQ.Fill ( log10(integral) );
 
             if ( log10(integral) < 3.9 ) {
@@ -174,6 +195,29 @@ int main ( int argc, char** argv) {
               lgnd.Draw();
               cvnsOutlierCQ1e4.Print("results/outliersCQ1e4.pdf"); 
             }
+            if ( log10(integral) > 3.9 && log10(integral) < 4.2 ) {
+              const vector< double >& bins 
+                = tr.GetCoinciChargeHistogram().GetBinning();
+              if ( recStation.GetId() == 666 )
+                for ( int i=0; i<bins.size(); i++ )
+                  st666_binsCQ[i] = bins[i];
+
+              TString stId = Form("%d", recStation.GetId());
+              TString typeOutlier = "CQ";
+              cvnsOutlierCQ1p5e4.cd();
+              TGraphErrors graphHisto = doHisto( valHistoCQ, bins, stId, typeOutlier );
+              graphHisto.Draw("AL");
+              TLegend lgnd(0.6, 0.6, 0.88, 0.88);
+              lgnd.AddEntry(&graphHisto, Form("Evt: %d", 
+                    theRecEvent->GetSDEvent().GetEventId()), "");
+              lgnd.AddEntry(&graphHisto, "Station: "+stId, "");
+              lgnd.AddEntry(&graphHisto, Form("PMT: %d", tr.GetPMTId()), "");
+              lgnd.AddEntry(&graphHisto, Form("Entries: %d", integral), "");
+              lgnd.SetBorderSize(0);
+              lgnd.SetTextSize(0.055);
+              lgnd.Draw();
+              cvnsOutlierCQ1p5e4.Print("results/outliersCQ1p5e4.pdf"); 
+            }
           }
         }
       }
@@ -184,29 +228,34 @@ int main ( int argc, char** argv) {
   cvnsOutlierCI4e4.Print("results/outliersCI4e4.pdf)"); 
   cvnsOutlierCI1e4.Print("results/outliersCI1e4.pdf)"); 
   cvnsOutlierCQ1e4.Print("results/outliersCQ1e4.pdf)");
+  cvnsOutlierCQ1p5e4.Print("results/outliersCQ1p5e4.pdf)");
 
   TCanvas cvnsInteCQ("cvnsInteCQ", "", 1.6e3, 9e2);
   setCanvasStyle(cvnsInteCQ);
   cvnsInteCQ.cd();
-  cvnsInteCQ.SetLogy();  
+  cvnsInteCQ.SetLogy();
   
   distInteCQ.SetStats(kFALSE);
+  distInteCQ.Fit("gaus", "Q", "R", log10(9e3), log10(1.2e3));
   distInteCQ.GetXaxis()->SetTitle("Log10#left(#sumCQ_i#right) [au]");
   distInteCQ.GetYaxis()->SetTitle("Counts [au]");
   setTH1FontStyle(distInteCQ);
   distInteCQ.Draw();
 
-  double cut = 3.9;
+  double cut = 4.1;
 
   TLine lineCQ(cut, 0.5, cut, 3e3);
-  lineCQ.SetLineColor(kRed);
+  lineCQ.SetLineColor(kGreen+3);
   lineCQ.SetLineStyle(9);
   lineCQ.Draw();
 
-  TLegend *lgnd = new TLegend(0.16, 0.77, 0.25, 0.95);
+  TLegend *lgnd = new TLegend(0.16, 0.7, 0.25, 0.95);
   lgnd->AddEntry(&distInteCQ, "Coincidence charge", "h");
   lgnd->AddEntry(&distInteCQ, Form("Entries: %.f", distInteCQ.GetEntries()), "h");
-  lgnd->AddEntry(&lineCQ, Form("Cut at: %.2f", pow(10,cut)), "l");
+  lgnd->AddEntry(&lineCQ, Form("Cut at: %.f", pow(10,cut)), "l");
+  lgnd->AddEntry(distInteCQ.GetFunction("gaus"), Form("#mu = %.f #pm %.f",
+        pow(10, distInteCQ.GetFunction("gaus")->GetParameter(1)),
+       pow(10, distInteCQ.GetFunction("gaus")->GetParError(1)) ), "l");
   lgnd->SetBorderSize(0);
   lgnd->SetTextSize(0.055);
   lgnd->Draw();
@@ -218,7 +267,7 @@ int main ( int argc, char** argv) {
   cvnsInteCI.cd();
   cvnsInteCI.SetLogy();
 
-  distInteCI.Fit("gaus","Q", "R", log10(9e3), log10(4e4));
+  distInteCI.Fit("gaus", "Q", "R", log10(9e3), log10(4e4));
   distInteCI.SetStats(kFALSE);
   distInteCI.GetXaxis()->SetTitle("Log10#left(#sumCI#right) [au]");
   distInteCI.GetYaxis()->SetTitle("Counts [au]");
@@ -260,16 +309,38 @@ int main ( int argc, char** argv) {
     }
   cout << "MSD " << ave << endl;
 
-  TGraph histo666pmt1(st666_bins.size(), &st666_bins.front(), 
+  TGraph histo666pmt1(st666_binsCI.size(), &st666_binsCI.front(), 
       &countsCI_st666[0].front());
-  TGraph histo666pmt2(st666_bins.size(), &st666_bins.front(), 
+  TGraph histo666pmt2(st666_binsCI.size(), &st666_binsCI.front(), 
       &countsCI_st666[1].front());
-  TGraph histo666pmt3(st666_bins.size(), &st666_bins.front(), 
+  TGraph histo666pmt3(st666_binsCI.size(), &st666_binsCI.front(), 
       &countsCI_st666[2].front());
 
-  plottingSt666(histo666pmt1, "1");
-  plottingSt666(histo666pmt2, "2");
-  plottingSt666(histo666pmt3, "3");
+  plottingSt666(histo666pmt1, "CI", "1");
+  plottingSt666(histo666pmt2, "CI", "2");
+  plottingSt666(histo666pmt3, "CI", "3");
+
+  ave = 0;
+  for ( int j=0; j<3; j++ )
+    for ( int i=0; i<600; i++ ) {
+      countsCQ_st666[j][i] /= tot666Histos[j];
+      cout << "MSD " << j << " " << i << " " << countsCQ_st666[j][i] << endl;
+      if ( j==0 )
+        ave += countsCQ_st666[j][i];
+    }
+  cout << "MSD " << ave << endl;
+
+  TGraph histoCQ666pmt1(st666_binsCQ.size(), &st666_binsCQ.front(), 
+      &countsCQ_st666[0].front());
+  TGraph histoCQ666pmt2(st666_binsCQ.size(), &st666_binsCQ.front(), 
+      &countsCQ_st666[1].front());
+  TGraph histoCQ666pmt3(st666_binsCQ.size(), &st666_binsCQ.front(), 
+      &countsCQ_st666[2].front());
+
+  plottingSt666(histoCQ666pmt1, "CQ", "1");
+  plottingSt666(histoCQ666pmt2, "CQ", "2");
+  plottingSt666(histoCQ666pmt3, "CQ", "3");
+
 
   return 0;
 }
@@ -326,13 +397,13 @@ void setTGraphFontStyle(TGraph& grph) {
 }
 
 
-void plottingSt666(TGraph grph, TString pmtId) {
+void plottingSt666(TGraph grph, TString typeHist, TString pmtId) {
   TCanvas cvnspmt("cvnspmt"+pmtId, "", 1.6e3, 9e2);
   cvnspmt.cd();
   setCanvasStyle(cvnspmt);
   cvnspmt.SetLogy();
 
-  grph.SetTitle("; CI [FADC]; Average of counts [au]");
+  grph.SetTitle("; "+typeHist+" [FADC]; Average of counts [au]");
   setTGraphFontStyle(grph);
   grph.Draw("AL");
 
@@ -345,5 +416,5 @@ void plottingSt666(TGraph grph, TString pmtId) {
   lgnd.SetTextSize(0.055);
   lgnd.Draw();
 
-  cvnspmt.Print("results/cumulativeHistoSt666Pmt"+pmtId+".pdf");
+  cvnspmt.Print("results/cumulativeHisto"+typeHist+"St666Pmt"+pmtId+".pdf");
 }

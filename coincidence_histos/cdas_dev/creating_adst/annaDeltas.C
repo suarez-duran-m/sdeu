@@ -22,6 +22,7 @@ void annaDeltas() {
 
   vector < vector < double > > deltaPmt;
   vector < vector < double > > countDeltas;
+ 
   deltaPmt.resize(3);
   countDeltas.resize(3);
   for ( int i=0; i<3; i++ )
@@ -30,7 +31,7 @@ void annaDeltas() {
       countDeltas[i].push_back( 0. );
   }
 
-  ifstream datafile("qpksForDeltas.dat");
+  ifstream datafile("qpksForDeltas3.dat");
 
   while( datafile >> tmpStId >> tmpPmtId >> tmpQpk >> tmpQpkErr >> tmpCQpk >> tmpCQpkErr ) {
     tmpDelta = 100.*(tmpCQpk - tmpQpk)/tmpQpk;
@@ -38,7 +39,7 @@ void annaDeltas() {
     distMsdQpkErr.Fill( tmpQpkErr );
     distMsdCQpk.Fill( tmpCQpk );
     distMsdCQpkErr.Fill( tmpCQpkErr );
-    switch ( tmpPmtId ) {
+    switch ( int(tmpPmtId) ) {
       case 1:
         delta1.Fill( tmpDelta );
         delta13.Fill( tmpDelta );
@@ -61,8 +62,8 @@ void annaDeltas() {
   datafile.close();
 
   double tmpTime = 0.;
-  double tmpQpkErr = 0.;
-  double tmpCQpkErr = 0.;
+  tmpQpkErr = 0.;
+  tmpCQpkErr = 0.;
 
   ifstream fileKataFits("cch_fits.csv");
   TH1D distKatQpk("distKatQpk", "", 2e3, 1e3, 3e3);
@@ -109,13 +110,13 @@ void annaDeltas() {
   lgnd->AddEntry(&delta1, "PMT1", "l"); 
   lgnd->AddEntry(&delta3, "PMT3", "l");
   lgnd->AddEntry(&delta13, "PMT1 and PMT3", "f");
-  lgnd->AddEntry(&delta13.GetFunction("gaus"), 
+  lgnd->AddEntry(delta13.GetFunction("gaus"), 
       "Gaussian Fit", "l");
-  lgnd->AddEntry(&delta13.GetFunction("gaus"), 
+  lgnd->AddEntry(delta13.GetFunction("gaus"), 
       Form("#mu = %.2f #pm %.2f", 
         delta13.GetFunction("gaus")->GetParameter(1), 
         delta13.GetFunction("gaus")->GetParError(1)), "");
-  lgnd->AddEntry(&delta13.GetFunction("gaus"), 
+  lgnd->AddEntry(delta13.GetFunction("gaus"), 
       Form("#sigma = %.2f #pm %.2f", 
         delta13.GetFunction("gaus")->GetParameter(2), 
         delta13.GetFunction("gaus")->GetParError(2)), "");
@@ -145,13 +146,13 @@ void annaDeltas() {
   lgnd->AddEntry(&delta2, Form("Entries: %.f",
         delta2.GetEntries()), "h");
   lgnd->AddEntry(&delta2, "PMT2", "f");
-  lgnd->AddEntry(&delta2.GetFunction("gaus"), 
+  lgnd->AddEntry(delta2.GetFunction("gaus"), 
       "Gaussian Fit", "l");
-  lgnd->AddEntry(&delta2.GetFunction("gaus"), 
+  lgnd->AddEntry(delta2.GetFunction("gaus"), 
       Form("#mu = %.2f #pm %.2f", 
         delta2.GetFunction("gaus")->GetParameter(1), 
         delta2.GetFunction("gaus")->GetParError(1)), "");
-  lgnd->AddEntry(&delta13.GetFunction("gaus"), 
+  lgnd->AddEntry(delta13.GetFunction("gaus"), 
       Form("#sigma = %.2f #pm %.2f", 
         delta2.GetFunction("gaus")->GetParameter(2), 
         delta2.GetFunction("gaus")->GetParError(2)), "");
@@ -184,6 +185,27 @@ void annaDeltas() {
             break;
         }
 
+  TCanvas cvnsOfflineQpk("cvnsOfflineQpk", "", 1.6e3, 9e2);
+  setCanvasStyle(cvnsOfflineQpk);
+  cvnsOfflineQpk.cd();
+
+  distMsdQpk.Draw();
+  cvnsOfflineQpk.Print("results/offline_qpkDist.pdf");
+
+
+  TCanvas cvnsKataQpk("cvnsKataQpk", "", 1.6e3, 9e2);
+  setCanvasStyle(cvnsKataQpk);
+  cvnsKataQpk.cd();
+
+  distKatQpk.Draw();
+  cvnsKataQpk.Print("results/kata_qpkDist.pdf");
+
+
+
+  exit(0);
+
+
+
   TCanvas cvnsDeltaPmt13("cvnsDeltaPmt13","", 1.6e3, 9e2);
   setCanvasStyle(cvnsDeltaPmt13);
   cvnsDeltaPmt13.cd();
@@ -205,19 +227,19 @@ void annaDeltas() {
   deltaPmt3.Draw("same");
 
 
-  TLegend *lgnd = new TLegend(0.7, 0.55, 0.9, 0.94);
+  lgnd = new TLegend(0.7, 0.55, 0.9, 0.94);
   lgnd->AddEntry(&deltaPmt13, Form("Entries for #Delta_{13}: %.f",
         deltaPmt13.GetEntries()), "h");
   lgnd->AddEntry(&deltaPmt1, "PMT1", "l"); 
   lgnd->AddEntry(&deltaPmt3, "PMT3", "l");
   lgnd->AddEntry(&deltaPmt13, "PMT1 and PMT3", "f");
-  lgnd->AddEntry(&deltaPmt13.GetFunction("gaus"), 
+  lgnd->AddEntry(deltaPmt13.GetFunction("gaus"), 
       "Gaussian Fit", "l");
-  lgnd->AddEntry(&deltaPmt13.GetFunction("gaus"), 
+  lgnd->AddEntry(deltaPmt13.GetFunction("gaus"), 
       Form("#mu = %.2f #pm %.2f", 
         deltaPmt13.GetFunction("gaus")->GetParameter(1), 
         deltaPmt13.GetFunction("gaus")->GetParError(1)), "");
-  lgnd->AddEntry(&deltaPmt13.GetFunction("gaus"), 
+  lgnd->AddEntry(deltaPmt13.GetFunction("gaus"), 
       Form("#sigma = %.2f #pm %.2f", 
         deltaPmt13.GetFunction("gaus")->GetParameter(2), 
         deltaPmt13.GetFunction("gaus")->GetParError(2)), "");
@@ -247,13 +269,13 @@ void annaDeltas() {
   lgnd->AddEntry(&deltaPmt2, Form("Entries: %.f",
         deltaPmt2.GetEntries()), "h");
   lgnd->AddEntry(&deltaPmt2, "PMT2", "f");
-  lgnd->AddEntry(&deltaPmt2.GetFunction("gaus"), 
+  lgnd->AddEntry(deltaPmt2.GetFunction("gaus"), 
       "Gaussian Fit", "l");
-  lgnd->AddEntry(&deltaPmt2.GetFunction("gaus"), 
+  lgnd->AddEntry(deltaPmt2.GetFunction("gaus"), 
       Form("#mu = %.2f #pm %.2f", 
         deltaPmt2.GetFunction("gaus")->GetParameter(1), 
         deltaPmt2.GetFunction("gaus")->GetParError(1)), "");
-  lgnd->AddEntry(&delta13.GetFunction("gaus"), 
+  lgnd->AddEntry(delta13.GetFunction("gaus"), 
       Form("#sigma = %.2f #pm %.2f", 
         deltaPmt2.GetFunction("gaus")->GetParameter(2), 
         deltaPmt2.GetFunction("gaus")->GetParError(2)), "");
