@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-#include "include/rawCoinciHistoData.h"
+#include "include/rawCoincHistoData.h"
 #include <IoAuger.h>
 
 using namespace std;
@@ -34,19 +34,19 @@ int main ( int argc, char *argv[]) {
   vector < vector < vector < int > > > cQhisto;
   vector < vector < vector < int > > > cHeigth;
   for(int i=1; i<4; i++) {
-    char *fileWithCoinci = argv[i];
-    rawCoinciHistoData rawCoinciHistoData;
-    rawCoinciHistoData.readData( fileWithCoinci );
-    for(int i=0; i<rawCoinciHistoData.getUtcEvtWidthChisto().size(); i++) {
-      utcChisto.push_back( rawCoinciHistoData.getUtcEvtWidthChisto()[i] );
-      stChisto.push_back( rawCoinciHistoData.getStWidthChisto()[i] );
-      cQhisto.push_back( rawCoinciHistoData.getCQhisto()[i] );
-      cHeigth.push_back( rawCoinciHistoData.getCheight()[i] );
+    char *fileWithCoinc = argv[i];
+    rawCoincHistoData rawCoincHistoData;
+    rawCoincHistoData.readData( fileWithCoinc );
+    for(int i=0; i<rawCoincHistoData.getUtcEvtWidthChisto().size(); i++) {
+      utcChisto.push_back( rawCoincHistoData.getUtcEvtWidthChisto()[i] );
+      stChisto.push_back( rawCoincHistoData.getStWidthChisto()[i] );
+      cQhisto.push_back( rawCoincHistoData.getCQhisto()[i] );
+      cHeigth.push_back( rawCoincHistoData.getCheight()[i] );
     }
-    cout << "MSD0 rawUTCs: " << rawCoinciHistoData.getUtcEvtWidthChisto().size() << endl;
+    cout << "MSD0 rawUTCs: " << rawCoincHistoData.getUtcEvtWidthChisto().size() << endl;
     cout << "MSD0 utcChis: " << utcChisto.size() << endl;
-    rawCoinciHistoData.SetClear();
-    cout << "MSD1 rawUTCs: " << rawCoinciHistoData.getUtcEvtWidthChisto().size() << endl;
+    rawCoincHistoData.SetClear();
+    cout << "MSD1 rawUTCs: " << rawCoincHistoData.getUtcEvtWidthChisto().size() << endl;
     cout << "MSD1 utcChis: " << utcChisto.size() << endl;
   }    
   //
@@ -55,7 +55,7 @@ int main ( int argc, char *argv[]) {
   const unsigned int totalNrEvents = adFileInput.NumberOfEvents();
   AugerFile adOutPutFile;
   adOutPutFile.Open(outPutADfileName, AugerFile::eWrite);
-  IoSdHistoCoinci *newCoinciHistos;
+  IoSdHistoCoinc *newCoincHistos;
   unsigned int nrEventsRead = 0;
   AugerEvent theAugerEvent;
   // Moving through events
@@ -100,7 +100,7 @@ int main ( int argc, char *argv[]) {
           continue;
         //
         //cout << "# Event " << event.Id << " Station " << event.Stations[i].Id << endl;
-        cout << "MSDtime " << event.utctime() << " " << event.Stations[i].Id << endl;
+        //cout << "MSDtime " << event.utctime() << " " << event.Stations[i].Id << endl;
         // 
         // Writing histo into ascii file for cross-check
         /*
@@ -118,16 +118,9 @@ int main ( int argc, char *argv[]) {
         */
         //
         // Storing coincidence histos into current event        
-        newCoinciHistos = event.Stations[evtSt_i].SetHistoCoinci(
+        newCoincHistos = event.Stations[evtSt_i].SetHistoCoinc(
             cHeigth[match_i], cQhisto[match_i] );
-        for ( int j=0; j<10; j++ ) // from NB_HISTO_CALIB
-          newCoinciHistos->Offset[j] = event.Stations[evtSt_i].Histo->Offset[j];
-        event.Stations[evtSt_i].HasCoinciHisto = 1;
-        event.Stations[evtSt_i].HistoCoinci = newCoinciHistos;
-        // Histo->Entries it is not the entries into the
-        // respective histo
-        event.Stations[evtSt_i].HistoCoinci->Entries =
-          event.Stations[evtSt_i].Histo->Entries;        
+        event.Stations[evtSt_i].HistoCoinc = newCoincHistos;
       }
     }
     //cout << "MSD " << event.Id << endl;
